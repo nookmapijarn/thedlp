@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use Faker\Core\Number;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -24,6 +23,11 @@ class DashboardController extends Controller
         $gradelist = $this->get_gradelist($id);
         $grade = [];
         
+        if(Count($student)==0){
+            echo "<h1> ไม่มีรหัสนักศึกษานี้ ".$id."</h1>";
+            return view('layouts.navigation');
+        }
+
         $act_sum=0;
         foreach ($activity as $p) {
             $act_sum += $p->HOUR;
@@ -45,25 +49,33 @@ class DashboardController extends Controller
          $credit = $this->cal_credit()['CREDIT'];
          $allcredit = $this->cal_credit()['ALL_CREDIT'];
          $credit_percent = round(($credit * 100) / $allcredit,0);
+         
         //  เกรดเฉลี่ย และ การเข้าสอบ
          $grade_avg = $this->grade_avg();
          $exam_avg = $this->exam_avg();
-         $nnet = $student[0]->ABLEVEL2 == 1 ? 'เข้ารับ' : 'ไม่เข้ารับ';
-         $moral = 'ดี';
-         switch ($student[0]->ABLEVEL1) {
-            case 0:
-                $moral = 'ปรับปรุง';
-              break;
-            case 1:
-                $moral = 'พอใช้';
-              break;
-            case 2:
-                $moral = 'ดี';
-               break;
-            case 3:
-                $moral = 'ดีมาก';
-              break;
-          }
+         $nnet = null;
+         $moral = null;
+
+         if(Count($student)){
+            $nnet = $student[0]->ABLEVEL2 == 1 ? 'เข้ารับ' : 'ไม่เข้ารับ';  
+            $moral = 'ดี';
+            switch ($student[0]->ABLEVEL1) {
+               case 0:
+                   $moral = 'รอประเมิน';
+                 break;
+               case 1:
+                   $moral = 'พอใช้';
+                 break;
+               case 2:
+                   $moral = 'ดี';
+                  break;
+               case 3:
+                   $moral = 'ดีมาก';
+                 break;
+             }          
+         }
+
+
          
           foreach ($gradelist as $g) {
             array_push($grade, 
@@ -145,9 +157,11 @@ class DashboardController extends Controller
                 $exam++;
             }
         }
+        if($exam_all!=0){
         //print $exam_all;
         $exam_avg = round(($exam/$exam_all)*100, 2);
-        return $exam_avg;
+        }
+        return round($exam_avg, 0);
     }
 
     public function get_gradelist(){
