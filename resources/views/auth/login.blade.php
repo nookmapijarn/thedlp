@@ -1,7 +1,7 @@
-<x-guest-layout >
+<x-guest-layout>
 
     {{-- Label --}}
-    <div class="text-center m-5 text-xl text-gray-700 font-semibold antialiased  tracking-wide font-mono">ระบบทะเบียนนักศึกษา</div>
+    <div class="text-center m-5 text-xl text-gray-900 font-namal antialiased  tracking-nomal">ทะเบียนนักศึกษา - กศน.อำเภอโพธิ์ทอง</div>
 
     <!-- Session Status -->
     <x-auth-session-status class="mb-4" :status="session('status')" />
@@ -56,7 +56,7 @@
             @endif --}}
 
             <x-primary-button class="ml-3">
-                {{ __('Log in') }}
+                {{ __('เข้าสู่ระบบ') }}
             </x-primary-button>
         </div>
     </form>

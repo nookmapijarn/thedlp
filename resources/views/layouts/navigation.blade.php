@@ -1,4 +1,4 @@
-<nav x-data="{ open: false }" class="bg-gray-200 border-b border-gray-100 dark:bg-gray-800">
+<nav x-data="{ open: false }" class="bg-white-500 shadow-10 border-b border-gray-100 dark:bg-gray-800">
     <!-- Primary Navigation Menu -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16">
@@ -8,7 +8,7 @@
                     <a href="{{ route('dashboard') }}">
                         <x-application-logo class="block h-10 w-auto fill-current text-gray-600" />                        
                     </a>
-                    <strong class="ml-2 text-gray-900 text-lg tracking-wide"> กศน.อำเภอโพธิ์ทอง </strong>
+                    <strong class="ml-2 text-gray-600 text-lg tracking-wide"> ทะเบียนนักศึกษา </strong>
                     {{-- <div class=" ml-2">
                         <button type="button" x-bind:class="darkMode ? 'bg-indigo-500' : 'bg-gray-200'"
                             x-on:click="darkMode = !darkMode"
@@ -50,12 +50,12 @@
                     <x-nav-link :href="route('examschedule')" :active="request()->routeIs('examschedule')">
                         {{ __('ตารางสอบ') }}
                     </x-nav-link>
-                    <x-nav-link>
+                    {{-- <x-nav-link>
                         {{ __('ห้องเรียน') }}
-                    </x-nav-link>
-                    <x-nav-link>
+                    </x-nav-link> --}}
+                    {{-- <x-nav-link :href="route('final')" :active="request()->routeIs('final')">
                         {{ __('การจบหลักสูตร') }}
-                    </x-nav-link>
+                    </x-nav-link> --}}
                 </div>
             </div>
 
