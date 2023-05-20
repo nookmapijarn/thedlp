@@ -4,8 +4,9 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
-
-        <title>{{ config('app.name', 'ทะเบียนนักศึกษา-กศน.อำโพธิ์ทอง') }}</title>
+        <meta name="description" content="ทะเบียนนักศึกษา - สกร.อำเภอโพธิ์ทอง, การเรียนการสอน, ตารางสอบ สกร.อำเภอโพธิ์ทอง, นักศึกษา สกร.อำเภอโพธิ์ทอง, ผลการเรียน สกร.อำเภอโพธิ์ทอง">
+        <meta name="robots" content="ทะเบียนนักศึกษา - สกร.อำเภอโพธิ์ทอง, การเรียนการสอน, ตารางสอบ สกร.อำเภอโพธิ์ทอง, นักศึกษา สกร.อำเภอโพธิ์ทอง, ผลการเรียน สกร.อำเภอโพธิ์ทอง">
+        <title>{{ config('app.name', 'ทะเบียนนักศึกษา-สกร.อำโพธิ์ทอง') }}</title>
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
@@ -28,7 +29,7 @@
     }
     darkMode = JSON.parse(localStorage.getItem('darkMode'));
     $watch('darkMode', value => localStorage.setItem('darkMode', JSON.stringify(value)))" x-cloak>
-        <div x-bind:class="{'dark' : darkMode === true}" class="min-h-screen bg-gray-100">
+        <div x-bind:class="{'dark' : darkMode === true}" class="min-h-screen bg-gray-100 bg-indio-500">
             @include('layouts.navigation')
 
             <!-- Page Heading -->
@@ -49,7 +50,7 @@
 
     <footer class="bg-white rounded-lg shadow m-4 dark:bg-gray-800">
         <div class="w-full mx-auto max-w-screen-xl p-4 md:flex md:items-center md:justify-between">
-          <span class="text-sm text-gray-500 sm:text-center dark:text-gray-400">© 2023 <a href="https://flowbite.com/" class="hover:underline">กศน.พท</a>. All Rights Reserved.
+          <span class="text-sm text-gray-500 sm:text-center dark:text-gray-400">© 2023 <a href="https://flowbite.com/" class="hover:underline">สกร.พท</a>. All Rights Reserved.
         </span>
         {{-- <ul class="flex flex-wrap items-center mt-3 text-sm font-medium text-gray-500 dark:text-gray-400 sm:mt-0">
             <li>

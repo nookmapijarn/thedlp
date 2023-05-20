@@ -57,11 +57,11 @@ class DashboardController extends Controller
          $moral = null;
 
          if(Count($student)){
-            $nnet = $student[0]->ABLEVEL2 == 1 ? 'เข้ารับ' : 'ไม่เข้ารับ';  
-            $moral = 'ดี';
+            $nnet = $student[0]->ABLEVEL2 == 1 ? 'ผ่าน' : '-';  
+            $moral = '-';
             switch ($student[0]->ABLEVEL1) {
                case 0:
-                   $moral = 'รอประเมิน';
+                   $moral = '-';
                  break;
                case 1:
                    $moral = 'พอใช้';

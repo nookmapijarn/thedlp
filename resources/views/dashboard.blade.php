@@ -27,10 +27,40 @@
               <h6 class="text-sm font-medium leading-6 text-gray-900 font-kanit">
                 สถิติการเรียน
               </h6>
-              <div class="inline-flex shadow text-gray-700 text-xs font-medium leading-5 ml-1">
-                <button class="rounded-l border px-4 py-2 ">GPA : {{$grade_avg}}</button>
-                <button class="border px-4 py-2 ">N-NET : {{$nnet}}</button>
-                <button class="border px-4 py-2 ">คุณธรรม : {{$moral}}</button>
+              <div class="grid grid-cols-3 gap-4">
+                <div class="px-4 py-5 lg:p-6 shadow-md rounded-md bg-opacity-50 bg-green-400">
+                    <dl>
+                        <dt class="text-sm font-medium leading-5 text-gray-500 truncate">
+                        GPA
+                        </dt>
+                        <dd class="mt-1 text-3xl font-semibold leading-9 text-gray-900">
+                            {{$grade_avg}}
+                        </dd>
+                    </dl>
+                </div>
+                <div class="px-4 py-5 lg:p-6 shadow-md rounded-md bg-opacity-50 bg-blue-400">
+                    <dl>
+                        <dt class="text-sm font-medium leading-5 text-gray-500 truncate">
+                        N-NET
+                        </dt>
+                        <dd class="mt-1 text-3xl font-semibold leading-9 text-gray-900">
+                            {{$nnet}}
+                        </dd>
+                    </dl>
+                </div>
+                <div class="px-4 py-5 lg:p-6 shadow-md rounded-md bg-opacity-50 bg-yellow-400">
+                    <dl>
+                        <dt class="text-sm font-medium leading-5 text-gray-500 truncate">
+                        คุณธรรม
+                        </dt>
+                        <dd class="mt-1 text-3xl font-semibold leading-9 text-gray-900">
+                            {{$moral}}
+                        </dd>
+                    </dl>
+                </div>
+                {{-- <div class="text-lg bg-gray-200 font-semibold text-gray-800 bg-opacity-50 rounded-lg border">GPA : {{$grade_avg}}</div> --}}
+                {{-- <div class="text-lg bg-gray-200 font-semibold text-gray-800 bg-opacity-50 rounded-lg border">N-NET : {{$nnet}}</div>
+                <div class="text-lg bg-gray-200 font-semibold text-gray-800 bg-opacity-50 rounded-lg border">คุณธรรม : {{$moral}}</div> --}}
               </div>
           </div>
           <div class="gap- items-center py-1 px-4 mx-auto max-w-screen-md md:grid md:grid-cols-2 md:py-12 md:px-6">
@@ -39,27 +69,33 @@
                 <span class="text-sm align-top text-gray-600">หน่วยกิต {{$credit}}/{{$allcredit}}</span>
            </div>
             <div x-data="{width: 0}" x-init="$nextTick(() => { width = {{$credit_percent}} })" class="bg-gray-300 rounded-lg h-4 my-2" aria-valuenow="30" aria-valuemin="0" aria-valuemax="100" role="progressbar">
+                @if($credit_percent!=0)
                 <div :style="`width: ${width}%; transition: width 5s;`" class="bg-green-400 h-4 rounded-l-lg relative">
                     <div class="absolute text-xs font-semibold right-0 mr-2"><span x-text="width"></span>%</div>
                 </div>
+                @endif
             </div>
             <div class="mr-5">
                 <div class="float-left mr-1 bg-orange-400 rounded-full w-5 h-5"></div>
                 <span class="text-sm align-top text-gray-600">กพช {{$act_sum}}/200</span>
             </div>
             <div x-data="{width: 0}" x-init="$nextTick(() => { width = {{$act_percentage}} })" class="bg-gray-300 rounded-lg h-4 my-2" aria-valuenow="30" aria-valuemin="0" aria-valuemax="100" role="progressbar">
+                @if($act_percentage!=0)
                 <div :style="`width: ${width}%; transition: width 5s;`" class="bg-orange-400 h-4 rounded-l-lg relative">
                     <div class="absolute text-xs  font-semibold right-0 mr-2"><span x-text="width"></span>%</div>
                 </div>
+                @endif
             </div>
             <div class="mr-5">
               <div class="float-left mr-1 bg-yellow-400 rounded-full w-5 h-5"></div>
               <span class="text-sm align-top text-gray-600">เข้าสอบ {{$exam_avg}} %</span>
           </div>
           <div x-data="{width: 0}" x-init="$nextTick(() => { width = {{$exam_avg}} })" class="bg-gray-300 rounded-lg h-4 my-2" aria-valuenow="30" aria-valuemin="0" aria-valuemax="100" role="progressbar">
-              <div :style="`width: ${width}%; transition: width 5s;`" class="bg-yellow-400 h-4 rounded-l-lg relative">
-                  <div class="absolute text-xs  font-semibold right-0 mr-2"><span x-text="width"></span> %</div>
+            @if($exam_avg!=0)  
+            <div :style="`width: ${width}%; transition: width 5s;`" class="bg-yellow-400 h-4 rounded-l-lg relative">
+                  <div class="absolute text-xs  font-semibold right-0 mr-2"><span x-text="width"></span>%</div>
               </div>
+              @endif
           </div>
         </div>
     </section>
@@ -93,7 +129,7 @@
                         </span>
                     </li>
                     @foreach($semestrylist1 as $semestry)
-                    <li class="mr-2 cursor-pointer"
+                    <li class="mr-2 cursor-pointer shadow-md"
                     @click="activeTab = {{$semestry->SEMESTRY}}">
                         <a class="inline-block p-4 text-gray-600 bg-gray-100 rounded-t-lg dark:bg-gray-800 dark:text-blue-500 " 
                         :class="isActive({{$semestry->SEMESTRY}}) ? 'text-blue-600 border-blue-600 active ' : 'hover:text-blue-600 hover:border-gray-300 dark:hover:text-gray-300'">{{$semestry->SEMESTRY}}</a>
@@ -105,13 +141,13 @@
             <div class="p-2 text-gray-500">
                 <div class="flex my-2 text-sm font-semibold items-center text-gray-800">
                     <div class="flex-grow border-t h-px mr-3"></div>
-                    ตาราง
+                    ตารางผลการเรียน
                     <div class="flex-grow border-t h-px ml-3"></div>
                 </div>
                 @foreach($grade as $g)
                 <div x-cloak="" x-show="isActive({{$g['semestry']}})" >
                     <div class="flex ... text-xs">
-                        <div class="flex-auto w-7 ... p-2">
+                        <div class="flex-none ... p-2">
                             {{$g['semestry']}}
                         </div>
                         <div class="flex-none ... p-2">

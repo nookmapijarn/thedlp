@@ -11,7 +11,7 @@ class ExamscheduleController extends Controller
     public function index()
     {
         $id = auth()->user()->student_id;
-        $grade = $this->get_gradelist($id);
+        $grade = $this->get_gradelist($id, '66/1');
         $schedule = [];
 
         foreach ($grade as $g) {
@@ -29,12 +29,17 @@ class ExamscheduleController extends Controller
                                 'sub_code' => $g->SUB_CODE, 
                                 'sub_name' => $this->get_subject($g->SUB_CODE)->SUB_NAME,
                                 'exam_day' => $exam_day,
-                                'exam_start' => $exam_start,
-                                'exam_end'  => $exam_end,
+                                'exam_start' => $this->timeFormatSch($exam_start),
+                                'exam_end'  => $this->timeFormatSch($exam_end),
                                 'exam_room'  => $g->ROOMNO
                             ]
                         );
         }
+
+        $key_values = array_column($schedule, 'exam_day'); 
+        array_multisort($key_values, SORT_ASC, $schedule);
+        $key_values2 = array_column($schedule, 'exam_start'); 
+        array_multisort($key_values2, SORT_ASC, $schedule);
         // print $schedule[0]['sub_code'];
         // print_r($schedule);
         return view('examschedule', compact('schedule'));
@@ -47,11 +52,11 @@ class ExamscheduleController extends Controller
         return $student;
     }
 
-    public function get_gradelist($id){
+    public function get_gradelist($id, $sumestry){
         // ตาราง garde
         $gradelist = DB::table('grade')
         ->where('STD_CODE', '1215040001'.$id)
-        ->where('SEMESTRY', '64/1')
+        ->where('SEMESTRY', $sumestry)
         ->get();
         return $gradelist;
     }
@@ -60,8 +65,8 @@ class ExamscheduleController extends Controller
         $schedule = DB::table('schedule')
         ->where('SUB_CODE', $sub_code)
         ->where('SEMESTRY', $sumestry) //'65/2'
-        ->orderBy('EXAM_DAY', 'ASC')
         ->orderBy('EXAM_START', 'ASC')
+        ->orderBy('EXAM_DAY', 'ASC')
         ->get();
         //echo $schedule[0]->EXAM_DAY;
         if($schedule->count()){
@@ -78,5 +83,14 @@ class ExamscheduleController extends Controller
         return $subject[0]; //ข้อมูลตารางรายวิชา
         //print_r($subject);
         //echo $subject[0]->SUB_NAME;
+    }
+
+    public function timeFormatSch($time){
+        if(strlen($time)>3){
+            $time = substr_replace($time, '.', 2, -3); //16.30
+        } else {
+            $time = substr_replace($time, '.', 1, -3); //8.30
+        }
+        return $time;
     }
 }

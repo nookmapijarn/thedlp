@@ -48,7 +48,7 @@
 
         <!-- PDPA -->
         <div class="mt-4">
-            <p class="mb-3 text-xs font-bold text-gray-500 dark:text-gray-400 " style="width: 100%; overflow:auto; max-height:400px;">
+            <p class="mb-3 text-xs font-bold text-gray-900 dark:text-gray-400 " style="width: 100%; max-height:400px;">
             <span>แบบขอความยินยอมให้ เก็บ รวบรวม ใช้ และ/หรือ เปิดเผยข้อมูลส่วนบุคคล ตามพระราชบัญญัติคุ้มครองข้อมูลส่วนบุคคล พ.ศ.2562 วัตถุประสงค์ของการเก็บ รวบรวม ใช้ และ/หรือ เปิดเผยข้อมูลส่วนบุคคล ดังต่อไปนี้</span>
                 <ul class="text-xs list-decimal p-2">
                     <li>รายละเอียดเกี่ยวกับตัวสมาชิก เช่น ชื่อ นามสกุล วัน เดือน ปีเกิด สถานภาพ เป็นต้น</li>
@@ -66,8 +66,8 @@
         </div>
 
         <div class="flex items-center justify-end mt-4">
-            <a class="underline text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800" href="{{ route('login') }}">
-                {{ __('เข้าสู่ระบบ') }}
+            <a class="underline text-sm text-gray-900 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800" href="{{ route('login') }}">
+                {{ __('ไปหน้า login') }}
             </a>
 
             <x-primary-button class="ml-4">

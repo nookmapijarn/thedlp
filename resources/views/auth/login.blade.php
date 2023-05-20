@@ -1,7 +1,9 @@
 <x-guest-layout>
 
     {{-- Label --}}
-    <div class="text-center m-5 text-xl text-gray-900 font-namal antialiased  tracking-nomal">ทะเบียนนักศึกษา - กศน.อำเภอโพธิ์ทอง</div>
+    <div class="text-center p-2 m-1 text-3xl text-gray-900 antialiased text-shadow ">ทะเบียนนักศึกษา</div>
+    <div class="text-center m-2 rounded-lg text-lg text-shadow">สกร.อำเภอโพธิ์ทอง</div>
+
 
     <!-- Session Status -->
     <x-auth-session-status class="mb-4" :status="session('status')" />
@@ -36,28 +38,30 @@
             </label>
         </div>
 
-        <!-- Register -->
-        <a class="flex items-center justify-center mt-4 hover:text-sky-700" href="{{ route('register') }}">
-            <div class="rounded-full underline">
-                {{ __('สมัครสมาชิก') }}
-            </div>   
-        </a>   
         {{-- <button class="rounded-full ... bg-emerald-500"> 
             <a class="underline text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800" href="{{ route('register') }}">
                 {{ __('สมัครสมาชิก') }}
             </a>
         </button> --}}
 
-        <div class="flex items-center justify-end mt-4">
+        <div class="flex items-center justify-center mt-4">
             {{-- @if (Route::has('password.request'))
                 <a class="underline text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800" href="{{ route('password.request') }}">
                     {{ __('Forgot your password?') }}
                 </a>
             @endif --}}
 
-            <x-primary-button class="ml-3">
+            <x-primary-button class="ml-0 w-autu p-5">
                 {{ __('เข้าสู่ระบบ') }}
             </x-primary-button>
         </div>
+
+        <!-- Register -->
+        <a class="flex items-center justify-end mt-4 hover:text-sky-700" href="{{ route('register') }}">
+            <div class="rounded-full underline">
+                {{ __('  สมัครสมาชิก') }}
+            </div>   
+        </a>   
+
     </form>
 </x-guest-layout>
