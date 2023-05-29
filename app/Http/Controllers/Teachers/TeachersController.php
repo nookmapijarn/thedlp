@@ -21,20 +21,29 @@ class TeachersController extends Controller
     {
         //
         $data=[];
-        $tumbon = $request->tumbon;
+        $tumbon = str_split($request->tumbon, 4)[0];
         $studreport = $request->studreport;
 
         switch ($studreport) {
-            case 'all':
+            case 'นักศึกษาทั้งหมด':
                 $data = $this->allstudent($tumbon);
+                $data = collect($data)->sortBy('lavel')->toArray(); // $mystudent = collect($mystudent)->sortBy('lavel')->reverse()->toArray(); DESC
+                return view('teachers.tdashboard' ,compact('data'));
               break;
+            case 'เฉพาะผู้คาดว่าจะจบ':
+                $data = $this->expstudent($tumbon, $studreport);
+                $data = collect($data)->sortBy('lavel')->toArray();
+                return view('teachers.tdashboard' ,compact('data'));
+              break;
+            default:
+              return view('teachers.tdashboard' ,compact('data'));
           }                       
-        return view('teachers.tdashboard' ,compact('data'));
+        //return view('teachers.tdashboard' ,compact('data'));
     }
 
     public function allstudent($grp_code){
         $current_student = $this->current_student($grp_code);
-        $mystudent = [];
+        $allstudent = [];
 
         foreach ($current_student as $g) {
             $student = $this->get_student($g->STD_CODE);
@@ -42,8 +51,8 @@ class TeachersController extends Controller
 
                 switch ($this->expfin($s->ID)) {
                     case true :
-                      $expfin = '/';
-                      $nnet = ($s->NT_SEM!='' ? 'ผ่านแล้ว' : ($s->NT_NOSEM!='' ? 'สอบ E-Exam': 'สอบ N-NET'));
+                      $expfin = 'คาดว่าจะจบ';
+                      $nnet = ($s->NT_SEM!='' ? 'เข้ารับแล้ว' : ($s->NT_NOSEM!='' ? 'E-Exam': 'ยังไม่เข้ารับ'));
                       break;
                     case false:
                       $expfin = '-';
@@ -54,7 +63,7 @@ class TeachersController extends Controller
                         $nnet = '*';
                   }
 
-                array_push($mystudent, 
+                array_push($allstudent, 
                     [
                         'id'        =>  $s->ID,
                         'lavel'     =>  $this->lavelis($s->STD_CODE),  
@@ -68,10 +77,48 @@ class TeachersController extends Controller
                 );
             }
         }
-        return $mystudent;        
+        
+        return $allstudent;        
     }
 
-    // 
+    public function expstudent($grp_code){
+        $current_student = $this->current_student($grp_code);
+        $expstudent = [];
+
+        foreach ($current_student as $g) {
+            $student = $this->get_student($g->STD_CODE);
+            foreach ($student as $s){
+
+                switch ($this->expfin($s->ID)) {
+                    case true :
+                      $expfin = '/';
+                      $nnet = ($s->NT_SEM!='' ? 'เข้ารับแล้ว' : ($s->NT_NOSEM!='' ? 'E-Exam': 'ยังไม่เข้ารับ'));
+                      array_push($expstudent, 
+                        [
+                            'id'        =>  $s->ID,
+                            'lavel'     =>  $this->lavelis($s->STD_CODE),  
+                            'name'      =>  $s->NAME,
+                            'surname'   =>  $s->SURNAME,
+                            'expfin'    =>  $expfin,
+                            'activity'  =>  $this->get_activity($s->STD_CODE),
+                            'nt_sem'    =>  $nnet
+    
+                        ]
+                      );
+                      break;
+                    case false:
+                      break;
+                    default:
+                        $expfin = '*';
+                        $nnet = '*';
+                  }
+            }
+        }
+        
+        return $expstudent;        
+    }
+
+    // ข้อมูลนักศึกษา
     public function get_student($std_code){
         $student = DB::table('student')
         ->where('STD_CODE', $std_code)
@@ -87,9 +134,9 @@ class TeachersController extends Controller
             return false;
         } else {
             return true;
-        }
-        
+        }       
     }
+
     public function current_student($grp_code){
         // ตาราง garde
         $grade = DB::table('grade')
