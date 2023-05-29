@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Students;
 
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -42,7 +43,7 @@ class ExamscheduleController extends Controller
         array_multisort($key_values2, SORT_ASC, $schedule);
         // print $schedule[0]['sub_code'];
         // print_r($schedule);
-        return view('examschedule', compact('schedule'));
+        return view('students.examschedule', compact('schedule'));
     }
 
     public function get_student($id){

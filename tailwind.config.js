@@ -22,6 +22,8 @@ module.exports = {
     plugins: [
         require(
             '@tailwindcss/forms',
-            "tw-elements/dist/plugin.cjs"
+            "tw-elements/dist/plugin.cjs",
+            '@tailwindcss/typography',
+            '@tailwindcss/aspect-ratio'
             )],
 };

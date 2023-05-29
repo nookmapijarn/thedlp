@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Students;
 
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
-use function PHPUnit\Framework\isEmpty;
 
 class DashboardController extends Controller
 {
@@ -25,7 +25,7 @@ class DashboardController extends Controller
         
         if(Count($student)==0){
             echo "<h1> ไม่มีรหัสนักศึกษานี้ ".$id."</h1>";
-            return view('layouts.navigation');
+            return view('login');
         }
 
         $act_sum=0;
@@ -90,7 +90,7 @@ class DashboardController extends Controller
 
          //print $student[0]->ID;
 
-        return view('dashboard', compact(   'grade',
+        return view('students.dashboard', compact(   'grade',
                                             'semestrylist1', 
                                             'student',
                                             'act_sum',
@@ -167,7 +167,7 @@ class DashboardController extends Controller
     public function get_gradelist(){
         // ตาราง garde
         $gradelist = DB::table('grade')
-        ->where('STD_CODE', '1215040001'.$this->getUserid())
+        ->where('STD_CODE', '1215040001'.$this->getStudentidByUser())
         ->get();
         return $gradelist;
     }
@@ -201,7 +201,7 @@ class DashboardController extends Controller
     }
 
     public function getSubject($sub_code){
-        $subject = DB::table('subject')
+        $subject = DB::table('subjectall')
         ->where('SUB_CODE', $sub_code)
         ->get();
         return $subject[0]; //ข้อมูลตารางรายวิชา
@@ -209,7 +209,7 @@ class DashboardController extends Controller
         //echo $subject[0]->SUB_NAME;
     }
 
-    public function getUserid(){
+    public function getStudentidByUser(){
         $id = auth()->user()->student_id;
         return $id;
     }

@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
-        <h6 class="font-semibold text-md text-gray-800 dark:text-gray-200 leading-tight">
-            {{ __('ประวัติผู้เรียน') }}
+        <h6 class="font-semibold text-md text-gray-800 dark:text-gray-200 leading-tight pl-4">
+            {{ __('ประวัติการเรียน') }}
         </h6>
     </x-slot>
 

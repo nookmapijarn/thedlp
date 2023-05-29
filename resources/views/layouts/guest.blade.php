@@ -7,6 +7,7 @@
         <meta name="description" content="ทะเบียนนักศึกษา - สกร.อำเภอโพธิ์ทอง, การเรียนการสอน, ตารางสอบ สกร.อำเภอโพธิ์ทอง, นักศึกษา สกร.อำเภอโพธิ์ทอง, ผลการเรียน สกร.อำเภอโพธิ์ทอง">
         <meta name="robots" content="ทะเบียนนักศึกษา - สกร.อำเภอโพธิ์ทอง, การเรียนการสอน, ตารางสอบ สกร.อำเภอโพธิ์ทอง, นักศึกษา สกร.อำเภอโพธิ์ทอง, ผลการเรียน สกร.อำเภอโพธิ์ทอง">
         <title>{{ config('app.name', 'ทะเบียนนักศึกษา-สกร.อำโพธิ์ทอง') }}</title>
+        <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
@@ -28,7 +29,7 @@
                 </a>
             </div>
 
-            <div class="w-full sm:max-w-md mt-6 px-6 py-4 dark:bg-gray-800 shadow-none overflow-hidden sm:rounded-lg  bg-white bg-opacity-30 rounded-2xl">
+            <div class="w-full sm:max-w-md mt-6 px-6 py-4 dark:bg-gray-800 shadow-none overflow-hidden sm:rounded-lg  bg-white bg-opacity-60 rounded-2xl">
                 {{ $slot }}
             </div>
         </div>

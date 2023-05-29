@@ -1,9 +1,16 @@
 <?php
-
+// Base
 use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\ExamscheduleController;
-use App\Http\Controllers\FinalController;
+
+// Stdudent
+use App\Http\Controllers\Students\DashboardController;
+use App\Http\Controllers\Students\ExamscheduleController;
+use App\Http\Controllers\Students\FinalController;
+use App\Http\Controllers\Students\StudentRegisController;
+
+// Teacher
+use App\Http\Controllers\Teachers\TeachersController;
+
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -18,19 +25,19 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    return view('login');
+    return view('welcome');
 });
 
-
-// Route::get('/dashboard', function () {
-//     return view('dashboard');
-// })->middleware(['auth', 'verified'])->name('dashboard');
-
+Route::prefix('/teachers')->group(function () {
+    Route::get('/', [TeachersController::class, 'index'])->name('tdashboard');
+    Route::get('/tdashboard', [TeachersController::class, 'index'])->name('tdashboard');
+});
+// Student Route
 Route::middleware('auth', 'verified')->group(function () {
-    Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/examschedule', [ExamscheduleController::class, 'index'])->name('examschedule');
     Route::get('/final', [FinalController::class, 'index'])->name('final');
+    Route::get('/studentregis', [StudentRegisController::class, 'index'])->name('studentregis');
 });
 
 Route::middleware('auth')->group(function () {

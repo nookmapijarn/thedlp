@@ -1,8 +1,8 @@
 <x-guest-layout>
 
     {{-- Label --}}
-    <div class="text-center p-2 m-1 text-3xl text-gray-900 antialiased text-shadow ">ทะเบียนนักศึกษา</div>
-    <div class="text-center m-2 rounded-lg text-lg text-shadow">สกร.อำเภอโพธิ์ทอง</div>
+    <div class="text-center p-1 m-1 text-3xl text-gray-900 text-shadow ">ทะเบียนนักศึกษา</div>
+    <div class="text-center m-2 rounded-lg text-lg text-shadow">ศูนย์ส่งเสริมการศึกษาอำเภอโพธิ์ทอง</div>
 
 
     <!-- Session Status -->
