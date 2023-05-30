@@ -24,10 +24,13 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+Route::get('/welcome', function () {
+    return view('welcome');
+});
 Route::get('/', function () {
     return view('welcome');
 });
-
+// Teacher Route
 Route::prefix('/teachers')->group(function () {
     Route::get('/', [TeachersController::class, 'index'])->name('tdashboard');
     Route::get('/tdashboard', [TeachersController::class, 'index'])->name('tdashboard');

@@ -1,7 +1,7 @@
 <x-teachers-layout>
     <x-slot name="header">
         <h6 class="font-semibold text-lg text-gray-800 dark:text-gray-200 leading-tight m-2">
-            {{ __('ข้อมูลนักศึกษา ภาคเรียนปัจจุบัน') }}
+            {{ __('ข้อมูลนักศึกษา ภาคเรียนปัจจุบัน') }} {{$semestry}}
         </h6>
         <form method="GET" action="{{ route('tdashboard') }}" class="">
         <div class="grid grid-cols-1 gap-2 md:grid md:grid-cols-2 justify-items-center">
@@ -35,6 +35,7 @@
                   <option selected>{{request()->get('studreport')}}</option>
                   <option value="นักศึกษาทั้งหมด">นักศึกษาทั้งหมด</option>
                   <option value="เฉพาะผู้คาดว่าจะจบ">เฉพาะผู้คาดว่าจะจบ</option>
+                  <option value="ไม่จบตกค้าง(ที่ไม่ได้ลงทะเบียนแล้ว)">ไม่จบตกค้าง (ที่ไม่ได้ลงทะเบียนแล้ว)</option>
                 </select>
             </div>
           </div>
@@ -42,9 +43,9 @@
         </form>
     </x-slot>
 
-    <div class="flex flex-col">
+    <div class="flex flex-col max-w-srceen-lg">
         <div class="overflow-x-auto sm:-mx-6 lg:-mx-8">
-          <div class="inline-block min-w-srceen-full  py-2 sm:px-6 lg:px-8">
+          <div class="inline-block min-w-full  py-2 sm:px-6 lg:px-8">
             <div class="overflow-hidden">
                 <table class="min-w-full text-left text-sm font-light">
                 <thead class="border-b font-medium dark:border-neutral-500 bg-white">                  
@@ -54,29 +55,33 @@
                     <th scope="col" class="p-2 hidden md:block">ระดับ</th>
                     <th scope="col" class="p-2">ชื่อ</th>
                     <th scope="col" class="p-2">นามสกุล</th>
-                    <th scope="col" class="p-2">จะจบ</th>
+                    <th scope="col" class="p-2">คาดว่าจะจบ</th>
                     <th scope="col" class="p-2 text-center">กพช.</th>
-                    <th scope="col" class="p-2 text-center">NT/EX</th>
+                    <th scope="col" class="p-2 text-center">N-NET</th>
                   </tr>
                 </thead>
                 <tbody class="text-xs md:text-sm">
                 @foreach($data as $d)
                   <tr 
-                  @if($d['lavel']==1) class="border-b dark:border-neutral-500 bg-pink-200 shadow-md hover:bg-indigo-200" @endif
-                  @if($d['lavel']==2) class="border-b dark:border-neutral-500 bg-green-200 shadow-md hover:bg-indigo-200" @endif
-                  @if($d['lavel']==3) class="border-b dark:border-neutral-500 bg-yellow-200 shadow-md hover:bg-indigo-200" @endif
+                  @if($d['lavel']==1) class="border-b bg-pink-100 shadow-md hover:bg-indigo-200" @endif
+                  @if($d['lavel']==2) class="border-b bg-green-100 shadow-md hover:bg-indigo-200" @endif
+                  @if($d['lavel']==3) class="border-b bg-yellow-100 shadow-md hover:bg-indigo-200" @endif
                   >
                     <td class="p-2 text-center">{{$loop->iteration}}</td>
                     <td class="p-2">{{$d['id']}}</td>
                     <td class="p-2 hidden md:block">{{$d['lavel']}}</td>
                     <td class="p-2 w-15">{{$d['name']}}</td>
                     <td class="p-2">{{$d['surname']}}</td>
-                    <td class="p-2">{{$d['expfin']}}</td>
+                    @if($d['expfin']==1)
+                    <td class="p-2 text-violet-500">คาดว่าจะจบ</td>
+                    @else
+                    <td class="p-2">-</td>
+                    @endif
                     <td class="p-2 text-center">{{$d['activity']}}</td>
-                    @if($d['nt_sem']=="เข้ารับแล้ว")
+                    @if($d['nt_sem']=="ผ่านแล้ว")
                     <td class="p-2 text-center text-green-500">{{$d['nt_sem']}}</td>
-                    @elseif($d['nt_sem']=="ยังไม่เข้ารับ")
-                    <td class="p-2 text-center text-red-500">{{$d['nt_sem']}}</td>
+                    @elseif($d['nt_sem']=="มีสิทธิ")
+                    <td class="p-2 text-center text-indigo-500">{{$d['nt_sem']}}</td>
                     @elseif($d['nt_sem']=="E-Exam")
                     <td class="p-2 text-center text-yellow-500">{{$d['nt_sem']}}</td>
                     @else
