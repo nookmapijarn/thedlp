@@ -7,8 +7,9 @@
         <div class="grid grid-cols-1 gap-2 md:grid md:grid-cols-2 justify-items-center">
             <div class="min-w-full" >
                 {{-- <label for="countries" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">ศสกร.ตำบล</label> --}}
-                <select id="tumbon" name="tumbon" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-                  <option selected>{{request()->get('tumbon')}}</option>
+                <select id="tumbon" name="tumbon" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 ">
+                  @if(request()->get('tumbon')!='') <option selected>{{request()->get('tumbon')}}</option> @endif
+                  @if(request()->get('tumbon')=='') <option selected >เลือกตำบล</option> @endif
                   <option value="4011 บางพลับ">4011 บางพลับ</option>
                   <option value="4012 บางพลับ">4012 บางพลับ</option>
                   <option value="4021 อ่างแก้ว">4021 อ่างแก้ว</option>
@@ -26,13 +27,14 @@
                   <option value="4131 โคกพุทรา">4131 โคกพุทรา</option>
                   <option value="4141 บางเจ้าฉ่า">4141 บางเจ้าฉ่า</option>
                   <option value="4151 คำหยาด">4151 คำหยาด</option>
-                  <option value="4117 พิการ">4117 พิการ</option>
+                  <option value="4171 พิการ">4171 พิการ</option>
                 </select>
               </div>
             <div class="min-w-full">
                 {{-- <label for="countries" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">รายงาน</label> --}}
                 <select id="studreport" name="studreport" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-                  <option selected>{{request()->get('studreport')}}</option>
+                  @if(request()->get('studreport')!='') <option selected>{{request()->get('studreport')}}</option> @endif
+                  @if(request()->get('studreport')=='') <option selected >เลือกรายงาน</option> @endif
                   <option value="นักศึกษาทั้งหมด">นักศึกษาทั้งหมด</option>
                   <option value="เฉพาะผู้คาดว่าจะจบ">เฉพาะผู้คาดว่าจะจบ</option>
                   <option value="ไม่จบตกค้าง(ที่ไม่ได้ลงทะเบียนแล้ว)">ไม่จบตกค้าง (ที่ไม่ได้ลงทะเบียนแล้ว)</option>
@@ -41,6 +43,14 @@
           </div>
           <button type="submit" class="rounded-full p-2 m-2 min-w-full bg-indigo-500 text-white">ดูรายงาน</button> 
         </form>
+        <div>
+          <span class="text-red-500 font-medium">หมายเหตุ</span>
+        </div>
+        <div class="flex flex-col-1 flex-row-1">
+          <span class="text-indigo-500 font-semibold">มีสิทธิ <span class="text-gray-700"> : ต้องเข้าสอบ N-NET</span></span> 
+          <span class="text-yellow-500 font-semibold pl-2">E-Exam <span class="text-gray-700"> : ต้องเข้าสอบ E-Exam </span></span>
+          <span class="text-green-500 font-semibold pl-2">ผ่านแล้ว <span class="text-gray-700"> : สอบผ่านแล้ว</span></span>  
+        </div>
     </x-slot>
 
     <div class="flex flex-col max-w-srceen-lg">
@@ -63,9 +73,9 @@
                 <tbody class="text-xs md:text-sm">
                 @foreach($data as $d)
                   <tr 
-                  @if($d['lavel']==1) class="border-b bg-pink-100 shadow-md hover:bg-indigo-200" @endif
-                  @if($d['lavel']==2) class="border-b bg-green-100 shadow-md hover:bg-indigo-200" @endif
-                  @if($d['lavel']==3) class="border-b bg-yellow-100 shadow-md hover:bg-indigo-200" @endif
+                  @if($d['lavel']==1) class="border-b bg-pink-100 shadow-md hover:bg-pink-300" @endif
+                  @if($d['lavel']==2) class="border-b bg-green-100 shadow-md hover:bg-green-300" @endif
+                  @if($d['lavel']==3) class="border-b bg-yellow-100 shadow-md hover:bg-yellow-300" @endif
                   >
                     <td class="p-2 text-center">{{$loop->iteration}}</td>
                     <td class="p-2">{{$d['id']}}</td>

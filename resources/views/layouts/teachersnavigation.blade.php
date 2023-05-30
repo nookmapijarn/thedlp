@@ -13,21 +13,18 @@
 
                 <!-- Navigation Links -->
                 <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex text-lg">
-                    {{-- <x-nav-link :href="route('/')" :active="request()->routeIs('/')" class="text-white">
+                    <x-nav-link href=https://dlpd.in.th/welcome class="text-white">
                         {{ __('หน้าหลัก') }}
-                    </x-nav-link> --}}
-                    <x-nav-link :href="route('login')" :active="request()->routeIs('login')" class="text-white">
-                        {{ __('ระบบนักศึกษา') }}
                     </x-nav-link>
-                    {{-- <x-nav-link :href="route('studentregis')" :active="request()->routeIs('studentregis')" class="text-white">
-                        {{ __('การลงทะเบียน') }}
-                    </x-nav-link> --}}
+                    <x-nav-link :href="route('login')" :active="request()->routeIs('login')" class="text-white">
+                        {{ __('ทะเบียนนักศึกษา') }}
+                    </x-nav-link>
                 </div>
             </div>
 
             <!-- Settings Dropdown -->
             <div class="hidden sm:flex sm:items-center sm:ml-6  text-white">
-                <x-dropdown align="right" width="48">
+                {{-- <x-dropdown align="right" width="48">
                     <x-slot name="trigger">
                         <button
                             class="flex items-center text-sm font-medium text-gray-100 hover:text-gray-700 hover:border-gray-300 focus:outline-none focus:text-gray-700 focus:border-gray-300 transition duration-150 ease-in-out">
@@ -55,7 +52,7 @@
                             </x-dropdown-link>
                         </form>
                     </x-slot>
-                </x-dropdown>
+                </x-dropdown> --}}
             </div>
 
             <!-- Hamburger -->
@@ -77,11 +74,11 @@
     <!-- Responsive Navigation Menu -->
     <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden  text-white">
         <div class="pt-2 pb-3 space-y-1">
-            {{-- <x-nav-link :href="route('welcome')" :active="request()->routeIs('welcome')" class="text-white">
+            <x-nav-link href=https://dlpd.in.th/welcome class="text-white">
                 {{ __('หน้าหลัก') }}
-            </x-nav-link> --}}
+            </x-nav-link>
             <x-nav-link :href="route('login')" :active="request()->routeIs('login')" class="text-white">
-                {{ __('ระบบนักศึกษา') }}
+                {{ __('ทะเบียนนักศึกษา') }}
             </x-nav-link>
         </div>
 

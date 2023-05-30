@@ -6,7 +6,7 @@
     </x-slot>
 {{-- Content --}}
 <div class="grid grid-cols-1 gap-2 justify-items-center max-w-screen-lg md:grid md:grid-cols-2 md:py-6 md:px-6 pt-0">
-  <div class="overflow-hidden shadow-md">
+  <div class="overflow-hidden">
     <table class="min-w-full text-left text-xs font-light">
       <div scope="col" class="p-4 text-center text-lg shdow-md bg-yellow-200 w-full">รายวิชาที่ยังไม่ผ่าน</div>
       <thead class="border-b font-medium dark:border-neutral-500 bg-white">               
@@ -31,7 +31,7 @@
       </tbody>
     </table>
   </div>
-  <div class="overflow-x-auto shadow-md">
+  <div class="overflow-x-auto">
     <table class="min-w-full text-left text-xs font-light">
       <div scope="col" class="p-4 text-center text-lg shdow-md bg-green-200 w-full">รายวิชาผ่านแล้ว</div>
       <thead class="border-b font-medium dark:border-neutral-500 bg-white">             

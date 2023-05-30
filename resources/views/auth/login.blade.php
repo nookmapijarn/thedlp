@@ -1,8 +1,9 @@
 <x-guest-layout>
 
     {{-- Label --}}
-    <div class="text-center p-1 m-1 text-3xl text-gray-900 text-shadow ">ทะเบียนนักศึกษา</div>
-    <div class="text-center m-2 rounded-lg text-lg text-shadow">ศูนย์ส่งเสริมการศึกษาอำเภอโพธิ์ทอง</div>
+    <div class="text-center m-2 rounded-lg text-lg text-shadow">ศูนย์ส่งเสริมการเรียนรู้อำเภอโพธิ์ทอง</div>
+    <div class="text-center p-1 m-1 text-2xl text-gray-900 ">ทะเบียนนักศึกษา</div>
+ 
 
 
     <!-- Session Status -->
@@ -57,11 +58,19 @@
         </div>
 
         <!-- Register -->
-        <a class="flex items-center justify-end mt-4 hover:text-sky-700" href="{{ route('register') }}">
-            <div class="rounded-full underline">
-                {{ __('  สมัครสมาชิก') }}
-            </div>   
-        </a>   
+        <div class="flex items-center justify-end ">
+            <a class="mt-4 m-2 hover:text-sky-700" href="{{ route('register') }}">
+                <div class="rounded-full underline">
+                    {{ __('สมัครสมาชิก') }}
+                </div>   
+            </a>   
+            <a class="flex items-center justify-end mt-4 m-2 hover:text-sky-700" href="https://dlpd.in.th/welcome">
+                <div class="rounded-full underline">
+                    {{ __('หน้าหลัก') }}
+                </div>   
+            </a>   
+        </div>
+        
 
     </form>
 </x-guest-layout>
