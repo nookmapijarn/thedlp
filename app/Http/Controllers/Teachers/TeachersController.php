@@ -6,8 +6,6 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
-use function PHPUnit\Framework\isEmpty;
-
 class TeachersController extends Controller
 {
     protected $semestry = '66/1';
@@ -204,14 +202,6 @@ class TeachersController extends Controller
         ->groupBy('STD_CODE')
         ->get();
         
-        $mygreade = array();
-        foreach ($grade as $g) {
-            array_push($mygreade, 
-                            [
-                                'std_code' => $g->STD_CODE, 
-                            ]
-                        );
-        }
         return $grade;
     }
 
@@ -224,14 +214,6 @@ class TeachersController extends Controller
         ->groupBy('STD_CODE')
         ->get();
         
-        $mystudent = array();
-        foreach ($student as $g) {
-            array_push($mystudent, 
-                            [
-                                'std_code' => $g->STD_CODE, 
-                            ]
-                        );
-        }
         return $student;
     }
     public function get_activity($std_code){

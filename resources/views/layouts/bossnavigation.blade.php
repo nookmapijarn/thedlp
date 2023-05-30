@@ -1,6 +1,6 @@
-<nav x-data="{ open: false }" class="bg-indigo-800 shadow-10 border-b border-gray-100 dark:bg-gray-800 sticky top-0 z-50">
+<nav x-data="{ open: false }" class="bg-indigo-700 shadow-md border-b border-gray-100 sticky top-0 z-50">
     <!-- Primary Navigation Menu -->
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+    <div class="mx-auto px-4 sm:px-6 lg:px-8 relative">
         <div class="flex justify-between h-16">
             <div class="flex">
                 <!-- Logo -->
@@ -8,11 +8,11 @@
                     <a href=https://dlpd.in.th/welcome>
                         <x-application-logo class="block h-10 w-auto fill-current text-gray-600" />                        
                     </a>
-                    <strong class="ml-2 text-gray-100 text-lg tracking-wide"> ครู สกร.อำเภอโพธิ์ทอง </strong>
+                    <strong class="ml-2 text-gray-100 text-lg tracking-wide"> ผู้บริหาร สกร.อำเภอโพธิ์ทอง</strong>
                 </div>
 
                 <!-- Navigation Links -->
-                <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex text-lg">
+                {{-- <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex text-lg">
                     <x-nav-link href=https://dlpd.in.th/welcome class="text-white">
                         {{ __('หน้าหลัก') }}
                     </x-nav-link>
@@ -20,7 +20,7 @@
                         {{ __('ทะเบียนนักศึกษา') }}
                     </x-nav-link>
                 </div>
-            </div>
+            </div> --}}
 
             <!-- Settings Dropdown -->
             <div class="hidden sm:flex sm:items-center sm:ml-6  text-white">

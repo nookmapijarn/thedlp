@@ -4,12 +4,13 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
-        <meta name="description" content="ทะเบียนนักศึกษา - สกร.อำเภอโพธิ์ทอง, การเรียนการสอน, ตารางสอบ สกร.อำเภอโพธิ์ทอง, นักศึกษา สกร.อำเภอโพธิ์ทอง, ผลการเรียน สกร.อำเภอโพธิ์ทอง">
-        <meta name="robots" content="ทะเบียนนักศึกษา - สกร.อำเภอโพธิ์ทอง, การเรียนการสอน, ตารางสอบ สกร.อำเภอโพธิ์ทอง, นักศึกษา สกร.อำเภอโพธิ์ทอง, ผลการเรียน สกร.อำเภอโพธิ์ทอง">
+        <meta name="description" content="รายงานสถิตินักศึกษา สกร.อำเภอโพธิ์ทอง">
+        <meta name="robots" content="รายงานสถิตินักศึกษา สกร.อำเภอโพธิ์ทอง">
         <title>{{ config('app.name', 'งานการศึกษาพื้นฐาน-สกร.อำเภอโพธิ์ทอง') }}</title>
         <link rel="icon" type="image/x-icon" href="{{asset('storage/logo.png');}}">
 
         <!-- Fonts -->
+        <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
 
@@ -24,14 +25,9 @@
         
     </head>
 
-    <body class="font-sans antialiased" x-data="{ darkMode: false }" x-init="
-    if (!('darkMode' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-      localStorage.setItem('darkMode', JSON.stringify(true));
-    }
-    darkMode = JSON.parse(localStorage.getItem('darkMode'));
-    $watch('darkMode', value => localStorage.setItem('darkMode', JSON.stringify(value)))" x-cloak>
-        <div x-bind:class="{'dark' : darkMode === true}" class="min-h-screen bg-gray-100 bg-indio-500">
-            @include('layouts.navigation')
+    <body class="font-sans antialiased">
+        <div class="min-h-screen bg-gray-100 bg-indio-500">
+            @include('layouts.bossnavigation')
 
             <!-- Page Heading -->
             @if (isset($header))
@@ -49,8 +45,8 @@
         </div>
     </body>
 
-    <footer class="background-animate bg-gradient-to-r from-purple-500 via-violet-800 to-purple-500">
-        <div class="w-full mx-auto max-w-screen-full p-4 md:flex md:items-center md:justify-between">
+    <footer class="bg-white rounded-lg shadow m-4 dark:bg-gray-800">
+        <div class="w-full mx-auto max-w-screen-xl p-4 md:flex md:items-center md:justify-between">
           <span class="text-sm text-gray-500 sm:text-center dark:text-gray-400">© 2023 <a href="#" class="hover:underline">งานการศึกษาขั้นพื้นฐาน </a>Nonthchai Maphijarn
         </span>
         </div>

@@ -11,6 +11,9 @@ use App\Http\Controllers\Students\StudentRegisController;
 // Teacher
 use App\Http\Controllers\Teachers\TeachersController;
 
+// Boss
+use App\Http\Controllers\Boss\BossController;
+
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -30,6 +33,11 @@ Route::get('/welcome', function () {
 Route::get('/', function () {
     return view('welcome');
 });
+// Boss Route
+Route::prefix('/boss')->group(function () {
+    Route::get('/', [BossController::class, 'index'])->name('boss');
+    Route::get('/bdashboard', [BossController::class, 'index'])->name('boss');
+});
 // Teacher Route
 Route::prefix('/teachers')->group(function () {
     Route::get('/', [TeachersController::class, 'index'])->name('tdashboard');
@@ -37,10 +45,10 @@ Route::prefix('/teachers')->group(function () {
 });
 // Student Route
 Route::middleware('auth', 'verified')->group(function () {
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-    Route::get('/examschedule', [ExamscheduleController::class, 'index'])->name('examschedule');
-    Route::get('/final', [FinalController::class, 'index'])->name('final');
-    Route::get('/studentregis', [StudentRegisController::class, 'index'])->name('studentregis');
+    Route::get('/ประวัติการเรียน', [DashboardController::class, 'index'])->name('ประวัติการเรียน');
+    Route::get('/ตารางสอบ', [ExamscheduleController::class, 'index'])->name('ตารางสอบ');
+    Route::get('/การจบหลักสูตร', [FinalController::class, 'index'])->name('การจบหลักสูตร');
+    Route::get('/การลงทะเบียน', [StudentRegisController::class, 'index'])->name('การลงทะเบียน');
 });
 
 Route::middleware('auth')->group(function () {

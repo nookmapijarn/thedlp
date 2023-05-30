@@ -1,11 +1,11 @@
-<nav x-data="{ open: false }" class="bg-opacity-50 background-animate bg-gradient-to-r from-purple-500 via-violet-800 to-purple-500 shadow-10 border-b border-gray-100 dark:bg-gray-800">
+<nav x-data="{ open: false }" class="bg-opacity-50 background-animate bg-gradient-to-r from-purple-500 via-violet-800 to-purple-500 shadow-10 border-b border-gray-100 dark:bg-gray-800 sticky top-0 z-50">
     <!-- Primary Navigation Menu -->
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
         <div class="flex justify-between h-16">
             <div class="flex">
                 <!-- Logo -->
                 <div class="shrink-0 flex items-center">
-                    <a href="{{ route('dashboard') }}">
+                    <a href="{{ route('ประวัติการเรียน') }}">
                         <x-application-logo class="block h-10 w-auto fill-current text-gray-600" />                        
                     </a>
                     <strong class="ml-2 text-gray-100 text-lg tracking-wide"> ทะเบียนนักศึกษา </strong>
@@ -44,13 +44,13 @@
 
                 <!-- Navigation Links -->
                 <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex text-lg">
-                    <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')" class="text-white">
+                    <x-nav-link :href="route('ประวัติการเรียน')" :active="request()->routeIs('ประวัติการเรียน')" class="text-white">
                         {{ __('ประวัติการเรียน') }}
                     </x-nav-link>
-                    <x-nav-link :href="route('examschedule')" :active="request()->routeIs('examschedule')" class="text-white">
+                    <x-nav-link :href="route('ตารางสอบ')" :active="request()->routeIs('ตารางสอบ')" class="text-white">
                         {{ __('ตารางสอบ') }}
                     </x-nav-link>
-                    <x-nav-link :href="route('studentregis')" :active="request()->routeIs('studentregis')" class="text-white">
+                    <x-nav-link :href="route('การลงทะเบียน')" :active="request()->routeIs('การลงทะเบียน')" class="text-white">
                         {{ __('การลงทะเบียน') }}
                     </x-nav-link>
                 </div>
@@ -108,13 +108,13 @@
     <!-- Responsive Navigation Menu -->
     <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden  text-white">
         <div class="pt-2 pb-3 space-y-1">
-            <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')" class="text-indigo-800 active:text-gray-800 focus:text-gray-800 hover:text-gray-800">
+            <x-responsive-nav-link :href="route('ประวัติการเรียน')" :active="request()->routeIs('ประวัติการเรียน')" class="text-indigo-800 active:text-gray-800 focus:text-gray-800 hover:text-gray-800">
                 {{ __('ประวัติการเรียน') }}
             </x-responsive-nav-link>
-            <x-responsive-nav-link :href="route('examschedule')" :active="request()->routeIs('examschedule')" class="text-indigo-800">
+            <x-responsive-nav-link :href="route('ตารางสอบ')" :active="request()->routeIs('ตารางสอบ')" class="text-indigo-800">
                 {{ __('ตารางสอบ') }}
             </x-responsive-nav-link>
-            <x-responsive-nav-link :href="route('studentregis')" :active="request()->routeIs('studentregis')" class="text-indigo-800">
+            <x-responsive-nav-link :href="route('การลงทะเบียน')" :active="request()->routeIs('การลงทะเบียน')" class="text-indigo-800">
                 {{ __('การลงทะเบียน') }}
             </x-responsive-nav-link>
         </div>
