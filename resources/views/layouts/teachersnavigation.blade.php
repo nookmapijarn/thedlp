@@ -16,9 +16,9 @@
                     <x-nav-link href=https://dlpd.in.th/welcome class="text-white">
                         {{ __('หน้าหลัก') }}
                     </x-nav-link>
-                    <x-nav-link :href="route('login')" :active="request()->routeIs('login')" class="text-white">
+                    {{-- <x-nav-link :href="route('login')" :active="request()->routeIs('login')" class="text-white">
                         {{ __('ทะเบียนนักศึกษา') }}
-                    </x-nav-link>
+                    </x-nav-link> --}}
                 </div>
             </div>
 
@@ -77,9 +77,9 @@
             <x-nav-link href=https://dlpd.in.th/welcome class="text-white">
                 {{ __('หน้าหลัก') }}
             </x-nav-link>
-            <x-nav-link :href="route('login')" :active="request()->routeIs('login')" class="text-white">
+            {{-- <x-nav-link :href="route('login')" :active="request()->routeIs('login')" class="text-white">
                 {{ __('ทะเบียนนักศึกษา') }}
-            </x-nav-link>
+            </x-nav-link> --}}
         </div>
 
         <!-- Responsive Settings Options -->

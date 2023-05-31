@@ -4,8 +4,8 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
-        <meta name="description" content="ทะเบียนนักศึกษา - สกร.อำเภอโพธิ์ทอง, การเรียนการสอน, ตารางสอบ สกร.อำเภอโพธิ์ทอง, นักศึกษา สกร.อำเภอโพธิ์ทอง, ผลการเรียน สกร.อำเภอโพธิ์ทอง">
-        <meta name="robots" content="ทะเบียนนักศึกษา - สกร.อำเภอโพธิ์ทอง, การเรียนการสอน, ตารางสอบ สกร.อำเภอโพธิ์ทอง, นักศึกษา สกร.อำเภอโพธิ์ทอง, ผลการเรียน สกร.อำเภอโพธิ์ทอง">
+        <meta name="description" content="รายงานผู้คาดว่าจะจบ รายชื่อผู้มีสิทธิสอบ N-Net, รายชื่อผู้มีสิทธิสอบ E-Exam, รายงานชั่วโมง กพช.">
+        <meta name="robots" content="รายงานผู้คาดว่าจะจบ รายชื่อผู้มีสิทธิสอบ N-Net, รายชื่อผู้มีสิทธิสอบ E-Exam, รายงานชั่วโมง กพช.">
         <title>{{ config('app.name', 'งานการศึกษาพื้นฐาน-สกร.อำเภอโพธิ์ทอง') }}</title>
         <link rel="icon" type="image/x-icon" href="{{asset('storage/logo.png');}}">
 
@@ -44,12 +44,5 @@
             </main>
         </div>
     </body>
-
-    <footer class="bg-white rounded-lg shadow m-4 dark:bg-gray-800">
-        <div class="w-full mx-auto max-w-screen-xl p-4 md:flex md:items-center md:justify-between">
-          <span class="text-sm text-gray-500 sm:text-center dark:text-gray-400">© 2023 <a href="#" class="hover:underline">งานการศึกษาขั้นพื้นฐาน </a>Nonthchai Maphijarn
-        </span>
-        </div>
-    </footer>
-   
+    @include('layouts.footer')
 </html>

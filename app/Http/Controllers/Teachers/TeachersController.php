@@ -19,13 +19,15 @@ class TeachersController extends Controller
     {
         //
         $data=[];
-        $tumbon = '4011';
-        $studreport = 'นักศึกษาทั้งหมด';
+        $tumbon = '';
+        $studreport = '';
         $semestry = $this->semestry;
 
         if($request->tumbon!=''){
             $tumbon = str_split($request->tumbon, 4)[0];
             $studreport = $request->studreport;
+        }else{
+            return view('teachers.tdashboard' ,compact('data', 'semestry'));
         }
 
 

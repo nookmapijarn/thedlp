@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Boss;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
+use App\Models\User;
+use Doctrine\DBAL\Schema\Index;
 
 class BossController extends Controller
 {
@@ -13,6 +15,32 @@ class BossController extends Controller
 
     public function index(Request $request)
     {
+        //echo $this->student_primary($this->semestry, '1');
+
+        $labels = ['54/1','54/2','55/1','55/2','56/1','56/2','57/1','57/2','58/1','58/2','59/1','59/2','60/1','60/2','61/1','61/2', '62/1','62/2','63/1','63/2','64/1', '64/2', '65/1', '65/2', '66/1'];
+        $data_student = [];
+        $data_studentPrimary = [];
+        $data_studentJunior  = [];
+        $data_studentSenior  = [];
+
+        $index = 0;
+        foreach($labels as $key=>$val) {
+            // Use $key as an index, or...
+            $allstudent = $this->current_student($val)->Count();
+            $studentPrimary = $this->student_primary($val, '1')->Count();
+            $studentJunior = $this->student_primary($val, '2')->Count();
+            $studentSenior = $this->student_primary($val, '3')->Count();
+
+            array_push($data_student, $allstudent);
+            array_push($data_studentPrimary, $studentPrimary);
+            array_push($data_studentJunior, $studentJunior);
+            array_push($data_studentSenior, $studentSenior);
+            // ... manage the index this way..
+            //echo "Index is $index\n ".' Value ='.$val;
+            $index++;
+        }
+
+        // Boss
         $semestry = $this->semestry;
         $allstudent = $this->current_student($this->semestry)->Count();
 
@@ -29,7 +57,12 @@ class BossController extends Controller
                                                 'exam_avg_semestry', 
                                                 'new_student',
                                                 'expectfin_student',
-                                                'nofinish_student'
+                                                'nofinish_student',
+                                                'labels', 
+                                                'data_student',
+                                                'data_studentPrimary',
+                                                'data_studentJunior',
+                                                'data_studentSenior'
                                             ));
     }
 
@@ -43,14 +76,25 @@ class BossController extends Controller
         return $g;
     }
 
+    public function student_primary($semestry, $tlavel){
+        //$ID = str_replace('/','',$semestry);
+        $s = DB::table('grade'.$tlavel)
+        ->where('SEMESTRY', $semestry)
+        ->select('STD_CODE')
+        ->groupBy('STD_CODE')
+        //->where('STD_CODE', 'regexp', '1215040001'.$ID.'[0-9]+')
+        //->where('ID', '>', $ID)
+        ->get();
+        return $s;
+    }
     public function new_student($semestry){
-        $g = DB::table('student')
+        $s = DB::table('student')
         ->where('ID', '>', $semestry)
         ->select('STD_CODE')
         ->orderBy('STD_CODE', 'ASC')
         ->groupBy('STD_CODE')
         ->get();
-        return $g;
+        return $s;
     }
 
     public function expectfin_student(){

@@ -48,12 +48,5 @@
             </main>
         </div>
     </body>
-
-    <footer class="background-animate bg-gradient-to-r from-purple-500 via-violet-800 to-purple-500">
-        <div class="w-full mx-auto max-w-screen-full p-4 md:flex md:items-center md:justify-between">
-          <span class="text-sm text-gray-500 sm:text-center dark:text-gray-400">© 2023 <a href="#" class="hover:underline">งานการศึกษาขั้นพื้นฐาน </a>Nonthchai Maphijarn
-        </span>
-        </div>
-    </footer>
-   
+    @include('layouts.footer')
 </html>

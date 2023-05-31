@@ -9,7 +9,7 @@
                 {{-- <label for="countries" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">ศสกร.ตำบล</label> --}}
                 <select id="tumbon" name="tumbon" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 ">
                   @if(request()->get('tumbon')!='') <option selected>{{request()->get('tumbon')}}</option> @endif
-                  @if(request()->get('tumbon')=='') <option selected >เลือกตำบล</option> @endif
+                  @if(request()->get('tumbon')=='') <option selected>เลือกตำบล</option> @endif
                   <option value="4011 บางพลับ">4011 บางพลับ</option>
                   <option value="4012 บางพลับ">4012 บางพลับ</option>
                   <option value="4021 อ่างแก้ว">4021 อ่างแก้ว</option>
@@ -41,15 +41,15 @@
                 </select>
             </div>
           </div>
-          <button type="submit" class="rounded-full p-2 m-2 min-w-full bg-indigo-500 text-white">ดูรายงาน</button> 
+          <button type="submit" class="rounded-full p-2 mt-2 min-w-full bg-indigo-500 text-white">ดูรายงาน</button> 
         </form>
-        <div>
+        {{-- <div>
           <span class="text-red-500 font-medium">หมายเหตุ</span>
-        </div>
-        <div class="flex flex-col-1 flex-row-1">
-          <span class="text-indigo-500 font-semibold">มีสิทธิ <span class="text-gray-700"> : ต้องเข้าสอบ N-NET</span></span> 
-          <span class="text-yellow-500 font-semibold pl-2">E-Exam <span class="text-gray-700"> : ต้องเข้าสอบ E-Exam </span></span>
-          <span class="text-green-500 font-semibold pl-2">ผ่านแล้ว <span class="text-gray-700"> : สอบผ่านแล้ว</span></span>  
+        </div> --}}
+        <div class="flex flex-col-1 flex-row-1 mt-2 justify-center">
+          <span class="text-indigo-500 font-semibold text-sm">มีสิทธิ <span class="text-gray-700"> : มีสิทธิสอบ N-NET </span></span> 
+          <span class="text-yellow-500 font-semibold pl-2 text-sm">E-Exam <span class="text-gray-700"> : มีสิทธิสอบ E-Exam </span></span>
+          <span class="text-green-500 font-semibold pl-2 text-sm">ผ่านแล้ว <span class="text-gray-700"> : สอบผ่านแล้ว</span></span>  
         </div>
     </x-slot>
 
@@ -101,6 +101,7 @@
                 @endforeach
                 </tbody>
               </table>
+              @if($data==null) <section class="p-10 text-center text-lg">**กรุณาเลือก "ตำบล" และ "รายงาน"**</section> @endif
             </div>
           </div>
         </div>

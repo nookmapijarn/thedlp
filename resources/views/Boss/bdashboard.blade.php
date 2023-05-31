@@ -4,17 +4,19 @@
             {{ __('ผู้บริหาร') }}
         </h6>
     </x-slot> --}}
+    {{-- Chart --}}
     <div class="h-full p-8 bg-gray-100">
-        <h3 class="text-lg font-medium leading-6 text-gray-900">
-          ข้อมูล ภาคเรียนปัจจุบัน {{$semestry}}
-        </h3>
+      <h1>สถิตินักศึกษา</h1>
+      <canvas id="myChart" height="100px"></canvas>
+    </div> 
+    <div class="h-full p-8 bg-gray-100">
         <div class="grid grid-cols-1 gap-5 mt-5 md:grid-cols-3">
           <div class="overflow-hidden bg-indigo-100 rounded-lg shadow">
             <div class="px-4 py-5 lg:p-6">
               <dl>
                 <dt class="text-sm font-medium leading-5 text-gray-500 truncate flex flex-row content-center place-content-between">
                     <div>
-                        นักศึกษาทั้งหมด
+                        นักศึกษาปัจจุบัน
                     </div>  
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
@@ -31,7 +33,7 @@
                 <dl>
                     <dt class="text-sm font-medium leading-5 text-gray-500 truncate flex flex-row content-center place-content-between">
                         <div>
-                            นักศึกษาใหม่
+                            นักศึกษาใหม่ (ล่าสุด)
                         </div>  
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M19 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zM4 19.235v-.11a6.375 6.375 0 0112.75 0v.109A12.318 12.318 0 0110.374 21c-2.331 0-4.512-.645-6.374-1.766z" />
@@ -48,7 +50,7 @@
                 <dl>
                     <dt class="text-sm font-medium leading-5 text-gray-500 truncate flex flex-row content-center place-content-between">
                         <div>
-                            คาดว่าจะจบ
+                            คาดว่าจะจบ (ล่าสุด)
                         </div>  
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M4.26 10.147a60.436 60.436 0 00-.491 6.347A48.627 48.627 0 0112 20.904a48.627 48.627 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.57 50.57 0 00-2.658-.813A59.905 59.905 0 0112 3.493a59.902 59.902 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0112 13.489a50.702 50.702 0 017.74-3.342M6.75 15a.75.75 0 100-1.5.75.75 0 000 1.5zm0 0v-3.675A55.378 55.378 0 0112 8.443m-7.007 11.55A5.981 5.981 0 006.75 15.75v-1.5" />
@@ -65,7 +67,7 @@
                 <dl>
                     <dt class="text-sm font-medium leading-5 text-gray-500 truncate flex flex-row content-center place-content-between">
                         <div>
-                            ไม่จบตกค้าง
+                            ไม่จบตกค้าง (ล่าสุด)
                         </div>  
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
@@ -111,6 +113,59 @@
               </dl>
             </div>
           </div>
+        </div>   
         </div>
-      </div>  
+
 </x-boss-layout>
+  {{-- Script --}}
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" ></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script type="text/javascript">
+        
+    var labels =  {{ Js::from($labels) }};
+    var data_student =  {{ Js::from($data_student) }};
+    var data_studentPrimary =  {{ Js::from($data_studentPrimary) }};
+    var data_studentJunior =  {{ Js::from($data_studentJunior) }};
+    var data_studentSenior =  {{ Js::from($data_studentSenior) }};
+
+    const data = {
+      labels: labels,
+      datasets: [
+        {
+          label: 'นักศึกษาทั้งหมด',
+          backgroundColor: '#6996F6',
+          borderColor: '#6996F6',
+          data: data_student,
+        },
+        {
+          label: 'ประถม',
+          backgroundColor: '#F598AA',
+          borderColor: '#F598AA',
+          data: data_studentPrimary,
+        },
+        {
+          label: 'มัธยมต้น',
+          backgroundColor: '#7DDAD9',
+          borderColor: '#7DDAD9',
+          data: data_studentJunior,
+        },
+        {
+          label: 'มัธยมปลาย',
+          backgroundColor: '#FCEAAF',
+          borderColor: '#FCEAAF',
+          data: data_studentSenior,
+        }
+      ]
+    };
+
+    const config = {
+      type: 'line',
+      data: data,
+      options: {}
+    };
+
+    const myChart = new Chart(
+      document.getElementById('myChart'),
+      config
+    );
+  </script>

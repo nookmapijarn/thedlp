@@ -5,7 +5,7 @@
             <div class="flex">
                 <!-- Logo -->
                 <div class="shrink-0 flex items-center">
-                    <a href="{{ route('ประวัติการเรียน') }}">
+                    <a href="{{ url('welcome') }}">
                         <x-application-logo class="block h-10 w-auto fill-current text-gray-600" />                        
                     </a>
                     <strong class="ml-2 text-gray-100 text-lg tracking-wide"> ทะเบียนนักศึกษา </strong>

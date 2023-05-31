@@ -19,8 +19,8 @@
                     <x-nav-link :href="route('login')" :active="request()->routeIs('login')" class="text-white">
                         {{ __('ทะเบียนนักศึกษา') }}
                     </x-nav-link>
-                </div>
-            </div> --}}
+                </div> --}}
+            </div>
 
             <!-- Settings Dropdown -->
             <div class="hidden sm:flex sm:items-center sm:ml-6  text-white">
