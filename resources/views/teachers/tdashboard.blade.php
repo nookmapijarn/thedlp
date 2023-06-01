@@ -7,9 +7,10 @@
         <div class="grid grid-cols-1 gap-2 md:grid md:grid-cols-2 justify-items-center">
             <div class="min-w-full" >
                 {{-- <label for="countries" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">ศสกร.ตำบล</label> --}}
-                <select id="tumbon" name="tumbon" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 ">
-                  @if(request()->get('tumbon')!='') <option selected>{{request()->get('tumbon')}}</option> @endif
-                  @if(request()->get('tumbon')=='') <option selected>เลือกตำบล</option> @endif
+                <select required id="tumbon" name="tumbon" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 ">
+                  {{-- @if(request()->get('tumbon')!='') <option selected>{{request()->get('tumbon')}}</option> @endif
+                  @if(request()->get('tumbon')=='') <option selected>เลือกตำบล</option> @endif --}}
+                  <option value="">เลือกตำบล</option>
                   <option value="4011 บางพลับ">4011 บางพลับ</option>
                   <option value="4012 บางพลับ">4012 บางพลับ</option>
                   <option value="4021 อ่างแก้ว">4021 อ่างแก้ว</option>
@@ -32,9 +33,10 @@
               </div>
             <div class="min-w-full">
                 {{-- <label for="countries" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">รายงาน</label> --}}
-                <select id="studreport" name="studreport" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-                  @if(request()->get('studreport')!='') <option selected>{{request()->get('studreport')}}</option> @endif
-                  @if(request()->get('studreport')=='') <option selected >เลือกรายงาน</option> @endif
+                <select required id="studreport" name="studreport" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                  {{-- @if(request()->get('studreport')!='') <option selected>{{request()->get('studreport')}}</option> @endif
+                  @if(request()->get('studreport')=='') <option selected >เลือกรายงาน</option> @endif --}}
+                  <option value="">เลือกรายงาน</option>
                   <option value="นักศึกษาทั้งหมด">นักศึกษาทั้งหมด</option>
                   <option value="เฉพาะผู้คาดว่าจะจบ">เฉพาะผู้คาดว่าจะจบ</option>
                   <option value="ไม่จบตกค้าง(ที่ไม่ได้ลงทะเบียนแล้ว)">ไม่จบตกค้าง (ที่ไม่ได้ลงทะเบียนแล้ว)</option>
@@ -58,7 +60,11 @@
           <div class="inline-block min-w-full  py-2 sm:px-6 lg:px-8">
             <div class="overflow-hidden">
                 <table class="min-w-full text-left text-sm font-light">
-                <thead class="border-b font-medium dark:border-neutral-500 bg-white">                  
+                <div class="flex flex-col-1 flex-row-1 justify-center p-4 bg-indigo-200 drop-shadow">
+                  <div class="text-sm font-bold">ตำบล : <span class="font-normal">{{request()->get('tumbon')}}</span></div>
+                  <div class="text-sm font-bold pl-4">รายงาน : <span class=" font-normal">{{request()->get('studreport')}}</span></div>
+                </div>
+                <thead class="border-b font-medium bg-white drop-shadow">                 
                   <tr class="bg-gray-200">
                     <th scope="col" class="p-2 text-center">ลำดับ</th>
                     <th scope="col" class="p-2">รหัส</th>
@@ -101,7 +107,7 @@
                 @endforeach
                 </tbody>
               </table>
-              @if($data==null) <section class="p-10 text-center text-lg">**กรุณาเลือก "ตำบล" และ "รายงาน"**</section> @endif
+              @if($data==null) <section class="p-10 text-center text-lg">**ไม่มีข้อมูลรายงานนี้**</section> @endif
             </div>
           </div>
         </div>
