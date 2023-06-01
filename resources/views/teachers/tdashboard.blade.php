@@ -49,9 +49,9 @@
           <span class="text-red-500 font-medium">หมายเหตุ</span>
         </div> --}}
         <div class="flex flex-col-1 flex-row-1 mt-2 justify-center">
-          <span class="text-indigo-500 font-semibold text-sm">มีสิทธิ <span class="text-gray-700"> : มีสิทธิสอบ N-NET </span></span> 
-          <span class="text-yellow-500 font-semibold pl-2 text-sm">E-Exam <span class="text-gray-700"> : มีสิทธิสอบ E-Exam </span></span>
-          <span class="text-green-500 font-semibold pl-2 text-sm">ผ่านแล้ว <span class="text-gray-700"> : สอบผ่านแล้ว</span></span>  
+          <span class="text-indigo-500 font-semibold text-xs truncate">มีสิทธิ <span class="text-gray-700 "> : มีสิทธิสอบ N-NET </span></span> 
+          <span class="text-yellow-500 font-semibold pl-2 text-xs truncate">E-Exam <span class="text-gray-700"> : มีสิทธิสอบ E-Exam </span></span>
+          <span class="text-green-500 font-semibold pl-2 text-xs truncate">ผ่านแล้ว <span class="text-gray-700"> : สอบผ่านแล้ว</span></span>  
         </div>
     </x-slot>
 
