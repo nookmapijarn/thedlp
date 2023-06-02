@@ -5,8 +5,7 @@ namespace App\Http\Controllers\Boss;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
-use App\Models\User;
-use Doctrine\DBAL\Schema\Index;
+use Jenssegers\Agent\Agent;
 
 class BossController extends Controller
 {
@@ -16,8 +15,13 @@ class BossController extends Controller
     public function index(Request $request)
     {
         //echo $this->student_primary($this->semestry, '1');
-
-        $labels = ['54/1','54/2','55/1','55/2','56/1','56/2','57/1','57/2','58/1','58/2','59/1','59/2','60/1','60/2','61/1','61/2', '62/1','62/2','63/1','63/2','64/1', '64/2', '65/1', '65/2', '66/1'];
+       $agent = new Agent();
+       if( $agent->isMobile()){
+        $labels = $this->get_semestry(8);
+       }else{
+        $labels = $this->get_semestry(20);
+       }   
+        
         $data_student = [];
         $data_new_student = [];
         $data_finish_student = [];
@@ -84,6 +88,22 @@ class BossController extends Controller
         ->groupBy('STD_CODE')
         ->get();
         return $g;
+    }
+
+    public function get_semestry($limit){
+        $sem = DB::table('grade')
+        ->select('SEMESTRY')
+        ->orderBy('SEMESTRY', 'DESC')
+        ->groupBy('SEMESTRY')
+        ->take($limit)
+        ->get();
+
+        $isem = [];
+
+        foreach($sem as $s){
+            array_push($isem, $s->SEMESTRY);
+        }
+        return  array_reverse($isem);
     }
 
     public function student_primary($semestry, $tlavel){
