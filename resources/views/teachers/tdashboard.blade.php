@@ -1,7 +1,7 @@
 <x-teachers-layout>
     <x-slot name="header">
         <h6 class="font-semibold text-lg text-gray-800 dark:text-gray-200 leading-tight m-2">
-            {{ __('ข้อมูลนักศึกษา ภาคเรียนปัจจุบัน') }} {{$semestry}}
+            {{ __('ภาคเรียนปัจจุบัน') }} {{$semestry}}
         </h6>
         <form method="GET" action="{{ route('tdashboard') }}" class="">
         <div class="grid grid-cols-1 gap-2 md:grid md:grid-cols-2 justify-items-center">
@@ -48,10 +48,18 @@
         {{-- <div>
           <span class="text-red-500 font-medium">หมายเหตุ</span>
         </div> --}}
-        <div class="flex flex-col-1 flex-row-1 mt-2 justify-center">
-          <span class="text-indigo-500 font-semibold text-xs truncate">มีสิทธิ <span class="text-gray-700 "> : มีสิทธิสอบ N-NET </span></span> 
-          <span class="text-yellow-500 font-semibold pl-2 text-xs truncate">E-Exam <span class="text-gray-700"> : มีสิทธิสอบ E-Exam </span></span>
-          <span class="text-green-500 font-semibold pl-2 text-xs truncate">ผ่านแล้ว <span class="text-gray-700"> : สอบผ่านแล้ว</span></span>  
+        <div class="grid grid-cols-3 gap-2 mt-2">
+          <div class="font-semibold text-xs truncate"> <span class="text-indigo-500">N-NET</span> : มีสิทธิสอบ N-NET ภาคเรียนปัจจุบัน </div> 
+          <div class="font-semibold pl-2 text-xs truncate"> <span class="text-yellow-500">E-EXAM</span> : มีสิทธิสอบ E-EXAM ภาคเรียนปัจจุบัน </div>
+          <!-- Tag 1-->
+          <div class="flex items-center text-xs">
+            <div class="text-blue-100 mr-1">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 fill-yellow-500">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0111.186 0z" />
+              </svg>              
+            </div>
+            <span class="text-indigo font-semibold truncate"> : คาดว่าจะจบหลักสูตร</span>
+          </div>
         </div>
     </x-slot>
 
@@ -64,7 +72,7 @@
                   <div class="text-sm font-bold">ตำบล : <span class="font-normal">{{request()->get('tumbon')}}</span></div>
                   <div class="text-sm font-bold pl-4">รายงาน : <span class=" font-normal">{{request()->get('studreport')}}</span></div>
                 </div>
-                <thead class="border-b font-medium bg-white drop-shadow">                 
+                <thead class="border-b font-medium bg-white drop-shadow text-xs md:text-sm">                 
                   <tr class="bg-gray-200">
                     <th scope="col" class="p-2 text-center">ลำดับ</th>
                     <th scope="col" class="p-2">รหัส</th>
@@ -89,7 +97,11 @@
                     <td class="p-2 w-15">{{$d['name']}}</td>
                     <td class="p-2">{{$d['surname']}}</td>
                     @if($d['expfin']==1)
-                    <td class="p-2 text-violet-500">คาดว่าจะจบ</td>
+                    <td class="p-2 text-violet-500 items-center">
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 fill-yellow-500">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0111.186 0z" />
+                      </svg>                                           
+                    </td>
                     @else
                     <td class="p-2">-</td>
                     @endif
@@ -97,7 +109,7 @@
                     @if($d['nt_sem']=="ผ่านแล้ว")
                     <td class="p-2 text-center text-green-500">{{$d['nt_sem']}}</td>
                     @elseif($d['nt_sem']=="มีสิทธิ")
-                    <td class="p-2 text-center text-indigo-500">{{$d['nt_sem']}}</td>
+                    <td class="p-2 text-center text-indigo-500">N-NET</td>
                     @elseif($d['nt_sem']=="E-Exam")
                     <td class="p-2 text-center text-yellow-500">{{$d['nt_sem']}}</td>
                     @else
@@ -107,7 +119,7 @@
                 @endforeach
                 </tbody>
               </table>
-              @if($data==null) <section class="p-10 text-center text-lg">**ไม่มีข้อมูลรายงานนี้**</section> @endif
+              @if($data==null) <section class="p-10 text-center text-lg">**ไม่พบข้อมูล กรุณาเลือกรายการใหม่**</section> @endif
             </div>
           </div>
         </div>

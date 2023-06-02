@@ -4,11 +4,20 @@
             {{ __('ผู้บริหาร') }}
         </h6>
     </x-slot> --}}
+
     {{-- Chart --}}
     <div class="h-full p-8 bg-gray-100">
       <h1>สถิตินักศึกษา</h1>
       <canvas id="myChart" height="100px"></canvas>
     </div> 
+
+    {{-- Chart 1 --}}
+    <div class="h-full p-8 bg-gray-100">
+      <h1>สถิตินักศึกษาเข้าใหม่ - จบหลักสูตร</h1>
+      <canvas id="myChart_B" height="100px"></canvas>
+    </div> 
+
+    {{-- Card --}}
     <div class="h-full p-8 bg-gray-100">
         <div class="grid grid-cols-1 gap-5 mt-5 md:grid-cols-3">
           <div class="overflow-hidden bg-indigo-100 rounded-lg shadow">
@@ -169,3 +178,40 @@
       config
     );
   </script>
+
+  {{-- Chart 1 --}}
+  <script>
+
+  var labels =  {{ Js::from($labels) }};
+  var data_new_student =  {{ Js::from($data_new_student) }};
+  var data_finish_student =  {{ Js::from($data_finish_student) }};
+
+  const data1 = {
+    labels: labels,
+    datasets: [
+      {
+        label: 'นักศึกษาใหม่',
+        backgroundColor: '#6996F6',
+        borderColor: '#6996F6',
+        data: data_new_student,
+      },
+      {
+        label: 'นักศึกษาจบหลักสูตร',
+        backgroundColor: '#F598AA',
+        borderColor: '#F598AA',
+        data: data_finish_student,
+      }
+    ]
+  };
+
+  const config1 = {
+    type: 'line',
+    data: data1,
+    options: {}
+  };
+
+  const myChart_B = new Chart(
+    document.getElementById('myChart_B'),
+    config1
+  );
+</script>

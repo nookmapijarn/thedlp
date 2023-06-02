@@ -4,9 +4,9 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
-        <meta name="description" content="รายงานผู้คาดว่าจะจบ รายชื่อผู้มีสิทธิสอบ N-Net, รายชื่อผู้มีสิทธิสอบ E-Exam, รายงานชั่วโมง กพช.">
-        <meta name="robots" content="รายงานผู้คาดว่าจะจบ รายชื่อผู้มีสิทธิสอบ N-Net, รายชื่อผู้มีสิทธิสอบ E-Exam, รายงานชั่วโมง กพช.">
-        <title>{{ config('app.name', 'งานการศึกษาพื้นฐาน-สกร.อำเภอโพธิ์ทอง') }}</title>
+        <meta name="description" content="สำหรับครู รายงานผู้คาดว่าจะจบ รายชื่อผู้มีสิทธิสอบ N-Net, รายชื่อผู้มีสิทธิสอบ E-Exam, รายงานชั่วโมง กพช.">
+        <meta name="robots" content="สำหรับครู รายงานผู้คาดว่าจะจบ รายชื่อผู้มีสิทธิสอบ N-Net, รายชื่อผู้มีสิทธิสอบ E-Exam, รายงานชั่วโมง กพช.">
+        <title>{{ config('app.name', 'สำหรับครู-งานการศึกษาพื้นฐาน-สกร.อำเภอโพธิ์ทอง') }}</title>
         <link rel="icon" type="image/x-icon" href="{{asset('storage/logo.png');}}">
 
         <!-- Fonts -->
