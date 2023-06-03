@@ -43,7 +43,7 @@
                 </dl>
             </div>
           </div>
-          <div class="overflow-hidden bg-red-100 rounded-lg shadow">
+          <div class="overflow-hidden bg-red-100 rounded-lg shadow">  
             <div class="px-4 py-5 lg:p-6">
                 <dl>
                     <dt class="text-sm font-medium leading-5 text-gray-500 truncate flex flex-row content-center place-content-between">
