@@ -30,7 +30,7 @@ class TeachersController extends Controller
             return view('teachers.tdashboard' ,compact('data', 'semestry'));
         }
 
-
+        // เลือกรายงาน
         switch ($studreport) {
             case 'นักศึกษาทั้งหมด':
                 $data = $this->allstudent($tumbon);

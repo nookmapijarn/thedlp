@@ -14,10 +14,10 @@ class BossController extends Controller
 
     public function index(Request $request)
     {
-        //echo $this->student_primary($this->semestry, '1');
+        // SEMESTRY Labels
        $agent = new Agent();
        if( $agent->isMobile()){
-        $labels = $this->get_semestry(8);
+        $labels = $this->get_semestry(6);
        }else{
         $labels = $this->get_semestry(20);
        }   
@@ -28,6 +28,7 @@ class BossController extends Controller
         $data_studentPrimary = [];
         $data_studentJunior  = [];
         $data_studentSenior  = [];
+        $data_exam_avg = [];
 
         // echo $this->finish_student('65/2')->Count()."SEMMMMMMM";
 
@@ -40,6 +41,7 @@ class BossController extends Controller
             $studentSenior = $this->student_primary($val, '3')->Count();
             $new_student = $this->new_student($val)->Count();
             $finish_student = $this->finish_student($val)->Count();
+            $exam_avg = $this->exam_avg($val)['result'];
 
             array_push($data_student, $allstudent);
             array_push($data_studentPrimary, $studentPrimary);
@@ -47,6 +49,7 @@ class BossController extends Controller
             array_push($data_studentSenior, $studentSenior);
             array_push($data_new_student, $new_student);
             array_push($data_finish_student, $finish_student);
+            array_push($data_exam_avg, $exam_avg);
             // ... manage the index this way..
             //echo "Index is $index\n ".' Value ='.$val;
             $index++;
@@ -76,7 +79,8 @@ class BossController extends Controller
                                                 'data_studentJunior',
                                                 'data_studentSenior',
                                                 'data_new_student',
-                                                'data_finish_student'
+                                                'data_finish_student',
+                                                'data_exam_avg'
                                             ));
     }
 
@@ -129,9 +133,8 @@ class BossController extends Controller
     }
 
     public function finish_student($semestry){
-        $semestry = strval($semestry);
         $s = DB::table('student')
-        ->where('FIN_SEM', '!=', "")
+        ->where('FIN_CAUSE', '=', 1)
         ->where('FIN_SEM', 'regexp', $semestry)
         ->select('STD_CODE')
         ->orderBy('STD_CODE', 'ASC')
