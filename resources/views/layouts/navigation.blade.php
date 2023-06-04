@@ -108,22 +108,24 @@
     <!-- Responsive Navigation Menu -->
     <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden  text-white">
         <div class="pt-2 pb-3 space-y-1">
-            <x-responsive-nav-link :href="route('ประวัติการเรียน')" :active="request()->routeIs('ประวัติการเรียน')" class="text-indigo-800 active:text-gray-800 focus:text-gray-800 hover:text-gray-800">
+            <x-responsive-nav-link :href="route('ประวัติการเรียน')" :active="request()->routeIs('ประวัติการเรียน')" class="{{request()->routeIs('ประวัติการเรียน') ? 'text-indigo-800' : 'text-white'}}">
                 {{ __('ประวัติการเรียน') }}
             </x-responsive-nav-link>
-            <x-responsive-nav-link :href="route('ตารางสอบ')" :active="request()->routeIs('ตารางสอบ')" class="text-indigo-800">
+            <x-responsive-nav-link :href="route('ตารางสอบ')" :active="request()->routeIs('ตารางสอบ')" class="{{request()->routeIs('ตารางสอบ') ? 'text-indigo-800' : 'text-white'}}">
                 {{ __('ตารางสอบ') }}
             </x-responsive-nav-link>
-            <x-responsive-nav-link :href="route('การลงทะเบียน')" :active="request()->routeIs('การลงทะเบียน')" class="text-indigo-800">
+            <x-responsive-nav-link :href="route('การลงทะเบียน')" :active="request()->routeIs('การลงทะเบียน')" class="{{request()->routeIs('การลงทะเบียน') ? 'text-indigo-800' : 'text-white'}}">
                 {{ __('การลงทะเบียน') }}
             </x-responsive-nav-link>
         </div>
 
         <!-- Responsive Settings Options -->
         <div class="pt-4 pb-1 border-t border-gray-200">
-            <div class="px-4">
-                <div class="font-medium text-base text-gray-100">{{ Auth::user()->name }}</div>
-                <div class="font-medium text-sm text-gray-100">{{ Auth::user()->email }}</div>
+            <div class="px-4" >
+                <a href="{{ url('profile') }}">
+                    <div class="font-medium text-base text-gray-100">{{ Auth::user()->name }}</div>
+                    <div class="font-medium text-sm text-gray-100">{{ Auth::user()->email }}</div>
+                </a>
             </div>
 
             <div class="mt-3 space-y-1 text-white">

@@ -129,21 +129,25 @@
                         </span>
                     </li>
                     @foreach($semestrylist1 as $semestry)
-                    <li class="mr-2 cursor-pointer shadow-md"
+                    <li class="mr-2 cursor-pointer"
                     @click="activeTab = {{$semestry->SEMESTRY}}">
-                        <a class="inline-block p-4 text-gray-600 bg-gray-100 rounded-t-lg dark:bg-gray-800 dark:text-blue-500 " 
-                        :class="isActive({{$semestry->SEMESTRY}}) ? 'text-blue-600 border-blue-600 active ' : 'hover:text-blue-600 hover:border-gray-300 dark:hover:text-gray-300'">{{$semestry->SEMESTRY}}</a>
+                        <a 
+                            :class="isActive({{$semestry->SEMESTRY}}) ? 
+                            'inline-block p-4 text-white bg-violet-500 active underline rounded-t-lg shadow-md' 
+                            : 'inline-block p-4 text-gray-600 border-blue-600  rounded-t-lg'">
+                            {{$semestry->SEMESTRY}}
+                        </a>
                     </li>
                     @endforeach
                 </ul>
             </div>
             <!-- Tab Content-->
             <div class="p-2 text-gray-500">
-                <div class="flex my-2 text-sm font-semibold items-center text-gray-800">
+                {{-- <div class="flex my-2 text-sm font-semibold items-center text-gray-800">
                     <div class="flex-grow border-t h-px mr-3"></div>
                     ตารางผลการเรียน
                     <div class="flex-grow border-t h-px ml-3"></div>
-                </div>
+                </div> --}}
                 @foreach($grade as $g)
                 <div x-cloak="" x-show="isActive({{$g['semestry']}})" >
                     <div class="flex ... text-xs">
