@@ -1,14 +1,15 @@
 <x-app-layout>
     <x-slot name="header">
         <h6 class="font-semibold text-lg text-gray-800 dark:text-gray-200 leading-tight">
-            {{ __('ตารางสอบ - ภาคเรียน 1/2566') }}<label class="px-1 py-1" >  สนามสอบ โรงเรียนโพธิ์ทอง"จินดามณี"</label>
+            {{ __('ตารางสอบ - ภาคเรียน 1/2566') }}
         </h6>      
+        <div class="" >  สนามสอบ โรงเรียนโพธิ์ทอง"จินดามณี"</div>
     </x-slot>
-    <div class="flex flex-col ">
+    <div class="flex flex-col">
         <div class="overflow-x-auto sm:-mx-6 lg:-mx-8">
           <div class="inline-block min-w-full  py-2 sm:px-6 lg:px-8">
             <div class="overflow-hidden">
-                <table class="min-w-full text-left text-xs font-light">
+                <table class="min-w-full text-left text-xs md:text-sm font-light">
                 <thead class="border-b font-medium dark:border-neutral-500 bg-white">                  
                   <tr>
                     <th scope="col" class="p-2 text-center">ลำดับ</th>
@@ -19,9 +20,9 @@
                     <th scope="col" class="p-2 text-center">ห้อง</th>
                   </tr>
                 </thead>
-                <tbody class="text-xs">
+                <tbody class="text-xs md:text-sm">
                 @foreach($schedule as $s)
-                  <tr class="border-b dark:border-neutral-500 bg-white shadow-md">
+                  <tr class="border-b dark:border-neutral-500 bg-white shadow-md hover:bg-violet-200 active:bg-violet-200">
                     <td class="p-2 text-center">{{$loop->iteration}}</td>
                     <td class="p-2">{{$s['sub_code']}}</td>
                     <td class="p-2 text-ellipsis overflow-hidden">{{$s['sub_name']}}</td>

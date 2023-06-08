@@ -164,6 +164,7 @@ class BossController extends Controller
     public function exam_avg($semestry){
         $exam_grade = DB::table('grade')
         ->where('SEMESTRY', $semestry)
+        //->where('GRP_CODE','4061')
         ->where('GRADE', '!=', 'ข')
         ->where('GRADE', '!=', '')
         ->select('STD_CODE')
@@ -172,6 +173,7 @@ class BossController extends Controller
 
         $all_grade = DB::table('grade')
         ->where('SEMESTRY', $semestry)
+        //->where('GRP_CODE','4061')
         ->select('STD_CODE')
         ->groupBy('STD_CODE')
         ->get();
@@ -185,7 +187,11 @@ class BossController extends Controller
                 'semestry' => $semestry
             ];
         }else{
-            return 0;
+            echo $exam_grade;
+            return [
+                'result'   => 0, 
+                'semestry' => $semestry
+            ];
         }
          
     }

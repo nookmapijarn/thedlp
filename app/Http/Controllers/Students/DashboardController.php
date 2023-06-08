@@ -22,6 +22,7 @@ class DashboardController extends Controller
         $activity = $this->get_activity($id);
         $gradelist = $this->get_gradelist($id);
         $grade = [];
+        $grade_analyze = $this->get_grade_analyze();
         
         if(Count($student)==0){
             echo "<h1> ไม่มีรหัสนักศึกษานี้ ".$id."</h1>";
@@ -48,7 +49,12 @@ class DashboardController extends Controller
          // คำนวนหน่วยกิต
          $credit = $this->cal_credit()['CREDIT'];
          $allcredit = $this->cal_credit()['ALL_CREDIT'];
-         $credit_percent = round(($credit * 100) / $allcredit,0);
+         if($allcredit!=0||$allcredit!=null){
+            $credit_percent = round(($credit * 100) / $allcredit,0);
+         }else{
+            $credit_percent = 0;
+         }
+         
          
         //  เกรดเฉลี่ย และ การเข้าสอบ
          $grade_avg = $this->grade_avg();
@@ -101,7 +107,8 @@ class DashboardController extends Controller
                                             'grade_avg',
                                             'exam_avg',
                                             'moral',
-                                            'nnet'
+                                            'nnet',
+                                            'grade_analyze'
                                         ));
     }
 
@@ -147,7 +154,10 @@ class DashboardController extends Controller
 
     // ค่าเฉลี่ยการเข้าสอบ
     public function exam_avg(){
-        $gradelist = $this->get_gradelist();
+        $gradelist = DB::table('grade')
+                    ->where('STD_CODE', '1215040001'.$this->getStudentidByUser())
+                    ->where('GRADE', '!=', '')
+                    ->get();
         $exam = 0; // จำนวนเข้า
         $exam_all = count($gradelist); // เกรดทั้งหมด
         $exam_avg = 0; // ค่าเฉลี่ยเข้าสอบ
@@ -171,6 +181,25 @@ class DashboardController extends Controller
         ->get();
         return $gradelist;
     }
+
+    public function get_grade_analyze(){
+        $id = $this->getStudentidByUser();
+        $learning   = DB::table('grade')->where('STD_CODE', '1215040001'.$id)->where('GRADE', '!=', 'ข')->where('GRADE', '!=', '')->where('SUB_CODE', 'regexp', '^ทร')->get();
+        $besic      = DB::table('grade')->where('STD_CODE', '1215040001'.$id)->where('GRADE', '!=', 'ข')->where('GRADE', '!=', '')->where('SUB_CODE', 'regexp', '^พ')->get();
+        $career     = DB::table('grade')->where('STD_CODE', '1215040001'.$id)->where('GRADE', '!=', 'ข')->where('GRADE', '!=', '')->where('SUB_CODE', 'regexp', '^อ')->get();
+        $life       = DB::table('grade')->where('STD_CODE', '1215040001'.$id)->where('GRADE', '!=', 'ข')->where('GRADE', '!=', '')->where('SUB_CODE', 'regexp', '^ทช')->get();
+        $society    = DB::table('grade')->where('STD_CODE', '1215040001'.$id)->where('GRADE', '!=', 'ข')->where('GRADE', '!=', '')->where('SUB_CODE', 'regexp', '^ส')->get();
+        
+        $learning   = ($learning->Count()!=0) ? $learning->sum('TOTAL')/$learning->Count() : 0;
+        $besic      = ($besic->Count()!=0) ? $besic->sum('TOTAL')/$besic->Count() : 0;
+        $career     = ($career->Count()!=0) ? $career->sum('TOTAL')/$career->Count() : 0;
+        $life       = ($life->Count()!=0) ? $life->sum('TOTAL')/$life->Count() : 0;
+        $society    = ($society->Count()!=0) ? $society->sum('TOTAL')/$society->Count() : 0;
+        //echo $society->sum('TOTAL')/$society->Count();
+        //echo $society;
+        return [round($learning, 2), round($besic, 2), round($career, 2), round($life, 2), round($society, 2)];
+    }
+
     public function cal_credit(){
 
         $gradelist = $this->get_gradelist();

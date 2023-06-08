@@ -37,7 +37,7 @@
   {{-- กำลังเรียน --}}
   <div class="overflow-y-auto max-h-screen rounded-md">
     <table class="min-w-full text-left text-xs font-light">
-      <div scope="col" class="p-4 text-center text-lg shdow-md bg-blue-200 w-full sticky top-0 z-49">กำลังเรียน {{$semestry}}</div>
+      <div scope="col" class="p-4 text-center text-lg shdow-md bg-blue-200 w-full sticky top-0 z-49">กำลังเรียน ภาคเรียนที่ {{$semestry}}</div>
       <thead class="border-b font-medium dark:border-neutral-500 bg-white">             
         <tr>
           <th scope="col" class="p-2 text-center">ลำดับ</th>

@@ -16,10 +16,12 @@
         </div>
     </section>
 
-    {{-- AVG --}}
-    {{-- <section class="bg-white dark:bg-gray-900">
-
-    </section> --}}
+    {{-- Chart Redar --}}
+    <section class="bg-white grid justify-items-center">
+        <div class="h-full w-full p-10 bg-white max-w-screen-md  grid justify-items-center">
+            <canvas id="myChart" height="100px"></canvas>
+        </div> 
+    </section>
 
     {{-- Progess bar --}}
     <section class="bg-white dark:bg-gray-900">
@@ -63,6 +65,7 @@
                 <div class="text-lg bg-gray-200 font-semibold text-gray-800 bg-opacity-50 rounded-lg border">คุณธรรม : {{$moral}}</div> --}}
               </div>
           </div>
+
           <div class="gap- items-center py-1 px-4 mx-auto max-w-screen-md md:grid md:grid-cols-2 md:py-12 md:px-6">
             <div class="mr-5">
                 <div class="float-left mr-1 bg-green-400 rounded-full w-5 h-5"></div>
@@ -70,7 +73,7 @@
            </div>
             <div x-data="{width: 0}" x-init="$nextTick(() => { width = {{$credit_percent}} })" class="bg-gray-300 rounded-lg h-4 my-2" aria-valuenow="30" aria-valuemin="0" aria-valuemax="100" role="progressbar">
                 @if($credit_percent!=0)
-                <div :style="`width: ${width}%; transition: width 5s;`" class="bg-green-400 h-4 rounded-l-lg relative">
+                <div :style="`width: ${width}%; transition: width 5s;`" class="bg-green-400 h-4 rounded-full relative">
                     <div class="absolute text-xs font-semibold right-0 mr-2"><span x-text="width"></span>%</div>
                 </div>
                 @endif
@@ -81,7 +84,7 @@
             </div>
             <div x-data="{width: 0}" x-init="$nextTick(() => { width = {{$act_percentage}} })" class="bg-gray-300 rounded-lg h-4 my-2" aria-valuenow="30" aria-valuemin="0" aria-valuemax="100" role="progressbar">
                 @if($act_percentage!=0)
-                <div :style="`width: ${width}%; transition: width 5s;`" class="bg-orange-400 h-4 rounded-l-lg relative">
+                <div :style="`width: ${width}%; transition: width 5s;`" class="bg-orange-400 h-4 rounded-full relative">
                     <div class="absolute text-xs  font-semibold right-0 mr-2"><span x-text="width"></span>%</div>
                 </div>
                 @endif
@@ -92,13 +95,14 @@
           </div>
           <div x-data="{width: 0}" x-init="$nextTick(() => { width = {{$exam_avg}} })" class="bg-gray-300 rounded-lg h-4 my-2" aria-valuenow="30" aria-valuemin="0" aria-valuemax="100" role="progressbar">
             @if($exam_avg!=0)  
-            <div :style="`width: ${width}%; transition: width 5s;`" class="bg-yellow-400 h-4 rounded-l-lg relative">
+            <div :style="`width: ${width}%; transition: width 5s;`" class="bg-yellow-400 h-4 relative rounded-full">
                   <div class="absolute text-xs  font-semibold right-0 mr-2"><span x-text="width"></span>%</div>
               </div>
               @endif
           </div>
         </div>
     </section>
+
 
     {{-- GRADE --}}
     <section class="bg-white dark:bg-gray-900">
@@ -121,7 +125,7 @@
                 ประวัติผลการเรียน
                 <div class="flex-grow border-t h-px ml-3"></div>
             </div>
-            <div class="text-sm font-medium text-center text-gray-500 border-b border-gray-200 dark:text-gray-400 dark:border-gray-700">
+            <div class="text-sm md:text-md font-medium text-center text-gray-500 border-b border-gray-200 dark:text-gray-400 dark:border-gray-700">
                 <ul class="flex flex-wrap text-sm font-medium text-center text-gray-500 border-b border-gray-200 dark:border-gray-700 dark:text-gray-400">
                     <li class="mr-2">
                         <span class="inline-block p-4 rounded-t-lg border-b-2 border-transparent">
@@ -130,7 +134,7 @@
                     </li>
                     @foreach($semestrylist1 as $semestry)
                     <li class="mr-2 cursor-pointer"
-                    @click="activeTab = {{$semestry->SEMESTRY}}">
+                        @click="activeTab = {{$semestry->SEMESTRY}}">
                         <a 
                             :class="isActive({{$semestry->SEMESTRY}}) ? 
                             'inline-block p-4 text-white bg-violet-500 active underline rounded-t-lg shadow-md' 
@@ -142,14 +146,14 @@
                 </ul>
             </div>
             <!-- Tab Content-->
-            <div class="p-2 text-gray-500">
+            <div class="p-2 text-gray-500 text-sm md:text-md">
                 {{-- <div class="flex my-2 text-sm font-semibold items-center text-gray-800">
                     <div class="flex-grow border-t h-px mr-3"></div>
                     ตารางผลการเรียน
                     <div class="flex-grow border-t h-px ml-3"></div>
                 </div> --}}
                 @foreach($grade as $g)
-                <div x-cloak="" x-show="isActive({{$g['semestry']}})" >
+                <div x-cloak="" x-show="isActive({{$g['semestry']}})" class="hover:bg-violet-200 active:bg-violet-200">
                     <div class="flex ... text-xs">
                         <div class="flex-none ... p-2">
                             {{$g['semestry']}}
@@ -169,5 +173,58 @@
             </div>
         </div>
     </section>
-   
 </x-app-layout>
+
+{{-- Script --}}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" ></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script type="text/javascript"></script>
+<script>
+    var data_grade_analyze =  {{ Js::from($grade_analyze) }};
+    const data = {
+        labels: [
+            'ทักษะการเรียนรู้',
+            'ความรู้พื้นฐาน',
+            'การประกอบอาชีพ',
+            'ทักษะการดำเนินชีวิต',
+            'การพัฒนาสังคม',
+        ],
+        datasets: [{
+            label: 'คะแนนเฉลี่ยกลุ่มสาระ',
+            data: data_grade_analyze,
+            fill: true,
+            backgroundColor: 'rgba(255, 99, 132, 0.2)',
+            borderColor: 'rgb(255, 99, 132)',
+            pointBackgroundColor: 'rgb(255, 99, 132)',
+            pointBorderColor: '#fff',
+            pointHoverBackgroundColor: '#fff',
+            pointHoverBorderColor: 'rgb(255, 99, 132)'
+        }]
+    };
+
+    const config = {
+    type: 'radar',
+    data: data,
+    options: {
+        elements: {
+            line: {
+                borderWidth: 3
+            }
+        },
+        scales: {
+            r: {
+                angleLines: {
+                    display: false
+                },
+                suggestedMin: 50,
+                suggestedMax: 100
+            }
+        }
+    },
+    };
+
+    const myChart = new Chart(
+        document.getElementById('myChart'),
+        config
+    );
+</script>
