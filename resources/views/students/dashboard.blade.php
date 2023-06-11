@@ -16,15 +16,140 @@
         </div>
     </section>
 
-    {{-- Chart Redar --}}
+    {{-- Progess --}}
+    <section class="bg-white grid justify-items-center">
+        <div class="max-w-screen-md p-2 w-full pt-10 pb-10">
+            <div class="grid grid-cols-1 gap-20 md:grid-cols-2 md:gap-10">
+              <div class="flex items-center flex-wrap px-10 bg-white shadow-xl rounded-2xl h-20"
+                 x-data="{ circumference: 50 * 2 * Math.PI, percent: {{$credit_percent}} }"
+                 >
+                    <div class="flex items-center justify-center -m-6 overflow-hidden bg-white rounded-full">
+                      <svg class="w-32 h-32 transform translate-x-1 translate-y-1" x-cloak aria-hidden="true">
+                        <circle
+                          class="text-gray-300"
+                          stroke-width="10"
+                          stroke="currentColor"
+                          fill="transparent"
+                          r="50"
+                          cx="60"
+                          cy="60"
+                          />
+                        <circle
+                          class="text-blue-600"
+                          stroke-width="10"
+                          :stroke-dasharray="circumference"
+                          :stroke-dashoffset="circumference - percent / 100 * circumference"
+                          stroke-linecap="round"
+                          stroke="currentColor"
+                          fill="transparent"
+                          r="50"
+                          cx="60"
+                          cy="60"
+                         />
+                      </svg>
+                      <span class="absolute text-2xl text-blue-700" x-text="`${percent}%`"></span>
+                    </div>
+                    <p class="ml-10 font-medium text-gray-600 sm:text-xl">หน่วยกิจรวม</p>
+          
+                    <span class="ml-auto text-xl font-medium text-blue-600"> {{$credit}}</span>
+                </div>
+              
+              
+              <div class="flex items-center flex-wrap max-w-md px-10 bg-white shadow-xl rounded-2xl h-20"
+                 x-data="{ circumference: 50 * 2 * Math.PI, percent: {{($act_sum*100)/200}} }"
+                 >
+                    <div class="flex items-center justify-center -m-6 overflow-hidden bg-white rounded-full">
+                      <svg class="w-32 h-32 transform translate-x-1 translate-y-1" x-cloak aria-hidden="true">
+                        <circle
+                          class="text-gray-300"
+                          stroke-width="10"
+                          stroke="currentColor"
+                          fill="transparent"
+                          r="50"
+                          cx="60"
+                          cy="60"
+                          />
+                        <circle
+                          class="text-yellow-400"
+                          stroke-width="10"
+                          :stroke-dasharray="circumference"
+                          :stroke-dashoffset="circumference - percent / 100 * circumference"
+                          stroke-linecap="round"
+                          stroke="currentColor"
+                          fill="transparent"
+                          r="50"
+                          cx="60"
+                          cy="60"
+                         />
+                      </svg>
+                      <span class="absolute text-2xl text-yellow-400" x-text="`${percent}%`"></span>
+                    </div>
+                    <p class="ml-10 font-medium text-gray-600 sm:text-xl">ชั่วโมง กพช.</p>
+          
+                    <span class="ml-auto text-xl font-medium text-yellow-400 ">{{$act_sum}}</span>
+                </div>
+            </div>
+          </div>
+    </section>
+
+    {{-- Process Semestry --}}
+    <section class="bg-white grid justify-items-center">
+        <div class="w-full p-10 max-w-screen-md">
+            <h6 class="text-sm text-center font-medium leading-6 text-gray-900 font-kanit">
+                ระยะเวลาเรียน (ไม่เกิน 10 ภาคเรียน)
+            </h6>
+            <div class="pt-10">
+                <div class="bg-gray-200 relative w-[100%] ">
+                    <div class="border-r-4 border-red-500 absolute top-0 left-0 h-full w-[100.5%] " >
+                        <span class="bg-red-400 absolute -right-9 mt-6 rounded-sm py-1 px-2 text-xs font-semibold text-white">
+                            <span class="bg-red-400 absolute top-[-2px] left-1/2 -z-15 h-2 w-2 -translate-x-1/2 rotate-45 rounded-sm">
+                            </span>
+                             หมดสภาพ
+                        </span>
+                    </div>
+                    <div class="border-r-4 border-yellow-500 absolute top-0 left-0 h-full w-[100%] " >
+                        <div class="absolute text-xs font-semibold right-4 mr-2 text-gray-200 ">จบล่าช้า 5-10 ภาคเรียน</div>
+                        {{-- <span class="bg-yellow-400 absolute right-36 mt-6 rounded-sm py-1 px-2 text-xs font-semibold text-white">
+                            <span class="bg-yellow-400 absolute top-[-2px] left-1/2 -z-15 h-2 w-2 -translate-x-1/2 rotate-45 rounded-sm">
+                            </span>
+                            จบล่าช้า
+                        </span> --}}
+                    </div>
+                    <div class="border-r-4 border-green-500 absolute top-0 left-0 h-full w-[40%] g" >
+                        <div class="absolute text-xs font-semibold right-4 mr-2 text-gray-200 ">จบปกติ 1-4 ภาคเรียน</div>
+                        <span class="bg-green-400 absolute -right-7 mt-6 rounded-sm py-1 px-2 text-xs font-semibold text-white">
+                            <span class="bg-green-400 absolute top-[-2px] left-1/2 -z-15 h-2 w-2 -translate-x-1/2 rotate-45 rounded-sm">
+                            </span>
+                            จบปกติ
+                        </span>
+                    </div>
+                    <div x-data="{width: 0}" x-init="$nextTick(() => { width = {{$timelerning}} })" class="bg-gray-300 rounded-lg h-4 my-2" aria-valuenow="30" aria-valuemin="0" aria-valuemax="100" role="progressbar">
+                        @if($timelerning!=0)
+                        <div :style="`width: ${width}%; transition: width 1s;`" class="bg-indigo-500 h-4 relative ">
+                            <span class="bg-indigo-500 absolute -right-14 bottom-full mb-2 rounded-sm py-1 px-2 text-xs font-semibold text-white">
+                                <span class="bg-indigo-500 absolute bottom-[-2px] left-1/2 -z-15 h-2 w-2 -translate-x-1/2 rotate-45 rounded-sm">
+                                </span>
+                                ปัจจุบันภาคเรียนที่ {{$timelerning/10}}
+                            </span>
+                        </div>
+                        @endif
+                    </div>
+                </div>
+            </div>
+        </div>         
+    </section>
+
+    {{-- Bar Redar --}}
     <section class="bg-white grid justify-items-center">
         <div class="h-full w-full p-10 bg-white max-w-screen-md  grid justify-items-center">
+            <h6 class="text-sm font-medium leading-6 text-gray-900 font-kanit">
+                ภาพรวมคะแนนเฉลี่ยทุกรายวิชา 5 กลุ่มสาระ
+            </h6>
             <canvas id="myChart" height="100px"></canvas>
         </div> 
     </section>
-
     {{-- Progess bar --}}
-    <section class="bg-white dark:bg-gray-900">
+    {{-- <section class="bg-white dark:bg-gray-900">
           <div class="h-full p-4 bg-white-100 mx-auto max-w-screen-md">
               <h6 class="text-sm font-medium leading-6 text-gray-900 font-kanit">
                 สถิติการเรียน
@@ -59,11 +184,11 @@
                             {{$moral}}
                         </dd>
                     </dl>
-                </div>
+                </div> --}}
                 {{-- <div class="text-lg bg-gray-200 font-semibold text-gray-800 bg-opacity-50 rounded-lg border">GPA : {{$grade_avg}}</div> --}}
                 {{-- <div class="text-lg bg-gray-200 font-semibold text-gray-800 bg-opacity-50 rounded-lg border">N-NET : {{$nnet}}</div>
                 <div class="text-lg bg-gray-200 font-semibold text-gray-800 bg-opacity-50 rounded-lg border">คุณธรรม : {{$moral}}</div> --}}
-              </div>
+              {{-- </div>
           </div>
 
           <div class="gap- items-center py-1 px-4 mx-auto max-w-screen-md md:grid md:grid-cols-2 md:py-12 md:px-6">
@@ -91,24 +216,23 @@
             </div>
             <div class="mr-5">
               <div class="float-left mr-1 bg-yellow-400 rounded-full w-5 h-5"></div>
-              <span class="text-sm align-top text-gray-600">เข้าสอบ {{$exam_avg}} %</span>
+              <span class="text-sm align-top text-gray-600">ระยะเวลาเรียน {{$timelerning}} %</span>
           </div>
-          <div x-data="{width: 0}" x-init="$nextTick(() => { width = {{$exam_avg}} })" class="bg-gray-300 rounded-lg h-4 my-2" aria-valuenow="30" aria-valuemin="0" aria-valuemax="100" role="progressbar">
-            @if($exam_avg!=0)  
+          <div x-data="{width: 0}" x-init="$nextTick(() => { width = {{$timelerning}} })" class="bg-gray-300 rounded-lg h-4 my-2" aria-valuenow="30" aria-valuemin="0" aria-valuemax="100" role="progressbar">
+            @if($timelerning!=0)  
             <div :style="`width: ${width}%; transition: width 5s;`" class="bg-yellow-400 h-4 relative rounded-full">
                   <div class="absolute text-xs  font-semibold right-0 mr-2"><span x-text="width"></span>%</div>
               </div>
               @endif
           </div>
         </div>
-    </section>
-
+    </section> --}}
 
     {{-- GRADE --}}
     <section class="bg-white dark:bg-gray-900">
         
         <div 
-            class="gap- items-center py-1 px-4 mx-auto max-w-screen-sm"
+            class="gap- items-center py-1 px-4 mx-auto max-w-screen-md"
             x-data="{
             activeTab : 'tab1',
             isActive(tab){
@@ -122,14 +246,14 @@
             <!-- Tab Navigation-->
             <div class="flex my-2 text-sm font-semibold items-center text-gray-800">
                 <div class="flex-grow border-t h-px mr-3"></div>
-                ประวัติผลการเรียน
+                ผลการเรียนรายภาค
                 <div class="flex-grow border-t h-px ml-3"></div>
             </div>
             <div class="text-sm md:text-md font-medium text-center text-gray-500 border-b border-gray-200 dark:text-gray-400 dark:border-gray-700">
                 <ul class="flex flex-wrap text-sm font-medium text-center text-gray-500 border-b border-gray-200 dark:border-gray-700 dark:text-gray-400">
                     <li class="mr-2">
                         <span class="inline-block p-4 rounded-t-lg border-b-2 border-transparent">
-                            ภาคเรียน :
+                            ภาคเรียนที่ :
                         </span>
                     </li>
                     @foreach($semestrylist1 as $semestry)
@@ -146,7 +270,7 @@
                 </ul>
             </div>
             <!-- Tab Content-->
-            <div class="p-2 text-gray-500 text-sm md:text-md">
+            <div class="p-2 text-gray-500 text-xs md:text-sm">
                 {{-- <div class="flex my-2 text-sm font-semibold items-center text-gray-800">
                     <div class="flex-grow border-t h-px mr-3"></div>
                     ตารางผลการเรียน
@@ -154,7 +278,7 @@
                 </div> --}}
                 @foreach($grade as $g)
                 <div x-cloak="" x-show="isActive({{$g['semestry']}})" class="hover:bg-violet-200 active:bg-violet-200">
-                    <div class="flex ... text-xs">
+                    <div class="flex ... text-xs md:text-sm">
                         <div class="flex-none ... p-2">
                             {{$g['semestry']}}
                         </div>
@@ -203,7 +327,7 @@
     };
 
     const config = {
-    type: 'radar',
+    type: 'bar',
     data: data,
     options: {
         elements: {
@@ -211,15 +335,15 @@
                 borderWidth: 3
             }
         },
-        scales: {
-            r: {
-                angleLines: {
-                    display: false
-                },
-                suggestedMin: 50,
-                suggestedMax: 100
-            }
-        }
+        // scales: {
+        //     r: {
+        //         angleLines: {
+        //             display: false
+        //         },
+        //         suggestedMin: 50,
+        //         suggestedMax: 100
+        //     }
+        // }
     },
     };
 

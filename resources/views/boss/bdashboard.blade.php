@@ -113,34 +113,34 @@
       labels: labels,
       datasets: [
         {
-          label: 'นักศึกษาทั้งหมด',
-          backgroundColor: '#6996F6',
-          borderColor: '#6996F6',
-          data: data_student,
-        },
-        {
           label: 'ประถม',
-          backgroundColor: '#F598AA',
-          borderColor: '#F598AA',
+          backgroundColor: '#fa8072',
+          borderColor: '#fa8072',
           data: data_studentPrimary,
         },
         {
           label: 'มัธยมต้น',
-          backgroundColor: '#7DDAD9',
-          borderColor: '#7DDAD9',
+          backgroundColor: '#66cdaa',
+          borderColor: '#66cdaa',
           data: data_studentJunior,
         },
         {
           label: 'มัธยมปลาย',
-          backgroundColor: '#FCEAAF',
-          borderColor: '#FCEAAF',
+          backgroundColor: '#ffbf00',
+          borderColor: '#ffbf00',
           data: data_studentSenior,
+        },
+        {
+          label: 'นักศึกษาทั้งหมด',
+          backgroundColor: '#7600e0',
+          borderColor: '#7600e0',
+          data: data_student,
         }
       ]
     };
 
     const config = {
-      type: 'line',
+      type: 'bar',
       data: data,
       options: {}
     };
@@ -163,21 +163,21 @@
     datasets: [
       {
         label: 'นักศึกษาใหม่',
-        backgroundColor: '#6996F6',
-        borderColor: '#6996F6',
+        backgroundColor: '#234c71',
+        borderColor: '#234c71',
         data: data_new_student,
       },
       {
         label: 'นักศึกษาจบหลักสูตร',
-        backgroundColor: '#F598AA',
-        borderColor: '#F598AA',
+        backgroundColor: '#83c5be',
+        borderColor: '#83c5be',
         data: data_finish_student,
       }
     ]
   };
 
   const config1 = {
-    type: 'line',
+    type: 'bar',
     data: data1,
     options: {}
   };

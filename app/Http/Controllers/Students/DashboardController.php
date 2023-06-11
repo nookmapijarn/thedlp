@@ -41,8 +41,9 @@ class DashboardController extends Controller
         ->where('STD_CODE', '1215040001'.$id)
         ->select('SEMESTRY')
         ->distinct() //ข้อมูลไม่ซ้ำ
-        ->orderBy('SEMESTRY', 'desc')
+        ->orderBy('SEMESTRY', 'ASC')
         ->get();
+
         //print_r($semestrylist1[0]);
         //echo "<pre>".($semestrylist1).'</pre>';
 
@@ -56,9 +57,10 @@ class DashboardController extends Controller
          }
          
          
-        //  เกรดเฉลี่ย และ การเข้าสอบ
+        //  เกรดเฉลี่ย ระยะเวลาเรียน และ การเข้าสอบ
          $grade_avg = $this->grade_avg();
          $exam_avg = $this->exam_avg();
+         $timelerning = $this->timelerning();
          $nnet = null;
          $moral = null;
 
@@ -108,7 +110,8 @@ class DashboardController extends Controller
                                             'exam_avg',
                                             'moral',
                                             'nnet',
-                                            'grade_analyze'
+                                            'grade_analyze',
+                                            'timelerning'
                                         ));
     }
 
@@ -133,7 +136,17 @@ class DashboardController extends Controller
         //Print_r($split);
         return $split[3];
     }
+    public function timelerning(){
+        // ระยะเวลาเรียน
+        $semtime = DB::table('grade')
+        ->where('STD_CODE', '1215040001'.$this->getStudentidByUser())
+        ->select('SEMESTRY')
+        ->distinct() //ข้อมูลไม่ซ้ำ
+        ->orderBy('SEMESTRY', 'ASC')
+        ->get();
 
+        return $semtime->Count()*10; // มี 10 ภาคเรียน *10 เพื่อคืนค่าเป็นร้อยละ
+    }
     // คำนวนเกรดเฉลี่ย
     public function grade_avg(){
         $gradelist = $this->get_gradelist();
@@ -241,70 +254,5 @@ class DashboardController extends Controller
     public function getStudentidByUser(){
         $id = auth()->user()->student_id;
         return $id;
-    }
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
-    {
-        //
     }
 }

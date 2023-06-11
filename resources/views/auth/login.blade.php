@@ -2,7 +2,7 @@
 
     {{-- Label --}}
     <div class="text-center m-2 rounded-lg text-lg text-shadow">ศูนย์ส่งเสริมการเรียนรู้อำเภอโพธิ์ทอง</div>
-    <div class="text-center p-1 m-1 text-2xl text-gray-900 ">ทะเบียนนักศึกษา</div>
+    <div class="text-center p-1 m-1 text-2xl text-gray-900 ">สำหรับนักศึกษา</div>
  
 
 

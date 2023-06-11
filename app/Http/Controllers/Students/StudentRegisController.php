@@ -118,7 +118,7 @@ class StudentRegisController extends Controller
     }
 
     public function getSubject($sub_code){
-        $subject = DB::table('subject')
+        $subject = DB::table('subjectall')
         ->where('SUB_CODE', $sub_code)
         ->first();
         //print_r($subject);

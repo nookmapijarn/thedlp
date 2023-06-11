@@ -45,7 +45,7 @@
             </a>
         </div>
         <p class="mt-8 text-base leading-6 text-center text-gray-400">
-            © 2023 สกร.อำเภอโพธิ์ทอง, งานการศึกษาขั้นพื้นฐาน,  Nonthchai Maphijarn
+            © ผู้พัฒนาระบบ นายนนทชัย  มาพิจารณ์  ครู สกร.อำเภอโพธิ์ทอง
         </p>
     </div>
 </section>

@@ -3,7 +3,7 @@
         <h6 class="font-semibold text-lg text-gray-800 dark:text-gray-200 leading-tight">
             {{ __('ตารางสอบ - ภาคเรียน 1/2566') }}
         </h6>      
-        <div class="" >  สนามสอบ โรงเรียนโพธิ์ทอง"จินดามณี"</div>
+        <div class="" >  สนามสอบ โรงเรียนโพธิ์ทอง"จินดามณี" อ.โพธิ์ทอง จ.อ่างทอง</div>
     </x-slot>
     <div class="flex flex-col">
         <div class="overflow-x-auto sm:-mx-6 lg:-mx-8">

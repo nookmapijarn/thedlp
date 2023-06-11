@@ -47,11 +47,11 @@
                     <x-nav-link :href="route('ประวัติการเรียน')" :active="request()->routeIs('ประวัติการเรียน')" class="text-white">
                         {{ __('ประวัติการเรียน') }}
                     </x-nav-link>
+                    <x-nav-link :href="route('ประวัติการลงทะเบียน')" :active="request()->routeIs('ประวัติการลงทะเบียน')" class="text-white">
+                        {{ __('ประวัติการลงทะเบียน') }}
+                    </x-nav-link>
                     <x-nav-link :href="route('ตารางสอบ')" :active="request()->routeIs('ตารางสอบ')" class="text-white">
                         {{ __('ตารางสอบ') }}
-                    </x-nav-link>
-                    <x-nav-link :href="route('การลงทะเบียน')" :active="request()->routeIs('การลงทะเบียน')" class="text-white">
-                        {{ __('การลงทะเบียน') }}
                     </x-nav-link>
                 </div>
             </div>
@@ -111,11 +111,11 @@
             <x-responsive-nav-link :href="route('ประวัติการเรียน')" :active="request()->routeIs('ประวัติการเรียน')" class="{{request()->routeIs('ประวัติการเรียน') ? 'text-indigo-800' : 'text-white'}}">
                 {{ __('ประวัติการเรียน') }}
             </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('ประวัติการลงทะเบียน')" :active="request()->routeIs('ประวัติการลงทะเบียน')" class="{{request()->routeIs('การลงทะเบียน') ? 'text-indigo-800' : 'text-white'}}">
+                {{ __('ประวัติการลงทะเบียน') }}
+            </x-responsive-nav-link>
             <x-responsive-nav-link :href="route('ตารางสอบ')" :active="request()->routeIs('ตารางสอบ')" class="{{request()->routeIs('ตารางสอบ') ? 'text-indigo-800' : 'text-white'}}">
                 {{ __('ตารางสอบ') }}
-            </x-responsive-nav-link>
-            <x-responsive-nav-link :href="route('การลงทะเบียน')" :active="request()->routeIs('การลงทะเบียน')" class="{{request()->routeIs('การลงทะเบียน') ? 'text-indigo-800' : 'text-white'}}">
-                {{ __('การลงทะเบียน') }}
             </x-responsive-nav-link>
         </div>
 
