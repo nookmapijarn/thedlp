@@ -55,7 +55,7 @@
                 </div>
               
               
-              <div class="flex items-center flex-wrap max-w-md px-10 bg-white shadow-xl rounded-2xl h-20"
+              <div class="flex items-center flex-wrap px-10 bg-white shadow-xl rounded-2xl h-20"
                  x-data="{ circumference: 50 * 2 * Math.PI, percent: {{($act_sum*100)/200}} }"
                  >
                     <div class="flex items-center justify-center -m-6 overflow-hidden bg-white rounded-full">
@@ -98,7 +98,7 @@
             <h6 class="text-sm text-center font-medium leading-6 text-gray-900 font-kanit">
                 ระยะเวลาเรียน (ไม่เกิน 10 ภาคเรียน)
             </h6>
-            <div class="pt-10">
+            <div class="pt-5">
                 <div class="bg-gray-200 relative w-[100%] ">
                     <div class="border-r-4 border-red-500 absolute top-0 left-0 h-full w-[100.5%] " >
                         <span class="bg-red-400 absolute -right-9 mt-6 rounded-sm py-1 px-2 text-xs font-semibold text-white">
@@ -108,7 +108,7 @@
                         </span>
                     </div>
                     <div class="border-r-4 border-yellow-500 absolute top-0 left-0 h-full w-[100%] " >
-                        <div class="absolute text-xs font-semibold right-4 mr-2 text-gray-200 ">จบล่าช้า 5-10 ภาคเรียน</div>
+                        <div class="absolute text-xs font-semibold right-4 mr-2 text-gray-200 text-ellipsis overflow-hidden ...">ล่าช้า 5-10 ภาคเรียน</div>
                         {{-- <span class="bg-yellow-400 absolute right-36 mt-6 rounded-sm py-1 px-2 text-xs font-semibold text-white">
                             <span class="bg-yellow-400 absolute top-[-2px] left-1/2 -z-15 h-2 w-2 -translate-x-1/2 rotate-45 rounded-sm">
                             </span>
@@ -116,7 +116,7 @@
                         </span> --}}
                     </div>
                     <div class="border-r-4 border-green-500 absolute top-0 left-0 h-full w-[40%] g" >
-                        <div class="absolute text-xs font-semibold right-4 mr-2 text-gray-200 ">จบปกติ 1-4 ภาคเรียน</div>
+                        <div class="absolute text-xs font-semibold right-4 mr-2 text-gray-200 text-ellipsis overflow-hidden ..."> 1-4 ภาคเรียน</div>
                         <span class="bg-green-400 absolute -right-7 mt-6 rounded-sm py-1 px-2 text-xs font-semibold text-white">
                             <span class="bg-green-400 absolute top-[-2px] left-1/2 -z-15 h-2 w-2 -translate-x-1/2 rotate-45 rounded-sm">
                             </span>
@@ -126,10 +126,10 @@
                     <div x-data="{width: 0}" x-init="$nextTick(() => { width = {{$timelerning}} })" class="bg-gray-300 rounded-lg h-4 my-2" aria-valuenow="30" aria-valuemin="0" aria-valuemax="100" role="progressbar">
                         @if($timelerning!=0)
                         <div :style="`width: ${width}%; transition: width 1s;`" class="bg-indigo-500 h-4 relative ">
-                            <span class="bg-indigo-500 absolute -right-14 bottom-full mb-2 rounded-sm py-1 px-2 text-xs font-semibold text-white">
+                            <span class="bg-indigo-500 absolute bottom-full mb-2 rounded-sm py-1 px-2 text-xs font-semibold text-white -right-8 md:-right-8">
                                 <span class="bg-indigo-500 absolute bottom-[-2px] left-1/2 -z-15 h-2 w-2 -translate-x-1/2 rotate-45 rounded-sm">
                                 </span>
-                                ปัจจุบันภาคเรียนที่ {{$timelerning/10}}
+                                ปัจจุบัน {{$timelerning/10}}
                             </span>
                         </div>
                         @endif

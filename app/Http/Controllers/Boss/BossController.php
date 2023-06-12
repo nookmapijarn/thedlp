@@ -14,6 +14,7 @@ class BossController extends Controller
 
     public function index(Request $request)
     {
+
         // SEMESTRY Labels
        $agent = new Agent();
        if( $agent->isMobile()){
@@ -24,6 +25,7 @@ class BossController extends Controller
         
         $data_student = [];
         $data_new_student = [];
+        $data_new_student_rollback = [];
         $data_finish_student = [];
         $data_studentPrimary = [];
         $data_studentJunior  = [];
@@ -58,6 +60,7 @@ class BossController extends Controller
             $studentJunior = $this->student_primary($val, '2')->Count();
             $studentSenior = $this->student_primary($val, '3')->Count();
             $new_student = $this->new_student($val)->Count();
+            $new_student_rollback = $this->new_student_rollback($val)->Count();
             $finish_student = $this->finish_student($val)->Count();
             $exam_avg = $this->exam_avg($val)['result'];
             $exam_avg_pangpub = $this->exam_avg($val, '4011')['result'];
@@ -83,6 +86,7 @@ class BossController extends Controller
             array_push($data_studentJunior, $studentJunior);
             array_push($data_studentSenior, $studentSenior);
             array_push($data_new_student, $new_student);
+            array_push($data_new_student_rollback, $new_student_rollback);
             array_push($data_finish_student, $finish_student);
             array_push($data_exam_avg, $exam_avg);
             array_push($data_exam_avg_pangpub, $exam_avg_pangpub);
@@ -130,6 +134,7 @@ class BossController extends Controller
                                                 'data_studentJunior',
                                                 'data_studentSenior',
                                                 'data_new_student',
+                                                'data_new_student_rollback',
                                                 'data_finish_student',
                                                 'data_exam_avg',
                                                 'data_exam_avg_pangpub',
@@ -208,6 +213,23 @@ class BossController extends Controller
         return $s;
     }
 
+    public function new_student_rollback($semestry){
+        $ID = str_replace('/','',$semestry); //661
+        $ID = str_split($ID, 2);
+        $year = $ID[0]-2;
+        $rollback_ID = $year.$ID[1];
+
+        //echo $newid;
+
+        $s = DB::table('student')
+        ->where('ID', 'regexp', $rollback_ID.'[0-9]')
+        ->select('ID')
+        ->orderBy('ID', 'ASC')
+        ->groupBy('ID')
+        ->get();
+        return $s;
+    }
+
     public function finish_student($semestry){
         $s = DB::table('student')
         ->where('FIN_CAUSE', '=', 1)
@@ -279,7 +301,7 @@ class BossController extends Controller
                 'semestry' => $semestry
             ];
         }else{
-            echo $exam_grade;
+            //echo $exam_grade;
             return [
                 'result'   => 0, 
                 'semestry' => $semestry

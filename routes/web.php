@@ -14,6 +14,12 @@ use App\Http\Controllers\Teachers\TeachersController;
 // Boss
 use App\Http\Controllers\Boss\BossController;
 
+// Help
+use App\Http\Controllers\Help\HelpController;
+use App\Http\Controllers\Help\NewStudentController;
+use App\Http\Controllers\Help\TrackStudentController;
+use App\Http\Controllers\Help\ContactTeacherController;
+
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -42,6 +48,14 @@ Route::prefix('/boss')->group(function () {
 Route::prefix('/teachers')->group(function () {
     Route::get('/', [TeachersController::class, 'index'])->name('tdashboard');
     Route::get('/tdashboard', [TeachersController::class, 'index'])->name('tdashboard');
+});
+// Help Route
+Route::prefix('/help')->group(function () {
+    Route::get('/', [HelpController::class, 'index'])->name('hdashboard');
+    Route::get('/hdashboard', [HelpController::class, 'index'])->name('hdashboard');
+    Route::get('/สมัครเรียน', [NewStudentController::class, 'index'])->name('สมัครเรียน');
+    Route::get('/ติดตามผู้จบ', [TrackStudentController::class, 'index'])->name('ติดตามผู้จบ');
+    Route::get('/ติดต่อครู', [ContactTeacherController::class, 'index'])->name('ติดต่อครู');
 });
 // Student Route
 Route::middleware('auth', 'verified')->group(function () {

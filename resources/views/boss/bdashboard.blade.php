@@ -7,13 +7,13 @@
 
     {{-- Chart --}}
     <div class="h-full p-8 bg-gray-100">
-      <h1>สถิตินักศึกษา</h1>
+      <h1>จำนวนนักศึกษา</h1>
       <canvas id="myChart" height="100px"></canvas>
     </div> 
 
     {{-- Chart 1 --}}
     <div class="h-full p-8 bg-gray-100">
-      <h1>สถิตินักศึกษา เข้าใหม่ - จบหลักสูตร</h1>
+      <h1>นักศึกษาเข้าใหม่ - จบหลักสูตร</h1>
       <canvas id="myChart_B" height="100px"></canvas>
     </div> 
 
@@ -156,16 +156,17 @@
 
   var labels =  {{ Js::from($labels) }};
   var data_new_student =  {{ Js::from($data_new_student) }};
+  var data_new_student_rollback =  {{ Js::from($data_new_student_rollback) }};
   var data_finish_student =  {{ Js::from($data_finish_student) }};
 
   const data1 = {
     labels: labels,
     datasets: [
       {
-        label: 'นักศึกษาใหม่',
+        label: 'นักศึกษาใหม่ย้อนหลัง 4 ภาคเรียน',
         backgroundColor: '#234c71',
         borderColor: '#234c71',
-        data: data_new_student,
+        data: data_new_student_rollback,
       },
       {
         label: 'นักศึกษาจบหลักสูตร',
@@ -300,8 +301,8 @@
         },
         {
           label: 'บางเจ้าฉ่า',
-          backgroundColor: '#139fd8',
-          borderColor: '#139fd8',
+          backgroundColor: '#f3992f',
+          borderColor: '#f3992f',
           data: data_exam_avg_bangjoacha,
         },
         {

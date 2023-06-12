@@ -111,7 +111,7 @@
             <x-responsive-nav-link :href="route('ประวัติการเรียน')" :active="request()->routeIs('ประวัติการเรียน')" class="{{request()->routeIs('ประวัติการเรียน') ? 'text-indigo-800' : 'text-white'}}">
                 {{ __('ประวัติการเรียน') }}
             </x-responsive-nav-link>
-            <x-responsive-nav-link :href="route('ประวัติการลงทะเบียน')" :active="request()->routeIs('ประวัติการลงทะเบียน')" class="{{request()->routeIs('การลงทะเบียน') ? 'text-indigo-800' : 'text-white'}}">
+            <x-responsive-nav-link :href="route('ประวัติการลงทะเบียน')" :active="request()->routeIs('ประวัติการลงทะเบียน')" class="{{request()->routeIs('ประวัติการลงทะเบียน') ? 'text-indigo-800' : 'text-white'}}">
                 {{ __('ประวัติการลงทะเบียน') }}
             </x-responsive-nav-link>
             <x-responsive-nav-link :href="route('ตารางสอบ')" :active="request()->routeIs('ตารางสอบ')" class="{{request()->routeIs('ตารางสอบ') ? 'text-indigo-800' : 'text-white'}}">
