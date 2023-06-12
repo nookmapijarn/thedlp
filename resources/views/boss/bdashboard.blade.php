@@ -132,8 +132,8 @@
         },
         {
           label: 'นักศึกษาทั้งหมด',
-          backgroundColor: '#7600e0',
-          borderColor: '#7600e0',
+          backgroundColor: '#3386FF',
+          borderColor: '#3386FF',
           data: data_student,
         }
       ]
@@ -193,21 +193,134 @@
 
     var labels =  {{ Js::from($labels) }};
     var data_exam_avg =  {{ Js::from($data_exam_avg) }};
+    var data_exam_avg_pangpub =  {{ Js::from($data_exam_avg_pangpub) }};
+    var data_exam_avg_angkaew =  {{ Js::from($data_exam_avg_angkaew) }};
+    var data_exam_avg_nongmeakai =  {{ Js::from($data_exam_avg_nongmeakai) }};
+    var data_exam_avg_yangchay =  {{ Js::from($data_exam_avg_yangchay) }};
+    var data_exam_avg_phorangnok =  {{ Js::from($data_exam_avg_phorangnok) }};
+    var data_exam_avg_rammasak =  {{ Js::from($data_exam_avg_rammasak) }};
+    var data_exam_avg_bangrakum =  {{ Js::from($data_exam_avg_bangrakum) }};
+    var data_exam_avg_borei =  {{ Js::from($data_exam_avg_borei) }};
+    var data_exam_avg_samngam =  {{ Js::from($data_exam_avg_samngam) }};
+    var data_exam_avg_thangpha =  {{ Js::from($data_exam_avg_thangpha) }};
+    var data_exam_avg_inthapamoon =  {{ Js::from($data_exam_avg_inthapamoon) }};
+    var data_exam_avg_aogkaruk =  {{ Js::from($data_exam_avg_aogkaruk) }};
+    var data_exam_avg_kokpudsar =  {{ Js::from($data_exam_avg_kokpudsar) }};
+    var data_exam_avg_bangjoacha =  {{ Js::from($data_exam_avg_bangjoacha) }};
+    var data_exam_avg_kumyard =  {{ Js::from($data_exam_avg_kumyard) }};
+    var data_exam_avg_pikan =  {{ Js::from($data_exam_avg_pikan) }};
+
   
     const data2 = {
       labels: labels,
       datasets: [
         {
-          label: 'ร้อยละผู้เข้าสอบ',
-          backgroundColor: '#7289da',
-          borderColor: '#7289da',
+          label: 'อำเภอโพธิ์ทอง',
+          backgroundColor: '#bd01eb',
+          borderColor: '#bd01eb',
           data: data_exam_avg,
+        },
+        {
+          label: 'บางพลับ',
+          backgroundColor: '#f6977a',
+          borderColor: '#f6977a',
+          data: data_exam_avg_pangpub,
+        },
+        {
+          label: 'อ่างแก้ว',
+          backgroundColor: '#ffc556',
+          borderColor: '#ffc556',
+          data: data_exam_avg_angkaew,
+        },
+        {
+          label: 'หนองแม่ไก่',
+          backgroundColor: '#66cdaa',
+          borderColor: '#66cdaa',
+          data: data_exam_avg_nongmeakai,
+        },
+        {
+          label: 'ยางช้าย',
+          backgroundColor: '#40e0d0',
+          borderColor: '#40e0d0',
+          data: data_exam_avg_yangchay,
+        },
+        {
+          label: 'โพธิ์รังนก',
+          backgroundColor: '#8a8cee',
+          borderColor: '#8a8cee',
+          data: data_exam_avg_phorangnok,
+        },
+        {
+          label: 'รำมะสัก',
+          backgroundColor: '#41a1e9',
+          borderColor: '#41a1e9',
+          data: data_exam_avg_rammasak,
+        },
+        {
+          label: 'บางระกำ',
+          backgroundColor: '#ffe599',
+          borderColor: '#ffe599',
+          data: data_exam_avg_bangrakum,
+        },
+        {
+          label: 'บ่อแร่',
+          backgroundColor: '#74b159',
+          borderColor: '#74b159',
+          data: data_exam_avg_borei,
+        },
+        {
+          label: 'สามง่าม',
+          backgroundColor: '#eb7ba7',
+          borderColor: '#eb7ba7',
+          data: data_exam_avg_samngam,
+        },
+        {
+          label: 'ทางพระ',
+          backgroundColor: '#fdda55',
+          borderColor: '#fdda55',
+          data: data_exam_avg_thangpha,
+        },
+        {
+          label: 'อินทประมูล',
+          backgroundColor: '#def088',
+          borderColor: '#def088',
+          data: data_exam_avg_inthapamoon,
+        },
+        {
+          label: 'องครักษ์',
+          backgroundColor: '#ee5151',
+          borderColor: '#ee5151',
+          data: data_exam_avg_aogkaruk,
+        },
+        {
+          label: 'โคกพุทรา',
+          backgroundColor: '#a4bcec',
+          borderColor: '#a4bcec',
+          data: data_exam_avg_kokpudsar,
+        },
+        {
+          label: 'บางเจ้าฉ่า',
+          backgroundColor: '#139fd8',
+          borderColor: '#139fd8',
+          data: data_exam_avg_bangjoacha,
+        },
+        {
+          label: 'คำหยาด',
+          backgroundColor: '#9fd813',
+          borderColor: '#9fd813',
+          data: data_exam_avg_kumyard,
+        },
+        {
+          label: 'พิการ',
+          backgroundColor: '#a4c7ec',
+          borderColor: '#a4c7ec',
+          data: data_exam_avg_pikan,
         }
       ]
     };
   
     const config2 = {
-      type: 'line',
+      type: 'bar',
       data: data2,
       options: {}
     };
