@@ -54,7 +54,7 @@ Route::prefix('/help')->group(function () {
     Route::get('/', [HelpController::class, 'index'])->name('hdashboard');
     Route::get('/hdashboard', [HelpController::class, 'index'])->name('hdashboard');
     Route::get('/สมัครเรียน', [NewStudentController::class, 'index'])->name('สมัครเรียน');
-    Route::get('/ติดตามผู้จบ', [TrackStudentController::class, 'index'])->name('ติดตามผู้จบ');
+    Route::get('/ติดตามผู้จบ', [TrackStudentController::class, 'create'])->name('ติดตามผู้จบ');
     Route::get('/ติดต่อครู', [ContactTeacherController::class, 'index'])->name('ติดต่อครู');
 });
 // Student Route

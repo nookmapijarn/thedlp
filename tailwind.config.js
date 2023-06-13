@@ -8,7 +8,8 @@ module.exports = {
         './storage/framework/views/*.php',
         './resources/views/**/*.blade.php',
         "./resources/js/app.js",
-        "./node_modules/tw-elements/dist/js/**/*.js"
+        "./node_modules/tw-elements/dist/js/**/*.js",
+        "./node_modules/flowbite/**/*.js"
     ],
 
     theme: {
@@ -24,6 +25,7 @@ module.exports = {
             '@tailwindcss/forms',
             "tw-elements/dist/plugin.cjs",
             '@tailwindcss/typography',
-            '@tailwindcss/aspect-ratio'
+            '@tailwindcss/aspect-ratio',
+            'flowbite/plugin'
             )],
 };

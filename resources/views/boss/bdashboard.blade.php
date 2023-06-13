@@ -114,26 +114,26 @@
       datasets: [
         {
           label: 'ประถม',
-          backgroundColor: '#fa8072',
-          borderColor: '#fa8072',
+          backgroundColor: '#74ccf4',
+          borderColor: '#74ccf4',
           data: data_studentPrimary,
         },
         {
           label: 'มัธยมต้น',
-          backgroundColor: '#66cdaa',
-          borderColor: '#66cdaa',
+          backgroundColor: '#5abcd8',
+          borderColor: '#5abcd8',
           data: data_studentJunior,
         },
         {
           label: 'มัธยมปลาย',
-          backgroundColor: '#ffbf00',
-          borderColor: '#ffbf00',
+          backgroundColor: '#1ca3ec',
+          borderColor: '#1ca3ec',
           data: data_studentSenior,
         },
         {
           label: 'นักศึกษาทั้งหมด',
-          backgroundColor: '#3386FF',
-          borderColor: '#3386FF',
+          backgroundColor: '#0f5e9c',
+          borderColor: '#0f5e9c',
           data: data_student,
         }
       ]
