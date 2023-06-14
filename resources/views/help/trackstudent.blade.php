@@ -1,6 +1,7 @@
 <x-help-layout>
     <section class="bg-white grid justify-items-center">
-        <form class="max-w-screen-md w-full p-10">
+        <form action="{{ route('ติดตามผู้จบ.store') }}" method="POST"  class="max-w-screen-md w-full p-10">
+            @csrf
             <div class="text-center text-xl p-5  bg-yellow-200 mb-2 shadow-md">
                 แบบติดตามผู้สำเร็จการศึกษา
                 <div class="text-center text-xs">หลักสูตรการศึกษานอกระบบระดับการศึกษาขั้นพื้นฐาน พุทธศักราช 2551</div>
@@ -10,43 +11,43 @@
             <div class="grid gap-6 mb-6 md:grid-cols-2 p-4 shadow-md">
                 {{-- IMG --}}
                 <div class="flex items-center justify-center w-full">
-                    <label for="dropzone-file" class="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 ">
+                    <label for="IMG_1" class="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 ">
                         <div class="flex flex-col items-center justify-center pt-5 pb-6">
                             <svg aria-hidden="true" class="w-10 h-10 mb-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
                             <p class="mb-2 text-sm text-gray-500 dark:text-gray-400 text-center"><span class="font-semibold">ภาพถ่าย 1 (ชุดทำงาน/นักศึกษา)</span></p>
                         </div>
-                        <input id="dropzone-file" type="file" class="hidden" required/>
+                        <input id="IMG_1" name="IMG_1" type="file" class="hidden"/>
                     </label>
                 </div> 
                 <div class="flex items-center justify-center w-full">
-                    <label for="dropzone-file" class="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 ">
+                    <label for="IMG_2" class="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 ">
                         <div class="flex flex-col items-center justify-center pt-5 pb-6">
                             <svg aria-hidden="true" class="w-10 h-10 mb-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
                             <p class="mb-2 text-sm text-gray-500 dark:text-gray-400 text-center"><span class="font-semibold">ภาพถ่าย 2 (ถ้ามี) (สถานที่ทำงาน, ผลงาน, อื่นๆ)</span></p>
                         </div>
-                        <input id="dropzone-file" type="file" class="hidden" />
+                        <input id="IMG_2" name="IMG_2" type="file" class="hidden" />
                     </label>
                 </div> 
                 <div>
-                    <label for="student_id" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">รหัสนักศึกษา</label>
-                    <input type="search" id="student_id" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 placeholder="" required>
+                    <label for="STD_CODE" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">รหัสนักศึกษา</label>
+                    <input type="search" id="STD_CODE" name="STD_CODE" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 placeholder="">
                 </div>
                 <div>
-                    <label for="countries" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">คำนำหน้า</label>
-                    <select id="countries" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5  ">
+                    <label for="PRENAME" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">คำนำหน้า</label>
+                    <select id="PRENAME" name="PRENAME" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5  ">
                         <option selected>เลือก</option>
-                        <option value="CA">นาย</option>
-                        <option value="FR">นาง</option>
-                        <option value="DE">นางสาว</option>
+                        <option value="นาย">นาย</option>
+                        <option value="นาง">นาง</option>
+                        <option value="นางสาว">นางสาว</option>
                     </select>
                 </div>  
                 <div>
                     <label for="first_name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">ชื่อ (ไม่ใส่คำนำหน้า)</label>
-                    <input type="text" id="first_name" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5  " placeholder="" required>
+                    <input type="text" id="first_name" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5  " placeholder=""  >
                 </div>
                 <div>
                     <label for="last_name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">นามสกุล</label>
-                    <input type="text" id="last_name" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5  " placeholder="" required>
+                    <input type="text" id="last_name" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5  " placeholder=""  >
                 </div>
                 <div>
                     <label for="countries" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">ระดับที่จบ</label>
@@ -111,11 +112,11 @@
                 </div>  
                 <div>
                     <label for="phone" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">เบอร์โทร</label>
-                    <input type="tel" id="phone" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5  " placeholder="123-45-678" pattern="[0-9]{3}-[0-9]{2}-[0-9]{3}" required>
+                    <input type="tel" id="phone" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5  " placeholder="123-45-678" pattern="[0-9]{3}-[0-9]{2}-[0-9]{3}"  >
                 </div>
                 <div>
                     <label for="phone" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Line/fackbook/อื่นๆ</label>
-                    <input type="tel" id="phone" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5  " placeholder="" pattern="[0-9]{3}-[0-9]{2}-[0-9]{3}" required>
+                    <input type="tel" id="phone" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5  " placeholder="" pattern="[0-9]{3}-[0-9]{2}-[0-9]{3}"  >
                 </div>
             </div>
 
@@ -137,7 +138,7 @@
                 </div> 
                 <div>
                     <label for="school" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">ชื่อและสถานที่ ศึกษาต่อ</label>
-                    <input type="text" id="school" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5  " placeholder="" pattern="[0-9]{3}-[0-9]{2}-[0-9]{3}" required>
+                    <input type="text" id="school" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5  " placeholder="" pattern="[0-9]{3}-[0-9]{2}-[0-9]{3}"  >
                 </div>
                 <div>
                     <label for="countries" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">ใช้ประกอบอาชีพ</label>
@@ -155,7 +156,7 @@
                 </div> 
                 <div>
                     <label for="school" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">ชื่อและสถานที่ ประกอบอาชีพ</label>
-                    <input type="text" id="school" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5  " placeholder="" pattern="[0-9]{3}-[0-9]{2}-[0-9]{3}" required>
+                    <input type="text" id="school" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5  " placeholder="" pattern="[0-9]{3}-[0-9]{2}-[0-9]{3}"  >
                 </div>
                 <div>
                     <label for="countries" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">ใช้ปรับตำแหน่ง/เพิ่มเงินเดือน</label>
@@ -167,7 +168,7 @@
                 </div> 
                 <div>
                     <label for="school" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">ชื่อและสถานที่ ปรับตำแหน่ง/เพิ่มเงินเดือน</label>
-                    <input type="text" id="school" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5  " placeholder="" pattern="[0-9]{3}-[0-9]{2}-[0-9]{3}" required>
+                    <input type="text" id="school" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5  " placeholder="" pattern="[0-9]{3}-[0-9]{2}-[0-9]{3}"  >
                 </div>
             </div>
 
@@ -231,25 +232,25 @@
             <div class="grid gap-6 mb-6 md:grid-cols-2 p-4 shadow-md">
                 <div>
                     <label for="school" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">ท่านมีความถนัด</label>
-                    <input type="text" id="school" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5  " placeholder="" pattern="[0-9]{3}-[0-9]{2}-[0-9]{3}" required>
+                    <input type="text" id="school" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5  " placeholder="" pattern="[0-9]{3}-[0-9]{2}-[0-9]{3}"  >
                 </div>      
                 <div>
                     <label for="school" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">ท่านมีความต้องการทำงานเกี่ยวกับ</label>
-                    <input type="text" id="school" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5  " placeholder="" pattern="[0-9]{3}-[0-9]{2}-[0-9]{3}" required>
+                    <input type="text" id="school" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5  " placeholder="" pattern="[0-9]{3}-[0-9]{2}-[0-9]{3}"  >
                 </div> 
                 <div>
                     <label for="school" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">ท่านมีความต้องการเข้ารับการพัฒนาตนเองเพื่อประกอบอาชีพในด้านใด</label>
-                    <input type="text" id="school" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5  " placeholder="" pattern="[0-9]{3}-[0-9]{2}-[0-9]{3}" required>
+                    <input type="text" id="school" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5  " placeholder="" pattern="[0-9]{3}-[0-9]{2}-[0-9]{3}"  >
                 </div> 
                 <div>
                     <label for="school" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">ความคิดเห็น/ข้อเสนอแนะ</label>
-                    <input type="text" id="school" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5  " placeholder="" pattern="[0-9]{3}-[0-9]{2}-[0-9]{3}" required>
+                    <input type="text" id="school" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5  " placeholder="" pattern="[0-9]{3}-[0-9]{2}-[0-9]{3}"  >
                 </div>  
             </div>
 
             <div class="flex items-start mb-6">
                 <div class="flex items-center h-5">
-                <input id="remember" type="checkbox" value="" class="w-4 h-4 border border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-blue-300 dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-blue-600 dark:ring-offset-gray-800" required>
+                <input id="remember" type="checkbox" value="" class="w-4 h-4 border border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-blue-300 dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-blue-600 dark:ring-offset-gray-800"  >
                 </div>
                 <label for="remember" class="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300">ยินยอมให้ข้อมูล <a href="#" class="text-blue-600 hover:underline dark:text-blue-500">เงื่อนไขการนำข้อมูลไปใช้</a>.</label>
             </div>

@@ -1,32 +1,125 @@
 <?php
-
 namespace App\Http\Controllers\Help;
 
-
 use App\Http\Controllers\Controller;
-use App\Models\User;
-use App\Providers\RouteServiceProvider;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rules;
-use Illuminate\View\View;
-use Illuminate\Support\Facades\DB;
+use App\Models\TrackStudent;
 
 class TrackStudentController extends Controller
 {
-
-    public function create()
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function index(Request $request)
     {
+        //
+        // $request->validate([
+        //     'STD_CODE' => ['required', 'string', 'min:10', 'max:10'],
+        //     'NAME' => ['required', 'string', 'max:255'],
+        // ], [
+        //     'STD_CODE.min' => 'รหัสต้องมี 10 หลัก',
+        //     'STD_CODE.max' => 'รหัสต้องมี 10 หลัก',
+        // ]);
         return view('help.trackstudent');
     }
-    /**
-     * Handle an incoming registration request.
-     *
-     * @throws \Illuminate\Validation\ValidationException
-     */
 
-     public function store(Request $request): RedirectResponse
-     {}
+    /**
+     * Show the form for creating a new resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function create()
+    {
+        //
+        echo 'create'.'<br><br><br><br><br><br>';
+
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function store(Request $request)
+    {
+        //
+        
+        $TrackStudent = TrackStudent::create([
+            'IMG_1' => $request->IMG_1,
+            'IMG_2'=> $request->IMG_2,
+            'STD_CODE ' => $request->STD_CODE,
+            'PRENAME' => $request->PRENAME,
+            'NAME' => $request->NAME,
+            'SURNAME' => $request->SURNAME,
+            'FIN_GRADE' => $request->FIN_GRADE,
+            'FIN_SEM' => $request->FIN_SEM,
+            'GRP_CODE' => $request->GRP_CODE, 
+            'GENDER' => $request->GENDER, 
+            'AGE' => $request->AGE, 
+            'PHONE' => $request->PHONE, 
+            'SOCIAL' => $request->SOCIAL, 
+            'LV_UP' => $request->LV_UP,  //ศึกษาต่อระบดับสูงขึ้น
+            'LV_CONT' => $request->LV_CONT,  // ที่อยู่ศึกษาต่อ
+            'CAREER' => $request->CAREER, // ประกอบอาชีพ
+            'CAREER_CONT' => $request->CAREER_CONT,  // ที่อยู่ประกอบอาชีพ
+            'SALA_UP' => $request->SALA_UP, //เงินเดือนสูงขึ้น
+            'SALA_CONT' => $request->SALA_CONT,// ที่อยู่สถานประกอบการ
+            'BENEFIT_1' => $request->BENEFIT_1,
+            'BENEFIT_2' => $request->BENEFIT_2,
+            'ABI' => $request->ABI,
+            'WORK_WANT' => $request->WORK_WANT,
+            'ABI_WANT' => $request->ABI_WANT,
+            'IDEA' => $request->IDEA
+        ]);
+        // echo $TrackStudent.'store'.'<br><br><br><br><br><br>';
+        return view('help.hdashboard');
+    }
+
+    /**
+     * Display the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function show($id)
+    {
+        //
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function edit($id)
+    {
+        //
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function update(Request $request, $id)
+    {
+        //
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function destroy($id)
+    {
+        //
+    }
 }

@@ -41,22 +41,24 @@ Route::get('/', function () {
 });
 // Boss Route
 Route::prefix('/boss')->group(function () {
-    Route::get('/', [BossController::class, 'index'])->name('boss');
+    Route::get('/', [BossController::class, 'index']);
     Route::get('/bdashboard', [BossController::class, 'index'])->name('boss');
 });
 // Teacher Route
 Route::prefix('/teachers')->group(function () {
-    Route::get('/', [TeachersController::class, 'index'])->name('tdashboard');
+    Route::get('/', [TeachersController::class, 'index']);
     Route::get('/tdashboard', [TeachersController::class, 'index'])->name('tdashboard');
 });
 // Help Route
 Route::prefix('/help')->group(function () {
-    Route::get('/', [HelpController::class, 'index'])->name('hdashboard');
+    Route::get('/', [HelpController::class, 'index']);
     Route::get('/hdashboard', [HelpController::class, 'index'])->name('hdashboard');
     Route::get('/สมัครเรียน', [NewStudentController::class, 'index'])->name('สมัครเรียน');
-    Route::get('/ติดตามผู้จบ', [TrackStudentController::class, 'create'])->name('ติดตามผู้จบ');
+    Route::post('/ติดตามผู้จบ.store', [TrackStudentController::class, 'store'])->name('ติดตามผู้จบ.store');
+    Route::get('/ติดตามผู้จบ', [TrackStudentController::class, 'index'])->name('ติดตามผู้จบ');
     Route::get('/ติดต่อครู', [ContactTeacherController::class, 'index'])->name('ติดต่อครู');
-});
+});  
+
 // Student Route
 Route::middleware('auth', 'verified')->group(function () {
     Route::get('/ประวัติการเรียน', [DashboardController::class, 'index'])->name('ประวัติการเรียน');
