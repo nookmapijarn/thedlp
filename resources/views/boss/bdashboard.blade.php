@@ -163,10 +163,16 @@
     labels: labels,
     datasets: [
       {
-        label: 'นักศึกษาใหม่ย้อนหลัง 4 ภาคเรียน',
+        label: 'นักศึกษาใหม่ย้อนหลังไป 4 ภาคเรียน',
+        backgroundColor: '#8b9dc3',
+        borderColor: '#8b9dc3',
+        data: data_new_student_rollback,
+      },
+      {
+        label: 'นักศึกษาใหม่',
         backgroundColor: '#234c71',
         borderColor: '#234c71',
-        data: data_new_student_rollback,
+        data: data_new_student,
       },
       {
         label: 'นักศึกษาจบหลักสูตร',
