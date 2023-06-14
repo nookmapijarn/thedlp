@@ -24,7 +24,6 @@
 
     </head>
     <body class="">
-        @include('navwelcome')
         {{-- <div class="relative flex items-top justify-center min-h-screen sm:items-center py-4 sm:pt-0 ">
             @if (Route::has('login'))
                 <div class="hidden fixed top-0 right-0 px-6 py-4 sm:block">
@@ -157,8 +156,14 @@
                 </div>
             </div>
         </section>
-        <section class="pt-15 bg-center bg-no-repeat bg-[url('storage/studentall.jpg')]  bg-gray-700 bg-blend-multiply"> 
+
+        <section class="bg-gray-100 dark:bg-gray-900">
+            <div class="py-8 px-4 mx-auto max-w-screen-xl text-center lg:py-16">
+                {{-- <h1 class="mb-4 text-4xl font-extrabold tracking-tight leading-none text-gray-900 md:text-5xl lg:text-6xl dark:text-white">หลักสูตรการศึกษานอกระบบระดับการศึกษาขั้นพื้นฐาน พุทธศักราช 2551</h1> --}}
+                <p class="mb-8 text-lg font-normal text-gray-500 lg:text-xl sm:px-16 lg:px-48 dark:text-gray-400"> "คิดเป็น" เชื่อว่ามนุษย์ทุกคนมีพื้นฐานชีวิตแตกต่างกันมีวิถีการดำเนินชีวิตที่แตกต่างกันมีความ ต้องการที่แตกต่างกัน  แต่ทุกคนล้วนมีความต้องการที่จะมีความสุขอย่างอัตภาพเหมือนกัน.</p>
+            </div>
         </section>
+        
     </body>
     @include('layouts.footer')
 </html>

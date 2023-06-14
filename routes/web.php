@@ -35,11 +35,13 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/welcome', function () {
     return view('welcome');
-});
+})->name('welcome');
 Route::get('/', function () {
     return view('welcome');
-});
+})->name('/');
+
 // Boss Route
+
 Route::prefix('/boss')->group(function () {
     Route::get('/', [BossController::class, 'index']);
     Route::get('/bdashboard', [BossController::class, 'index'])->name('boss');

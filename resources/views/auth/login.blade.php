@@ -64,7 +64,7 @@
                     {{ __('สมัครสมาชิก') }}
                 </div>   
             </a>   
-            <a class="flex items-center justify-end mt-4 m-2 hover:text-sky-700" href="https://dlpd.in.th/welcome">
+            <a class="flex items-center justify-end mt-4 m-2 hover:text-sky-700" href="{{ route('welcome') }}">
                 <div class="rounded-full underline">
                     {{ __('หน้าหลัก') }}
                 </div>   

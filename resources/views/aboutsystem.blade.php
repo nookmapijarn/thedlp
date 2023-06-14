@@ -1,4 +1,4 @@
-<div class="grid grid-rows-4 md:grid-rows-2 grid-flow-col gap-4">
+<div class="grid grid-rows-4 md:grid-rows-2 lg:grid-rows-1 grid-flow-col gap-4">
     <div>
         <div class="w-md h-full   p-4 bg-white border border-gray-200 rounded-lg shadow sm:p-8  ">
             <div class="flex items-center text-gray-900 dark:text-white">
@@ -12,7 +12,7 @@
                 <li class="flex space-x-3">
                     <!-- Icon -->
                     <svg aria-hidden="true" class="flex-shrink-0 w-5 h-5 text-blue-600 dark:text-blue-500" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><title>Check icon</title><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
-                    <span class="text-base font-normal leading-tight text-gray-500 dark:text-gray-400">ประวัติการเรียน, ผลการเรียน, ระยะเวลาจบ</span>
+                    <span class="text-base font-normal leading-tight text-gray-500 dark:text-gray-400">ประวัติการเรียน </span>
                 </li>
                 <li class="flex space-x-3">
                     <!-- Icon -->
@@ -22,7 +22,7 @@
                 <li class="flex space-x-3">
                     <!-- Icon -->
                     <svg aria-hidden="true" class="flex-shrink-0 w-5 h-5 text-blue-600 dark:text-blue-500" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><title>Check icon</title><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
-                    <span class="text-base font-normal leading-tight text-gray-500 dark:text-gray-400">ตารางสอบ, สอบปลายภาค, สอบซ่อม</span>
+                    <span class="text-base font-normal leading-tight text-gray-500 dark:text-gray-400">ตารางสอบ, สอบปลายภาค</span>
                 </li>
                 <li class="flex space-x-3">
                     <!-- Icon -->
@@ -61,7 +61,7 @@
                 <li class="flex space-x-3">
                     <!-- Icon -->
                     <svg aria-hidden="true" class="flex-shrink-0 w-5 h-5 text-blue-600 dark:text-blue-500" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><title>Check icon</title><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
-                    <span class="text-base font-normal leading-tight text-gray-500 dark:text-gray-400">รายชื่อนักศึกษาสอบ N-NET, E-EXAM</span>
+                    <span class="text-base font-normal leading-tight text-gray-500 dark:text-gray-400">รายชื่อนักศึกษาสอบ N-NET</span>
                 </li>
                 <li class="flex space-x-3">
                     <!-- Icon -->
@@ -90,7 +90,7 @@
                 <li class="flex space-x-3">
                     <!-- Icon -->
                     <svg aria-hidden="true" class="flex-shrink-0 w-5 h-5 text-blue-600 dark:text-blue-500" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><title>Check icon</title><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
-                    <span class="text-base font-normal leading-tight text-gray-500 dark:text-gray-400">จำนวน นักศึกษาทั้งหมด ผู้จบหลักสูตร สมัครเรียนใหม่</span>
+                    <span class="text-base font-normal leading-tight text-gray-500 dark:text-gray-400">จำนวนนักศึกษาทั้งหมด  </span>
                 </li>
                 <li class="flex space-x-3">
                     <!-- Icon -->
@@ -105,7 +105,7 @@
                 <li class="flex space-x-3">
                     <!-- Icon -->
                     <svg aria-hidden="true" class="flex-shrink-0 w-5 h-5 text-blue-600 dark:text-blue-500" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><title>Check icon</title><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
-                    <span class="text-base font-normal leading-tight text-gray-500 dark:text-gray-400">จำนวนผู้มีสิทธิสอบ N-NET, E-EXAM</span>
+                    <span class="text-base font-normal leading-tight text-gray-500 dark:text-gray-400">จำนวนผู้มีสิทธิสอบ</span>
                 </li>
                 <li class="flex space-x-3">
                     <!-- Icon -->
