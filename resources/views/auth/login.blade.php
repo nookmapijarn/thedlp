@@ -1,8 +1,9 @@
 <x-guest-layout>
 
     {{-- Label --}}
+    <div class="text-center m-2 rounded-lg text-lg text-shadow">ระบบงานทะเบียน-งานการศึกษาขั้นพื้นฐาน</div>
     <div class="text-center m-2 rounded-lg text-lg text-shadow">ศูนย์ส่งเสริมการเรียนรู้อำเภอโพธิ์ทอง</div>
-    <div class="text-center p-1 m-1 text-2xl text-gray-900 ">สำหรับนักศึกษา</div>
+    <div class="text-center p-1 m-1 text-2xl text-gray-900 ">Phothong DLEC</div>
  
 
 
@@ -14,7 +15,7 @@
 
         <!-- Email Address -->
         <div>
-            <x-input-label for="student_id" :value="__('รหัสนักศึกษา')" />
+            <x-input-label for="student_id" :value="__('Username')" />
             <x-text-input id="student_id" class="block mt-1 w-full" type="Number" name="student_id" :value="old('student_id')" required autofocus autocomplete="student_id" />
             <x-input-error :messages="$errors->get('student_id')" class="mt-2" />
         </div>

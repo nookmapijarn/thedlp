@@ -41,16 +41,23 @@ Route::get('/', function () {
 })->name('/');
 
 // Boss Route
+Route::middleware('auth', 'verified')->group(function () {
+    Route::prefix('/boss')->group(function () {
+        Route::get('/', [BossController::class, 'index']);
+        Route::get('/bdashboard', [BossController::class, 'index'])->name('boss');
+    });
+});
 
-Route::prefix('/boss')->group(function () {
-    Route::get('/', [BossController::class, 'index']);
-    Route::get('/bdashboard', [BossController::class, 'index'])->name('boss');
-});
 // Teacher Route
-Route::prefix('/teachers')->group(function () {
-    Route::get('/', [TeachersController::class, 'index']);
-    Route::get('/tdashboard', [TeachersController::class, 'index'])->name('tdashboard');
+Route::middleware('auth', 'verified')->group(function () {
+    Route::prefix('/teachers')->group(function () {
+        Route::get('/', [TeachersController::class, 'index']);
+        Route::get('/tdashboard', [TeachersController::class, 'index'])->name('tdashboard');
+    });
 });
+// Route::get('/teachers',[TeachersController::class,'index'])->middleware('roleType');
+// Route::get('check/role',[TeachersController::class,'index'])->middleware('roleType'); //http://127.0.0.1:8000/check/role?type=admin
+
 // Help Route
 Route::prefix('/help')->group(function () {
     Route::get('/', [HelpController::class, 'index']);
@@ -60,6 +67,7 @@ Route::prefix('/help')->group(function () {
     Route::get('/ติดตามผู้จบ', [TrackStudentController::class, 'index'])->name('ติดตามผู้จบ');
     Route::get('/ติดต่อครู', [ContactTeacherController::class, 'index'])->name('ติดต่อครู');
 });  
+
 
 // Student Route
 Route::middleware('auth', 'verified')->group(function () {

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Students;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 
 class DashboardController extends Controller
@@ -24,9 +25,9 @@ class DashboardController extends Controller
         $grade = [];
         $grade_analyze = $this->get_grade_analyze();
         
-        if(Count($student)==0){
-            echo "<h1> ไม่มีรหัสนักศึกษานี้ ".$id."</h1>";
-            return view('login');
+        if (Count($student)==0) {
+            Auth::logout();
+            return redirect()->route('welcome', ['roletype' => $id]);  
         }
 
         $act_sum=0;

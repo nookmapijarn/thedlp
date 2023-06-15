@@ -24,6 +24,33 @@
 
     </head>
     <body class="">
+        @if(request()->get('roletype')!='')
+        <section class="grid justify-items-center bg-red-500 sticky t-0">
+            <div id="toast-danger" class="flex mt-2 items-center w-full max-w-xs p-4 mb-4 text-gray-500 bg-white rounded-lg shadow dark:text-gray-400 dark:bg-gray-800" role="alert">
+                <div class="inline-flex items-center justify-center flex-shrink-0 w-8 h-8 text-red-500 bg-red-100 rounded-lg dark:bg-red-800 dark:text-red-200">
+                    <svg aria-hidden="true" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+                    <span class="sr-only">Error icon</span>
+                </div>
+                <div class="ml-3 text-sm font-normal"> 
+                    USER : {{request()->roletype}} ไม่มีสิทธิเข้าถึงหน้านี้ "กรุณาใช้หน้าอื่น" 
+                    <form method="POST" action="{{ route('logout') }}">
+                        @csrf
+                        <x-nav-link :href="route('logout')" onclick="event.preventDefault();
+                                            this.closest('form').submit();" class="text-red-300">
+                            {{ __('ออกจากระบบ') }}
+                        </x-nav-link>
+                    </form>
+                </div>
+                {{-- <div class="ml-3 text-sm font-normal">
+                    <a href="{{ route('logout') }}" class="text-sm text-red-400 dark:text-gray-100 underline">ออกจากระบบ</a>
+                </div> --}}
+                <button type="button" class="ml-auto -mx-1.5 -my-1.5 bg-white text-gray-400 hover:text-gray-900 rounded-lg focus:ring-2 focus:ring-gray-300 p-1.5 hover:bg-gray-100 inline-flex h-8 w-8 dark:text-gray-500 dark:hover:text-white dark:bg-gray-800 dark:hover:bg-gray-700" data-dismiss-target="#toast-danger" aria-label="Close">
+                    <span class="sr-only">Close</span>
+                    <svg aria-hidden="true" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+                </button>
+            </div>
+        </section>
+        @endif
         {{-- <div class="relative flex items-top justify-center min-h-screen sm:items-center py-4 sm:pt-0 ">
             @if (Route::has('login'))
                 <div class="hidden fixed top-0 right-0 px-6 py-4 sm:block">
@@ -105,10 +132,13 @@
             </div>
         </div> --}}
 
-        <section class="pt-15 bg-center bg-no-repeat bg-[url('storage/studentall.jpg')]  bg-gray-700 bg-blend-multiply">
+        <section class="pt-15 bg-center bg-no-repeat bg-[url('storage/studentall.jpg')] background-animate bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500"> 
             <div class="px-4 mx-auto max-w-screen-xl text-center py-24 lg:py-56">
-                <h1 class="mb-4 text-4xl font-extrabold tracking-tight leading-none text-white md:text-4xl lg:text-5xl tracking-wider leading-relaxed">ศูนย์ส่งเสริมการเรียนรู้อำเภอโพธิ์ทอง</h1>
-                <p class="mb-8 text-lg font-normal text-gray-300 lg:text-xl sm:px-16 lg:px-48">Phothong District Learning Encouragement Center</p>
+                <div class="flex justify-center m-7">
+                    <img src="{{asset('storage/logo.png');}}" width="120px" class="drop-shadow-2xl">
+                </div>
+                <h1 class="mb-4 text-4xl font-extrabold tracking-tight leading-none text-white md:text-4xl lg:text-5xl tracking-wider leading-relaxed drop-shadow-2xl">ศูนย์ส่งเสริมการเรียนรู้อำเภอโพธิ์ทอง</h1>
+                <p class="mb-8 text-lg font-normal text-gray-300 lg:text-xl sm:px-16 lg:px-48 drop-shadow-2xl">Phothong District Learning Encouragement Center</p>
                 <div class="flex flex-col space-y-4 sm:flex-row sm:justify-center sm:space-y-0 sm:space-x-4">
                     <a href="{{ route('login') }}" class="w-full sm:w-auto bg-yellow-300 text-gray-800 hover:bg-yellow-400 focus:ring-4 focus:outline-none focus:ring-gray-300 rounded-lg inline-flex items-center justify-center px-4 py-2.5  ">
                         <svg class="mr-3 w-7 h-7" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">

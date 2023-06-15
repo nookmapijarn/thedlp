@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Teachers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
+
 
 class TeachersController extends Controller
 {
@@ -22,6 +24,11 @@ class TeachersController extends Controller
         $tumbon = '';
         $studreport = '';
         $semestry = $this->semestry;
+        $id = auth()->user()->student_id;
+
+        if ($id != '1215040001') {
+            return redirect()->route('welcome', ['roletype' => $id]);  
+        }
 
         if($request->tumbon!=''){
             $tumbon = str_split($request->tumbon, 4)[0];

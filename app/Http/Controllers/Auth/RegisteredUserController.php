@@ -33,7 +33,8 @@ class RegisteredUserController extends Controller
     {
         
         $request->validate([
-                'student_id' => ['required', 'string', 'min:10', 'max:10' , 'unique:'.User::class ,'in:'.DB::table('student')->where('STD_CODE', '1215040001'.$request->student_id)->value('ID')],
+                'student_id' => ['required', 'string', 'min:10', 'max:10'],
+                //'student_id' => ['required', 'string', 'min:10', 'max:10' , 'unique:'.User::class ,'in:'.DB::table('student')->where('STD_CODE', '1215040001'.$request->student_id)->value('ID')],
                 'name' => ['required', 'string', 'max:255'],
                 'email' => ['required', 'string', 'email', 'max:255', 'unique:'.User::class],
                 'password' => ['required', 'confirmed', Rules\Password::defaults()],

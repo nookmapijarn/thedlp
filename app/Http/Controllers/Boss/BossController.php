@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
 use Jenssegers\Agent\Agent;
+use Illuminate\Support\Facades\Auth;
+
 
 class BossController extends Controller
 {
@@ -14,6 +16,10 @@ class BossController extends Controller
 
     public function index(Request $request)
     {
+        $id = auth()->user()->student_id;
+        if ($id != '1215040001') {
+            return redirect()->route('welcome', ['roletype' => $id]);  
+        }
 
         // SEMESTRY Labels
        $agent = new Agent();
@@ -154,6 +160,11 @@ class BossController extends Controller
                                                 'data_exam_avg_kumyard',
                                                 'data_exam_avg_pikan'
                                             ));
+    }
+
+    public function checkRole()
+    {
+        dd('checkRole');
     }
 
     public function current_student($semestry=''){

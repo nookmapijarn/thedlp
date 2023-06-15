@@ -22,7 +22,7 @@ return new class extends Migration
             $table->string('NAME', 100)->nullable();
             $table->string('SURNAME', 100)->nullable();
             $table->string('FIN_GRADE', 25)->nullable();
-            $table->char('FIN_SEM', 4)->nullable();
+            $table->char('FIN_SEM', 8)->nullable();
             $table->char('GRP_CODE', 8)->nullable();
             $table->char('GENDER', 8)->nullable();
             $table->char('AGE', 2)->nullable();
