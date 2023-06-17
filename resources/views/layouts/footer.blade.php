@@ -19,7 +19,7 @@
             </div>
             <div class="px-5 py-2">
                 <a href="{{ url('boss') }}" class="text-base leading-6 text-gray-500 hover:text-gray-900">
-                    ข้อมูลสถิติ
+                    สำหรับผู้บริหาร
                 </a>
             </div>
         </nav>
@@ -44,7 +44,7 @@
                 </svg>                                  
             </a>
         </div>
-        <p class="mt-8 text-base leading-6 text-center text-gray-400">
+        <p class="mt-8 text-base text-sm leading-6 text-center text-gray-400">
             © ผู้พัฒนาระบบ นายนนทชัย  มาพิจารณ์  ครู สกร.อำเภอโพธิ์ทอง
         </p>
     </div>

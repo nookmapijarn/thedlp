@@ -136,7 +136,7 @@
                 </div> 
                 <div>
                     <label for="PHONE" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">เบอร์โทร</label>
-                    <input type="tel" id="PHONE" name="PHONE" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5  " placeholder="123-4567887" pattern="[0-9]{3}-[0-9]{7}"  >
+                    <input type="tel" id="PHONE" name="PHONE" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5  " placeholder="" pattern="[0-9]{3}-[0-9]{7}"  >
                 </div>
                 <div>
                     <label for="SOCIAL" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Line/fackbook/อื่นๆ</label>
@@ -204,23 +204,23 @@
                 <div class="text-center text-xs">ท่านสามารถนำความรู้ที่ได้รับจากการศึกษาของ กศน.ไปใช้ในการทำงานได้ในระดับใด</div>
                 <div class="flex justify-between">
                     <div class="flex items-center mr-4">
-                        <input id="BENEFIT_1" type="radio" value="1" name="inline-radio-group" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500">
+                        <input id="BENEFIT_1" type="radio" value="1" name="BENEFIT_1" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500">
                         <label for="BENEFIT_1" name="BENEFIT_1" class="ml-2 text-sm font-medium text-gray-900">1</label>
                     </div>
                     <div class="flex items-center mr-4">
-                        <input id="BENEFIT_1" type="radio" value="2" name="inline-radio-group" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500  ">
+                        <input id="BENEFIT_1" type="radio" value="2" name="BENEFIT_1" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500  ">
                         <label for="BENEFIT_1" name="BENEFIT_1" class="ml-2 text-sm font-medium text-gray-900 ">2</label>
                     </div>
                     <div class="flex items-center mr-4">
-                        <input id="BENEFIT_1" type="radio" value="3" name="inline-radio-group" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500  ">
+                        <input id="BENEFIT_1" type="radio" value="3" name="BENEFIT_1" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500  ">
                         <label for="BENEFIT_1" name="BENEFIT_1" class="ml-2 text-sm font-medium text-gray-900 ">3</label>
                     </div>
                     <div class="flex items-center">
-                        <input id="BENEFIT_1" type="radio" value="4" name="inline-radio-group" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500  ">
+                        <input id="BENEFIT_1" type="radio" value="4" name="BENEFIT_1" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500  ">
                         <label for="BENEFIT_1" name="BENEFIT_1" class="ml-2 text-sm font-medium text-gray-900">4</label>
                     </div>
                     <div class="flex items-center">
-                        <input checked id="BENEFIT_1" type="radio" value="5" name="inline-radio-group" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500  ">
+                        <input checked id="BENEFIT_1" type="radio" value="5" name="BENEFIT_1" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500  ">
                         <label for="BENEFIT_1" name="BENEFIT_1" class="ml-2 text-sm font-medium text-gray-900">5</label>
                     </div>
                 </div>              
@@ -229,23 +229,23 @@
                 <div class="text-center text-xs">ความพึงพอใจโดยรวมในการจัดการศึกษาระดับการศึกษาขั้นพื้นฐานของ กศน.</div>
                 <div class="flex justify-between">
                     <div class="flex items-center mr-4">
-                        <input id="BENEFIT_2" type="radio" value="1" name="inline-radio-group" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500">
+                        <input id="BENEFIT_2" type="radio" value="1" name="BENEFIT_2" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500">
                         <label for="BENEFIT_2" name="BENEFIT_2" class="ml-2 text-sm font-medium text-gray-900">1</label>
                     </div>
                     <div class="flex items-center mr-4">
-                        <input id="iBENEFIT_2" type="radio" value="2" name="inline-radio-group" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500  ">
+                        <input id="iBENEFIT_2" type="radio" value="2" name="BENEFIT_2" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500  ">
                         <label for="BENEFIT_2" name="BENEFIT_2" class="ml-2 text-sm font-medium text-gray-900 ">2</label>
                     </div>
                     <div class="flex items-center mr-4">
-                        <input id="BENEFIT_2" type="radio" value="3" name="inline-radio-group" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500  ">
+                        <input id="BENEFIT_2" type="radio" value="3" name="BENEFIT_2" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500  ">
                         <label for="BENEFIT_2" name="BENEFIT_2" class="ml-2 text-sm font-medium text-gray-900 ">3</label>
                     </div>
                     <div class="flex items-center">
-                        <input id="BENEFIT_2" type="radio" value="4" name="inline-radio-group" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500  ">
+                        <input id="BENEFIT_2" type="radio" value="4" name="BENEFIT_2" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500  ">
                         <label for="BENEFIT_2" name="BENEFIT_2" class="ml-2 text-sm font-medium text-gray-900">4</label>
                     </div>
                     <div class="flex items-center">
-                        <input checked id="BENEFIT_2" type="radio" value="5" name="inline-radio-group" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500  ">
+                        <input checked id="BENEFIT_2" type="radio" value="5" name="BENEFIT_2" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500  ">
                         <label for="iBENEFIT_2" name="BENEFIT_2" class="ml-2 text-sm font-medium text-gray-900">5</label>
                     </div>
                 </div>  
