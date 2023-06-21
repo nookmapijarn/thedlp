@@ -1,6 +1,6 @@
 <x-help-layout>
     <section class="bg-white grid justify-items-center">
-        <form action="{{ route('ติดตามผู้จบ.store') }}" method="POST"  class="max-w-screen-md w-full p-10">
+        <form action="{{ route('ติดตามผู้จบ.store') }}" method="POST"  class="max-w-screen-md w-full p-10" enctype="multipart/form-data">
             @csrf
             <div class="text-center text-xl p-5  bg-yellow-200 mb-2 shadow-md">
                 แบบติดตามผู้สำเร็จการศึกษา
@@ -8,33 +8,32 @@
                 <div class="text-center text-xs">ศูนย์ส่งเสริมการเรียนรู้อำเภอโพธิ์ทอง</div>
             </div>
             {{-- Part 1 --}}
-            <div class="grid gap-6 mb-6 md:grid-cols-2 p-4 shadow-md">
+            <div class="grid gap-6 mb-6 md:grid-cols-1 p-4 shadow-md">
                 {{-- IMG --}}
-                <div class="flex items-center justify-center w-full">
-                    <label for="IMG_1" class="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 ">
+                <div class="flex items-center justify-center w-full h-48 relative overflow-hidden border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 ">
+                    <div class="bg-indigo-300 ...">
+                        <img id="preview" src="#" alt="Preview Image" style="display: none; object-cover h-48 w-96">
+                    </div>
+                    <label for="IMG_1" class="flex flex-col absolute items-center justify-center">
                         <div class="flex flex-col items-center justify-center pt-5 pb-6">
                             <svg aria-hidden="true" class="w-10 h-10 mb-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
-                            <p class="mb-2 text-sm text-gray-500 dark:text-gray-400 text-center"><span class="font-semibold">ภาพถ่าย 1 (ชุดทำงาน/นักศึกษา)</span></p>
+                            <p class="mb-2 text-sm text-gray-500 dark:text-gray-400 text-center"><span class="font-semibold">ภาพถ่าย (ชุดทำงาน/นักศึกษา)</span></p>
                         </div>
-                        <input id="IMG_1" name="IMG_1" type="file" class="hidden"/>
+                        <input id="IMG_1" name="IMG_1" type="file" class="hidden" onchange="previewImage(event)" required>
                     </label>
                 </div> 
-                <div class="flex items-center justify-center w-full">
-                    <label for="IMG_2" class="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 ">
-                        <div class="flex flex-col items-center justify-center pt-5 pb-6">
-                            <svg aria-hidden="true" class="w-10 h-10 mb-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
-                            <p class="mb-2 text-sm text-gray-500 dark:text-gray-400 text-center"><span class="font-semibold">ภาพถ่าย 2 (ถ้ามี) (สถานที่ทำงาน, ผลงาน, อื่นๆ)</span></p>
-                        </div>
-                        <input id="IMG_2" name="IMG_2" type="file" class="hidden" />
-                    </label>
-                </div> 
+                {{-- <input type="file" name="image" id="image" onchange="previewImage(event)">
+
+                <div>
+                    <img id="preview" src="#" alt="Preview Image" style="display: none;">
+                </div> --}}
                 <div>
                     <label for="STD_CODE" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">รหัสนักศึกษา</label>
-                    <input type="search" id="STD_CODE" name="STD_CODE" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 placeholder="">
+                    <input type="number" id="STD_CODE" name="STD_CODE" required class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600" placeholder="">
                 </div>
                 <div>
                     <label for="PRENAME" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">คำนำหน้า</label>
-                    <select id="PRENAME" name="PRENAME" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5  ">
+                    <select id="PRENAME" required name="PRENAME" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
                         <option selected>เลือก</option>
                         <option value="นาย">นาย</option>
                         <option value="นาง">นาง</option>
@@ -42,15 +41,15 @@
                     </select>
                 </div>  
                 <div>
-                    <label for="NAME" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">ชื่อ (ไม่ใส่คำนำหน้า)</label>
+                    <label for="NAME" required class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">ชื่อ (ไม่ใส่คำนำหน้า)</label>
                     <input type="text" id="NAME" name="NAME" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5  " placeholder=""  >
                 </div>
                 <div>
-                    <label for="SURNAME" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">นามสกุล</label>
+                    <label for="SURNAME" required class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">นามสกุล</label>
                     <input type="text" id="SURNAME" name="SURNAME" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5  " placeholder=""  >
                 </div>
                 <div>
-                    <label for="FIN_GRADE" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">ระดับที่จบ</label>
+                    <label for="FIN_GRADE" required class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">ระดับที่จบ</label>
                     <select id="FIN_GRADE" name="FIN_GRADE" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5  ">
                         <option selected>เลือก</option>
                         <option value="1">ประถมศึกษา</option>
@@ -59,7 +58,7 @@
                     </select>
                 </div>  
                 <div>
-                    <label for="FIN_SEM" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">ภาคเรียนที่จบ</label>
+                    <label for="FIN_SEM" required class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">ภาคเรียนที่จบ</label>
                     <select id="FIN_SEM" name="FIN_SEM" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5  ">
                         <option selected>เลือก</option>
                         <option value="2/66">ภาคเรียนที่ 2/66</option>
@@ -86,7 +85,7 @@
                     </select>
                 </div>  
                 <div>
-                    <label for="GRP_CODE" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">กศน.ตำบล</label>
+                    <label for="GRP_CODE" required class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">กศน.ตำบล</label>
                     <select id="GRP_CODE" name="GRP_CODE" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5  ">
                         <option selected>เลือก</option>
                         <option value="400">อำเภอโพธิ์ทอง</option>
@@ -276,7 +275,7 @@
 
             <div class="flex items-start mb-6">
                 <div class="flex items-center h-5">
-                <input id="remember" type="checkbox" value="" class="w-4 h-4 border border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-blue-300 dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-blue-600 dark:ring-offset-gray-800"  >
+                <input id="remember" type="checkbox" required value="" class="w-4 h-4 border border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-blue-300 dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-blue-600 dark:ring-offset-gray-800"  >
                 </div>
                 <label for="remember" class="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300">ยินยอมให้ข้อมูล <a href="#" class="text-blue-600 hover:underline dark:text-blue-500">เงื่อนไขการนำข้อมูลไปใช้</a>.</label>
             </div>
@@ -285,3 +284,17 @@
     </section>
     
 </x-help-layout>
+<script>
+    function previewImage(event) {
+        var input = event.target;
+        var reader = new FileReader();
+
+        reader.onload = function(){
+            var preview = document.getElementById('preview');
+            preview.src = reader.result;
+            preview.style.display = 'block';
+        };
+
+        reader.readAsDataURL(input.files[0]);
+    }
+</script>

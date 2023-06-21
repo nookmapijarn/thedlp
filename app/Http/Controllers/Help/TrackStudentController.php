@@ -4,6 +4,10 @@ namespace App\Http\Controllers\Help;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\TrackStudent;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Http\File;
+
+
 
 class TrackStudentController extends Controller
 {
@@ -45,11 +49,10 @@ class TrackStudentController extends Controller
      */
     public function store(Request $request)
     {
-        //
-        
+        //        
         $TrackStudent = TrackStudent::create([
-            'IMG_1' => $request->IMG_1,
-            'IMG_2'=> $request->IMG_2,
+            'IMG_1' => $this->upload($request),
+            'IMG_2'=> $this->upload($request),
             'STD_CODE ' => $request->STD_CODE,
             'PRENAME' => $request->PRENAME,
             'NAME' => $request->NAME,
@@ -78,6 +81,41 @@ class TrackStudentController extends Controller
         return view('help.hdashboard');
     }
 
+    public function upload(Request $request)
+    {
+
+        // $path = $request->file('IMG_1')->storeAs(
+        //     'images', $request->STD_CODE
+        // );
+        //$path = $request->IMG_1->store('public/images');
+
+        if ($request->hasFile('IMG_1') && $request->file('IMG_1')->isValid()) {
+            // File exists and is valid
+            $image = $request->file('IMG_1');
+        
+            // Generate a unique name for the uploaded image
+            $imageName = $request->STD_CODE.'_'.time().'.png';
+            
+            // Store the image with the custom name
+            $path = $image->storeAs('public/images/graduated', $imageName);
+            
+            // Get the public URL for the stored image
+            $imageUrl = Storage::url($path);
+
+            //echo $imageUrl;
+            
+            // Return the image URL or store it in the database if needed
+            return $imageUrl;
+
+            // Rest of the code
+        } else {
+            // Handle error when file is missing or invalid
+            //echo 'ERR UPLOAD';
+            return '';
+        }
+        
+    
+    }
     /**
      * Display the specified resource.
      *

@@ -49,7 +49,7 @@
                       </svg>
                       <span class="absolute text-2xl text-blue-700" x-text="`${percent}%`"></span>
                     </div>
-                    <p class="ml-10 font-medium text-gray-600 sm:text-xl">หน่วยกิจรวม</p>
+                    <p class="ml-10 font-medium text-gray-600 sm:text-xl">หน่วยกิตรวม</p>
           
                     <span class="ml-auto text-xl font-medium text-blue-600"> {{$credit}}</span>
                 </div>

@@ -16,7 +16,7 @@
           <th scope="col" class="p-2">รหัสวิชา</th>
           <th scope="col" class="p-2">รายวิชา</th>
           <th scope="col" class="p-2">ประเภท</th>
-          <th scope="col" class="p-2 text-center">หน่วยกิจ</th>
+          <th scope="col" class="p-2 text-center">หน่วยกิต</th>
           <th scope="col" class="p-2 text-center">ผลการเรียน</th>
         </tr>
       </thead>
@@ -44,7 +44,7 @@
           <th scope="col" class="p-2">รหัสวิชา</th>
           <th scope="col" class="p-2">รายวิชา</th>
           <th scope="col" class="p-2">ประเภท</th>
-          <th scope="col" class="p-2 text-center">หน่วยกิจ</th>
+          <th scope="col" class="p-2 text-center">หน่วยกิต</th>
           <th scope="col" class="p-2 text-center">ผลการเรียน</th>
         </tr>
       </thead>
