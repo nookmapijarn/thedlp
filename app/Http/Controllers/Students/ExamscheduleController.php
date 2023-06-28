@@ -14,6 +14,8 @@ class ExamscheduleController extends Controller
         $id = auth()->user()->student_id;
         $grade = $this->get_gradelist($id, '66/1');
         $schedule = [];
+        $student = $this->get_student($id);
+        $nnet = $this->nnet_check($id);
 
         foreach ($grade as $g) {
             $exam_day = 0;
@@ -43,7 +45,29 @@ class ExamscheduleController extends Controller
         array_multisort($key_values2, SORT_ASC, $schedule);
         // print $schedule[0]['sub_code'];
         // print_r($schedule);
-        return view('students.examschedule', compact('schedule'));
+        return view('students.examschedule', compact('schedule', 'nnet', 'student'));
+    }
+
+    public function nnet_check($id){
+        if($this->expfin($id)){
+            $student = $this->get_student($id);
+            foreach ($student as $s) {
+                $nnet = ($s->NT_SEM!='' ? 'ผ่านแล้ว' : ($s->NT_NOSEM!='' ? 'E-Exam': 'N-NET'));
+            }
+            return $nnet;
+        }else{
+            return null;        
+        }
+    }
+
+    // ตารางคาดว่าจะจบ
+    public function expfin($student_id){
+        $expfin = DB::table('expectfin')->where('ID', $student_id)->first();
+        if($expfin === null){
+            return false;
+        } else {
+            return true;
+        }       
     }
 
     public function get_student($id){

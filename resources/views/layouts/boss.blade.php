@@ -6,7 +6,7 @@
         <meta name="csrf-token" content="{{ csrf_token() }}">
         <meta name="description" content="รายงานสถิตินักศึกษา สกร.อำเภอโพธิ์ทอง">
         <meta name="robots" content="รายงานสถิตินักศึกษา สกร.อำเภอโพธิ์ทอง">
-        <title>{{ config('app.name', 'งานการศึกษาพื้นฐาน-สกร.อำเภอโพธิ์ทอง') }}</title>
+        <title>{{ config('app.name', 'ผู้บริหาร-สกร.อำเภอโพธิ์ทอง') }}</title>
         <link rel="icon" type="image/x-icon" href="{{asset('storage/logo.png');}}">
 
         <!-- Fonts -->

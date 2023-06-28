@@ -25,15 +25,9 @@
         
     </head>
 
-    <body class="font-sans antialiased" x-data="{ darkMode: false }" x-init="
-    if (!('darkMode' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-      localStorage.setItem('darkMode', JSON.stringify(true));
-    }
-    darkMode = JSON.parse(localStorage.getItem('darkMode'));
-    $watch('darkMode', value => localStorage.setItem('darkMode', JSON.stringify(value)))" x-cloak>
-        <div x-bind:class="{'dark' : darkMode === true}" class="min-h-screen bg-gray-100 bg-indio-500">
+    <body class="font-sans antialiased">
+        <div class="min-h-screen bg-gray-100 bg-indio-500">
             @include('layouts.navigation')
-
             <!-- Page Heading -->
             @if (isset($header))
                 <header class="bg-white dark:bg-gray-800 shadow">
@@ -51,3 +45,4 @@
     </body>
     @include('layouts.footer')
 </html>
+

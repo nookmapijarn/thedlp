@@ -19,13 +19,13 @@
 
     {{-- Chart 2 --}}
     <div class="h-full p-8 bg-gray-100">
-      <h1>ร้อยละผู้เข้าสอบ</h1>
+      <h1>ร้อยละผู้เข้าสอบปลายภาค (รวมเทียบโอน)</h1>
       <canvas id="myChart_C" height="100px"></canvas>
     </div> 
 
     {{-- Card --}}
     <div class="h-full p-8 bg-gray-100">
-        <div class="grid grid-cols-1 gap-5 mt-5 md:grid-cols-3">
+        <div class="grid grid-cols-1 gap-5 mt-5 md:grid-cols-2">
           <div class="overflow-hidden bg-violet-100 rounded-lg shadow">
             <div class="px-4 py-5 lg:p-6">
                 <dl>
@@ -163,28 +163,28 @@
     labels: labels,
     datasets: [
       {
-        label: 'นักศึกษาใหม่ย้อนหลังไป 4 ภาคเรียน',
-        backgroundColor: '#8b9dc3',
-        borderColor: '#8b9dc3',
+        label: 'นักศึกษาใหม่ (ย้อนหลังไป 4 ภาคเรียน)',
+        backgroundColor: '#76D7C4',
+        borderColor: '#76D7C4',
         data: data_new_student_rollback,
       },
       {
-        label: 'นักศึกษาใหม่',
-        backgroundColor: '#234c71',
-        borderColor: '#234c71',
-        data: data_new_student,
+        label: 'นักศึกษาจบหลักสูตร',
+        backgroundColor: '#16A085',
+        borderColor: '#16A085',
+        data: data_finish_student,
       },
       {
-        label: 'นักศึกษาจบหลักสูตร',
-        backgroundColor: '#83c5be',
-        borderColor: '#83c5be',
-        data: data_finish_student,
+        label: 'นักศึกษาใหม่',
+        backgroundColor: '#7DCEA0',
+        borderColor: '#7DCEA0',
+        data: data_new_student,
       }
     ]
   };
 
   const config1 = {
-    type: 'bar',
+    type: 'line',
     data: data1,
     options: {}
   };
@@ -223,8 +223,8 @@
       datasets: [
         {
           label: 'อำเภอโพธิ์ทอง',
-          backgroundColor: '#bd01eb',
-          borderColor: '#bd01eb',
+          backgroundColor: '#E74C3C',
+          borderColor: '#E74C3C',
           data: data_exam_avg,
         },
         {
@@ -289,14 +289,14 @@
         },
         {
           label: 'อินทประมูล',
-          backgroundColor: '#def088',
-          borderColor: '#def088',
+          backgroundColor: '#DFFF00',
+          borderColor: '##DFFF00',
           data: data_exam_avg_inthapamoon,
         },
         {
           label: 'องครักษ์',
-          backgroundColor: '#ee5151',
-          borderColor: '#ee5151',
+          backgroundColor: '#A569BD',
+          borderColor: '#A569BD',
           data: data_exam_avg_aogkaruk,
         },
         {
@@ -319,8 +319,8 @@
         },
         {
           label: 'พิการ',
-          backgroundColor: '#a4c7ec',
-          borderColor: '#a4c7ec',
+          backgroundColor: '#95A5A6',
+          borderColor: '#95A5A6',
           data: data_exam_avg_pikan,
         }
       ]

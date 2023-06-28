@@ -17,7 +17,7 @@ class BossController extends Controller
     public function index(Request $request)
     {
         $id = auth()->user()->student_id;
-        if ($id != '1215040001') {
+        if ($id != '1215040000') {
             return redirect()->route('welcome', ['roletype' => $id]);  
         }
 

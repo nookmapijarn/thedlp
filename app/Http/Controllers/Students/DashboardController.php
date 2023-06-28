@@ -26,8 +26,8 @@ class DashboardController extends Controller
         $grade_analyze = $this->get_grade_analyze();
         
         if (Count($student)==0) {
-            Auth::logout();
-            return redirect()->route('welcome', ['roletype' => $id]);  
+            //Auth::logout();
+            return redirect()->route('welcome', ['roletype' => auth()->user()->student_id]);  
         }
 
         $act_sum=0;

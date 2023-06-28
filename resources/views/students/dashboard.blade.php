@@ -49,9 +49,9 @@
                       </svg>
                       <span class="absolute text-2xl text-blue-700" x-text="`${percent}%`"></span>
                     </div>
-                    <p class="ml-10 font-medium text-gray-600 sm:text-xl">หน่วยกิตรวม</p>
+                    <p class="ml-10 font-medium text-gray-600 sm:text-sm">หน่วยกิต</p>
           
-                    <span class="ml-auto text-xl font-medium text-blue-600"> {{$credit}}</span>
+                    <span class="ml-auto text-sm font-medium text-blue-600"> {{$credit}}/{{$allcredit}}</span>
                 </div>
               
               
@@ -84,9 +84,9 @@
                       </svg>
                       <span class="absolute text-2xl text-yellow-400" x-text="`${percent}%`"></span>
                     </div>
-                    <p class="ml-10 font-medium text-gray-600 sm:text-xl">ชั่วโมง กพช.</p>
+                    <p class="ml-10 font-medium text-gray-600 sm:text-sm">ชั่วโมง กพช.</p>
           
-                    <span class="ml-auto text-xl font-medium text-yellow-400 ">{{$act_sum}}</span>
+                    <span class="ml-auto text-sm font-medium text-yellow-400 ">{{$act_sum}}/200</span>
                 </div>
             </div>
           </div>
