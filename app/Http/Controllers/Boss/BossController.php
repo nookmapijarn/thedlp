@@ -18,7 +18,7 @@ class BossController extends Controller
     {
         $id = auth()->user()->student_id;
         if ($id != '1215040000') {
-            return redirect()->route('welcome', ['roletype' => $id]);  
+            return redirect('welcome/?roletype='.$id);
         }
 
         // SEMESTRY Labels

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Students;
 
 use App\Http\Controllers\Controller;
+use App\Http\Middleware\RoleType;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -27,7 +28,8 @@ class DashboardController extends Controller
         
         if (Count($student)==0) {
             //Auth::logout();
-            return redirect()->route('welcome', ['roletype' => auth()->user()->student_id]);  
+            // return redirect('/dashboard')->with('status', 'Profile updated!');
+            return redirect('welcome/?roletype='.auth()->user()->student_id);
         }
 
         $act_sum=0;

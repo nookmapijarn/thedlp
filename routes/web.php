@@ -33,9 +33,20 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+
+
+Route::get('/welcome/{roletype}', function () {
+    return view('welcome');
+})->name('/welcome');
+
 Route::get('/welcome', function () {
     return view('welcome');
-})->name('welcome');
+})->name('/welcome');
+
+Route::get('/regis', function () {
+    return view('welcome');
+})->name('regis');
+
 Route::get('/', function () {
     return view('welcome');
 })->name('/');

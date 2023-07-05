@@ -18,7 +18,6 @@
             <x-input-label for="student_id" :value="__('Username | รหัสนักศึกษา')" />
             <x-text-input id="student_id" class="block mt-1 w-full text-center" 
                 type="Number" name="student_id" :value="old('student_id')" 
-                placeholder="ผู้เรียนใช้รหัสนักศึกษา" 
                 required 
                 autofocus 
                 autocomplete="student_id" />
@@ -27,13 +26,13 @@
 
         <!-- Password -->
         <div class="mt-4">
-            <x-input-label for="password" :value="__('Password | รหัสนักศึกษา')" />
+            <x-input-label for="password" :value="__('Password')" />
 
             <x-text-input id="password" class="block mt-1 w-full text-center"
                             type="password"
                             name="password"
                             required autocomplete="current-password"
-                            placeholder="ผู้เรียนใช้รหัสนักศึกษา" />
+                            />
 
             <x-input-error :messages="$errors->get('password')" class="mt-2" />
         </div>
@@ -75,7 +74,7 @@
                     {{ __('สมัครสมาชิก') }}
                 </div>   
             </a>   
-            <a class="flex items-center justify-end mt-4 m-2 hover:text-sky-700" href="{{ route('welcome') }}">
+            <a class="flex items-center justify-end mt-4 m-2 hover:text-sky-700" href="{{ url('welcome') }}">
                 <div class="rounded-full">
                     {{ __('หน้าหลัก') }}
                 </div>   

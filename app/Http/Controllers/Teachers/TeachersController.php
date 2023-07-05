@@ -27,7 +27,7 @@ class TeachersController extends Controller
         $id = auth()->user()->student_id;
 
         if ($id != '1215040001') {
-            return redirect()->route('welcome', ['roletype' => $id]);  
+            return redirect('welcome/?roletype='.$id);
         }
 
         if($request->tumbon!=''){
