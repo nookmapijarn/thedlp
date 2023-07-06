@@ -135,11 +135,11 @@
                 </div> 
                 <div>
                     <label for="PHONE" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">เบอร์โทร</label>
-                    <input type="tel" id="PHONE" name="PHONE" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5  " placeholder="" pattern="[0-9]{3}-[0-9]{7}"  >
+                    <input type="tel" id="PHONE" name="PHONE" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 ">
                 </div>
                 <div>
                     <label for="SOCIAL" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Line/fackbook/อื่นๆ</label>
-                    <input type="text" id="SOCIAL" name="SOCIAL" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5  " placeholder="">
+                    <input type="text" id="SOCIAL" name="SOCIAL" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 ">
                 </div>
             </div>
 
@@ -161,7 +161,7 @@
                 </div> 
                 <div>
                     <label for="LV_CONT" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">ชื่อและสถานที่ ศึกษาต่อ</label>
-                    <input type="text" id="LV_CONT" name="LV_CONT" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5  " placeholder="" pattern="[0-9]{3}-[0-9]{2}-[0-9]{3}"  >
+                    <input type="text" id="LV_CONT" name="LV_CONT" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
                 </div>
                 <div>
                     <label for="CAREER" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">ใช้ประกอบอาชีพ</label>
@@ -179,7 +179,7 @@
                 </div> 
                 <div>
                     <label for="CAREER_CONT" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">ชื่อและสถานที่ ประกอบอาชีพ</label>
-                    <input type="text" id="CAREER_CONT" name="CAREER_CONT" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5  " placeholder="" pattern="[0-9]{3}-[0-9]{2}-[0-9]{3}"  >
+                    <input type="text" id="CAREER_CONT" name="CAREER_CONT" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 ">
                 </div>
                 <div>
                     <label for="SALA_UP" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">ใช้ปรับตำแหน่ง/เพิ่มเงินเดือน</label>
@@ -191,7 +191,7 @@
                 </div> 
                 <div>
                     <label for="SALA_CONT" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">ชื่อและสถานที่ ปรับตำแหน่ง/เพิ่มเงินเดือน</label>
-                    <input type="text" id="SALA_CONT" name="SALA_CONT" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5  " placeholder="" pattern="[0-9]{3}-[0-9]{2}-[0-9]{3}"  >
+                    <input type="text" id="SALA_CONT" name="SALA_CONT" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 ">
                 </div>
             </div>
 

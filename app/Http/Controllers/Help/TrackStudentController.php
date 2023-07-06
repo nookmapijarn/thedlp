@@ -78,7 +78,7 @@ class TrackStudentController extends Controller
             'IDEA' => $request->IDEA
         ]);
         // echo $TrackStudent.'store'.'<br><br><br><br><br><br>';
-        return view('help.hdashboard');
+        return view('help.trackstudentsuccess');
     }
 
     public function upload(Request $request)
