@@ -13,15 +13,31 @@ class StudentRegisController extends Controller
     public function index(){
         $semestry = $this->semestry;
         $learned = $this->learned()['learned'];
-        $notlearned = $this->getAllSubject();
+        $allsub = $this->getAllSubject();
         $sumcredit = $this->learned()['sumcredit'];
 
         $current_regis =  $this->get_current_regis($semestry);
+        $notlearned = $allsub;
+
+        foreach ($notlearned as $key => $a){
+            foreach($current_regis as $c){
+                if($a['sub_code'] == $c->SUB_CODE){
+                    //echo ' UNSET Current  ! => '.$notlearned[$key]['sub_code'];
+                    unset($notlearned[$key]);
+                }
+            }
+            foreach($learned as $l){
+                if($a['sub_code'] == $l['sub_code']){
+                    //echo ' UNSET Learned ! => '.$notlearned[$key]['sub_code'];
+                    unset($notlearned[$key]);
+                }
+            }
+        }
 
         foreach ($learned as $l) {           
-            if(in_array($l, $notlearned)){
-                $unsetkey = array_search($l,$notlearned);
-                unset($notlearned[$unsetkey]);
+            if(in_array($l, $allsub)){
+                $unsetkey = array_search($l,$allsub);
+                unset($allsub[$unsetkey]);
             }
         }
         //print_r($notlearned);
