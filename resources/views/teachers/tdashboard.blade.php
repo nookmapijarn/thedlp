@@ -1,8 +1,8 @@
 <x-teachers-layout>
     <x-slot name="header">
-        <h6 class="font-semibold text-lg text-gray-800 dark:text-gray-200 leading-tight m-2">
-            {{ __('ภาคเรียนปัจจุบัน') }} {{$semestry}}
-        </h6>
+        <h4 class="font-semibold text-lg text-gray-800 dark:text-gray-200 leading-tight m-2">
+            {{ __('รายงานนักศึกษา ภาคเรียนปัจจุบัน') }} {{$semestry}}
+        </h4>
         <form method="GET" action="{{ route('tdashboard') }}" class="">
         <div class="grid grid-cols-1 gap-2 md:grid md:grid-cols-2 justify-items-center">
             <div class="min-w-full" >

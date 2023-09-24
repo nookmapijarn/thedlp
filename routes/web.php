@@ -10,6 +10,7 @@ use App\Http\Controllers\Students\StudentRegisController;
 
 // Teacher
 use App\Http\Controllers\Teachers\TeachersController;
+use App\Http\Controllers\Teachers\TeachersGradeController;
 
 // Boss
 use App\Http\Controllers\Boss\BossController;
@@ -19,6 +20,7 @@ use App\Http\Controllers\Help\HelpController;
 use App\Http\Controllers\Help\NewStudentController;
 use App\Http\Controllers\Help\TrackStudentController;
 use App\Http\Controllers\Help\ContactTeacherController;
+use App\Http\Controllers\Help\FinalCheckController;
 
 use Illuminate\Support\Facades\Route;
 
@@ -64,6 +66,7 @@ Route::middleware('auth', 'verified')->group(function () {
     Route::prefix('/teachers')->group(function () {
         Route::get('/', [TeachersController::class, 'index']);
         Route::get('/tdashboard', [TeachersController::class, 'index'])->name('tdashboard');
+        Route::get('/tgrade', [TeachersGradeController::class, 'index'])->name('tgrade');
     });
 });
 // Route::get('/teachers',[TeachersController::class,'index'])->middleware('roleType');
@@ -77,6 +80,7 @@ Route::prefix('/help')->group(function () {
     Route::post('/ติดตามผู้จบ.store', [TrackStudentController::class, 'store'])->name('ติดตามผู้จบ.store');
     Route::get('/ติดตามผู้จบ', [TrackStudentController::class, 'index'])->name('ติดตามผู้จบ');
     Route::get('/ติดต่อครู', [ContactTeacherController::class, 'index'])->name('ติดต่อครู');
+    Route::get('/ผู้จบหลักสูตร', [FinalCheckController::class, 'index'])->name('ผู้จบหลักสูตร');
 });  
 
 

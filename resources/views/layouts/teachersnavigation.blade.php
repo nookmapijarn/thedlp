@@ -13,12 +13,15 @@
 
                 <!-- Navigation Links -->
                 <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex text-lg">
-                    <x-nav-link href="{{ url('welcome') }}" class="text-white">
-                        {{ __('หน้าหลัก') }}
+                    <x-nav-link href="{{ url('teachers/') }}" class="text-white">
+                        {{ __('รายงานนักศึกษา') }}
+                    </x-nav-link>
+                    <x-nav-link href="{{ url('teachers/tgrade') }}" class="text-white">
+                        {{ __('ผลการเรียน') }}
                     </x-nav-link>
                     {{-- <x-nav-link :href="route('login')" :active="request()->routeIs('login')" class="text-white">
                         {{ __('ทะเบียนนักศึกษา') }}
-                    </x-nav-link> --}}
+                    </x-nav-link> --}}  
                 </div>
             </div>
 
@@ -74,8 +77,11 @@
     <!-- Responsive Navigation Menu -->
     <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden  text-white">
         <div class="pt-2 pb-3 space-y-1">
-            <x-nav-link href="{{ url('welcome') }}" class="text-white">
-                {{ __('หน้าหลัก') }}
+            <x-nav-link href="{{ url('teachers/') }}" class="text-white">
+                {{ __('รายงานนักศึกษา') }}
+            </x-nav-link>
+            <x-nav-link href="{{ url('teachers/tgrade') }}" class="text-white">
+                {{ __('ผลการเรียน') }}
             </x-nav-link>
             {{-- <x-nav-link :href="route('login')" :active="request()->routeIs('login')" class="text-white">
                 {{ __('ทะเบียนนักศึกษา') }}
