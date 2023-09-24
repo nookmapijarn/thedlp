@@ -81,7 +81,14 @@
                   <td class="p-2 hidden md:block border border-slate-300 ...">{{$s['NAME']}}</td>
                   <td class="p-2 w-15 border border-slate-300 ...">{{$s['SURNAME']}}</td>
                     @foreach($s['ALL_GRADE'] as $g)
-                      <td class="p-2 text-left border border-slate-300 ...">{{$g->SUB_CODE}} ({{$g->GRADE}}/{{$g->TOTAL}})</td>
+                      <td class="text-green-600 p-2 text-left border border-slate-300 ... " >
+                        <span
+                          @if($g->GRADE == 0)class="text-red-600"@endif
+                          @if($g->GRADE > 0 && !is_numeric($g->GRADE))class="text-yellow-600"@endif  
+                        >
+                          {{$g->SUB_CODE}} ({{$g->GRADE}}/{{$g->TOTAL}})
+                        </span>
+                      </td>
                     @endforeach
                 </tr>
                 @endforeach
