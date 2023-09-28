@@ -48,7 +48,7 @@
         {{-- <div>
           <span class="text-red-500 font-medium">หมายเหตุ</span>
         </div> --}}
-        <div class="grid grid-cols-3 gap-2 mt-2">
+        <div class="grid grid-cols-3 gap-2 mt-2">  
           <div class="font-semibold text-xs truncate"> <span class="text-indigo-500">N-NET</span> : มีสิทธิสอบ N-NET ภาคเรียนปัจจุบัน </div> 
           <div class="font-semibold pl-2 text-xs truncate"> <span class="text-yellow-500">E-EXAM</span> : มีสิทธิสอบ E-EXAM ภาคเรียนปัจจุบัน </div>
           <!-- Tag 1-->
@@ -56,7 +56,7 @@
             <div class="text-blue-100 mr-1">
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 fill-yellow-500">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0111.186 0z" />
-              </svg>              
+              </svg>               
             </div>
             <span class="text-indigo font-semibold truncate"> : คาดว่าจะจบหลักสูตร</span>
           </div>
@@ -79,6 +79,7 @@
                     <th scope="col" class="p-2 hidden md:block">ระดับ</th>
                     <th scope="col" class="p-2">ชื่อ</th>
                     <th scope="col" class="p-2">นามสกุล</th>
+                    <th scope="col" class="p-2 text-center">สถานะ/จบ</th>
                     <th scope="col" class="p-2">คาดว่าจะจบ</th>
                     <th scope="col" class="p-2 text-center">กพช.</th>
                     <th scope="col" class="p-2 text-center">N-NET</th>
@@ -96,6 +97,20 @@
                     <td class="p-2 hidden md:block">{{$d['lavel']}}</td>
                     <td class="p-2 w-15">{{$d['name']}}</td>
                     <td class="p-2">{{$d['surname']}}</td>
+                    {{-- สถานะ --}}
+                    <td class="p-2 text-center">
+                      @if($d['fin_cause']=='' || $d['fin_cause']==0 || $d['fin_cause']==null) <span class="text-yellow-700">ศึกษาอยู่</span> @endif
+                      @if($d['fin_cause']==1) <span class="text-green-400">จบหลักสูตร</span> @endif 
+                      @if($d['fin_cause']==2) ลาออก @endif 
+                      @if($d['fin_cause']==3) <span class="text-red-400">หมดสภาพ</span> @endif 
+                      @if($d['fin_cause']==4) พ้นสภาพ @endif 
+                      @if($d['fin_cause']==5) ศึกษาต่อที่อื่น @endif 
+                      @if($d['fin_cause']==6) ศึกษาเพิ่งหลังจบ @endif 
+                      @if($d['fin_cause']==7) จบตกหล่น @endif 
+                      @if($d['fin_cause']==8) อื่นๆ @endif 
+                      @if($d['fin_cause']==9) จบอยู่ระหว่างตรวจสอบวุฒิ @endif 
+                    </td>
+                    {{-- คาดว่าจะจบ --}}
                     @if($d['expfin']==1)
                     <td class="p-2 text-violet-500 items-center">
                       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 fill-yellow-500">
@@ -105,7 +120,12 @@
                     @else
                     <td class="p-2">-</td>
                     @endif
-                    <td class="p-2 text-center">{{$d['activity']}}</td>
+                    {{-- กพช --}}
+                    <td 
+                      @if($d['activity']>=200) class="p-2 text-center text-green-400" @endif
+                      @if($d['activity']<200) class="p-2 text-center text-yellow-600" @endif
+                    >{{$d['activity']}}</td>
+                    {{-- ประเมินระดับชาติ --}}
                     @if($d['nt_sem']=="ผ่านแล้ว")
                     <td class="p-2 text-center text-green-500">{{$d['nt_sem']}}</td>
                     @elseif($d['nt_sem']=="มีสิทธิ")

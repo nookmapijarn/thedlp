@@ -20,6 +20,7 @@ class TeachersController extends Controller
     public function index(Request $request)
     {
         //
+        
         $data=[];
         $tumbon = '';
         $studreport = '';
@@ -88,6 +89,7 @@ class TeachersController extends Controller
                         'lavel'     =>  $this->lavelis($s->STD_CODE),  
                         'name'      =>  $s->NAME,
                         'surname'   =>  $s->SURNAME,
+                        'fin_cause' =>  $s->FIN_CAUSE,
                         'expfin'    =>  $expfin,
                         'activity'  =>  $this->get_activity($s->STD_CODE),
                         'nt_sem'    =>  $nnet
@@ -118,6 +120,7 @@ class TeachersController extends Controller
                             'lavel'     =>  $this->lavelis($s->STD_CODE),  
                             'name'      =>  $s->NAME,
                             'surname'   =>  $s->SURNAME,
+                            'fin_cause' =>  $s->FIN_CAUSE,
                             'expfin'    =>  $expfin,
                             'activity'  =>  $this->get_activity($s->STD_CODE),
                             'nt_sem'    =>  $nnet
@@ -155,6 +158,7 @@ class TeachersController extends Controller
                             'lavel'     =>  $this->lavelis($s->STD_CODE),  
                             'name'      =>  $s->NAME,
                             'surname'   =>  $s->SURNAME,
+                            'fin_cause' =>  $s->FIN_CAUSE,
                             'expfin'    =>  $expfin,
                             'activity'  =>  $this->get_activity($s->STD_CODE),
                             'nt_sem'    =>  $nnet
@@ -177,7 +181,7 @@ class TeachersController extends Controller
     public function get_student($std_code){
         $student = DB::table('student')
         ->where('STD_CODE', $std_code)
-        ->select(array('ID', 'STD_CODE', 'NAME', 'SURNAME', 'NT_SEM', 'NT_NOSEM'))
+        ->select(array('ID', 'STD_CODE', 'NAME', 'SURNAME', 'FIN_CAUSE', 'NT_SEM', 'NT_NOSEM'))
         ->get();
         return $student;
     }
