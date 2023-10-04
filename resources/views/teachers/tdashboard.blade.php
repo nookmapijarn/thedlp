@@ -83,6 +83,7 @@
                     <th scope="col" class="p-2">คาดว่าจะจบ</th>
                     <th scope="col" class="p-2 text-center">กพช.</th>
                     <th scope="col" class="p-2 text-center">N-NET</th>
+                    {{-- <th scope="col" class="p-2 text-center">จัดการ</th> --}}
                   </tr>
                 </thead>
                 <tbody class="text-xs md:text-sm">
@@ -135,6 +136,7 @@
                     @else
                     <td class="p-2 text-center">{{$d['nt_sem']}}</td>
                     @endif
+                    {{-- <td><button id="openModalButton">Open Modal</button></td> --}}
                   </tr>
                 @endforeach
                 </tbody>
@@ -145,3 +147,12 @@
         </div>
       </div>
 </x-teachers-layout>
+{{-- <x-modal-component :title="222", :content="11111"> 8888 </x-modal-component> --}}
+
+<script>
+  const modal = document.querySelector('.modal');
+
+  document.getElementById('openModalButton').addEventListener('click', () => {
+      modal.style.display = 'block';
+  });
+</script>

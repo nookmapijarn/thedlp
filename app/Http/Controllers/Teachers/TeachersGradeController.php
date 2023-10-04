@@ -53,7 +53,7 @@ class TeachersGradeController extends Controller
             ->where('GRP_CODE', '=', $grp_code)
             ->where('STD_CODE', '=', $s->STD_CODE)
             ->where('SEMESTRY', '=', $this->semestry)
-            ->select('SUB_CODE', 'FINAL', 'TOTAL',  'GRADE')
+            ->select('SUB_CODE', 'FINAL', 'TOTAL',  'GRADE', 'TYP_CODE')
             ->orderBy('SUB_CODE', 'ASC')
             ->get();
 

@@ -84,9 +84,10 @@
                       <td class="text-green-600 p-2 text-left border border-slate-300 ... " >
                         <span
                           @if($g->GRADE == 0)class="text-red-600"@endif
-                          @if($g->GRADE > 0 && !is_numeric($g->GRADE))class="text-yellow-600"@endif  
+                          @if($g->GRADE > 0 && !is_numeric($g->GRADE))class="text-yellow-600"@endif
+                          @if($g->GRADE == '' || $g->GRADE == null)class="text-yellow-600"@endif  
                         >
-                          {{$g->SUB_CODE}} ({{$g->GRADE}}/{{$g->TOTAL}})
+                        @if($g->TYP_CODE == 7) **ซ่อม** @endif {{$g->SUB_CODE}} ({{$g->GRADE}}/{{$g->TOTAL}})
                         </span>
                       </td>
                     @endforeach
