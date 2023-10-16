@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Auth;
 class BossController extends Controller
 {
     //
-    protected $semestry = '66/1';
+    protected $semestry = '66/2';
 
     public function index(Request $request)
     {

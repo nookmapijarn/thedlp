@@ -12,7 +12,7 @@ class ExamscheduleController extends Controller
     public function index()
     {
         $id = auth()->user()->student_id;
-        $grade = $this->get_gradelist($id, '66/1');
+        $grade = $this->get_gradelist($id, '66/2');
         $schedule = [];
         $student = $this->get_student($id);
         $nnet = $this->nnet_check($id);

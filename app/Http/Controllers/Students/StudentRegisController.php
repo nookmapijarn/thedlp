@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 
 class StudentRegisController extends Controller
 {
-    protected $semestry = '66/1';
+    protected $semestry = '66/2';
     //
     public function index(){
         $semestry = $this->semestry;
