@@ -11,6 +11,7 @@
                   {{-- @if(request()->get('tumbon')!='') <option selected>{{request()->get('tumbon')}}</option> @endif
                   @if(request()->get('tumbon')=='') <option selected>เลือกตำบล</option> @endif --}}
                   <option value="">เลือกตำบล</option>
+                  <option value="0000 ทุกตำบล">ทุกตำบล</option>
                   <option value="4011 บางพลับ">4011 บางพลับ</option>
                   <option value="4012 บางพลับ">4012 บางพลับ</option>
                   <option value="4021 อ่างแก้ว">4021 อ่างแก้ว</option>
@@ -75,6 +76,7 @@
                 <thead class="border-b font-medium bg-white drop-shadow text-xs md:text-sm">                 
                   <tr class="bg-gray-200">
                     <th scope="col" class="p-2 text-center">ลำดับ</th>
+                    <th scope="col" class="p-2 text-center">ตำบล</th>
                     <th scope="col" class="p-2">รหัส</th>
                     <th scope="col" class="p-2 hidden md:block">ระดับ</th>
                     <th scope="col" class="p-2">ชื่อ</th>
@@ -94,6 +96,7 @@
                   @if($d['lavel']==3) class="border-b bg-yellow-100 shadow-md hover:bg-yellow-300" @endif
                   >
                     <td class="p-2 text-center">{{$loop->iteration}}</td>
+                    <td class="p-2 text-center">{{$d['grp_code']}}</td>
                     <td class="p-2">{{$d['id']}}</td>
                     <td class="p-2 hidden md:block">{{$d['lavel']}}</td>
                     <td class="p-2 w-15">{{$d['name']}}</td>

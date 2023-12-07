@@ -31,10 +31,27 @@ class TeachersController extends Controller
             return redirect('welcome/?roletype='.$id);
         }
 
+        // test
+        // $grade = DB::table('grade')
+        // ->where('GRP_CODE', 'regexp', $tumbon)
+        // ->where('SEMESTRY', $this->semestry)
+        // ->select('STD_CODE')
+        // ->orderBy('STD_CODE', 'ASC')
+        // ->groupBy('STD_CODE')
+        // ->get();
+        // echo $grade;
+        // endtest
+
         if($request->tumbon!=''){
-            $tumbon = str_split($request->tumbon, 4)[0];
+            $grp_code = str_split($request->tumbon, 4)[0];
+            if($grp_code != '0000'){
+                $tumbon = $grp_code;
+            }else{
+                $tumbon = '[0-9]';
+            }
             $studreport = $request->studreport;
         }else{
+            //$tumbon = '[0-9]';
             return view('teachers.tdashboard' ,compact('data', 'semestry'));
         }
 
@@ -92,8 +109,8 @@ class TeachersController extends Controller
                         'fin_cause' =>  $s->FIN_CAUSE,
                         'expfin'    =>  $expfin,
                         'activity'  =>  $this->get_activity($s->STD_CODE),
-                        'nt_sem'    =>  $nnet
-
+                        'nt_sem'    =>  $nnet,
+                        'grp_code'  =>  $s->GRP_CODE
                     ]
                 );
             }
@@ -123,8 +140,8 @@ class TeachersController extends Controller
                             'fin_cause' =>  $s->FIN_CAUSE,
                             'expfin'    =>  $expfin,
                             'activity'  =>  $this->get_activity($s->STD_CODE),
-                            'nt_sem'    =>  $nnet
-    
+                            'nt_sem'    =>  $nnet,
+                            'grp_code'  =>  $s->GRP_CODE
                         ]
                       );
                       break;
@@ -161,8 +178,8 @@ class TeachersController extends Controller
                             'fin_cause' =>  $s->FIN_CAUSE,
                             'expfin'    =>  $expfin,
                             'activity'  =>  $this->get_activity($s->STD_CODE),
-                            'nt_sem'    =>  $nnet
-    
+                            'nt_sem'    =>  $nnet,
+                            'grp_code'  =>  $s->GRP_CODE
                         ]
                       );
                       break;
@@ -181,7 +198,7 @@ class TeachersController extends Controller
     public function get_student($std_code){
         $student = DB::table('student')
         ->where('STD_CODE', $std_code)
-        ->select(array('ID', 'STD_CODE', 'NAME', 'SURNAME', 'FIN_CAUSE', 'NT_SEM', 'NT_NOSEM'))
+        ->select(array('ID', 'STD_CODE', 'NAME', 'SURNAME', 'FIN_CAUSE', 'NT_SEM', 'NT_NOSEM', 'GRP_CODE'))
         ->get();
         return $student;
     }
@@ -208,10 +225,10 @@ class TeachersController extends Controller
     public function current_student($grp_code){
         // ตาราง garde
         $grade = DB::table('grade')
-        ->where('GRP_CODE', $grp_code)
+        ->where('GRP_CODE', 'regexp', $grp_code)
         ->where('SEMESTRY', $this->semestry)
         ->select('STD_CODE')
-        ->orderBy('STD_CODE', 'ASC')
+        ->orderBy('STD_CODE', 'ASC')  
         ->groupBy('STD_CODE')
         ->get();
         
@@ -221,7 +238,7 @@ class TeachersController extends Controller
     public function all_student($grp_code){
         // ตาราง garde
         $student = DB::table('student')
-        ->where('GRP_CODE', $grp_code)
+        ->where('GRP_CODE', 'regexp', $grp_code)
         ->select('STD_CODE')
         ->orderBy('STD_CODE', 'ASC')
         ->groupBy('STD_CODE')

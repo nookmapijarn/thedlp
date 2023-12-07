@@ -228,7 +228,8 @@ class BossController extends Controller
         $ID = str_replace('/','',$semestry); //661
         $ID = str_split($ID, 2);
         $year = $ID[0]-2;
-        $rollback_ID = $year.$ID[1];
+        $semes = ($ID[1] === '1'? '2' : '1');
+        $rollback_ID = $year.$semes;
 
         //echo $newid;
 
