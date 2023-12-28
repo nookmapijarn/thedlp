@@ -10,12 +10,12 @@ use Illuminate\Support\Facades\Auth;
 
 class TeachersGradeController extends Controller
 {
-    protected $semestry = '66/1';
+    protected $semestry = '66/2';
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
-     */
+     */  
 
     public function index(Request $request)
     {
