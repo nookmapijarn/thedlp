@@ -19,6 +19,9 @@
                     <x-nav-link href="{{ url('teachers/tgrade') }}" class="text-white">
                         {{ __('ผลการเรียน') }}
                     </x-nav-link>
+                    <x-nav-link href="{{route('tstudentprofile')}}" class="text-white">
+                        {{ __('ค้นหาประวัติผู้เรียน') }}
+                    </x-nav-link>
                     {{-- <x-nav-link :href="route('login')" :active="request()->routeIs('login')" class="text-white">
                         {{ __('ทะเบียนนักศึกษา') }}
                     </x-nav-link> --}}  
@@ -81,7 +84,10 @@
                 {{ __('รายงานนักศึกษา') }}
             </x-nav-link>
             <x-nav-link href="{{ url('teachers/tgrade') }}" class="text-white">
-                {{ __('ผลการเรียน') }}
+                {{ __('-ผลการเรียน') }}
+            </x-nav-link>
+            <x-nav-link href="{{route('tstudentprofile')}}" class="text-white">
+                {{ __('ค้นหาประวัติผู้เรียน') }}
             </x-nav-link>
             {{-- <x-nav-link :href="route('login')" :active="request()->routeIs('login')" class="text-white">
                 {{ __('ทะเบียนนักศึกษา') }}

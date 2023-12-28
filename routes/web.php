@@ -11,6 +11,7 @@ use App\Http\Controllers\Students\StudentRegisController;
 // Teacher
 use App\Http\Controllers\Teachers\TeachersController;
 use App\Http\Controllers\Teachers\TeachersGradeController;
+use App\Http\Controllers\Teachers\TeachersStudentProfile;
 
 // Boss
 use App\Http\Controllers\Boss\BossController;
@@ -67,6 +68,8 @@ Route::middleware('auth', 'verified')->group(function () {
         Route::get('/', [TeachersController::class, 'index']);
         Route::get('/tdashboard', [TeachersController::class, 'index'])->name('tdashboard');
         Route::get('/tgrade', [TeachersGradeController::class, 'index'])->name('tgrade');
+        Route::get('/tstudentprofile', [TeachersStudentProfile::class, 'index'])->name('tstudentprofile');
+        Route::post('/tstudentprofile', [TeachersStudentProfile::class, 'index'])->name('tstudentprofile');
     });
 });
 // Route::get('/teachers',[TeachersController::class,'index'])->middleware('roleType');
