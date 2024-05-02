@@ -1,4 +1,7 @@
 <?php
+
+namespace App\Http\Controllers;
+
 // Base
 use App\Http\Controllers\ProfileController;
 
@@ -12,6 +15,7 @@ use App\Http\Controllers\Students\StudentRegisController;
 use App\Http\Controllers\Teachers\TeachersController;
 use App\Http\Controllers\Teachers\TeachersGradeController;
 use App\Http\Controllers\Teachers\TeachersStudentProfile;
+use App\Http\Controllers\Teachers\TeachersScoreController;
 
 // Boss
 use App\Http\Controllers\Boss\BossController;
@@ -22,7 +26,6 @@ use App\Http\Controllers\Help\NewStudentController;
 use App\Http\Controllers\Help\TrackStudentController;
 use App\Http\Controllers\Help\ContactTeacherController;
 use App\Http\Controllers\Help\FinalCheckController;
-
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -70,6 +73,8 @@ Route::middleware('auth', 'verified')->group(function () {
         Route::get('/tgrade', [TeachersGradeController::class, 'index'])->name('tgrade');
         Route::get('/tstudentprofile', [TeachersStudentProfile::class, 'index'])->name('tstudentprofile');
         Route::post('/tstudentprofile', [TeachersStudentProfile::class, 'index'])->name('tstudentprofile');
+        Route::get('/tscore', [TeachersScoreController::class, 'index'])->name('tscore');
+        Route::post('/tscore', [TeachersScoreController::class, 'index'])->name('tscore');
     });
 });
 // Route::get('/teachers',[TeachersController::class,'index'])->middleware('roleType');

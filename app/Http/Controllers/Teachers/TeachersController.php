@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use App\Providers\CustomServiceProvider;
 
 
 class TeachersController extends Controller
@@ -16,11 +17,15 @@ class TeachersController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+    // public function __construct(CustomServiceProvider $customService)
+    // {
+    //     $customService->setSemestry(66/2);
+    // }
 
     public function index(Request $request)
     {
-        //
-        
+
+
         $data=[];
         $tumbon = '';
         $studreport = '';

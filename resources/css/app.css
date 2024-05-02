@@ -19,3 +19,19 @@
       background-position: 100% 50%;
     }
   }
+
+  .textAlignVer{
+    /* display:block;
+    filter: flipv fliph; */
+    -webkit-transform: rotate(-90deg); 
+    -moz-transform: rotate(-90deg); 
+    transform: rotate(-90deg); 
+    position:relative;
+    /* width:25px; */
+    white-space:nowrap;
+    font-size:14px;
+    top: 26px;
+    margin-bottom:-14px;
+    left:-12px;  
+    text-align:center;  
+}      
