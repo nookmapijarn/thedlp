@@ -30,6 +30,7 @@ class TeachersScoreController extends Controller
         $all_grade = 0;
         $grade_not = 0;
         $grade_0 = 0;
+        $grade_2_up = 0;
         $all_tumbon = DB::table('group')->select('GRP_CODE', 'GRP_NAME')->orderBy('GRP_CODE', 'ASC')->get();
         $all_subject = DB::table('subject'.$lavel)->select('SUB_CODE', 'SUB_NAME')->orderBy('SUB_CODE', 'ASC')->get();
         $all_semestry = DB::table('grade')->select('SEMESTRY')->groupBy('SEMESTRY')->orderBy('SEMESTRY', 'DESC')->get();
@@ -48,7 +49,7 @@ class TeachersScoreController extends Controller
             $type = $request->type;
             $all_subject = DB::table('subject'.$lavel)->select('SUB_CODE', 'SUB_NAME')->orderBy('SUB_CODE', 'ASC')->get();
         }else{
-            return view('teachers.tscore' ,compact('data', 'semestry', 'all_tumbon', 'all_semestry','all_subject', 'tumbon', 'lavel', 'subject', 'type', 'all_grade', 'grade_0', 'grade_not'));
+            return view('teachers.tscore' ,compact('data', 'semestry', 'all_tumbon', 'all_semestry','all_subject', 'tumbon', 'lavel', 'subject', 'type', 'all_grade', 'grade_0', 'grade_not', 'grade_2_up'));
         }
 
         $data = $this->grade_explore($tumbon, $lavel, $semestry, $subject, $type);
@@ -57,9 +58,10 @@ class TeachersScoreController extends Controller
             $all_grade = $data->count();
             $grade_not = $data->where('GRADE', 'LIKE', 'ข')->count();
             $grade_0 = $data->where('GRADE', '=', '0')->count();
-            return view('teachers.tscore' ,compact('data', 'semestry', 'all_tumbon', 'all_semestry','all_subject', 'tumbon', 'lavel', 'subject', 'type', 'all_grade', 'grade_0', 'grade_not'));    
+            $grade_2_up = $data->where('GRADE', '>=', 2)->count();
+            return view('teachers.tscore' ,compact('data', 'semestry', 'all_tumbon', 'all_semestry','all_subject', 'tumbon', 'lavel', 'subject', 'type', 'all_grade', 'grade_0', 'grade_not', 'grade_2_up'));    
         } else {
-            return view('teachers.tscore' ,compact('data', 'semestry', 'all_tumbon', 'all_semestry','all_subject', 'tumbon', 'lavel', 'subject', 'type', 'all_grade', 'grade_0', 'grade_not'));
+            return view('teachers.tscore' ,compact('data', 'semestry', 'all_tumbon', 'all_semestry','all_subject', 'tumbon', 'lavel', 'subject', 'type', 'all_grade', 'grade_0', 'grade_not', 'grade_2_up'));
         }
                  
     }

@@ -83,6 +83,7 @@
     <!-- Responsive Navigation Menu -->
     <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden  text-white">
         <div class="pt-2 pb-3 space-y-1">
+            <svg class="fill-blue-500 ..."></svg>
             <x-nav-link href="{{ url('teachers/') }}" class="text-white">
                 {{ __('รายงานนักศึกษา') }}
             </x-nav-link>
