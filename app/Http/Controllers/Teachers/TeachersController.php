@@ -11,7 +11,6 @@ use App\Providers\CustomServiceProvider;
 
 class TeachersController extends Controller
 {
-    protected $semestry = '66/2';
     /**
      * Display a listing of the resource.
      *
@@ -24,12 +23,12 @@ class TeachersController extends Controller
 
     public function index(Request $request)
     {
-
-
+        $all_tumbon = DB::table('group')->select('GRP_CODE', 'GRP_NAME')->orderBy('GRP_CODE', 'ASC')->get();
+        $all_semestry = DB::table('grade')->select('SEMESTRY')->groupBy('SEMESTRY')->orderBy('SEMESTRY', 'DESC')->get();
         $data=[];
-        $tumbon = '';
+        $tumbon = '0000';
         $studreport = '';
-        $semestry = $this->semestry;
+        $semestry = $all_semestry->first()->SEMESTRY;
         $id = auth()->user()->student_id;
 
         if ($id != '1215040001') {
@@ -49,42 +48,44 @@ class TeachersController extends Controller
 
         if($request->tumbon!=''){
             $grp_code = str_split($request->tumbon, 4)[0];
-            if($grp_code != '0000'){
-                $tumbon = $grp_code;
-            }else{
-                $tumbon = '[0-9]';
-            }
+            $semestry = $request->semestry;
+            $tumbon = $request->tumbon;
+            // if($grp_code != '0000'){
+            //     $tumbon = $grp_code;
+            // }else{
+            //     $tumbon = '[0-9]';
+            // }
             $studreport = $request->studreport;
         }else{
             //$tumbon = '[0-9]';
-            return view('teachers.tdashboard' ,compact('data', 'semestry'));
+            return view('teachers.tdashboard' ,compact('data', 'semestry', 'tumbon', 'all_tumbon', 'all_semestry'));
         }
 
         // เลือกรายงาน
         switch ($studreport) {
             case 'นักศึกษาทั้งหมด':
-                $data = $this->allstudent($tumbon);
+                $data = $this->allstudent($tumbon, $semestry);
                 $data = collect($data)->sortBy('lavel')->toArray(); // $mystudent = collect($mystudent)->sortBy('lavel')->reverse()->toArray(); DESC
-                return view('teachers.tdashboard' ,compact('data', 'semestry'));
+                return view('teachers.tdashboard' ,compact('data', 'semestry', 'tumbon', 'all_tumbon', 'all_semestry'));
               break;
             case 'เฉพาะผู้คาดว่าจะจบ':
-                $data = $this->expstudent($tumbon, $studreport);
+                $data = $this->expstudent($tumbon, $studreport, $semestry);
                 $data = collect($data)->sortBy('lavel')->toArray();
-                return view('teachers.tdashboard' ,compact('data', 'semestry'));
+                return view('teachers.tdashboard' ,compact('data', 'semestry', 'tumbon', 'all_tumbon', 'all_semestry'));
               break;
             case 'ไม่จบตกค้าง(ที่ไม่ได้ลงทะเบียนแล้ว)':
-                $data = $this->unfinishstudent($tumbon, $studreport);
+                $data = $this->unfinishstudent($tumbon, $studreport, $semestry);
                 $data = collect($data)->sortBy('lavel')->toArray();
-                return view('teachers.tdashboard' ,compact('data', 'semestry'));
+                return view('teachers.tdashboard' ,compact('data', 'semestry', 'tumbon', 'all_tumbon', 'all_semestry'));
               break;
             default:
-              return view('teachers.tdashboard' ,compact('data', 'semestry'));
+              return view('teachers.tdashboard' ,compact('data', 'semestry', 'tumbon', 'all_tumbon', 'all_semestry'));
           }                       
         //return view('teachers.tdashboard' ,compact('data'));
     }
 
-    public function allstudent($grp_code){
-        $current_student = $this->current_student($grp_code);
+    public function allstudent($grp_code, $semestry){
+        $current_student = $this->current_student($grp_code, $semestry);
         $allstudent = [];
 
         foreach ($current_student as $g) {
@@ -124,8 +125,8 @@ class TeachersController extends Controller
         return $allstudent;        
     }
 
-    public function expstudent($grp_code){
-        $current_student = $this->current_student($grp_code);
+    public function expstudent($grp_code, $semestry){
+        $current_student = $this->current_student($grp_code, $semestry);
         $expstudent = [];
 
         foreach ($current_student as $g) {
@@ -227,11 +228,11 @@ class TeachersController extends Controller
             return true;
         }       
     }
-    public function current_student($grp_code){
+    public function current_student($grp_code, $semestry){
         // ตาราง garde
         $grade = DB::table('grade')
         ->where('GRP_CODE', 'regexp', $grp_code)
-        ->where('SEMESTRY', $this->semestry)
+        ->where('SEMESTRY', $semestry)
         ->select('STD_CODE')
         ->orderBy('STD_CODE', 'ASC')  
         ->groupBy('STD_CODE')

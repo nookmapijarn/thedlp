@@ -9,9 +9,6 @@ use SplSubject;
 
 class TeachersScoreController extends Controller
 {
-    //
-    protected $semestry = '66/2';
-
     /**
      * Display a listing of the resource.
      *
@@ -59,6 +56,7 @@ class TeachersScoreController extends Controller
             $grade_not = $data->where('GRADE', 'LIKE', 'ข')->count();
             $grade_0 = $data->where('GRADE', '=', '0')->count();
             $grade_2_up = $data->where('GRADE', '>=', 2)->count();
+            //print_r($resultsFiltered);
             return view('teachers.tscore' ,compact('data', 'semestry', 'all_tumbon', 'all_semestry','all_subject', 'tumbon', 'lavel', 'subject', 'type', 'all_grade', 'grade_0', 'grade_not', 'grade_2_up'));    
         } else {
             return view('teachers.tscore' ,compact('data', 'semestry', 'all_tumbon', 'all_semestry','all_subject', 'tumbon', 'lavel', 'subject', 'type', 'all_grade', 'grade_0', 'grade_not', 'grade_2_up'));
@@ -68,20 +66,18 @@ class TeachersScoreController extends Controller
 
     public function grade_explore($grp_code, $lavel, $semestry, $subject, $type){
         $tgrade = 'grade'.$lavel;
-        $typ_where = $type == 7 ? "like": "not LIKE"; // 7 หมายถึง เกรดสอบซ่อม
         $student = DB::table($tgrade)
         ->join('student', $tgrade.'.STD_CODE', '=', 'student.STD_CODE')
         ->where($tgrade.'.GRP_CODE', '=', $grp_code)
         ->where($tgrade.'.SEMESTRY', '=', $semestry)
         ->where($tgrade.'.SUB_CODE', '=', $subject)
-        ->where($tgrade.'.TYP_CODE', $typ_where, 7)
         ->select(   'student.STD_CODE', 
                     'student.ID', 
                     'student.PRENAME',
                     'student.NAME', 
                     'student.SURNAME', 
                     $tgrade.'.SUB_CODE',
-                    $tgrade.'.FINAL',
+                    $tgrade.'.FINAL',   
                     $tgrade.'.TOTAL',
                     $tgrade.'.TYP_CODE',
                     $tgrade.'.GRADE',
@@ -96,14 +92,23 @@ class TeachersScoreController extends Controller
                     $tgrade.'.MIDTERM8',
                     $tgrade.'.MIDTERM9',
                 )
-        ->orderBy($tgrade.'.SUB_CODE', 'ASC')
-        //->groupBy('student.STD_CODE', 'student.ID', 'student.NAME', 'student.SURNAME')
+        ->orderBy('student.STD_CODE', 'ASC')
         ->get();
-        //echo $student;
+
         if ($student->isEmpty()) {
             return $student=null; // Return an empty array if no results found
           } else {
-            return $student;
+                    // กรองข้อมูล
+                    if($type == 0){
+                        $student = $student->reject(function ($record) {
+                            return $record->TYP_CODE == 7;
+                        });
+                    } else if ($type == 7) {
+                        $student = $student->where('TYP_CODE', '=', 7)->reject(function ($record) {
+                            return $record->TYP_CODE != 7;
+                        });
+                    }
+             return $student;
           }
     }
 }

@@ -1,43 +1,43 @@
 <x-teachers-layout>
     <x-slot name="header">
-        <h4 class="font-semibold text-lg text-gray-800 dark:text-gray-200 leading-tight m-2">
-            {{ __('รายงานนักศึกษา ภาคเรียนปัจจุบัน') }} {{$semestry}}
+        <h4 class="font-semibold text-center text-lg text-gray-800 dark:text-gray-200 leading-tight m-2">
+            {{ __('รายงานนักศึกษา') }}
         </h4>
         <form method="GET" action="{{ route('tdashboard') }}" class="">
-        <div class="grid grid-cols-1 gap-2 md:grid md:grid-cols-2 justify-items-center">
+        <div class="grid grid-cols-1 gap-2 md:grid md:grid-cols-3 justify-items-center">
+          <div class="min-w-full">
+            <label>ภาคเรียน</label>
+              <select required id="semestry" name="semestry" class="bg-gray-50 border border-gray-300 text-gray-900 text-xl rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 ">
+                <option value="">เลือก</option>
+                @foreach($all_semestry as $sem)
+                    <option value="{{ $sem->SEMESTRY }}"
+                      @if($semestry === $sem->SEMESTRY) selected @endif
+                      >
+                        {{ $sem->SEMESTRY }}
+                    </option>
+                @endforeach    
+              </select>
+            </div>
             <div class="min-w-full" >
-                {{-- <label for="countries" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">ศสกร.ตำบล</label> --}}
-                <select required id="tumbon" name="tumbon" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 ">
-                  {{-- @if(request()->get('tumbon')!='') <option selected>{{request()->get('tumbon')}}</option> @endif
-                  @if(request()->get('tumbon')=='') <option selected>เลือกตำบล</option> @endif --}}
-                  <option value="">เลือกตำบล</option>
-                  <option value="0000 ทุกตำบล">ทุกตำบล</option>
-                  <option value="4011 บางพลับ">4011 บางพลับ</option>
-                  <option value="4012 บางพลับ">4012 บางพลับ</option>
-                  <option value="4021 อ่างแก้ว">4021 อ่างแก้ว</option>
-                  <option value="4031 หนองแม่ไก่">4031 หนองแม่ไก่</option>
-                  <option value="4041 ยางช้าย">4041 ยางช้าย</option>
-                  <option value="4051 โพธิ์รังนก">4051 โพธิ์รังนก</option>
-                  <option value="4061 รำมะสัก">4061 รำมะสัก</option>
-                  <option value="4071 บางระกำ">4071 บางระกำ</option>
-                  <option value="4081 บ่อแร่">4081 บ่อแร่</option>
-                  <option value="4091 สามง่าม">4091 สามง่าม</option>
-                  <option value="4101 ทางพระ">4101 ทางพระ</option>
-                  <option value="4102 ทางพระ">4102 ทางพระ</option>
-                  <option value="4111 อินทประมูล">4111 อินทประมูล</option>
-                  <option value="4121 องครักษ์">4121 องครักษ์</option>
-                  <option value="4131 โคกพุทรา">4131 โคกพุทรา</option>
-                  <option value="4141 บางเจ้าฉ่า">4141 บางเจ้าฉ่า</option>
-                  <option value="4151 คำหยาด">4151 คำหยาด</option>
-                  <option value="4171 พิการ">4171 พิการ</option>
-                </select>
-              </div>
+              <label>ศกร.ตำบล</label>
+              <select required id="tumbon" name="tumbon" class="bg-gray-50 border border-gray-300 text-gray-900 text-xl rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 ">
+                <option value="">เลือก</option>
+                @foreach($all_tumbon as $tm)
+                    <option value="{{ $tm->GRP_CODE }}"
+                      @if($tumbon == $tm->GRP_CODE) selected @endif  
+                      >
+                        {{ $tm->GRP_CODE }} {{ $tm->GRP_NAME }}
+                    </option>
+                @endforeach    
+              </select>
+            </div>
             <div class="min-w-full">
+              <label>รายงาน</label>
                 {{-- <label for="countries" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">รายงาน</label> --}}
-                <select required id="studreport" name="studreport" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                <select required id="studreport" name="studreport" class="bg-gray-50 border border-gray-300 text-gray-900 text-xl rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600">
                   {{-- @if(request()->get('studreport')!='') <option selected>{{request()->get('studreport')}}</option> @endif
                   @if(request()->get('studreport')=='') <option selected >เลือกรายงาน</option> @endif --}}
-                  <option value="">เลือกรายงาน</option>
+                  <option value="">เลือก</option>
                   <option value="นักศึกษาทั้งหมด">นักศึกษาทั้งหมด</option>
                   <option value="เฉพาะผู้คาดว่าจะจบ">เฉพาะผู้คาดว่าจะจบ</option>
                   <option value="ไม่จบตกค้าง(ที่ไม่ได้ลงทะเบียนแล้ว)">ไม่จบตกค้าง (ที่ไม่ได้ลงทะเบียนแล้ว)</option>
