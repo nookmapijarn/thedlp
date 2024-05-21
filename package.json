@@ -19,6 +19,8 @@
         "vite": "^4.0.0"
     },
     "dependencies": {
+        "chart.js": "^4.4.3",
+        "chartjs-chart-geo": "^4.3.0",
         "flowbite": "^1.6.5",
         "tw-elements": "^1.0.0-beta2"
     }

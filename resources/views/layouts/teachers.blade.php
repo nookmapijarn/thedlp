@@ -21,14 +21,11 @@
 
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
-
         
     </head>
-
+    
     <body class="font-sans antialiased">
-        <div class="min-h-screen bg-gray-100 bg-indio-500">
-            @include('layouts.teachersnavigation')
-
+        {{-- <div class="min-h-screen bg-gray-100 bg-indio-500">
             <!-- Page Heading -->
             @if (isset($header))
                 <header class="bg-white dark:bg-gray-800 shadow">
@@ -37,12 +34,18 @@
                     </div>
                 </header>
             @endif
-
+            <div class="flex-1 flex flex-col overflow-hidden">
+                @include('layouts.teachersnavigation')
             <!-- Page Content -->
-            <main>
+            <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-200">
+                <div class="container mx-auto px-6 py-8">
                 {{ $slot }}
+                </div>
             </main>
-        </div>
+        </div> --}}
+            @include('layouts.sidebar')
+            @include('layouts.header')
+            <main>{{ $slot }}</main>
     </body>
-    @include('layouts.footer')
+    {{-- @include('layouts.footer') --}}
 </html>

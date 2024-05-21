@@ -1,9 +1,7 @@
 <x-teachers-layout>
-    <x-slot name="header">
+  <div class="p-4 sm:ml-64">
+    <div class="p-4 border-2 border-gray-200 border-dashed rounded-lg dark:border-gray-700 mt-14">
         <div class="text-2xl font-bold w-full text-center">รายงานผลการเรียน</div>
-        <h6 class="font-semibold text-lg text-gray-800 dark:text-gray-200 leading-tight m-2">
-            {{ __('ภาคเรียนที่') }} {{$semestry}}
-        </h6>
         <form method="GET" action="{{ route('tgrade') }}" class="">
         <div class="grid grid-cols-1 gap-2 md:grid md:grid-cols-3 justify-items-center">
             <div class="min-w-full" >
@@ -44,13 +42,14 @@
           </div>
           <button type="submit" class="rounded-full p-2 mt-2 min-w-full bg-indigo-500 text-white">ดูรายงาน</button> 
         </form>
-    </x-slot>
 
-    <div class="flex flex-col max-w-srceen-lg">
-        <div class="overflow-x-auto sm:-mx-6 lg:-mx-8">
+        {{-- Table --}}
+    @if($data)
+    <div class="flex flex-col-1 justify-center max-w-srceen-md">
+        <div class="w-full overflow-x-auto sm:-mx-6 lg:-mx-8">
           <div class="inline-block min-w-full  py-2 sm:px-6 lg:px-8">
-            <div class="overflow-hidden">
-                <table class="min-w-full text-left text-sm font-light border-separate border border-slate-400 ...">
+            <div class="w-full overflow-hidden">
+                <table class="w-full text-left text-sm font-light border-separate border border-slate-400 ...">
                   {{-- <div class="text-2xl font-bold w-full text-center">ตารางสรุปผลการเรียน</div> --}}
                 <div class="flex flex-col-1 flex-row-1 justify-center p-4 bg-indigo-200 drop-shadow">
                   <div class="text-lg font-bold">ตำบล : <span class="font-normal">{{request()->get('tumbon')}}</span></div>
@@ -93,9 +92,54 @@
                 @endforeach
                 </tbody>
               </table>
-              @if($data==null) <section class="p-10 text-center text-lg">**ไม่พบข้อมูล กรุณาเลือกรายการใหม่**</section> @endif
             </div>
           </div>
         </div>
       </div>
+      @endif
+
+      @if($data==null && (request()->get('tumbon')!=''))
+      <div id="alert-additional-content-2" class="p-4 mb-4 text-yellow-800 border border-red-300 rounded-lg bg-yellow-50 dark:bg-yellow-800 dark:text-yellow-400 dark:border-yellow-800" role="alert">
+        <div class="flex justify-center">
+          <svg class="flex-shrink-0 w-6 h-6 me-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"/>
+          </svg>
+          <span class="sr-only">Info</span>
+          <h3 class="text-lg font-medium">ไม่พบข้อมูล</h3>
+        </div>
+        <div class="flex justify-center mt-2 mb-4 text-sm">
+          กรุณาเลือกรายการใหม่อีกครั้ง.
+        </div>
+        <div class="flex justify-center">
+          {{-- <button type="button" class="text-white bg-red-800 hover:bg-red-900 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-xs px-3 py-1.5 me-2 text-center inline-flex items-center dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800">
+            <svg class="me-2 h-3 w-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 14">
+              <path d="M10 0C4.612 0 0 5.336 0 7c0 1.742 3.546 7 10 7 6.454 0 10-5.258 10-7 0-1.664-4.612-7-10-7Zm0 10a3 3 0 1 1 0-6 3 3 0 0 1 0 6Z"/>
+            </svg>
+            View more
+          </button> --}}
+          <button type="button" class="w-24 text-yellow-800 bg-transparent border border-red-800 hover:bg-red-900 hover:text-white focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-xs px-3 py-1.5 text-center dark:hover:bg-red-600 dark:border-red-600 dark:text-red-500 dark:hover:text-white dark:focus:ring-red-800" data-dismiss-target="#alert-additional-content-2" aria-label="Close">
+            ปิด
+          </button>
+        </div>
+      </div>
+      @endif
+      <br>
+      @if((request()->get('tumbon')==''))
+      <div id="alert-border-1" class="flex items-center p-4 mb-4 text-blue-800 border-t-4 border-blue-300 bg-blue-50 dark:text-blue-400 dark:bg-gray-800 dark:border-blue-800" role="alert">
+          <svg class="flex-shrink-0 w-4 h-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"/>
+          </svg>
+          <div class="ms-3 text-sm font-medium">
+            กรุณาเลือกรายการที่คุณต้องดู
+          </div>
+          <button type="button" class="ms-auto -mx-1.5 -my-1.5 bg-blue-50 text-blue-500 rounded-lg focus:ring-2 focus:ring-blue-400 p-1.5 hover:bg-blue-200 inline-flex items-center justify-center h-8 w-8 dark:bg-gray-800 dark:text-blue-400 dark:hover:bg-gray-700" data-dismiss-target="#alert-border-1" aria-label="Close">
+            <span class="sr-only">Dismiss</span>
+            <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
+            </svg>
+          </button>
+      </div>
+      @endif
+    </div>
+  </div>
 </x-teachers-layout>
