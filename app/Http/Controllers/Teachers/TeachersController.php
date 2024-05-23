@@ -27,7 +27,13 @@ class TeachersController extends Controller
     {   
         $labels = [];
         $data_student = [];
+        $data_student_male = [];
+        $data_student_female = [];
         $data_new_student = [];
+
+        // $all_semestry = DB::table('grade')->select('SEMESTRY')->groupBy('SEMESTRY')->orderBy('SEMESTRY', 'DESC')->get();
+        // $semestry = $all_semestry->first()->SEMESTRY;
+        // echo "++++++++ ".$this->current_student($semestry)->Count();
 
        // SEMESTRY Labels
        $agent = new Agent();
