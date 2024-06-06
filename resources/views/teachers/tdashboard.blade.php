@@ -3,8 +3,133 @@
     <div class="p-4 border-2 border-gray-200 border-dashed rounded-lg dark:border-gray-700 mt-14">
       <canvas id="myChart" height="100px"></canvas>     
     </div>
-    <div class=" border-2 border-gray-200 border-dashed rounded-lg dark:border-gray-700 h-96">
-      <div id="container" class="h-96"></div>
+    <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
+        <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+            <caption class="p-5 text-lg font-semibold text-left rtl:text-right text-gray-900 bg-white dark:text-white dark:bg-gray-800">
+                จำนวนนักศึกษา
+                <p class="mt-1 text-sm font-normal text-gray-500 dark:text-gray-400">หลักสูตรการศึกษานอกระบบระดับการศึกษาขั้นพื้นฐาน พุทธศักราช 2551</p>
+            </caption>
+            <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                <tr>
+                    <th scope="col" class="px-6 py-3 text-sm">
+                        ภาคเรียน
+                    </th>
+                    @foreach($labels as $sem)
+                    <th scope="col" class="px-6 py-3 text-sm">
+                        {{ $sem }}
+                    </th>
+                    @endforeach
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="bg-green-100 border-b dark:bg-gray-800 dark:border-gray-700 hover:underline">
+                    <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                        นักศึกษาใหม่
+                    </th>
+                    @foreach($data_new_student as $ns)
+                    <td class="px-6 py-4">
+                        {{ $ns }}  
+                    </td>
+                    @endforeach
+                </tr>
+                <tr class="bg-pink-100 border-b dark:bg-gray-800 dark:border-gray-700 hover:underline">
+                    <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                        นักศึกษาเก่า
+                    </th>
+                    @foreach($data_old_student as $os)
+                    <td class="px-6 py-4">
+                        {{ $os }}
+                    </td>
+                    @endforeach
+                </tr>
+                <tr class="bg-indigo-100 dark:bg-gray-800 hover:underline">
+                    <th scope="row" class="px-6 py-4 font-bold text-gray-900 whitespace-nowrap dark:text-white">
+                        นักศึกษาทั้งหมด
+                    </th>
+                    @foreach($data_student as $os)
+                    <td class="px-6 py-4 font-bold">
+                        {{ $os }}
+                    </td>
+                    @endforeach
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    {{-- รายตำบล --}}
+    <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
+        <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+            <caption class="p-5 text-lg font-semibold text-left rtl:text-right text-gray-900 bg-white dark:text-white dark:bg-gray-800">
+                จำนวนนักศึกษา (รายตำบล) ภาคเรียนที่ {{$current_semestry}}
+                <p class="mt-1 text-sm font-normal text-gray-500 dark:text-gray-400">หลักสูตรการศึกษานอกระบบระดับการศึกษาขั้นพื้นฐาน พุทธศักราช 2551</p>
+            </caption>
+            <thead class="text-sm text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                <tr>
+                    <th scope="col" class="px-6 py-3">
+                        ลำดับ
+                    </th>
+                    <th scope="col" class="px-6 py-3">
+                        รหัสตำบล
+                    </th>
+                    <th scope="col" class="px-6 py-3">
+                        ศกร.ระดับตำบล
+                    </th>
+                    <th scope="col" class="px-6 py-3">
+                        ครู
+                    </th>
+                    <th scope="col" class="px-6 py-3 text-center">
+                        ประถม
+                    </th>
+                    <th scope="col" class="px-6 py-3 text-center">
+                        มัธยมต้น
+                    </th>
+                    <th scope="col" class="px-6 py-3 text-center">
+                        มัธยมปลาย
+                    </th>
+                    <th scope="col" class="px-6 py-3 text-center">
+                        ทั้งหมด
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($student_tumbon as $sttm)
+                <tr class="border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-100 hover:border-fuchsia-600">
+                    <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                        {{ $loop->iteration }}
+                    </th>
+                    <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                        {{ $sttm->GRP->GRP_CODE }}
+                    </th>
+                    <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                        {{ $sttm->GRP->GRP_NAME }}
+                    </th>
+                    <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                        {{ $sttm->GRP->GRP_ADVIS }}
+                    </th>
+                    <td class="bg-pink-100 text-center px-6 py-4">
+                        {{-- ประถม --}}
+                        {{ $sttm->STUDENT->ST1 }}
+                    </td>
+                    <td class="bg-green-100 text-center px-6 py-4">
+                        {{-- ต้น --}}
+                        {{ $sttm->STUDENT->ST2 }} 
+                    </td>
+                    <td class="bg-yellow-100 text-center px-6 py-4">
+                        {{-- ปลาย --}}
+                        {{ $sttm->STUDENT->ST3 }}
+                    </td>
+                    <td class="bg-blue-100 font-bold text-center px-6 py-4">
+                        {{-- รวม --}}
+                        {{ $sttm->STUDENT->ST1 + $sttm->STUDENT->ST2 + $sttm->STUDENT->ST3 }}
+                    </td>
+                </tr>
+                @endforeach
+            </tbody>
+        </table>
+    </div>
+    {{-- ************** MAP ************** --}}
+    <div class=" border-2 border-gray-200 border-dashed rounded-lg dark:border-gray-700">
+        <br><br>
+      <div id="container" style="width: 100%; height: 100%;"></div>
     </div>
  </div>
 </x-teachers-layout>
@@ -16,38 +141,55 @@
 
 var labels =  {{ Js::from($labels) }};
 var data_student =  {{ Js::from($data_student) }};
-var data_new_student =  {{ Js::from($data_new_student) }};
+var data_new_student =  {{ Js::from($data_new_student) }}; 
+var data_old_student =  {{ Js::from($data_old_student) }};
 
-   const data = {
+// จำนวนนักศึกษา
+   const student_data = {
       labels: labels,
       datasets: [
         {
-          label: 'นักศึกษาทั้งหมด',
-          backgroundColor: '#0f5e9c',
-          borderColor: '#0f5e9c',
-          data: data_student,
-        },
-        {
           label: 'นักศึกษาใหม่',
-          backgroundColor: '#00a86b',
-          borderColor: '#00a86b',
+          backgroundColor: '#ff901f',
+          borderColor: '#ff901f',
           data: data_new_student,
         },
+        {
+          label: 'นักศึกษาเก่า',
+          backgroundColor: '#c621b6',
+          borderColor: '#c621b6',
+          data: data_old_student,
+        },
+        {
+          label: 'นักศึกษาทั้งหมด',
+          backgroundColor: '#2d60dd',
+          borderColor: '#2d60dd',
+          data: data_student,
+        }
       ]
     };
     const config = {
       type: 'bar',
-      data: data,
-      options: {}
+      data: student_data,
+      options: {
+        indexAxis: 'x',
+        // scales: {
+        //     x: {
+        //         stacked: true,
+        //     },
+        //     y: {
+        //         stacked: true
+        //     }
+        // }
+      }
     };
-
     const myChart = new Chart(
       document.getElementById('myChart'),
       config
     );
 </script>
 
-{{-- Geo --}}
+{{-- **************** แผนที่ ******************** --}}
 <script src="https://code.highcharts.com/maps/highmaps.js"></script>
 <script src="https://code.highcharts.com/maps/modules/exporting.js"></script>
 <script src="https://code.highcharts.com/maps/modules/offline-exporting.js"></script>
@@ -66,31 +208,30 @@ const topology = await fetch(
     'https://code.highcharts.com/mapdata/countries/th/th-all.topo.json'
 ).then(response => response.json());
 
-// Prepare random-like demo data
-const data = topology.objects.default.geometries.map((g, i) => [
-    g.properties['hc-key'],
-    i % 10
-]);
+var data = {{ Js::from($province) }};
 
 Highcharts.mapChart('container', {
 
     chart: {
-        margin: 0
+        margin: 0,
+        // height: '50%',
+        // width: '50%'
     },
 
     title: {
-        text: 'Highcharts Map with Locator'
+        text: 'ภูมิลำเนาผู้เรียน (ตามหลักฐานทะเบียนบ้าน)'
     },
 
     mapView: {
         // // Make room for the title
         padding: [30, 0, 0, 0],
-        center: [100.9925, 15.8700], // Set the center to Thailand
+        center: [99.9899, 14.8], // Set the center to Thailand
         projection: {
             name: 'Orthographic',
-            rotation: [-100.9925, -15.8700] // Rotate the map to center Thailand
-        }
-    },
+            rotation: [-99.9899, -14.8] // Rotate the map to center Thailand 16.325164712139028, 101.53898776611497
+        },
+        zoom: 8 // Zoom level
+    }, 
 
     mapNavigation: {
         enabled: true,
@@ -114,8 +255,8 @@ Highcharts.mapChart('container', {
     },
 
     colorAxis: {
-        minColor: '#87c1c3',
-        maxColor: '#4ba5a6'
+        minColor: '#d9ead3',
+        maxColor: '#308000'
     },
 
     series: [{
@@ -133,7 +274,11 @@ Highcharts.mapChart('container', {
     {
         name: topology.title || 'Map',
         mapData: topology,
-        data
+        data,
+        dataLabels: {
+                    enabled: true,
+                    format: '{point.name}: {point.value}'
+                }
     }]
 });
 };
@@ -422,100 +567,7 @@ Highcharts.addEvent(mainChart, 'render', function () {
         }
     }]);
 });
-
-
-/* OPTIONAL TOGGLE for locator map */
-/*
-// Generate button
-const btn = document.createElement('button');
-btn.id = 'btn';
-const btnIcon = document.createElement('i');
-btnIcon.classList.add('fa', 'fa-map');
-btn.appendChild(btnIcon);
-document.getElementById('container').appendChild(btn);
-
-// Apply styles
-Highcharts.css(btn, {
-    position: 'absolute',
-    bottom: '2%',
-    left: '1%',
-    cursor: 'pointer',
-    fontSize: '16px',
-    padding: '0.7%',
-    borderRadius: '3px',
-    border: '1px solid #e0e0e0',
-    backgroundColor: '#f7f7f7',
-    color: '#afbbd2'
-});
-
-btn.addEventListener('mouseover', () => {
-    Highcharts.css(btn, {
-        backgroundColor: '#e6e6e6',
-        color: '#8fa2c9'
-    });
-});
-
-btn.addEventListener('mouseout', () => {
-    Highcharts.css(btn, {
-        backgroundColor: '#f7f7f7',
-        color: '#afbbd2'
-    });
-});
-
-// Toggle map
-let i = 1;
-const toggleMap = () => {
-    const icon = document.getElementById('btn').firstElementChild;
-    icon.classList.toggle('fa-map');
-    icon.classList.toggle('fa-globe');
-
-    if (i === 1) {
-        updateLocatorMap('Miller', 'none', 0);
-        i++;
-    } else if (i === 2) {
-        updateLocatorMap(
-            'Orthographic',
-            'rgba(128,128,128,0.1)',
-            15,
-            rotation(lon, lat)
-        );
-        i = 1;
-    }
-};
-
-document.getElementById('btn').onclick = toggleMap;
-
-function updateLocatorMap(
-    projectionName,
-    graticuleColor,
-    margin,
-    rotation
-) {
-    locatorChart.get('graticule').update(
-        {
-            color: graticuleColor
-        },
-        false
-    );
-    locatorChart.redraw(false);
-    locatorChart.update({
-        chart: {
-            margin
-        },
-        mapView: {
-            projection: {
-                name: projectionName,
-                rotation
-            }
-        }
-    });
-}
-// */
-/* OPTIONAL TOGGLE END */
-
 }, { order: 1 });
 /* End of Locator map plugin */
-
-
 createChart();
 </script>

@@ -61,6 +61,8 @@
                     <label for="FIN_SEM" required class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">ภาคเรียนที่จบ</label>
                     <select id="FIN_SEM" name="FIN_SEM" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5  ">
                         <option selected>เลือก</option>
+                        <option value="2/67">ภาคเรียนที่ 2/67</option>
+                        <option value="1/67">ภาคเรียนที่ 1/67</option>
                         <option value="2/66">ภาคเรียนที่ 2/66</option>
                         <option value="1/66">ภาคเรียนที่ 1/66</option>
                         <option value="2/65">ภาคเรียนที่ 2/65</option>

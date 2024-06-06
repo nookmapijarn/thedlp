@@ -24,7 +24,7 @@
         
     </head>
     
-    <body class="font-sans antialiased">
+    <body class="font-sans antialiased ">
         {{-- <div class="min-h-screen bg-gray-100 bg-indio-500">
             <!-- Page Heading -->
             @if (isset($header))
@@ -45,7 +45,9 @@
         </div> --}}
             @include('layouts.sidebar')
             @include('layouts.header')
-            <main>{{ $slot }}</main>
+            <main class="h-full">
+                {{ $slot }}
+            </main>
+            @include('layouts.footer')
     </body>
-    {{-- @include('layouts.footer') --}}
 </html>

@@ -1,5 +1,5 @@
 <!-- Foooter -->
-<section class="bg-white">
+<section  class="bg-white">
     <div class="max-w-screen-full px-4 py-12 mx-auto space-y-8 overflow-hidden sm:px-6 lg:px-8 border-2">
         <nav class="flex flex-wrap justify-center -mx-5 -my-2">
             <div class="px-5 py-2">
@@ -44,8 +44,10 @@
                 </svg>                                  
             </a>
         </div>
-        <p class="mt-8 text-base text-sm leading-6 text-center text-gray-400">
-            © ผู้พัฒนาระบบ นายนนทชัย  มาพิจารณ์  ครู สกร.อำเภอโพธิ์ทอง
-        </p>
+        <div class="text-sm text-center text-gray-400">
+            © ออกแบบและพัฒนาระบบโดย  นายนนทชัย  มาพิจารณ์  ตำแหน่ง  ครู <br>
+            ศูนย์ส่งเสริมการเรียนรู้ระดับอำเภอโพธิ์ทอง จังหวัดอ่างทอง
+        </div>
+
     </div>
-</section>
+</section >
