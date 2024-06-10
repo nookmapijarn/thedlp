@@ -11,7 +11,7 @@
             <img class="h-16 w-16 rounded-full" src="{{asset('storage/avatar/1.jpg');}}" alt="">
             <div>
                 <h3 class="text-base font-semibold leading-7 tracking-tight text-gray-900">นางสาวกุหลาบ  อ่อนระทวย</h3>
-                <p class="text-sm font-semibold leading-6 text-indigo-600">ผอ.สกร.อำเภอโพธิ์ทอง</p>
+                <p class="text-sm font-semibold leading-6 text-indigo-600">ผอ.สกร.ระดับอำเภอโพธิ์ทอง</p>
                 <p class="text-sm font-semibold leading-6 text-indigo-600">062-4340888</p>
             </div>
             </div>
@@ -22,7 +22,7 @@
     <div class="bg-white py-8 sm:py-8">
         <div class="mx-auto grid max-w-7xl gap-x-8 gap-y-20 px-6 lg:px-8 xl:grid-cols-3">
             <div class="max-w-2xl">
-            <h2 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">ข้าราชการ 4 คน</h2>
+            <h2 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">ข้าราชการ 3 คน</h2>
             {{-- <p class="mt-6 text-lg leading-8 text-gray-600">สกร.อำเภอโพธิ์ทอง มีข้าราชการทั้งหมด 4 ท่านดังนี้.</p> --}}
             </div>
             <ul role="list" class="grid gap-x-8 gap-y-12 sm:grid-cols-2 sm:gap-y-16 xl:col-span-2">
@@ -54,15 +54,6 @@
                 </div>
                 </div>
             </li>
-            <li>
-                <div class="flex items-center gap-x-6">
-                <img class="h-16 w-16 rounded-full" src="{{asset('storage/avatar/unkhonw.png');}}" alt="">
-                <div>
-                    <h3 class="text-base font-semibold leading-7 tracking-tight text-gray-900">นายนพนันท์ บัวเผื่อน</h3>
-                    <p class="text-sm font-semibold leading-6 text-indigo-600">ลูกจ้างประจำ</p>
-                </div>
-                </div>
-            </li>
             <!-- More people... -->
             </ul>
         </div>
@@ -71,7 +62,7 @@
      <div class="bg-white pt-5">
       <div class="mx-auto grid max-w-7xl gap-x-8 gap-y-10 px-6">
           <div class="max-w-2xl">
-              <h2 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">นักวิชาการศึกษา 2 คน</h2>
+              <h2 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">นักวิชาการศึกษา 1 คน</h2>
               {{-- <p class="mt-6 text-lg leading-8 text-gray-600">Libero fames augue nisl porttitor nisi, quis. Id ac elit odio vitae elementum enim vitae ullamcorper suspendisse.</p> --}}
           </div>
           <ul role="list" class="divide-y divide-gray-100 w-full">
@@ -90,9 +81,9 @@
               </li>
               <li class="flex justify-between gap-x-6 py-5">
                 <div class="flex gap-x-4">
-                  <img class="h-12 w-12 flex-none rounded-full bg-gray-50" src="{{asset('storage/avatar/7.jpg');}}" alt="">
+                  <img class="h-12 w-12 flex-none rounded-full bg-gray-50" src="{{asset('storage/avatar/unkhonw.png');}}" alt="">
                   <div class="min-w-0 flex-auto">
-                    <p class="text-sm font-semibold leading-6 text-gray-900">นางสาวกนกพร  พรหมสนธิ</p>
+                    <p class="text-sm font-semibold leading-6 text-gray-900">-</p>
                     <p class="mt-1 truncate text-xs leading-5 text-gray-500">นักวิชาการศึกษา</p>
                   </div>
                 </div>
@@ -145,7 +136,7 @@
      <div class="bg-white pt-5">
       <div class="mx-auto grid max-w-7xl gap-x-8 gap-y-10 px-6">
           <div class="max-w-2xl">
-              <h2 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">ครู กศน.ตำบล 14 คน</h2>
+              <h2 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">ครู สกร.ระดับตำบล 14 คน</h2>
               {{-- <p class="mt-6 text-lg leading-8 text-gray-600">Libero fames augue nisl porttitor nisi, quis. Id ac elit odio vitae elementum enim vitae ullamcorper suspendisse.</p> --}}
           </div>
           <ul role="list" class="divide-y divide-gray-100 w-full">
@@ -153,13 +144,13 @@
                 <div class="flex gap-x-4">
                   <img class="h-12 w-12 flex-none rounded-full bg-gray-50" src="{{asset('storage/avatar/10.jpg');}}" alt="">
                   <div class="min-w-0 flex-auto">
-                    <p class="text-sm font-semibold leading-6 text-gray-900">นางแววตา  เสือลายตลับ</p>
-                    <p class="mt-1 truncate text-xs leading-5 text-gray-500">ครู กศน.ตำบลบางพลับ</p>
+                    <p class="text-sm font-semibold leading-6 text-gray-900">นายภูบดินทร์  บ่ายเที่ยง</p>
+                    <p class="mt-1 truncate text-xs leading-5 text-gray-500">ครู สกร.ระดับตำบลบางพลับ</p>
                   </div>
                 </div>
                 <div class="hidden sm:flex sm:flex-col sm:items-end">
                   <p class="text-sm leading-6 text-gray-900">เบอร์โทร</p>
-                  <p class="mt-1 text-xs leading-5 text-gray-500">064-9814528</p>
+                  <p class="mt-1 text-xs leading-5 text-gray-500">098-5348861</p>
                 </div>
               </li>
               <li class="flex justify-between gap-x-6 py-5">
@@ -167,7 +158,7 @@
                   <img class="h-12 w-12 flex-none rounded-full bg-gray-50" src="{{asset('storage/avatar/11.jpg');}}" alt="">
                   <div class="min-w-0 flex-auto">
                     <p class="text-sm font-semibold leading-6 text-gray-900">นางสาวชัญญ์ธนันท์  วันอินทร์</p>
-                    <p class="mt-1 truncate text-xs leading-5 text-gray-500">ครู กศน.ตำบลอ่างแก้ว</p>
+                    <p class="mt-1 truncate text-xs leading-5 text-gray-500">ครู สกร.ระดับตำบลอ่างแก้ว</p>
                   </div>
                 </div>
                 <div class="hidden sm:flex sm:flex-col sm:items-end">
@@ -179,13 +170,13 @@
                 <div class="flex gap-x-4">
                   <img class="h-12 w-12 flex-none rounded-full bg-gray-50" src="{{asset('storage/avatar/unkhonw.png');}}" alt="">
                   <div class="min-w-0 flex-auto">
-                    <p class="text-sm font-semibold leading-6 text-gray-900">นางสาวชยุตา  ประสมศิลป์</p>
-                    <p class="mt-1 truncate text-xs leading-5 text-gray-500">ครู กศน.ตำบลหนองแม่ไก่</p>
+                    <p class="text-sm font-semibold leading-6 text-gray-900">-</p>
+                    <p class="mt-1 truncate text-xs leading-5 text-gray-500">ครู สกร.ระดับตำบลหนองแม่ไก่</p>
                   </div>
                 </div>
                 <div class="hidden sm:flex sm:flex-col sm:items-end">
                   <p class="text-sm leading-6 text-gray-900">เบอร์โทร</p>
-                  <p class="mt-1 text-xs leading-5 text-gray-500">064-2646197</p>
+                  <p class="mt-1 text-xs leading-5 text-gray-500">-</p>
                 </div>
               </li>              
               <li class="flex justify-between gap-x-6 py-5">
@@ -193,7 +184,7 @@
                   <img class="h-12 w-12 flex-none rounded-full bg-gray-50" src="{{asset('storage/avatar/13.jpg');}}" alt="">
                   <div class="min-w-0 flex-auto">
                     <p class="text-sm font-semibold leading-6 text-gray-900">นางสุนิศา  พึ่งญิญโญ</p>
-                    <p class="mt-1 truncate text-xs leading-5 text-gray-500">ครู กศน.ตำบลยางช้าย</p>
+                    <p class="mt-1 truncate text-xs leading-5 text-gray-500">ครู สกร.ระดับตำบลยางช้าย</p>
                   </div>
                 </div>
                 <div class="hidden sm:flex sm:flex-col sm:items-end">
@@ -206,7 +197,7 @@
                   <img class="h-12 w-12 flex-none rounded-full bg-gray-50" src="{{asset('storage/avatar/14.jpg');}}" alt="">
                   <div class="min-w-0 flex-auto">
                     <p class="text-sm font-semibold leading-6 text-gray-900">นางสาวอรวรรณ  นิ่มกุล</p>
-                    <p class="mt-1 truncate text-xs leading-5 text-gray-500">ครู กศน.ตำบลโพธิ์รังนก</p>
+                    <p class="mt-1 truncate text-xs leading-5 text-gray-500">ครู สกร.ระดับตำบลโพธิ์รังนก</p>
                   </div>
                 </div>
                 <div class="hidden sm:flex sm:flex-col sm:items-end">
@@ -216,15 +207,15 @@
               </li>              
               <li class="flex justify-between gap-x-6 py-5">
                 <div class="flex gap-x-4">
-                  <img class="h-12 w-12 flex-none rounded-full bg-gray-50" src="{{asset('storage/avatar/15.jpg');}}" alt="">
+                  <img class="h-12 w-12 flex-none rounded-full bg-gray-50" src="{{asset('storage/avatar/unkhonw.png');}}" alt="">
                   <div class="min-w-0 flex-auto">
-                    <p class="text-sm font-semibold leading-6 text-gray-900">นายภูบดินทร์  บ่ายเที่ยง</p>
-                    <p class="mt-1 truncate text-xs leading-5 text-gray-500">ครู กศน.ตำบลรำมะสัก</p>
+                    <p class="text-sm font-semibold leading-6 text-gray-900">นายสุวินัย  เหมือนทิพย์</p>
+                    <p class="mt-1 truncate text-xs leading-5 text-gray-500">ครู สกร.ระดับตำบลรำมะสัก</p>
                   </div>
                 </div>
                 <div class="hidden sm:flex sm:flex-col sm:items-end">
                   <p class="text-sm leading-6 text-gray-900">เบอร์โทร</p>
-                  <p class="mt-1 text-xs leading-5 text-gray-500">098-5348861</p>
+                  <p class="mt-1 text-xs leading-5 text-gray-500">-</p>
                 </div>
               </li>              
               <li class="flex justify-between gap-x-6 py-5">
@@ -232,7 +223,7 @@
                   <img class="h-12 w-12 flex-none rounded-full bg-gray-50" src="{{asset('storage/avatar/16.jpg');}}" alt="">
                   <div class="min-w-0 flex-auto">
                     <p class="text-sm font-semibold leading-6 text-gray-900">นางสาวอนุกูล  ทองเติม</p>
-                    <p class="mt-1 truncate text-xs leading-5 text-gray-500">ครู กศน.ตำบลบางระกำ</p>
+                    <p class="mt-1 truncate text-xs leading-5 text-gray-500">ครู สกร.ระดับตำบลบางระกำ</p>
                   </div>
                 </div>
                 <div class="hidden sm:flex sm:flex-col sm:items-end">
@@ -244,13 +235,13 @@
                 <div class="flex gap-x-4">
                   <img class="h-12 w-12 flex-none rounded-full bg-gray-50" src="{{asset('storage/avatar/unkhonw.png');}}" alt="">
                   <div class="min-w-0 flex-auto">
-                    <p class="text-sm font-semibold leading-6 text-gray-900">นางสาวสุวนันท์  กลิ่นสุคนธ์</p>
-                    <p class="mt-1 truncate text-xs leading-5 text-gray-500">ครู กศน.ตำบลบ่อแร่</p>
+                    <p class="text-sm font-semibold leading-6 text-gray-900">นางสาวธรัญญา  เถียรอ่ำ</p>
+                    <p class="mt-1 truncate text-xs leading-5 text-gray-500">ครู สกร.ระดับตำบลบ่อแร่</p>
                   </div>
                 </div>
                 <div class="hidden sm:flex sm:flex-col sm:items-end">
                   <p class="text-sm leading-6 text-gray-900">เบอร์โทร</p>
-                  <p class="mt-1 text-xs leading-5 text-gray-500">084-7992988</p>
+                  <p class="mt-1 text-xs leading-5 text-gray-500">-</p>
                 </div>
               </li>              
               <li class="flex justify-between gap-x-6 py-5">
@@ -258,7 +249,7 @@
                   <img class="h-12 w-12 flex-none rounded-full bg-gray-50" src="{{asset('storage/avatar/18.jpg');}}" alt="">
                   <div class="min-w-0 flex-auto">
                     <p class="text-sm font-semibold leading-6 text-gray-900">นางสาวสุพัตรา  หว้านหอม</p>
-                    <p class="mt-1 truncate text-xs leading-5 text-gray-500">ครู กศน.ตำบลสามง่าม</p>
+                    <p class="mt-1 truncate text-xs leading-5 text-gray-500">ครู สกร.ระดับตำบลสามง่าม</p>
                   </div>
                 </div>
                 <div class="hidden sm:flex sm:flex-col sm:items-end">
@@ -271,7 +262,7 @@
                   <img class="h-12 w-12 flex-none rounded-full bg-gray-50" src="{{asset('storage/avatar/19.jpg');}}" alt="">
                   <div class="min-w-0 flex-auto">
                     <p class="text-sm font-semibold leading-6 text-gray-900">นางสาวประภาพร  ประวัติวิไล</p>
-                    <p class="mt-1 truncate text-xs leading-5 text-gray-500">ครู กศน.ตำบลทางพระ</p>
+                    <p class="mt-1 truncate text-xs leading-5 text-gray-500">ครู สกร.ระดับตำบลทางพระ</p>
                   </div>
                 </div>
                 <div class="hidden sm:flex sm:flex-col sm:items-end">
@@ -284,7 +275,7 @@
                   <img class="h-12 w-12 flex-none rounded-full bg-gray-50" src="{{asset('storage/avatar/20.jpg');}}" alt="">
                   <div class="min-w-0 flex-auto">
                     <p class="text-sm font-semibold leading-6 text-gray-900">นางสาวตวงพร  รุ่งเรืองศรี</p>
-                    <p class="mt-1 truncate text-xs leading-5 text-gray-500">ครู กศน.ตำบลอินทประมูล</p>
+                    <p class="mt-1 truncate text-xs leading-5 text-gray-500">ครู สกร.ระดับตำบลอินทประมูล</p>
                   </div>
                 </div>
                 <div class="hidden sm:flex sm:flex-col sm:items-end">
@@ -296,13 +287,13 @@
                 <div class="flex gap-x-4">
                   <img class="h-12 w-12 flex-none rounded-full bg-gray-50" src="{{asset('storage/avatar/21.jpg');}}" alt="">
                   <div class="min-w-0 flex-auto">
-                    <p class="text-sm font-semibold leading-6 text-gray-900">นางสาวจตุพร  พวงเงิน</p>
-                    <p class="mt-1 truncate text-xs leading-5 text-gray-500">ครู กศน.ตำบลโคกพุทรา</p>
+                    <p class="text-sm font-semibold leading-6 text-gray-900">นายกมล  พึ่งญิญโญ</p>
+                    <p class="mt-1 truncate text-xs leading-5 text-gray-500">ครู สกร.ระดับตำบลโคกพุทรา</p>
                   </div>
                 </div>
                 <div class="hidden sm:flex sm:flex-col sm:items-end">
                   <p class="text-sm leading-6 text-gray-900">เบอร์โทร</p>
-                  <p class="mt-1 text-xs leading-5 text-gray-500">099-0414232</p>
+                  <p class="mt-1 text-xs leading-5 text-gray-500">-</p>
                 </div>
               </li>              
               <li class="flex justify-between gap-x-6 py-5">
@@ -310,7 +301,7 @@
                   <img class="h-12 w-12 flex-none rounded-full bg-gray-50" src="{{asset('storage/avatar/22.jpg');}}" alt="">
                   <div class="min-w-0 flex-auto">
                     <p class="text-sm font-semibold leading-6 text-gray-900">นางสาวอุทัยวรรณ  พิลาศาสตร์</p>
-                    <p class="mt-1 truncate text-xs leading-5 text-gray-500">ครู กศน.ตำบลบางเจ้าฉ่า</p>
+                    <p class="mt-1 truncate text-xs leading-5 text-gray-500">ครู สกร.ระดับตำบลบางเจ้าฉ่า</p>
                   </div>
                 </div>
                 <div class="hidden sm:flex sm:flex-col sm:items-end">
@@ -323,7 +314,7 @@
                   <img class="h-12 w-12 flex-none rounded-full bg-gray-50" src="{{asset('storage/avatar/23.jpg');}}" alt="">
                   <div class="min-w-0 flex-auto">
                     <p class="text-sm font-semibold leading-6 text-gray-900">นางสาวพรพรรณ  วินิจฉัย</p>
-                    <p class="mt-1 truncate text-xs leading-5 text-gray-500">ครู กศน.ตำบลคำหยาด</p>
+                    <p class="mt-1 truncate text-xs leading-5 text-gray-500">ครู สกร.ระดับตำบลคำหยาด</p>
                   </div>
                 </div>
                 <div class="hidden sm:flex sm:flex-col sm:items-end">
