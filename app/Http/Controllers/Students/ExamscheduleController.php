@@ -12,7 +12,9 @@ class ExamscheduleController extends Controller
     public function index()
     {
         $id = auth()->user()->student_id;
-        $grade = $this->get_gradelist($id, '66/2');
+        $all_semestry = DB::table('grade')->select('SEMESTRY')->groupBy('SEMESTRY')->orderBy('SEMESTRY', 'DESC')->get();
+        $semestry = $all_semestry->first()->SEMESTRY;
+        $grade = $this->get_gradelist($id, $semestry);
         $schedule = [];
         $student = $this->get_student($id);
         $nnet = $this->nnet_check($id);

@@ -32,12 +32,6 @@ class TeachersScoreController extends Controller
         $all_subject = DB::table('subject'.$lavel)->select('SUB_CODE', 'SUB_NAME')->orderBy('SUB_CODE', 'ASC')->get();
         $all_semestry = DB::table('grade')->select('SEMESTRY')->groupBy('SEMESTRY')->orderBy('SEMESTRY', 'DESC')->get();
 
-        $id = auth()->user()->student_id;
-
-        if ($id != '1215040001') {
-            return redirect('welcome/?roletype='.$id);
-        }
-
         if($request->tumbon!=''){
             $tumbon = str_split($request->tumbon, 4)[0];
             $lavel = $request->lavel;

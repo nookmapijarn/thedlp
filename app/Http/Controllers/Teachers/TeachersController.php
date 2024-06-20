@@ -71,20 +71,6 @@ class TeachersController extends Controller
             $index++;   
         }
 
-        // จำนวน นศ. รายตำบล
-        // foreach($all_tumbon as $tb) {
-        //     $student_count = [];
-        //     for ($i = 1; $i <= 3; $i++) {
-        //         $count_s = $this->current_student($current_semestry, $i)->Count();
-        //         array_push($student_count, [
-        //             'ST'.$i => $count_s
-        //         ]);
-        //     }
-        //     array_push($student_tumbon, [
-        //         'GRP' => $tb,
-        //         'STUDENT' => $student_count
-        //     ]);
-        // }
         foreach ($all_tumbon as $tb) {
             $student_count = [];
             for ($i = 1; $i <= 3; $i++) {

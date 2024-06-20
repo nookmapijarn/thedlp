@@ -58,6 +58,7 @@ class RegisteredUserController extends Controller
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'pdpa_check' => $request->has('pdpa_check'),
+            'role' => 1
         ]);
 
         event(new Registered($user));

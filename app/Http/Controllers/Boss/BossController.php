@@ -12,14 +12,12 @@ use Illuminate\Support\Facades\Auth;
 class BossController extends Controller
 {
     //
-    protected $semestry = '67/1';
+
 
     public function index(Request $request)
     {
-        $id = auth()->user()->student_id;
-        if ($id != '1215040000') {
-            return redirect('welcome/?roletype='.$id);
-        }
+        $all_semestry = DB::table('grade')->select('SEMESTRY')->groupBy('SEMESTRY')->orderBy('SEMESTRY', 'DESC')->get();
+        $semestry = $all_semestry->first()->SEMESTRY;
 
         // SEMESTRY Labels
        $agent = new Agent();
@@ -54,7 +52,7 @@ class BossController extends Controller
         $data_exam_avg_bangjoacha = [];
         $data_exam_avg_kumyard = [];
         $data_exam_avg_pikan = [];
-        $group = $this->get_group($this->semestry);
+        $group = $this->get_group($semestry);
 
         // echo $this->finish_student('65/2')->Count()."SEMMMMMMM";
 
@@ -116,12 +114,11 @@ class BossController extends Controller
             $index++;
         }
 
-        // Boss
-        $semestry = $this->semestry;
-        $allstudent = $this->current_student($this->semestry)->Count();
 
-        $exam_avg = $this->exam_avg('65/2')['result'];
-        $exam_avg_semestry = $this->exam_avg('65/2')['semestry'];
+        $allstudent = $this->current_student($semestry)->Count();
+
+        $exam_avg = $this->exam_avg($semestry)['result'];
+        $exam_avg_semestry = $this->exam_avg($semestry)['semestry'];
 
         $new_student = $this->new_student($semestry)->Count();
         $expectfin_student = $this->expectfin_student()->Count();
@@ -160,11 +157,6 @@ class BossController extends Controller
                                                 'data_exam_avg_kumyard',
                                                 'data_exam_avg_pikan'
                                             ));
-    }
-
-    public function checkRole()
-    {
-        dd('checkRole');
     }
 
     public function current_student($semestry=''){

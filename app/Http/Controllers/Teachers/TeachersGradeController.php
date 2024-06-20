@@ -19,7 +19,6 @@ class TeachersGradeController extends Controller
     public function index(Request $request)
     {
         //
-        $id = auth()->user()->student_id;
         $all_tumbon = DB::table('group')->select('GRP_CODE', 'GRP_NAME')->orderBy('GRP_CODE', 'ASC')->get();
         $all_semestry = DB::table('grade')->select('SEMESTRY')->groupBy('SEMESTRY')->orderBy('SEMESTRY', 'DESC')->get();
         
@@ -27,11 +26,6 @@ class TeachersGradeController extends Controller
         $tumbon = '';
         $lavel = '';
         $semestry = $all_semestry->first()->SEMESTRY;
-
-
-        if ($id != '1215040001') {
-            return redirect('welcome/?roletype='.$id);
-        }
 
         if($request->tumbon!=''){
             $tumbon = str_split($request->tumbon, 4)[0];

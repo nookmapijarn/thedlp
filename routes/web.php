@@ -59,16 +59,17 @@ Route::get('/', function () {
 })->name('/');
 
 // Boss Route
-Route::middleware('auth', 'verified')->group(function () {
-    Route::prefix('/boss')->group(function () {
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::middleware('checkrole:3')->prefix('/boss')->group(function () {
         Route::get('/', [BossController::class, 'index']);
         Route::get('/bdashboard', [BossController::class, 'index'])->name('boss');
     });
 });
 
+
 // Teacher Route
 Route::middleware('auth', 'verified')->group(function () {
-    Route::prefix('/teachers')->group(function () {
+    Route::middleware('checkrole:2')->prefix('/teachers')->group(function () {
         Route::get('/', [TeachersController::class, 'index']);
         Route::get('/tdashboard', [TeachersController::class, 'index'])->name('tdashboard');
         Route::get('/treport', [TeachersReportController::class, 'index'])->name('treport');
@@ -80,8 +81,16 @@ Route::middleware('auth', 'verified')->group(function () {
         Route::post('/tscore', [TeachersScoreController::class, 'index'])->name('tscore');
     });
 });
-// Route::get('/teachers',[TeachersController::class,'index'])->middleware('roleType');
-// Route::get('check/role',[TeachersController::class,'index'])->middleware('roleType'); //http://127.0.0.1:8000/check/role?type=admin
+
+// Student Route
+Route::middleware('auth', 'verified')->group(function () {
+    Route::middleware('checkrole:1')->group(function () {
+        Route::get('/ประวัติการเรียน', [DashboardController::class, 'index'])->name('ประวัติการเรียน');
+        Route::get('/ตารางสอบ', [ExamscheduleController::class, 'index'])->name('ตารางสอบ');
+        Route::get('/การจบหลักสูตร', [FinalController::class, 'index'])->name('การจบหลักสูตร');
+        Route::get('/ประวัติการลงทะเบียน', [StudentRegisController::class, 'index'])->name('ประวัติการลงทะเบียน');
+    });
+});
 
 // Help Route
 Route::prefix('/help')->group(function () {
@@ -94,14 +103,6 @@ Route::prefix('/help')->group(function () {
     Route::get('/ผู้จบหลักสูตร', [FinalCheckController::class, 'index'])->name('ผู้จบหลักสูตร');
 });  
 
-
-// Student Route
-Route::middleware('auth', 'verified')->group(function () {
-    Route::get('/ประวัติการเรียน', [DashboardController::class, 'index'])->name('ประวัติการเรียน');
-    Route::get('/ตารางสอบ', [ExamscheduleController::class, 'index'])->name('ตารางสอบ');
-    Route::get('/การจบหลักสูตร', [FinalController::class, 'index'])->name('การจบหลักสูตร');
-    Route::get('/ประวัติการลงทะเบียน', [StudentRegisController::class, 'index'])->name('ประวัติการลงทะเบียน');
-});
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
