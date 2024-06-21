@@ -10,7 +10,7 @@
          </button>
         <a href="{{ url('teachers/') }}" class="flex ms-2 md:me-24">
           <x-application-logo class="block w-auto fill-current text-gray-600" />                        
-          <span class="pl-1 self-center text-gray-100 text-xl font-semibold sm:text-2xl whitespace-nowrap dark:text-white"> Phranakhon DLEC Version 3</span>
+          <span class="pl-1 self-center text-gray-100 text-xl font-semibold sm:text-2xl whitespace-nowrap dark:text-white"> Phothong DLEC Version 3</span>
         </a>
       </div>
       <div class="flex items-center">

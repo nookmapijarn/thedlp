@@ -175,22 +175,33 @@ class TeachersReportController extends Controller
     // คาดว่าจะจบ
     public function expfin($student_id, $lavel){
         $tgrade = 'grade'.$lavel;
+        $subject = 'subjectall';
         $grade = DB::table($tgrade)
-            ->join('subject', $tgrade.'.SUB_CODE', '=', 'subject.SUB_CODE')
-            ->where($tgrade.'.STD_CODE', 'LIKE', '1215040001'.$student_id)
-            ->where($tgrade.'.GRADE', 'NOT REGEXP', 'ข')
-            ->where($tgrade.'.GRADE', 'NOT REGEXP', '0')
-            ->select($tgrade.'.STD_CODE', $tgrade.'.SUB_CODE', $tgrade.'.GRADE', 'subject.SUB_CREDIT')
-            ->groupBy($tgrade.'.STD_CODE', $tgrade.'.SUB_CODE', $tgrade.'.GRADE', 'subject.SUB_CREDIT')
-            ->get();  
+        ->join($subject, $tgrade . '.SUB_CODE', '=', $subject.'.SUB_CODE')
+        ->where($tgrade . '.STD_CODE', 'LIKE', '1215040001' . $student_id)
+        ->where($tgrade . '.GRADE', 'NOT REGEXP', '[ข0ม]')
+        ->whereNot(function($query) use ($tgrade) {
+            $query->where($tgrade . '.TYP_CODE', 'REGEXP', '7')
+                  ->where(function($subQuery) use ($tgrade) {
+                      $subQuery->where($tgrade . '.GRADE', 'REGEXP', '0')
+                               ->orWhere($tgrade . '.GRADE', '=', null)
+                               ->orWhere($tgrade . '.GRADE', '=', ' ');
+                  });
+        })
+        ->select($tgrade . '.STD_CODE', $tgrade . '.SUB_CODE', $tgrade . '.GRADE', $subject.'.SUB_CREDIT')
+        ->groupBy($tgrade . '.STD_CODE', $tgrade . '.SUB_CODE', $tgrade . '.GRADE', $subject.'.SUB_CREDIT')
+        ->get();
+      
 
         $sum_credit = $grade->sum('SUB_CREDIT');
-        // echo '<br><br> <br>  *************************************************** '. $sum_credit. ' ******************************* <br> <br> <br> <br> ';
+        // if($student_id == 6512000123 ){
+        //     echo '<br><br><br><br><br><br> <br><br>***************************************************  = '. $student_id .' = '.$sum_credit.' ******************************* <br> '.$grade;
+        // }
 
-        if (($lavel == 1 && $sum_credit < 48) || ($lavel == 2 && $sum_credit < 56) || ($lavel == 3 && $sum_credit < 76)) {
-            return false;
-        } else {
+        if (($lavel == 1 && $sum_credit >= 48) || ($lavel == 2 && $sum_credit >= 55) || ($lavel == 3 && $sum_credit >= 76)) {
             return true;
+        } else {
+            return false;
         }       
     }
 
