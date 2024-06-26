@@ -126,7 +126,7 @@
                 <div class="flex justify-center mb-3 md:m-5">
                     <img src="{{asset('storage/logo.png');}}" width="120px" class="drop-shadow-2xl">
                 </div>
-                <h1 class="md:mb-4 text-xl font-extrabold tracking-tight leading-none text-white md:text-4xl lg:text-5xl tracking-wider leading-relaxed drop-shadow-2xl">Phothong DLEC</h1>
+                <h1 class="md:mb-4 text-xl font-extrabold tracking-tight leading-none text-white md:text-4xl lg:text-5xl tracking-wider leading-relaxed drop-shadow-2xl">Phothong OLIS DLEC</h1>
                 <p class="md:mb-4 text-sm font-extrabold tracking-tight leading-none text-white md:text-4xl lg:text-2xl tracking-wider leading-relaxed drop-shadow-2xl">บริหารจัดการข้อมูลผู้เรียนออนไลน์</p>
                 {{-- <p class="mb-4 text-sm font-normal text-gray-100 md:text-xl sm:px-16 lg:px-48 drop-shadow-2xl">ศูนย์ส่งเสริมการเรียนรู้ระดับเขตพระนคร</p> --}}
                 {{-- <p class="mb-8 text-sm font-normal text-gray-300 md:text-xl sm:px-16 lg:px-48 drop-shadow-2xl">Phothong District Learning Encouragement Center</p> --}}

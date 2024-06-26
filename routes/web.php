@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 // Base
 use App\Http\Controllers\ProfileController;
 
+// Admin
+use App\Http\Controllers\Admin\ZipUploadController;
+
 // Stdudent
 use App\Http\Controllers\Students\DashboardController;
 use App\Http\Controllers\Students\ExamscheduleController;
@@ -57,6 +60,14 @@ Route::get('/regis', function () {
 Route::get('/', function () {
     return view('welcome');
 })->name('/');
+
+// Admin
+Route::get('/upload', function () {
+    return view('admin.upload');
+})->name('upload.form');
+
+Route::post('/upload', [ZipUploadController::class, 'upload'])->name('zip.upload');
+
 
 // Boss Route
 Route::middleware(['auth', 'verified'])->group(function () {

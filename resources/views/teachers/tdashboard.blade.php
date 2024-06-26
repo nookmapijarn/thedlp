@@ -22,8 +22,8 @@
                 </tr>
             </thead>
             <tbody>
-                <tr class="bg-green-100 border-b dark:bg-gray-800 dark:border-gray-700 hover:underline">
-                    <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                <tr class="bg-orange-100 border-b dark:bg-gray-800 dark:border-gray-700 hover:underline">
+                    <th scope="row" class=" bg-Yellow-400 px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
                         นักศึกษาใหม่
                     </th>
                     @foreach($data_new_student as $ns)
@@ -42,7 +42,7 @@
                     </td>
                     @endforeach
                 </tr>
-                <tr class="bg-indigo-100 dark:bg-gray-800 hover:underline">
+                <tr class="bg-blue-200 dark:bg-gray-800 hover:underline">
                     <th scope="row" class="px-6 py-4 font-bold text-gray-900 whitespace-nowrap dark:text-white">
                         นักศึกษาทั้งหมด
                     </th>

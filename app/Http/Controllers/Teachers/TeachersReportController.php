@@ -54,7 +54,7 @@ class TeachersReportController extends Controller
                 return view('teachers.treport' ,compact('data', 'semestry', 'tumbon', 'all_tumbon', 'all_semestry'));
               break;
             case 'ไม่จบตกค้าง(ที่ไม่ได้ลงทะเบียนแล้ว)':
-                $data = $this->unfinishstudent($tumbon, $studreport, $semestry);
+                $data = $this->unfinishstudent($tumbon, $semestry);
                 $data = collect($data)->sortBy('lavel')->toArray();
                 $data = count($data) !== 0 ? $data :  null;
                 return view('teachers.treport' ,compact('data', 'semestry', 'tumbon', 'all_tumbon', 'all_semestry'));
@@ -137,23 +137,46 @@ class TeachersReportController extends Controller
 
     public function unfinishstudent($grp_code, $semestry)
     {
+        $all_semestry = DB::table('grade')->select('SEMESTRY')->groupBy('SEMESTRY')->orderBy('SEMESTRY', 'DESC')->get();
+        $current_semestry = $all_semestry->first()->SEMESTRY;
         $expstudents = [];
         for ($i = 1; $i <= 3; $i++) {
-            $current_students = $this->not_current_student($grp_code, $i, $semestry);
-            if ($current_students->count() != 0) {
-                foreach ($current_students as $s) {
+            $current_student = $this->not_current_student($grp_code, $i, $semestry);
+            if ($current_student->count() != 0) {
+                foreach ($current_student as $s) {
                     if($this->expfin($s->ID, $i)){
-                        $expstudents[] = [
-                            'id' => $s->ID,
-                            'lavel' => $i,
-                            'name' => $s->NAME,
-                            'surname' => $s->SURNAME,
-                            'fin_cause' => $s->FIN_CAUSE,
-                            'expfin' => true,
-                            'activity' => $this->get_activity($s->STD_CODE),
-                            'nt_sem' => ($s->NT_SEM != '') ? 'ผ่านแล้ว' : (($s->NT_NOSEM != '') ? 'E-Exam' : 'มีสิทธิ'),
-                            'grp_code' => $s->GRP_CODE
-                        ];
+                        $tgrade = 'grade'.$i;
+                        $std_code = '1215040001'.$s->ID;
+                        $current_count = DB::table($tgrade)->where('STD_CODE', $std_code)->where("SEMESTRY", $semestry)->count();
+                        if($current_count > 0){
+                            // echo '<br><br><br><br>*********************************************************** IS CURRENT ***************************************!!! <br>';
+                            // echo '*********************************************************** '.$semestry .$s->ID .$s->NAME .$s->SURNAME.' ***************************************!!! <br>';
+                        }else{
+                            // echo '<br><br><br><br>*********************************************************** NOT CURRENT ***************************************!!! <br>';
+                            // echo '*********************************************************** '.$semestry .$s->ID .$s->NAME .$s->SURNAME.' ***************************************!!! <br>';
+                            $expstudents[] = [
+                                'id' => $s->ID,
+                                'lavel' => $i,
+                                'name' => $s->NAME,
+                                'surname' => $s->SURNAME,
+                                'fin_cause' => $s->FIN_CAUSE,
+                                'expfin' => true,
+                                'activity' => $this->get_activity($s->STD_CODE),
+                                'nt_sem' => ($s->NT_SEM != '') ? 'ผ่านแล้ว' : (($s->NT_NOSEM != '') ? 'E-Exam' : 'มีสิทธิ'),
+                                'grp_code' => $s->GRP_CODE
+                            ];
+                        }
+                        // $expstudents[] = [
+                        //     'id' => $s->ID,
+                        //     'lavel' => $i,
+                        //     'name' => $s->NAME,
+                        //     'surname' => $s->SURNAME,
+                        //     'fin_cause' => $s->FIN_CAUSE,
+                        //     'expfin' => true,
+                        //     'activity' => $this->get_activity($s->STD_CODE),
+                        //     'nt_sem' => ($s->NT_SEM != '') ? 'ผ่านแล้ว' : (($s->NT_NOSEM != '') ? 'E-Exam' : 'มีสิทธิ'),
+                        //     'grp_code' => $s->GRP_CODE
+                        // ];
                     } else {
                         continue;
                     }
@@ -248,8 +271,8 @@ class TeachersReportController extends Controller
 
     public function not_current_student($grp_code, $lavel, $semestry) {
         // $semestry
-        // $all_semestry = DB::table('grade')->select('SEMESTRY')->groupBy('SEMESTRY')->orderBy('SEMESTRY', 'DESC')->get();
-        // $current_semestry = $all_semestry->first()->SEMESTRY;
+        $all_semestry = DB::table('grade')->select('SEMESTRY')->groupBy('SEMESTRY')->orderBy('SEMESTRY', 'DESC')->get();
+        $current_semestry = $all_semestry->first()->SEMESTRY;
         // ตรวจสอบและกำหนดค่าตัวแปร $grp_code
         $grp_code = ($grp_code == '0000' || $grp_code == ' ' || $grp_code == null) ? "[0-9]" : $grp_code;
         // ใช้ตัวแปร $lavel ใน scope ที่ถูกต้อง
@@ -264,8 +287,8 @@ class TeachersReportController extends Controller
                     $query->where("$tgrade.GRP_CODE", '=', $grp_code);
                 }
             })
-            ->whereNot("$tgrade.SEMESTRY", $semestry)
-            ->where('student.FIN_CAUSE', '!==', '[1-9]')
+            //->where("$tgrade.SEMESTRY", '!=', $semestry)
+            ->where('student.FIN_SEM', 'NOT REGEXP', '^[0-9]')  
             ->select(
                 'student.STD_CODE', 
                 'student.ID', 

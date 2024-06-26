@@ -45,6 +45,7 @@
             </a>
         </div>
         <div class="text-sm text-center text-gray-400">
+            Online Learner Information System (OLIS) Version 3.1 <br>
             © ออกแบบและพัฒนาระบบโดย  นายนนทชัย  มาพิจารณ์  ตำแหน่ง  ครู <br>
             ศูนย์ส่งเสริมการเรียนรู้ระดับอำเภอโพธิ์ทอง จังหวัดอ่างทอง
         </div>

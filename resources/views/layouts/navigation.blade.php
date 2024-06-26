@@ -8,7 +8,7 @@
                     <a href="{{ url('welcome') }}">
                         <x-application-logo class="block h-10 w-auto fill-current text-gray-600" />                        
                     </a>
-                    <strong class="ml-2 text-gray-100 text-lg tracking-wide"> ทะเบียนนักศึกษา </strong>
+                    <strong class="ml-2 text-gray-100 text-lg tracking-wide"> Phothong OLIS DLEC </strong>
                     {{-- <div class=" ml-2">
                         <button type="button" x-bind:class="darkMode ? 'bg-indigo-500' : 'bg-gray-200'"
                             x-on:click="darkMode = !darkMode"
