@@ -2,7 +2,7 @@
   <div class="p-4 sm:ml-64">
     <div class="p-4 border-2 border-gray-200 border-dashed rounded-lg dark:border-gray-700 mt-14">
         <div class="text-2xl font-bold w-full text-center">ผลการพัฒนาคุณภาพผู้เรียน (กศน.4)</div>
-        <form method="GET" action="{{ route('tscore') }}" class="text-sm">
+        <form method="GET" action="{{ route('tscore') }}" class="text-sm max-w-6xl mx-auto">
         <div class="grid grid-cols-1 gap-2 md:grid md:grid-cols-5 justify-items-center">
             <div class="min-w-full" >
               <label>ศกร.ตำบล</label>
@@ -105,13 +105,13 @@
                             <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
                                 <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 8.207-4 4a1 1 0 0 1-1.414 0l-2-2a1 1 0 0 1 1.414-1.414L9 10.586l3.293-3.293a1 1 0 0 1 1.414 1.414Z"/>
                             </svg>
-                            <div class="ps-4 text-sm font-normal">ผ่าน <span class="underline text-lg">{{$all_grade-($grade_0+$grade_not)}} </span>ราย</div>
+                            <div class="ps-4 text-sm font-normal">ผ่าน <span class="underline text-lg">{{$all_grade-($grade_0+$grade_not+$grade_null)}} </span>ราย</div>
                         </div> 
                         <div id="toast-simple" class="flex items-center w-full max-w-xs p-4 space-x-4 rtl:space-x-reverse text-red-500 bg-white divide-x rtl:divide-x-reverse divide-gray-200 rounded-lg shadow dark:text-gray-400 dark:divide-gray-700 space-x dark:bg-gray-800" role="alert">
                             <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
                                 <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 11.793a1 1 0 1 1-1.414 1.414L10 11.414l-2.293 2.293a1 1 0 0 1-1.414-1.414L8.586 10 6.293 7.707a1 1 0 0 1 1.414-1.414L10 8.586l2.293-2.293a1 1 0 0 1 1.414 1.414L11.414 10l2.293 2.293Z"/>
                             </svg>
-                            <div class="ps-4 text-sm font-normal">ไม่ผ่าน <span class="underline text-lg">{{$grade_0+$grade_not}} </span>ราย</div>
+                            <div class="ps-4 text-sm font-normal">ไม่ผ่าน <span class="underline text-lg">{{$grade_0+$grade_not+$grade_null}} </span>ราย</div>
                         </div> 
                         <div id="toast-simple" class="flex items-center w-full max-w-xs p-4 space-x-4 rtl:space-x-reverse text-yellow-500 bg-white divide-x rtl:divide-x-reverse divide-gray-200 rounded-lg shadow dark:text-gray-400 dark:divide-gray-700 space-x dark:bg-gray-800" role="alert">
                             <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
@@ -188,3 +188,4 @@
     </div>
   </div>
 </x-teachers-layout>
+@include('layouts.footer')

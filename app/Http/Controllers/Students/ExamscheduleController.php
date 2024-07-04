@@ -9,15 +9,22 @@ use Illuminate\Support\Facades\DB;
 class ExamscheduleController extends Controller
 {
     //
+    protected $lavel;
+    protected $std_code;
+
     public function index()
     {
+        // Set
         $id = auth()->user()->student_id;
-        $all_semestry = DB::table('grade')->select('SEMESTRY')->groupBy('SEMESTRY')->orderBy('SEMESTRY', 'DESC')->get();
+        $this->lavel = str_split($id, 1)[3];
+        $this->std_code = DB::table("student{$this->lavel}")->where('ID', $id)->select('STD_CODE')->groupBy('STD_CODE')->value('STD_CODE');
+
+        $all_semestry = DB::table("grade{$this->lavel}")->select('SEMESTRY')->groupBy('SEMESTRY')->orderBy('SEMESTRY', 'DESC')->get();
         $semestry = $all_semestry->first()->SEMESTRY;
-        $grade = $this->get_gradelist($id, $semestry);
+        $grade = $this->get_gradelist($this->std_code, $semestry);
         $schedule = [];
-        $student = $this->get_student($id);
-        $nnet = $this->nnet_check($id);
+        $student = $this->get_student($this->std_code);
+        $nnet = $this->nnet_check($this->std_code, $this->lavel);
 
         foreach ($grade as $g) {
             $exam_day = 0;
@@ -47,12 +54,12 @@ class ExamscheduleController extends Controller
         array_multisort($key_values2, SORT_ASC, $schedule);
         // print $schedule[0]['sub_code'];
         // print_r($schedule);
-        return view('students.examschedule', compact('schedule', 'nnet', 'student'));
+        return view('students.examschedule', compact('schedule', 'nnet', 'student', 'semestry'));
     }
 
-    public function nnet_check($id){
-        if($this->expfin($id)){
-            $student = $this->get_student($id);
+    public function nnet_check($std_code, $lavel){
+        if($this->expfin($std_code, $lavel)){
+            $student = $this->get_student($std_code);
             foreach ($student as $s) {
                 $nnet = ($s->NT_SEM!='' ? 'ผ่านแล้ว' : ($s->NT_NOSEM!='' ? 'E-Exam': 'N-NET'));
             }
@@ -63,33 +70,63 @@ class ExamscheduleController extends Controller
     }
 
     // ตารางคาดว่าจะจบ
-    public function expfin($student_id){
-        $expfin = DB::table('expectfin')->where('ID', $student_id)->first();
-        if($expfin === null){
-            return false;
-        } else {
+    // คาดว่าจะจบ
+    public function expfin($std_code, $lavel){
+        
+        $tgrade = "grade{$lavel}";
+        $subject = "subject{$lavel}";
+        $current_semestry = $this->get_semestry()->first()->SEMESTRY;
+
+        try {
+
+            $grade = DB::table($tgrade)
+            ->join($subject, "$tgrade.SUB_CODE", '=', "$subject.SUB_CODE")
+            ->where("$tgrade.STD_CODE", '=', $std_code)
+            ->where(function($query) use ($tgrade, $current_semestry) {
+                $query->where("$tgrade.GRADE", 'REGEXP', '[1-4]')
+                      ->orWhere(function($subQuery) use ($tgrade, $current_semestry) {
+                          $subQuery->whereNull("$tgrade.GRADE")
+                                   ->where("$tgrade.SEMESTRY", $current_semestry);
+                      });
+            })
+            ->select("$tgrade.STD_CODE", "$tgrade.SUB_CODE", "$tgrade.SEMESTRY", "$tgrade.TYP_CODE", "$tgrade.GRADE", "$subject.SUB_CREDIT")
+            ->groupBy("$tgrade.STD_CODE", "$tgrade.SUB_CODE", "$tgrade.SEMESTRY", "$tgrade.TYP_CODE", "$tgrade.GRADE", "$subject.SUB_CREDIT")
+            ->get();
+    
+        } catch (\Exception $e) {
+            echo (' NOT Query' . $e->getMessage()).'<br>';
+        }
+        // echo '<pre>';
+        // echo '******************************************'.print_r($grade);
+        // echo '</pre>';
+
+        $sum_credit = $grade->sum('SUB_CREDIT');
+
+        if (($lavel == 1 && $sum_credit >= 48) || ($lavel == 2 && $sum_credit >= 55) || ($lavel == 3 && $sum_credit >= 76)) {
             return true;
-        }       
+        } else {
+            return false;
+        }
     }
 
-    public function get_student($id){
-        $student = DB::table('student')
-        ->where('STD_CODE', '1215040001'.$id)
+    public function get_student($std_code){
+        $student = DB::table("student{$this->lavel}")
+        ->where('STD_CODE', $std_code)
         ->get();
         return $student;
     }
 
-    public function get_gradelist($id, $sumestry){
+    public function get_gradelist($std_code, $sumestry){
         // ตาราง garde
-        $gradelist = DB::table('grade')
-        ->where('STD_CODE', '1215040001'.$id)
+        $gradelist = DB::table("grade{$this->lavel}")
+        ->where('STD_CODE', $std_code)
         ->where('SEMESTRY', $sumestry)
         ->get();
         return $gradelist;
     }
 
     public function get_schedule($sub_code, $sumestry){
-        $schedule = DB::table('schedule')
+        $schedule = DB::table("schedule{$this->lavel}")
         ->where('SUB_CODE', $sub_code)
         ->where('SEMESTRY', $sumestry) //'65/2'
         ->orderBy('EXAM_START', 'ASC')
@@ -104,7 +141,7 @@ class ExamscheduleController extends Controller
         
     }
     public function get_subject($sub_code){
-        $subject = DB::table('subject')
+        $subject = DB::table("subject{$this->lavel}")
         ->where('SUB_CODE', $sub_code)
         ->get();
         return $subject[0]; //ข้อมูลตารางรายวิชา
@@ -119,5 +156,28 @@ class ExamscheduleController extends Controller
             $time = substr_replace($time, '.', 1, -3); //8.30
         }
         return $time;
+    }
+
+    public function get_semestry()
+    {
+        $semestry1 = DB::table('grade1')
+            ->select('SEMESTRY')
+            ->orderBy('SEMESTRY', 'DESC')
+            ->groupBy('SEMESTRY');
+        $semestry2 = DB::table('grade2')
+            ->union($semestry1)
+            ->select('SEMESTRY')
+            ->orderBy('SEMESTRY', 'DESC')
+            ->groupBy('SEMESTRY');
+        $semestry3 = DB::table('grade3')
+            ->union($semestry2)
+            ->select('SEMESTRY')
+            ->orderBy('SEMESTRY', 'DESC')
+            ->groupBy('SEMESTRY')
+            ->get();
+        // echo '<pre>';
+        // echo print_r($semestry3);
+        // echo '</pre>';
+        return $semestry3;
     }
 }

@@ -5,7 +5,7 @@
             <div class="text-center text-xl p-5  bg-yellow-200 mb-2 shadow-md">
                 แบบติดตามผู้สำเร็จการศึกษา
                 <div class="text-center text-xs">หลักสูตรการศึกษานอกระบบระดับการศึกษาขั้นพื้นฐาน พุทธศักราช 2551</div>
-                <div class="text-center text-xs">ศูนย์ส่งเสริมการเรียนรู้ระดับอำเภอโพธิ์ทอง</div>
+                <div class="text-center text-xs">{{ config('app.name_th') }}</div>
             </div>
             {{-- Part 1 --}}
             <div class="grid gap-6 mb-6 md:grid-cols-1 p-4 shadow-md">

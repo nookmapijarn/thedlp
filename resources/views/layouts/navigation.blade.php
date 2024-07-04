@@ -8,7 +8,7 @@
                     <a href="{{ url('welcome') }}">
                         <x-application-logo class="block h-10 w-auto fill-current text-gray-600" />                        
                     </a>
-                    <strong class="ml-2 text-gray-100 text-lg tracking-wide"> Phothong OLIS DLEC </strong>
+                    <strong class="ml-2 text-gray-100 text-lg tracking-wide"> {{ config('app.name') }} </strong>
                     {{-- <div class=" ml-2">
                         <button type="button" x-bind:class="darkMode ? 'bg-indigo-500' : 'bg-gray-200'"
                             x-on:click="darkMode = !darkMode"
@@ -53,6 +53,9 @@
                     <x-nav-link :href="route('ตารางสอบ')" :active="request()->routeIs('ตารางสอบ')" class="text-white">
                         {{ __('ตารางสอบ') }}
                     </x-nav-link>
+                    <x-nav-link :href="route('กพช')" :active="request()->routeIs('กพช')" class="text-white">
+                        {{ __('กพช') }}
+                    </x-nav-link>  
                 </div>
             </div>
 
@@ -116,6 +119,9 @@
             </x-responsive-nav-link>
             <x-responsive-nav-link :href="route('ตารางสอบ')" :active="request()->routeIs('ตารางสอบ')" class="{{request()->routeIs('ตารางสอบ') ? 'text-indigo-800' : 'text-white'}}">
                 {{ __('ตารางสอบ') }}
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('กพช')" :active="request()->routeIs('กพช')" class="{{request()->routeIs('กพช') ? 'text-indigo-800' : 'text-white'}}">
+                {{ __('กพช') }}
             </x-responsive-nav-link>
         </div>
 

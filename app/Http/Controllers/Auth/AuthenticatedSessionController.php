@@ -26,15 +26,18 @@ class AuthenticatedSessionController extends Controller
     public function store(LoginRequest $request): RedirectResponse
     {
         $request->authenticate();
-
+    
         $request->session()->regenerate();
-
-        //return redirect()->intended(RouteServiceProvider::HOME);
-        $role = auth()->user()->role;
-        if($role > 0){
-            return redirect('/teachers');
+    
+        $u_role = Auth::user()->role;
+        if($u_role == 1){
+            return redirect()->route('ประวัติการเรียน');
+        } else if ($u_role == 2) {
+            return redirect()->route('tdashboard');  
+        } else if ($u_role == 3) {
+            return redirect()->route('admin');  
         } else {
-            return redirect('/ประวัติการเรียน');  
+            return redirect('welcome/?roletype=' . Auth::user()->role);
         }
     }
 

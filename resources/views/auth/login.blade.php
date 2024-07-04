@@ -1,9 +1,9 @@
 <x-guest-layout>
 
     {{-- Label --}}
-    <div class="text-center m-2 rounded-lg text-lg text-shadow">ระบบงานทะเบียน-งานการศึกษาขั้นพื้นฐาน</div>
-    <div class="text-center m-2 rounded-lg text-lg text-shadow">ศูนย์ส่งเสริมการเรียนรู้ระดับอำเภอโพธิ์ทอง</div>
-    <div class="text-center p-1 m-1 text-2xl text-gray-900 ">Phothong OLIS DLEC</div>
+    <div class="text-center m-2 rounded-lg text-lg text-shadow">{{ config('app.name_system') }}</div>
+    <div class="text-center m-2 rounded-lg text-lg text-shadow">{{ config('app.name_th') }}</div>
+    <div class="text-center p-1 m-1 text-2xl text-gray-900 ">{{ config('app.name') }}</div>
  
 
 
@@ -54,7 +54,7 @@
         <div class="flex items-center justify-center mt-4">
             {{-- @if (Route::has('password.request'))
                 <a class="underline text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800" href="{{ route('password.request') }}">
-                    {{ __('Forgot your password?') }}
+                    {{ __('ลืมรหัสผ่าน?') }}
                 </a>
             @endif --}}
             {{-- <button type="button" class="text-white bg-blue-700 hover:bg-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center">
@@ -68,17 +68,22 @@
         </div>
 
         <!-- Register -->
-        <div class="flex items-center justify-end ">
-            <a class="mt-4 m-2 hover:text-sky-700" href="{{ route('register') }}">
+        <div class="flex items-center justify-center ">
+            <a class="mt-4 m-2 hover:text-sky-900" href="{{ route('/welcome') }}">
+                <div class="rounded-full">
+                    {{ __('หน้าหลัก') }}
+                </div>   
+            </a> 
+            <a class="mt-4 m-2 hover:text-sky-900" href="{{ route('register') }}">
                 <div class="rounded-full">
                     {{ __('สมัครสมาชิก') }}
                 </div>   
             </a>   
-            <a class="flex items-center justify-end mt-4 m-2 hover:text-sky-700" href="{{ url('welcome') }}">
-                <div class="rounded-full">
-                    {{ __('หน้าหลัก') }}
-                </div>   
-            </a>   
+            @if (Route::has('password.request'))
+                <a class="mt-4 m-2 dark:text-gray-400 hover:text-sky-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800" href="{{ route('password.request') }}">
+                    {{ __('ลืมรหัสผ่าน?') }}
+                </a>
+            @endif
         </div>
         
 

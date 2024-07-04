@@ -7,13 +7,13 @@
 
     {{-- Chart --}}
     <div class="h-full p-8 bg-gray-100">
-      <h1>จำนวนนักศึกษา</h1>
+      <h1>จำนวนผู้เรียน</h1>
       <canvas id="myChart" height="100px"></canvas>
     </div> 
 
     {{-- Chart 1 --}}
     <div class="h-full p-8 bg-gray-100">
-      <h1>นักศึกษาเข้าใหม่ - จบหลักสูตร</h1>
+      <h1>ผู้เรียนเข้าใหม่ - จบหลักสูตร</h1>
       <canvas id="myChart_B" height="100px"></canvas>
     </div> 
 
@@ -24,7 +24,7 @@
     </div> 
 
     {{-- Card --}}
-    <div class="h-full p-8 bg-gray-100">
+    {{-- <div class="h-full p-8 bg-gray-100">
         <div class="grid grid-cols-1 gap-5 mt-5 md:grid-cols-2">
           <div class="overflow-hidden bg-violet-100 rounded-lg shadow">
             <div class="px-4 py-5 lg:p-6">
@@ -95,7 +95,7 @@
             </div>
           </div>
       </div>   
-  </div>
+  </div> --}}
 
 </x-boss-layout>
   {{-- Script --}}
@@ -131,7 +131,7 @@
           data: data_studentSenior,
         },
         {
-          label: 'นักศึกษาทั้งหมด',
+          label: 'ผู้เรียนทั้งหมด',
           backgroundColor: '#0f5e9c',
           borderColor: '#0f5e9c',
           data: data_student,
@@ -163,19 +163,19 @@
     labels: labels,
     datasets: [
       {
-        label: 'นักศึกษาใหม่ (ย้อนหลังไป 4 ภาคเรียน)',
+        label: 'ผู้เรียนใหม่ (ย้อนหลังไป 4 ภาคเรียน)',
         backgroundColor: '#76D7C4',
         borderColor: '#76D7C4',
         data: data_new_student_rollback,
       },
       {
-        label: 'นักศึกษาจบหลักสูตร',
+        label: 'ผู้เรียนจบหลักสูตร',
         backgroundColor: '#16A085',
         borderColor: '#16A085',
         data: data_finish_student,
       },
       {
-        label: 'นักศึกษาใหม่',
+        label: 'ผู้เรียนใหม่',
         backgroundColor: '#7DCEA0',
         borderColor: '#7DCEA0',
         data: data_new_student,
@@ -200,129 +200,129 @@
 
     var labels =  {{ Js::from($labels) }};
     var data_exam_avg =  {{ Js::from($data_exam_avg) }};
-    var data_exam_avg_pangpub =  {{ Js::from($data_exam_avg_pangpub) }};
-    var data_exam_avg_angkaew =  {{ Js::from($data_exam_avg_angkaew) }};
-    var data_exam_avg_nongmeakai =  {{ Js::from($data_exam_avg_nongmeakai) }};
-    var data_exam_avg_yangchay =  {{ Js::from($data_exam_avg_yangchay) }};
-    var data_exam_avg_phorangnok =  {{ Js::from($data_exam_avg_phorangnok) }};
-    var data_exam_avg_rammasak =  {{ Js::from($data_exam_avg_rammasak) }};
-    var data_exam_avg_bangrakum =  {{ Js::from($data_exam_avg_bangrakum) }};
-    var data_exam_avg_borei =  {{ Js::from($data_exam_avg_borei) }};
-    var data_exam_avg_samngam =  {{ Js::from($data_exam_avg_samngam) }};
-    var data_exam_avg_thangpha =  {{ Js::from($data_exam_avg_thangpha) }};
-    var data_exam_avg_inthapamoon =  {{ Js::from($data_exam_avg_inthapamoon) }};
-    var data_exam_avg_aogkaruk =  {{ Js::from($data_exam_avg_aogkaruk) }};
-    var data_exam_avg_kokpudsar =  {{ Js::from($data_exam_avg_kokpudsar) }};
-    var data_exam_avg_bangjoacha =  {{ Js::from($data_exam_avg_bangjoacha) }};
-    var data_exam_avg_kumyard =  {{ Js::from($data_exam_avg_kumyard) }};
-    var data_exam_avg_pikan =  {{ Js::from($data_exam_avg_pikan) }};
+    // var data_exam_avg_pangpub =  {{ Js::from($data_exam_avg_pangpub) }};
+    // var data_exam_avg_angkaew =  {{ Js::from($data_exam_avg_angkaew) }};
+    // var data_exam_avg_nongmeakai =  {{ Js::from($data_exam_avg_nongmeakai) }};
+    // var data_exam_avg_yangchay =  {{ Js::from($data_exam_avg_yangchay) }};
+    // var data_exam_avg_phorangnok =  {{ Js::from($data_exam_avg_phorangnok) }};
+    // var data_exam_avg_rammasak =  {{ Js::from($data_exam_avg_rammasak) }};
+    // var data_exam_avg_bangrakum =  {{ Js::from($data_exam_avg_bangrakum) }};
+    // var data_exam_avg_borei =  {{ Js::from($data_exam_avg_borei) }};
+    // var data_exam_avg_samngam =  {{ Js::from($data_exam_avg_samngam) }};
+    // var data_exam_avg_thangpha =  {{ Js::from($data_exam_avg_thangpha) }};
+    // var data_exam_avg_inthapamoon =  {{ Js::from($data_exam_avg_inthapamoon) }};
+    // var data_exam_avg_aogkaruk =  {{ Js::from($data_exam_avg_aogkaruk) }};
+    // var data_exam_avg_kokpudsar =  {{ Js::from($data_exam_avg_kokpudsar) }};
+    // var data_exam_avg_bangjoacha =  {{ Js::from($data_exam_avg_bangjoacha) }};
+    // var data_exam_avg_kumyard =  {{ Js::from($data_exam_avg_kumyard) }};
+    // var data_exam_avg_pikan =  {{ Js::from($data_exam_avg_pikan) }};
 
   
     const data2 = {
       labels: labels,
       datasets: [
         {
-          label: 'อำเภอโพธิ์ทอง',
+          label: config('app.name_th'),
           backgroundColor: '#E74C3C',
           borderColor: '#E74C3C',
           data: data_exam_avg,
         },
-        {
-          label: 'บางพลับ',
-          backgroundColor: '#f6977a',
-          borderColor: '#f6977a',
-          data: data_exam_avg_pangpub,
-        },
-        {
-          label: 'อ่างแก้ว',
-          backgroundColor: '#ffc556',
-          borderColor: '#ffc556',
-          data: data_exam_avg_angkaew,
-        },
-        {
-          label: 'หนองแม่ไก่',
-          backgroundColor: '#66cdaa',
-          borderColor: '#66cdaa',
-          data: data_exam_avg_nongmeakai,
-        },
-        {
-          label: 'ยางช้าย',
-          backgroundColor: '#40e0d0',
-          borderColor: '#40e0d0',
-          data: data_exam_avg_yangchay,
-        },
-        {
-          label: 'โพธิ์รังนก',
-          backgroundColor: '#8a8cee',
-          borderColor: '#8a8cee',
-          data: data_exam_avg_phorangnok,
-        },
-        {
-          label: 'รำมะสัก',
-          backgroundColor: '#41a1e9',
-          borderColor: '#41a1e9',
-          data: data_exam_avg_rammasak,
-        },
-        {
-          label: 'บางระกำ',
-          backgroundColor: '#ffe599',
-          borderColor: '#ffe599',
-          data: data_exam_avg_bangrakum,
-        },
-        {
-          label: 'บ่อแร่',
-          backgroundColor: '#74b159',
-          borderColor: '#74b159',
-          data: data_exam_avg_borei,
-        },
-        {
-          label: 'สามง่าม',
-          backgroundColor: '#eb7ba7',
-          borderColor: '#eb7ba7',
-          data: data_exam_avg_samngam,
-        },
-        {
-          label: 'ทางพระ',
-          backgroundColor: '#fdda55',
-          borderColor: '#fdda55',
-          data: data_exam_avg_thangpha,
-        },
-        {
-          label: 'อินทประมูล',
-          backgroundColor: '#DFFF00',
-          borderColor: '##DFFF00',
-          data: data_exam_avg_inthapamoon,
-        },
-        {
-          label: 'องครักษ์',
-          backgroundColor: '#A569BD',
-          borderColor: '#A569BD',
-          data: data_exam_avg_aogkaruk,
-        },
-        {
-          label: 'โคกพุทรา',
-          backgroundColor: '#a4bcec',
-          borderColor: '#a4bcec',
-          data: data_exam_avg_kokpudsar,
-        },
-        {
-          label: 'บางเจ้าฉ่า',
-          backgroundColor: '#f3992f',
-          borderColor: '#f3992f',
-          data: data_exam_avg_bangjoacha,
-        },
-        {
-          label: 'คำหยาด',
-          backgroundColor: '#9fd813',
-          borderColor: '#9fd813',
-          data: data_exam_avg_kumyard,
-        },
-        {
-          label: 'พิการ',
-          backgroundColor: '#95A5A6',
-          borderColor: '#95A5A6',
-          data: data_exam_avg_pikan,
-        }
+        // {
+        //   label: 'บางพลับ',
+        //   backgroundColor: '#f6977a',
+        //   borderColor: '#f6977a',
+        //   data: data_exam_avg_pangpub,
+        // },
+        // {
+        //   label: 'อ่างแก้ว',
+        //   backgroundColor: '#ffc556',
+        //   borderColor: '#ffc556',
+        //   data: data_exam_avg_angkaew,
+        // },
+        // {
+        //   label: 'หนองแม่ไก่',
+        //   backgroundColor: '#66cdaa',
+        //   borderColor: '#66cdaa',
+        //   data: data_exam_avg_nongmeakai,
+        // },
+        // {
+        //   label: 'ยางช้าย',
+        //   backgroundColor: '#40e0d0',
+        //   borderColor: '#40e0d0',
+        //   data: data_exam_avg_yangchay,
+        // },
+        // {
+        //   label: 'โพธิ์รังนก',
+        //   backgroundColor: '#8a8cee',
+        //   borderColor: '#8a8cee',
+        //   data: data_exam_avg_phorangnok,
+        // },
+        // {
+        //   label: 'รำมะสัก',
+        //   backgroundColor: '#41a1e9',
+        //   borderColor: '#41a1e9',
+        //   data: data_exam_avg_rammasak,
+        // },
+        // {
+        //   label: 'บางระกำ',
+        //   backgroundColor: '#ffe599',
+        //   borderColor: '#ffe599',
+        //   data: data_exam_avg_bangrakum,
+        // },
+        // {
+        //   label: 'บ่อแร่',
+        //   backgroundColor: '#74b159',
+        //   borderColor: '#74b159',
+        //   data: data_exam_avg_borei,
+        // },
+        // {
+        //   label: 'สามง่าม',
+        //   backgroundColor: '#eb7ba7',
+        //   borderColor: '#eb7ba7',
+        //   data: data_exam_avg_samngam,
+        // },
+        // {
+        //   label: 'ทางพระ',
+        //   backgroundColor: '#fdda55',
+        //   borderColor: '#fdda55',
+        //   data: data_exam_avg_thangpha,
+        // },
+        // {
+        //   label: 'อินทประมูล',
+        //   backgroundColor: '#DFFF00',
+        //   borderColor: '##DFFF00',
+        //   data: data_exam_avg_inthapamoon,
+        // },
+        // {
+        //   label: 'องครักษ์',
+        //   backgroundColor: '#A569BD',
+        //   borderColor: '#A569BD',
+        //   data: data_exam_avg_aogkaruk,
+        // },
+        // {
+        //   label: 'โคกพุทรา',
+        //   backgroundColor: '#a4bcec',
+        //   borderColor: '#a4bcec',
+        //   data: data_exam_avg_kokpudsar,
+        // },
+        // {
+        //   label: 'บางเจ้าฉ่า',
+        //   backgroundColor: '#f3992f',
+        //   borderColor: '#f3992f',
+        //   data: data_exam_avg_bangjoacha,
+        // },
+        // {
+        //   label: 'คำหยาด',
+        //   backgroundColor: '#9fd813',
+        //   borderColor: '#9fd813',
+        //   data: data_exam_avg_kumyard,
+        // },
+        // {
+        //   label: 'พิการ',
+        //   backgroundColor: '#95A5A6',
+        //   borderColor: '#95A5A6',
+        //   data: data_exam_avg_pikan,
+        // }
       ]
     };
   

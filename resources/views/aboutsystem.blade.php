@@ -5,7 +5,7 @@
                 <svg class="w-10 h-10 font-extrabold" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
                 </svg>
-                <span class="text-3xl font-extrabold tracking-tight">นักศึกษา</span>
+                <span class="text-3xl font-extrabold tracking-tight">ผู้เรียน</span>
             </div>
             <!-- List -->
             <ul role="list" class="space-y-5 my-7">  
@@ -51,27 +51,27 @@
                 <li class="flex space-x-3">
                     <!-- Icon -->
                     <svg aria-hidden="true" class="flex-shrink-0 w-5 h-5 text-blue-600 dark:text-blue-500" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><title>Check icon</title><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
-                    <span class="text-base font-normal leading-tight text-gray-500 dark:text-gray-400">รายชื่อนักศึกษาลงทะเบียน</span>
+                    <span class="text-base font-normal leading-tight text-gray-500 dark:text-gray-400">รายชื่อผู้เรียนลงทะเบียน</span>
                 </li>
                 <li class="flex space-x-3">
                     <!-- Icon -->
                     <svg aria-hidden="true" class="flex-shrink-0 w-5 h-5 text-blue-600 dark:text-blue-500" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><title>Check icon</title><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
-                    <span class="text-base font-normal leading-tight text-gray-500 dark:text-gray-400">รายชื่อนักศึกษาคาดว่าจะจบ</span>
+                    <span class="text-base font-normal leading-tight text-gray-500 dark:text-gray-400">รายชื่อผู้เรียนคาดว่าจะจบ</span>
                 </li>
                 <li class="flex space-x-3">
                     <!-- Icon -->
                     <svg aria-hidden="true" class="flex-shrink-0 w-5 h-5 text-blue-600 dark:text-blue-500" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><title>Check icon</title><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
-                    <span class="text-base font-normal leading-tight text-gray-500 dark:text-gray-400">รายชื่อนักศึกษาสอบ N-NET</span>
+                    <span class="text-base font-normal leading-tight text-gray-500 dark:text-gray-400">รายชื่อผู้เรียนสอบ N-NET</span>
                 </li>
                 <li class="flex space-x-3">
                     <!-- Icon -->
                     <svg aria-hidden="true" class="flex-shrink-0 w-5 h-5 text-blue-600 dark:text-blue-500" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><title>Check icon</title><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
-                    <span class="text-base font-normal leading-tight text-gray-500 dark:text-gray-400">รายชื่อนักศึกษาจบหลักสูตร</span>
+                    <span class="text-base font-normal leading-tight text-gray-500 dark:text-gray-400">รายชื่อผู้เรียนจบหลักสูตร</span>
                 </li>
                 <li class="flex space-x-3">
                     <!-- Icon -->
                     <svg aria-hidden="true" class="flex-shrink-0 w-5 h-5 text-blue-600 dark:text-blue-500" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><title>Check icon</title><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
-                    <span class="text-base font-normal leading-tight text-gray-500 dark:text-gray-400">รายชื่อนักศึกษาไม่จบตกค้าง</span>
+                    <span class="text-base font-normal leading-tight text-gray-500 dark:text-gray-400">รายชื่อผู้เรียนไม่จบตกค้าง</span>
                 </li>
             </ul>
             <a href="{{ url('teachers') }}"><button type="button" class="text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-200 dark:focus:ring-blue-900 font-medium rounded-lg text-sm px-5 py-2.5 inline-flex justify-center w-full text-center">เข้าสู่ระบบ</button></a>
@@ -90,7 +90,7 @@
                 <li class="flex space-x-3">
                     <!-- Icon -->
                     <svg aria-hidden="true" class="flex-shrink-0 w-5 h-5 text-blue-600 dark:text-blue-500" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><title>Check icon</title><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
-                    <span class="text-base font-normal leading-tight text-gray-500 dark:text-gray-400">จำนวนนักศึกษาทั้งหมด  </span>
+                    <span class="text-base font-normal leading-tight text-gray-500 dark:text-gray-400">จำนวนผู้เรียนทั้งหมด  </span>
                 </li>
                 <li class="flex space-x-3">
                     <!-- Icon -->
@@ -100,7 +100,7 @@
                 <li class="flex space-x-3">
                     <!-- Icon -->
                     <svg aria-hidden="true" class="flex-shrink-0 w-5 h-5 text-blue-600 dark:text-blue-500" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><title>Check icon</title><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
-                    <span class="text-base font-normal leading-tight text-gray-500 dark:text-gray-400">จำนวนนักศึกษาคาดว่าจะจบ</span>
+                    <span class="text-base font-normal leading-tight text-gray-500 dark:text-gray-400">จำนวนผู้เรียนคาดว่าจะจบ</span>
                 </li>
                 <li class="flex space-x-3">
                     <!-- Icon -->
@@ -110,7 +110,7 @@
                 <li class="flex space-x-3">
                     <!-- Icon -->
                     <svg aria-hidden="true" class="flex-shrink-0 w-5 h-5 text-blue-600 dark:text-blue-500" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><title>Check icon</title><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
-                    <span class="text-base font-normal leading-tight text-gray-500 dark:text-gray-400">จำนวนนักศึกษาไม่จบตกค้าง</span>
+                    <span class="text-base font-normal leading-tight text-gray-500 dark:text-gray-400">จำนวนผู้เรียนไม่จบตกค้าง</span>
                 </li>
             </ul>
             <a href="{{ route('boss') }}"><button type="button" class="text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-200 dark:focus:ring-blue-900 font-medium rounded-lg text-sm px-5 py-2.5 inline-flex justify-center w-full text-center">เข้าสู่ระบบ</button></a>
@@ -157,7 +157,7 @@
                     <svg class="w-10 h-10 font-extrabold" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
                     </svg>
-                    <span class="text-3xl font-extrabold tracking-tight">สำหรับนักศึกษา</span>
+                    <span class="text-3xl font-extrabold tracking-tight">สำหรับผู้เรียน</span>
                 </div>
                 <!-- List -->
                 <ul role="list" class="space-y-5 my-7">  
@@ -204,27 +204,27 @@
                     <li class="flex space-x-3">
                         <!-- Icon -->
                         <svg aria-hidden="true" class="flex-shrink-0 w-5 h-5 text-blue-600 dark:text-blue-500" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><title>Check icon</title><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
-                        <span class="text-base font-normal leading-tight text-gray-500 dark:text-gray-400">รายชื่อนักศึกษาลงทะเบียน</span>
+                        <span class="text-base font-normal leading-tight text-gray-500 dark:text-gray-400">รายชื่อผู้เรียนลงทะเบียน</span>
                     </li>
                     <li class="flex space-x-3">
                         <!-- Icon -->
                         <svg aria-hidden="true" class="flex-shrink-0 w-5 h-5 text-blue-600 dark:text-blue-500" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><title>Check icon</title><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
-                        <span class="text-base font-normal leading-tight text-gray-500 dark:text-gray-400">รายชื่อนักศึกษาคาดว่าจะจบ</span>
+                        <span class="text-base font-normal leading-tight text-gray-500 dark:text-gray-400">รายชื่อผู้เรียนคาดว่าจะจบ</span>
                     </li>
                     <li class="flex space-x-3">
                         <!-- Icon -->
                         <svg aria-hidden="true" class="flex-shrink-0 w-5 h-5 text-blue-600 dark:text-blue-500" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><title>Check icon</title><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
-                        <span class="text-base font-normal leading-tight text-gray-500 dark:text-gray-400">รายชื่อนักศึกษาสอบ N-NET, E-EXAM</span>
+                        <span class="text-base font-normal leading-tight text-gray-500 dark:text-gray-400">รายชื่อผู้เรียนสอบ N-NET, E-EXAM</span>
                     </li>
                     <li class="flex space-x-3">
                         <!-- Icon -->
                         <svg aria-hidden="true" class="flex-shrink-0 w-5 h-5 text-blue-600 dark:text-blue-500" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><title>Check icon</title><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
-                        <span class="text-base font-normal leading-tight text-gray-500 dark:text-gray-400">รายชื่อนักศึกษาจบหลักสูตร</span>
+                        <span class="text-base font-normal leading-tight text-gray-500 dark:text-gray-400">รายชื่อผู้เรียนจบหลักสูตร</span>
                     </li>
                     <li class="flex space-x-3">
                         <!-- Icon -->
                         <svg aria-hidden="true" class="flex-shrink-0 w-5 h-5 text-blue-600 dark:text-blue-500" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><title>Check icon</title><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
-                        <span class="text-base font-normal leading-tight text-gray-500 dark:text-gray-400">รายชื่อนักศึกษาไม่จบตกค้าง</span>
+                        <span class="text-base font-normal leading-tight text-gray-500 dark:text-gray-400">รายชื่อผู้เรียนไม่จบตกค้าง</span>
                     </li>
                 </ul>
                 <a href="{{ url('teachers') }}"><button type="button" class="text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-200 dark:focus:ring-blue-900 font-medium rounded-lg text-sm px-5 py-2.5 inline-flex justify-center w-full text-center">เข้าสู่ระบบ</button></a>
@@ -244,7 +244,7 @@
                     <li class="flex space-x-3">
                         <!-- Icon -->
                         <svg aria-hidden="true" class="flex-shrink-0 w-5 h-5 text-blue-600 dark:text-blue-500" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><title>Check icon</title><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
-                        <span class="text-base font-normal leading-tight text-gray-500 dark:text-gray-400">จำนวน นักศึกษาทั้งหมด ผู้จบหลักสูตร สมัครเรียนใหม่</span>
+                        <span class="text-base font-normal leading-tight text-gray-500 dark:text-gray-400">จำนวน ผู้เรียนทั้งหมด ผู้จบหลักสูตร สมัครเรียนใหม่</span>
                     </li>
                     <li class="flex space-x-3">
                         <!-- Icon -->
@@ -254,7 +254,7 @@
                     <li class="flex space-x-3">
                         <!-- Icon -->
                         <svg aria-hidden="true" class="flex-shrink-0 w-5 h-5 text-blue-600 dark:text-blue-500" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><title>Check icon</title><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
-                        <span class="text-base font-normal leading-tight text-gray-500 dark:text-gray-400">จำนวนนักศึกษาคาดว่าจะจบ</span>
+                        <span class="text-base font-normal leading-tight text-gray-500 dark:text-gray-400">จำนวนผู้เรียนคาดว่าจะจบ</span>
                     </li>
                     <li class="flex space-x-3">
                         <!-- Icon -->
@@ -264,7 +264,7 @@
                     <li class="flex space-x-3">
                         <!-- Icon -->
                         <svg aria-hidden="true" class="flex-shrink-0 w-5 h-5 text-blue-600 dark:text-blue-500" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><title>Check icon</title><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
-                        <span class="text-base font-normal leading-tight text-gray-500 dark:text-gray-400">จำนวนนักศึกษาไม่จบตกค้าง</span>
+                        <span class="text-base font-normal leading-tight text-gray-500 dark:text-gray-400">จำนวนผู้เรียนไม่จบตกค้าง</span>
                     </li>
                 </ul>
                 <a href="{{ route('boss') }}"><button type="button" class="text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-200 dark:focus:ring-blue-900 font-medium rounded-lg text-sm px-5 py-2.5 inline-flex justify-center w-full text-center">เข้าสู่ระบบ</button></a>

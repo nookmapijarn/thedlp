@@ -2,9 +2,9 @@
     <section class="bg-white grid justify-items-center">
         <form class="max-w-screen-md w-full p-10">
             <div class="text-center text-xl p-5 bg-green-200 mb-2 shadow-md">
-                ใบสมัครขึ้นทะเบียนเป็นนักศึกษา
+                ใบสมัครขึ้นทะเบียนเป็นผู้เรียน
                 <div class="text-center text-xs">หลักสูตรการศึกษานอกระบบระดับการศึกษาขั้นพื้นฐาน พุทธศักราช 2551</div>
-                <div class="text-center text-xs">ศูนย์ส่งเสริมการเรียนรู้ระดับอำเภอโพธิ์ทอง</div>
+                <div class="text-center text-xs">{{ config('app.name_th') }}</div>
             </div>
             <div class="grid gap-6 mb-6 md:grid-cols-2 p-4 shadow-md">
                 {{-- IMG --}}

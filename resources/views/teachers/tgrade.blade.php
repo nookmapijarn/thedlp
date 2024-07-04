@@ -2,7 +2,7 @@
   <div class="p-4 sm:ml-64">
     <div class="p-4 border-2 border-gray-200 border-dashed rounded-lg dark:border-gray-700 mt-14">
         <div class="text-2xl font-bold w-full text-center">รายงานผลการเรียน</div>
-        <form method="GET" action="{{ route('tgrade') }}" class="">
+        <form method="GET" action="{{ route('tgrade') }}" class="text-sm max-w-6xl mx-auto">
         <div class="grid grid-cols-1 gap-2 md:grid md:grid-cols-3 justify-items-center">
             <div class="min-w-full" >
               <label>ภาคเรียน</label>
@@ -143,3 +143,4 @@
     </div>
   </div>
 </x-teachers-layout>
+@include('layouts.footer')

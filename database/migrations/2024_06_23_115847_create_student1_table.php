@@ -9,11 +9,11 @@ class CreateStudent1Table extends Migration
     public function up()
     {
         Schema::create('student1', function (Blueprint $table) {
-            $table->string('ID', 10);
+            $table->string('ID', 10)->nullable();
             $table->string('SCHOOL', 10)->nullable();
-            $table->string('STD_CODE', 20);
+            $table->string('STD_CODE', 20)->nullable();
             $table->string('PRENAMEID', 3)->nullable();
-            $table->string('PRENAME', 35)->nullable();
+            $table->char('PRENAME', 35)->nullable();
             $table->string('NAME', 50)->nullable();
             $table->string('MIDNAME', 50)->nullable();
             $table->string('SURNAME', 50)->nullable();

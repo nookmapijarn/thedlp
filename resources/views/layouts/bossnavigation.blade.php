@@ -8,7 +8,7 @@
                     <a href="{{ url('welcome') }}">
                         <x-application-logo class="block h-10 w-auto fill-current text-gray-600" />                        
                     </a>
-                    <strong class="ml-2 text-gray-100 text-lg tracking-wide"> Phothong OLIS DLEC (ผู้บริหาร)</strong>
+                    <strong class="ml-2 text-gray-100 text-lg tracking-wide"> {{ config('app.name') }} (ผู้บริหาร)</strong>
                 </div>
 
                 <!-- Navigation Links -->

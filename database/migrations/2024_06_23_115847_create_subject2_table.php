@@ -9,7 +9,7 @@ class CreateSubject2Table extends Migration
     public function up()
     {
         Schema::create('subject2', function (Blueprint $table) {
-            $table->string('SUB_CODE', 9);
+            $table->string('SUB_CODE', 9)->nullable();
             $table->string('ESUB_CODE', 9)->nullable();
             $table->string('SUB_NAME', 80)->nullable();
             $table->string('ESUB_NAME', 100)->nullable();

@@ -11,14 +11,12 @@ class Schedule2 extends Model
 
     protected $table = 'schedule2';
     protected $fillable = [
-        'SEMESTRY',
-        'LEARNING',
-        'SUB_CODE',
-        'EXAM_DAY',
-        'FLD_CODE',
-        'EXAM_START',
-        'EXAM_END',
-        'UPDATED_AT',
-        'CREATED_AT'
+        'semestry',
+        'learning',
+        'sub_code',
+        'exam_day',
+        'fld_code',
+        'exam_start',
+        'exam_end'
     ];
 }

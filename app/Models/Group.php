@@ -11,22 +11,20 @@ class Group extends Model
 
     protected $table = 'group';
     protected $fillable = [
-        'GRP_CODE',
-        'GRP_NAME',
-        'GRP_ABNAME',
-        'GRP_ADVIS',
-        'GRP_FIELD',
-        'GRP_MEET',
-        'GRP_CLASS',
-        'GRP_LEARN',
-        'GRP_NUM',
-        'GRP_SIZE',
-        'TAMBONID',
-        'AMPHURID',
-        'PROVINCE',
-        'COUPON',
-        'IGRP_CODE',
-        'UPDATED_AT',
-        'CREATED_AT'
+        'grp_code',
+        'grp_name',
+        'grp_abname',
+        'grp_advis',
+        'grp_field',
+        'grp_meet',
+        'grp_class',
+        'grp_learn',
+        'grp_num',
+        'grp_size',
+        'tambonid',
+        'amphurid',
+        'province',
+        // 'coupon',
+        // 'igrp_code'
     ];
 }

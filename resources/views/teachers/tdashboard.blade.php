@@ -1,16 +1,16 @@
 <x-teachers-layout>
-  <div class="p-4 sm:ml-64">
+<div class="p-4 sm:ml-64">
     <div class="p-4 border-2 border-gray-200 border-dashed rounded-lg dark:border-gray-700 mt-14">
       <canvas id="myChart" height="100px"></canvas>     
     </div>
-    <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
+    <div class=" overflow-x-auto p-4 border-2 border-gray-200 border-dashed rounded-lg dark:border-gray-700 mt-4">
         <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
             <caption class="p-5 text-lg font-semibold text-left rtl:text-right text-gray-900 bg-white dark:text-white dark:bg-gray-800">
-                จำนวนนักศึกษา
+                จำนวนผู้เรียน (คน)
                 <p class="mt-1 text-sm font-normal text-gray-500 dark:text-gray-400">หลักสูตรการศึกษานอกระบบระดับการศึกษาขั้นพื้นฐาน พุทธศักราช 2551</p>
             </caption>
             <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-                <tr>
+                <tr class="bg-white-100">
                     <th scope="col" class="px-6 py-3 text-sm">
                         ภาคเรียน
                     </th>
@@ -23,10 +23,10 @@
             </thead>
             <tbody>
                 <tr class="bg-orange-100 border-b dark:bg-gray-800 dark:border-gray-700 hover:underline">
-                    <th scope="row" class=" bg-Yellow-400 px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                        นักศึกษาใหม่
+                    <th scope="row" class=" px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                        ผู้เรียนใหม่
                     </th>
-                    @foreach($data_new_student as $ns)
+                    @foreach($data_student['data_new_student'] as $ns)
                     <td class="px-6 py-4">
                         {{ $ns }}  
                     </td>
@@ -34,9 +34,9 @@
                 </tr>
                 <tr class="bg-pink-100 border-b dark:bg-gray-800 dark:border-gray-700 hover:underline">
                     <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                        นักศึกษาเก่า
+                        ผู้เรียนเก่า
                     </th>
-                    @foreach($data_old_student as $os)
+                    @foreach($data_student['data_old_student'] as $os)
                     <td class="px-6 py-4">
                         {{ $os }}
                     </td>
@@ -44,9 +44,9 @@
                 </tr>
                 <tr class="bg-blue-200 dark:bg-gray-800 hover:underline">
                     <th scope="row" class="px-6 py-4 font-bold text-gray-900 whitespace-nowrap dark:text-white">
-                        นักศึกษาทั้งหมด
+                        ผู้เรียนทั้งหมด
                     </th>
-                    @foreach($data_student as $os)
+                    @foreach($data_student['data_student'] as $os)
                     <td class="px-6 py-4 font-bold">
                         {{ $os }}
                     </td>
@@ -56,10 +56,11 @@
         </table>
     </div>
     {{-- รายตำบล --}}
-    <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
+    @if($student_tumbon !== null)
+    <div class=" overflow-x-auto p-4 border-2 border-gray-200 border-dashed rounded-lg dark:border-gray-700 mt-4">
         <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
             <caption class="p-5 text-lg font-semibold text-left rtl:text-right text-gray-900 bg-white dark:text-white dark:bg-gray-800">
-                จำนวนนักศึกษา (รายตำบล) ภาคเรียนที่ {{$current_semestry}}
+                จำนวนผู้เรียน (รายตำบล) ภาคเรียนที่ {{$current_semestry}}
                 <p class="mt-1 text-sm font-normal text-gray-500 dark:text-gray-400">หลักสูตรการศึกษานอกระบบระดับการศึกษาขั้นพื้นฐาน พุทธศักราช 2551</p>
             </caption>
             <thead class="text-sm text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
@@ -91,48 +92,73 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach($student_tumbon as $sttm)
-                <tr class="border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-100 hover:border-fuchsia-600">
-                    <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                        {{ $loop->iteration }}
-                    </th>
-                    <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                        {{ $sttm->GRP->GRP_CODE }}
-                    </th>
-                    <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                        {{ $sttm->GRP->GRP_NAME }}
-                    </th>
-                    <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                        {{ $sttm->GRP->GRP_ADVIS }}
-                    </th>
-                    <td class="bg-pink-100 text-center px-6 py-4">
-                        {{-- ประถม --}}
-                        {{ $sttm->STUDENT->ST1 }}
-                    </td>
-                    <td class="bg-green-100 text-center px-6 py-4">
-                        {{-- ต้น --}}
-                        {{ $sttm->STUDENT->ST2 }} 
-                    </td>
-                    <td class="bg-yellow-100 text-center px-6 py-4">
-                        {{-- ปลาย --}}
-                        {{ $sttm->STUDENT->ST3 }}
-                    </td>
-                    <td class="bg-blue-100 font-bold text-center px-6 py-4">
-                        {{-- รวม --}}
-                        {{ $sttm->STUDENT->ST1 + $sttm->STUDENT->ST2 + $sttm->STUDENT->ST3 }}
-                    </td>
-                </tr>
-                @endforeach
+                @foreach($student_tumbon as $index => $sttm)
+                    <tr class="border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-100 hover:border-fuchsia-600">
+                        <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                            {{ $index + 1 }}
+                        </th>
+                        <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                            {{ $sttm['GRP']->GRP_CODE }}
+                        </td>
+                        <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                            {{ $sttm['GRP']->GRP_NAME }}
+                        </td>
+                        <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                            {{ $sttm['GRP']->GRP_ADVIS }}
+                        </td>
+                        <td class="bg-pink-100 text-center px-6 py-4">
+                            {{ $sttm['STUDENT']['ST1'] }}
+                        </td>
+                        <td class="bg-green-100 text-center px-6 py-4">
+                            {{ $sttm['STUDENT']['ST2'] }}
+                        </td>
+                        <td class="bg-yellow-100 text-center px-6 py-4">
+                            {{ $sttm['STUDENT']['ST3'] }}
+                        </td>
+                        <td class="bg-blue-100 font-bold text-center px-6 py-4">
+                            {{ $sttm['STUDENT']['ST1'] + $sttm['STUDENT']['ST2'] + $sttm['STUDENT']['ST3'] }}
+                        </td>
+                    </tr>
+                @endforeach          
+                    {{-- สรุปรวม --}}
+                    @php
+                    // คำนวณผลรวมของ ST1
+                    $totalST1 = collect($student_tumbon)->sum('STUDENT.ST1');
+                    $totalST2 = collect($student_tumbon)->sum('STUDENT.ST2');
+                    $totalST3 = collect($student_tumbon)->sum('STUDENT.ST3');
+                    @endphp
+                    <tr class="border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-100 hover:border-fuchsia-600">
+                        <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"></th>
+                        <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"></td>
+                        <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"></td>
+                        <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                            รวม
+                        </td>
+                        <td class="bg-pink-100 text-center px-6 py-4">
+                            {{ $totalST1 }}
+                        </td>
+                        <td class="bg-green-100 text-center px-6 py-4">
+                            {{ $totalST2 }}
+                        </td>
+                        <td class="bg-yellow-100 text-center px-6 py-4">
+                            {{ $totalST3 }}
+                        </td>
+                        <td class="bg-blue-100 font-bold text-center px-6 py-4">
+                            {{ $totalST1 + $totalST2 + $totalST3 }}
+                        </td>
+                    </tr>  
             </tbody>
         </table>
     </div>
+    @endif
     {{-- ************** MAP ************** --}}
-    <div class=" border-2 border-gray-200 border-dashed rounded-lg dark:border-gray-700">
+    {{-- <div class=" border-2 border-gray-200 border-dashed rounded-lg dark:border-gray-700">
         <br><br>
       <div id="container" style="width: 100%; height: 100%;"></div>
-    </div>
+    </div> --}}
  </div>
 </x-teachers-layout>
+@include('layouts.footer')
 
 {{-- Script --}}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" ></script>
@@ -140,28 +166,28 @@
 <script type="text/javascript">
 
 var labels =  {{ Js::from($labels) }};
-var data_student =  {{ Js::from($data_student) }};
-var data_new_student =  {{ Js::from($data_new_student) }}; 
-var data_old_student =  {{ Js::from($data_old_student) }};
+var data_student =  {{ Js::from($data_student['data_student']) }};
+var data_new_student =  {{ Js::from($data_student['data_new_student']) }}; 
+var data_old_student =  {{ Js::from($data_student['data_old_student']) }};
 
-// จำนวนนักศึกษา
+// จำนวนผู้เรียน
    const student_data = {
       labels: labels,
       datasets: [
         {
-          label: 'นักศึกษาใหม่',
+          label: 'ผู้เรียนใหม่',
           backgroundColor: '#ff901f',
           borderColor: '#ff901f',
           data: data_new_student,
         },
         {
-          label: 'นักศึกษาเก่า',
+          label: 'ผู้เรียนเก่า',
           backgroundColor: '#c621b6',
           borderColor: '#c621b6',
           data: data_old_student,
         },
         {
-          label: 'นักศึกษาทั้งหมด',
+          label: 'ผู้เรียนทั้งหมด',
           backgroundColor: '#2d60dd',
           borderColor: '#2d60dd',
           data: data_student,
@@ -190,7 +216,7 @@ var data_old_student =  {{ Js::from($data_old_student) }};
 </script>
 
 {{-- **************** แผนที่ ******************** --}}
-<script src="https://code.highcharts.com/maps/highmaps.js"></script>
+{{-- <script src="https://code.highcharts.com/maps/highmaps.js"></script>
 <script src="https://code.highcharts.com/maps/modules/exporting.js"></script>
 <script src="https://code.highcharts.com/maps/modules/offline-exporting.js"></script>
 <script src="https://code.highcharts.com/maps/modules/accessibility.js"></script>
@@ -569,5 +595,5 @@ Highcharts.addEvent(mainChart, 'render', function () {
 });
 }, { order: 1 });
 /* End of Locator map plugin */
-createChart();
-</script>
+createChart(); --}}
+{{-- </script> --}}

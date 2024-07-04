@@ -9,9 +9,9 @@ class CreateStudent3Table extends Migration
     public function up()
     {
         Schema::create('student3', function (Blueprint $table) {
-            $table->string('ID', 10);
+            $table->string('ID', 10)->nullable();
             $table->string('SCHOOL', 10)->nullable();
-            $table->string('STD_CODE', 20);
+            $table->string('STD_CODE', 20)->nullable();
             $table->string('PRENAMEID', 3)->nullable();
             $table->string('PRENAME', 35)->nullable();
             $table->string('NAME', 50)->nullable();

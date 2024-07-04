@@ -4,16 +4,21 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class CheckRole
 {
     public function handle(Request $request, Closure $next, $role)
     {
-        // if($role )
-        if (auth()->check() && auth()->user()->role == $role) {
-            return $next($request);
+        if (Auth::check()) {
+            if (Auth::user()->role == $role) {
+                return $next($request);
+            } else {
+                return redirect('welcome/?roletype=' . Auth::user()->role);
+            }
         }
-
-        return redirect('welcome/?roletype=' . auth()->user()->role);
+    
+        // หากไม่ได้รับการรับรองความถูกต้อง ให้เปลี่ยนเส้นทางไปยังหน้าเข้าสู่ระบบ
+        return redirect()->route('login');
     }
 }

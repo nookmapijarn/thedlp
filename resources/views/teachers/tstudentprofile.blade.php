@@ -22,8 +22,8 @@
     @if($student_data)
     {{-- Start Table --}}
     {{-- **************** ข้อมูลทั่วไป ********************* --}}
-    <div class="p-4 sm:ml-64 border-2 border-gray-200 border-dashed rounded-lg dark:border-gray-700">
-        <div class="flex justify-center">
+    <div class="sm:ml-64 max-w-lg border-2 border-gray-200 border-dashed rounded-lg dark:border-gray-700">
+        <div class="flex justify-center p-4">
             <img class="rounded w-36 h-36 p-1 rounded-full ring-2 ring-gray-300" src="{{asset('storage/avatar/unkhonw.png');}}" alt="Extra large avatar">
         </div>
         <form action="#" method="POST" class="mx-auto mt-4 max-w-4xl sm:mt-4">
@@ -143,3 +143,4 @@
     @endif
     {{-- End Table --}}
 </x-teachers-layout>
+@include('layouts.footer')

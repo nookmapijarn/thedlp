@@ -327,7 +327,7 @@
     };
 
     const config = {
-    type: 'radar',
+    type: 'bar',
     data: data,
     options: {
         elements: {

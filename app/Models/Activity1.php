@@ -11,13 +11,11 @@ class Activity1 extends Model
 
     protected $table = 'activity1';
     protected $fillable = [
-        'STD_CODE',
-        'ACTIVITY',
-        'SEMESTRY',
-        'HOUR',
-        'TRANSFER',
-        'TRNTYPE',
-        'UPDATED_AT',
-        'CREATED_AT'
+        'std_code',
+        'activity',
+        'semestry',
+        'hour',
+        // 'transfer',
+        // 'trntype'
     ];
 }

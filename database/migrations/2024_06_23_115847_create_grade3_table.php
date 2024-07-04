@@ -9,7 +9,7 @@ class CreateGrade3Table extends Migration
     public function up()
     {
         Schema::create('grade3', function (Blueprint $table) {
-            $table->string('STD_CODE', 20);
+            $table->string('STD_CODE', 20)->nullable();
             $table->string('SEMESTRY', 4)->nullable();
             $table->string('SUB_CODE', 9)->nullable();
             $table->string('METHOD', 1)->nullable();

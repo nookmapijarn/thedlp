@@ -9,7 +9,8 @@ class CreateGroupTable extends Migration
     public function up()
     {
         Schema::create('group', function (Blueprint $table) {
-            $table->string('GRP_CODE', 8);
+            $table->string('GRP_CODE', 8)->nullable();
+            $table->string('GRP_NAME', 20)->nullable();
             $table->string('GRP_ABNAME', 20)->nullable();
             $table->string('GRP_ADVIS', 80)->nullable();
             $table->string('GRP_FIELD', 4)->nullable();

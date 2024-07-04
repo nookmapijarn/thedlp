@@ -21,7 +21,7 @@
             <label>ศกร.ตำบล</label>
             <select required id="tumbon" name="tumbon" class="bg-gray-50 border border-gray-300 text-gray-900 text-xl rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 ">
               <option value="">เลือก</option>
-              <option value="0000">ทุกตำบล</option>
+              {{-- <option value="0000">ทุกตำบล</option> --}}
               @foreach($all_tumbon as $tm)
                   <option value="{{ $tm->GRP_CODE }}"
                     @if($tumbon == $tm->GRP_CODE) selected @endif  
@@ -44,7 +44,7 @@
               </select>
           </div>
         </div>
-        <button type="submit" class="rounded-full p-4 mt-2 min-w-full bg-indigo-500 text-white">ดูรายงาน</button> 
+        <button type="submit" class="rounded-full p-2 mt-2 min-w-full bg-indigo-500 text-white">ดูรายงาน</button> 
       </form>
       {{-- คำอธิบาย --}}
       <div class="grid grid-cols-3 gap-2 mt-2 mx-auto mt-4 max-w-4xl sm:mt-6">  
@@ -189,5 +189,5 @@
       </div>
     @endif
   </div>
-
 </x-teachers-layout>
+@include('layouts.footer')

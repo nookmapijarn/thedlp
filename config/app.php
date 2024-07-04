@@ -16,6 +16,8 @@ return [
     */
 
     'name' => env('APP_NAME', 'Laravel'),
+    'name_th' => env('APP_NAME_THAI', 'Laravel'),
+    'name_system' => env('APP_NAME_SYSTEM', 'Laravel'),
 
     /*
     |--------------------------------------------------------------------------
@@ -69,7 +71,7 @@ return [
     |
     */
 
-    'timezone' => 'UTC',
+    'timezone' => 'Asia/Bangkok',//'UTC',
 
     /*
     |--------------------------------------------------------------------------

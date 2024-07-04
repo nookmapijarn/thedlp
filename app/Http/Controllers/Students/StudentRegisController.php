@@ -8,11 +8,19 @@ use Illuminate\Http\Request;
 
 class StudentRegisController extends Controller
 {
-    //protected $semestry = '66/2';
-    //
+
+    protected $lavel;
+    protected $std_code;
+
     public function index(){
-        $all_semestry = DB::table('grade')->select('SEMESTRY')->groupBy('SEMESTRY')->orderBy('SEMESTRY', 'DESC')->get();
+
+        $id = auth()->user()->student_id;
+        $this->lavel = str_split($id, 1)[3];
+        $this->std_code = DB::table("student{$this->lavel}")->where('ID', $id)->select('STD_CODE')->groupBy('STD_CODE')->value('STD_CODE');
+
+        $all_semestry = DB::table("grade{$this->lavel}")->select('SEMESTRY')->groupBy('SEMESTRY')->orderBy('SEMESTRY', 'DESC')->get();
         $semestry = $all_semestry->first()->SEMESTRY;
+        
         $learned = $this->learned()['learned'];
         $allsub = $this->getAllSubject();
         $sumcredit = $this->learned()['sumcredit'];
@@ -75,7 +83,7 @@ class StudentRegisController extends Controller
 
     public function getAllSubject(){
         $student_lavel = $this->StudentLavelis();
-        $subject = DB::table('subject')->get();
+        $subject = DB::table("subject{$this->lavel}")->get();
         $subject_user_level = array();
         foreach ($subject as $s) {
             $subject_level = $this->SubCodeLavel($s->SUB_CODE);
@@ -112,19 +120,22 @@ class StudentRegisController extends Controller
 
     public function get_gradelist(){
         // ตาราง garde
-        $gradelist = DB::table('grade')
-        ->where('STD_CODE', '1215040001'.$this->getStudentidByUser())
+        $gradelist = DB::table("grade{$this->lavel}")
+        ->where('STD_CODE', $this->std_code)
         ->get();
         return $gradelist;
     }
 
     public function get_current_regis($semestry){
         // ตาราง garde
-        $list = DB::table('grade')
-        ->where('STD_CODE', '1215040001'.$this->getStudentidByUser())
+        $tsubject = "subject{$this->lavel}";
+        $tgrade = "grade{$this->lavel}";
+
+        $list = DB::table($tgrade)
+        ->where('STD_CODE', $this->std_code)
         ->where('SEMESTRY', $semestry)
-        ->join('subject', 'grade.SUB_CODE', '=', 'subject.SUB_CODE')
-        ->select('subject.SUB_CODE', 'subject.SUB_NAME', 'subject.SUB_CREDIT', 'subject.SUB_TYPE', 'grade.GRADE')
+        ->join($tsubject, $tgrade.'.SUB_CODE', '=', $tsubject.'.SUB_CODE')
+        ->select($tsubject.'.SUB_CODE', $tsubject.'.SUB_NAME', $tsubject.'.SUB_CREDIT', $tsubject.'.SUB_TYPE', $tgrade.'.GRADE')
         ->get();
         return $list;
     }
@@ -135,7 +146,7 @@ class StudentRegisController extends Controller
     }
 
     public function getSubject($sub_code){
-        $subject = DB::table('subjectall')
+        $subject = DB::table("subject{$this->lavel}")
         ->where('SUB_CODE', $sub_code)
         ->first();
         //print_r($subject);

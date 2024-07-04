@@ -9,7 +9,7 @@ class CreateSchedule3Table extends Migration
     public function up()
     {
         Schema::create('schedule3', function (Blueprint $table) {
-            $table->string('SEMESTRY', 4);
+            $table->string('SEMESTRY', 4)->nullable();
             $table->string('LEARNING', 1)->nullable();
             $table->string('SUB_CODE', 9)->nullable();
             $table->string('EXAM_DAY', 8)->nullable();

@@ -7,12 +7,14 @@ use App\Http\Controllers\ProfileController;
 
 // Admin
 use App\Http\Controllers\Admin\ZipUploadController;
+use App\Http\Controllers\Admin\AdminUserController;
 
 // Stdudent
 use App\Http\Controllers\Students\DashboardController;
 use App\Http\Controllers\Students\ExamscheduleController;
 use App\Http\Controllers\Students\FinalController;
 use App\Http\Controllers\Students\StudentRegisController;
+use App\Http\Controllers\Students\ActivityController;
 
 // Teacher
 use App\Http\Controllers\Teachers\TeachersController;
@@ -62,11 +64,24 @@ Route::get('/', function () {
 })->name('/');
 
 // Admin
-Route::get('/upload', function () {
-    return view('admin.upload');
-})->name('upload.form');
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::middleware('checkrole:3')->prefix('/admin')->group(function () {
+        Route::get('/adminuser', [AdminUserController::class, 'index'])->name('adminuser');
+        Route::get('/', [ZipUploadController::class, 'index']);
+        Route::get('/adashboard', [ZipUploadController::class, 'index'])->name('admin');
+        Route::get('/upload', [ZipUploadController::class, 'upload'])->name('zip.upload');
+        Route::post('/upload', [ZipUploadController::class, 'upload'])->name('zip.upload');
+        Route::get('/clearTable', [ZipUploadController::class, 'clearTable'])->name('clearTable');
+        Route::post('/clearTable', [ZipUploadController::class, 'clearTable'])->name('clearTable');
+    });
+});
 
-Route::post('/upload', [ZipUploadController::class, 'upload'])->name('zip.upload');
+
+
+// Route::get('/upload', function () {
+//     return view('admin.upload');
+// })->name('upload.form');
+
 
 
 // Boss Route
@@ -100,6 +115,7 @@ Route::middleware('auth', 'verified')->group(function () {
         Route::get('/ตารางสอบ', [ExamscheduleController::class, 'index'])->name('ตารางสอบ');
         Route::get('/การจบหลักสูตร', [FinalController::class, 'index'])->name('การจบหลักสูตร');
         Route::get('/ประวัติการลงทะเบียน', [StudentRegisController::class, 'index'])->name('ประวัติการลงทะเบียน');
+        Route::get('/กพช', [ActivityController::class, 'index'])->name('กพช');
     });
 });
 

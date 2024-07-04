@@ -19,35 +19,43 @@ class TeachersStudentProfile extends Controller
         $activity_data = [];
         $sum_grade = 0;
         $sum_act = 0;
+
         if($request->student_id!=null){
+
             $student_id = $request->student_id;
+            $lavel = str_split($student_id, 1)[3]; //ตำแหน่งที่ 3 ของ ID คือ ระดับชั้น
+            $std_code = DB::table("student{$lavel}")->where('ID', $student_id)->select('STD_CODE')->groupBy('STD_CODE')->value('STD_CODE');
 
-            $student_data = DB::table('student')
-            ->where('STD_CODE', '=', '1215040001'.$student_id)
+            $tgrade = 'grade'.$lavel;
+            $tstudent = 'student'.$lavel;
+            $tsubject = 'subject'.$lavel;
+            $tactivity = 'activity'.$lavel;
+
+
+            $student_data = DB::table($tstudent)
+            ->where('STD_CODE', '=', $std_code)
             ->get();
 
-            $grade_data = DB::table('grade')
-            ->where('STD_CODE', '=', '1215040001'.$student_id)
+            $grade_data = DB::table($tgrade)
+            ->where('STD_CODE', '=', $std_code)
             ->where('GRADE', '>', 0)
-            ->join('subject', 'grade.SUB_CODE', '=', 'subject.SUB_CODE')
-            ->select('subject.SUB_CODE', 'subject.SUB_NAME', 'subject.SUB_CREDIT', 'subject.SUB_TYPE', 'grade.GRADE' , 'grade.SEMESTRY')
-            ->orderByDesc('grade.SEMESTRY')
+            ->join($tsubject, $tgrade.'.SUB_CODE', '=', $tsubject.'.SUB_CODE')
+            ->select($tsubject.'.SUB_CODE', $tsubject.'.SUB_NAME', $tsubject.'.SUB_CREDIT', $tsubject.'.SUB_TYPE', $tgrade.'.GRADE' , $tgrade.'.SEMESTRY')
+            ->orderByDesc($tgrade.'.SEMESTRY')
             ->get();
 
-            $activity_data = DB::table('activity')
-            ->where('STD_CODE', '=', '1215040001'.$student_id)
+            $activity_data = DB::table($tactivity)
+            ->where('STD_CODE', '=', $std_code)
             ->get();
 
-            $sum_grade = DB::table('grade')
-            ->where('STD_CODE', '=', '1215040001'.$student_id)
+            $sum_grade = DB::table($tgrade)
+            ->where('STD_CODE', '=', $std_code)
             ->where('GRADE', '>', 0)
-            ->join('subject', 'grade.SUB_CODE', '=', 'subject.SUB_CODE')
-            ->select('subject.SUB_CODE', 'subject.SUB_NAME', 'subject.SUB_CREDIT', 'subject.SUB_TYPE', 'grade.GRADE')
-            ->sum('subject.SUB_CREDIT');
+            ->join($tsubject, $tgrade.'.SUB_CODE', '=', $tsubject.'.SUB_CODE')
+            ->select($tsubject.'.SUB_CODE', $tsubject.'.SUB_NAME', $tsubject.'.SUB_CREDIT', $tsubject.'.SUB_TYPE', $tgrade.'.GRADE')
+            ->sum($tsubject.'.SUB_CREDIT');
 
-            $sum_act = DB::table('activity')
-            ->where('STD_CODE', '=', '1215040001'.$student_id)
-            ->sum('HOUR');
+            $sum_act = $activity_data->sum('HOUR');
             //echo $student_data, $grade_data, $activity_data;
             
             return view('teachers.tstudentprofile' ,compact('student_data', 'grade_data', 'activity_data', 'sum_grade', 'sum_act'));

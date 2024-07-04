@@ -9,7 +9,7 @@ class CreateActivity2Table extends Migration
     public function up()
     {
         Schema::create('activity2', function (Blueprint $table) {
-            $table->string('STD_CODE', 20);
+            $table->string('STD_CODE', 20)->nullable();
             $table->string('ACTIVITY', 80)->nullable();
             $table->string('SEMESTRY', 4)->nullable();
             $table->integer('HOUR')->nullable();
