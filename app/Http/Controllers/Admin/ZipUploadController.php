@@ -124,7 +124,18 @@ class ZipUploadController extends Controller
 
             // Process the GROUP.dbf file
             $groupDbfPath = "{$extractPath}{$this->sc_code}/GROUP.dbf";
-            Log::info('********$dbfPath : '.$groupDbfPath.'********************');
+
+            // ตรวจสอบว่าไฟล์มีอยู่หรือไม่ก่อนทำการเปลี่ยนแปลงสิทธิ์
+            if (File::exists($groupDbfPath)) {
+                // ใช้ File::chmod() เพื่อเปลี่ยนแปลงสิทธิ์ไฟล์
+                if (File::chmod($groupDbfPath, 0777, true)) {
+                    Log::info('Unlock $GroupdbfPath : ' . $groupDbfPath );
+                } else {
+                    Log::error('Failed to unlock $GroupdbfPath : ' . $groupDbfPath );
+                }
+            } else {
+                Log::error('File not found: ' . $groupDbfPath);
+            }
 
             $log_lastModified = DB::table('lastmodifiedfile')->where('FILE_NAME', 'Group')->first(['LAST_MODIFIED']);
             $lastModifiedtime = filemtime($groupDbfPath);
@@ -163,7 +174,18 @@ class ZipUploadController extends Controller
         foreach ($files as $file) {
 
             $dbfPath = "{$extractPath}{$sc_code}/$level/{$file}.dbf";
-            Log::info('********$dbfPath : '.$dbfPath.'********************');
+
+            // ตรวจสอบว่าไฟล์มีอยู่หรือไม่ก่อนทำการเปลี่ยนแปลงสิทธิ์
+            if (File::exists($dbfPath)) {
+                // ใช้ File::chmod() เพื่อเปลี่ยนแปลงสิทธิ์ไฟล์
+                if (File::chmod($dbfPath, 0777, true)) {
+                    Log::info('Unlock $dbfPath : ' . $dbfPath );
+                } else {
+                    Log::error('Failed to unlock $dbfPath : ' . $dbfPath);
+                }
+            } else {
+                Log::error('File not found: ' . $dbfPath);
+            }
 
             $log_lastModified = DB::table('lastmodifiedfile')->where('FILE_NAME', $file.$level)->first(['LAST_MODIFIED']);
             $lastModifiedtime = filemtime($dbfPath);
