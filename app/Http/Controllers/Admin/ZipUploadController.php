@@ -78,17 +78,17 @@ class ZipUploadController extends Controller
             // Get list of folders in the unzipped directory
             $directories = [];
             $allDirectories = glob($extractPath . '/*', GLOB_ONLYDIR);
+            
             // วน loop หา folder ที่มีเลข 10 หลัก
             foreach ($allDirectories as $dir) {
-                if (is_dir($dir) && preg_match('/^\d{10}$/', basename($dir))) {
-                    $directories[] = $dir;
+                $dirName = basename($dir);
+                if (is_dir($dir) && preg_match('/^\d{10}$/', $dirName)) {
+                    $directories[] = $dirName;
                 }
             }
-            
             // กำใน array Store folder names in an array
             $folderNames = array_map('basename', $directories);
-            // print_r($directories);
-            // echo '****************************************************'.$directories[0].'********************';
+
             
             // loop array และ SET this->S_CODE folder app/uploads/unzipped/{{รหัสสถานศึกษา}}/
             foreach ($folderNames as $folderName) {
@@ -96,6 +96,9 @@ class ZipUploadController extends Controller
                 // echo "<br><br> S_CODE : ".$folderName . "<br>";
             }
 
+            Log::info($directories);
+            Log::info('****************************************************'.$this->sc_code.'********************');
+            
             // หาระดับชั้น
             $lavellist = [];
             // echo 'path : '.$extractPath.$this->sc_code.'<br>';
@@ -120,7 +123,9 @@ class ZipUploadController extends Controller
             // }
 
             // Process the GROUP.dbf file
-            $groupDbfPath = "{$extractPath}/{$this->sc_code}/GROUP.dbf";
+            $groupDbfPath = "{$extractPath}{$this->sc_code}/GROUP.dbf";
+            Log::info('********$dbfPath : '.$groupDbfPath.'********************');
+
             $log_lastModified = DB::table('lastmodifiedfile')->where('FILE_NAME', 'Group')->first(['LAST_MODIFIED']);
             $lastModifiedtime = filemtime($groupDbfPath);
             $lastModifiedtime = date("Y-m-d H:i:s", $lastModifiedtime);
@@ -157,7 +162,9 @@ class ZipUploadController extends Controller
 
         foreach ($files as $file) {
 
-            $dbfPath = "$extractPath/$sc_code/$level/{$file}.dbf";
+            $dbfPath = "{$extractPath}{$sc_code}/$level/{$file}.dbf";
+            Log::info('********$dbfPath : '.$dbfPath.'********************');
+
             $log_lastModified = DB::table('lastmodifiedfile')->where('FILE_NAME', $file.$level)->first(['LAST_MODIFIED']);
             $lastModifiedtime = filemtime($dbfPath);
             $lastModifiedtime = date("Y-m-d H:i:s", $lastModifiedtime);
