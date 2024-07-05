@@ -122,16 +122,11 @@ class TeachersGradeController extends Controller
                 ->join("group", "group.GRP_CODE", '=', "grade{$i}.GRP_CODE")
                 ->select("group.GRP_CODE", "group.GRP_NAME", "group.GRP_ADVIS")
                 ->groupBy("group.GRP_CODE", "group.GRP_NAME", "group.GRP_ADVIS")
+                ->orderBy("GRP_CODE", "ASC")
                 ->get();
     
-            $Group = $Group->merge($results); // รวมผลลัพธ์
+            $Group = $Group->merge($results)->unique()->sort(); // รวมผลลัพธ์
         }
-    
-        // echo "<pre>";
-        // print_r($Group->toArray()); // แปลงเป็น array ก่อนแสดงผล
-        // echo "</pre>";        
-        // echo '<br><br><br><br>****************************************************************' . $Group->count();
-    
         return $Group;
     }
 }

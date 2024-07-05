@@ -37,7 +37,7 @@ class ZipUploadController extends Controller
 
     public function index(){
         $lastmodified = [];
-        $lastmodified = DB::table('lastmodifiedfile')->get();
+        $lastmodified = DB::table('lastmodifiedfile')->orderByDesc('UPLOADED')->get();
         return view('admin.upload', compact('lastmodified'));
     }
 
@@ -106,7 +106,7 @@ class ZipUploadController extends Controller
                 $lavellist[] = basename($lavel);
             }
 
-            print_r($lavellist);
+            //print_r($lavellist);
 
             // Process .dbf files
             foreach($lavellist as $lv){
@@ -135,20 +135,19 @@ class ZipUploadController extends Controller
 
             $lastmodified = DB::table('lastmodifiedfile')->get();
 
-            // return response()->json(['success' => true, 'message' => 'File uploaded successfully.'])
-            // ->header('Content-Type', 'application/json')
-            // ->header('X-Trigger', 'ajaxComplete');
-            return view('admin.upload', compact('lastmodified'))->with('success', 'Files uploaded and data imported successfully.');
+            return response()->json(['success' => true, 'message' => 'Upload สำเร็จ กรุณา reload '])
+            ->header('Content-Type', 'application/json')
+            ->header('X-Trigger', 'ajaxComplete');
+            // return view('admin.upload', compact('lastmodified'))->with('success', 'Files uploaded and data imported successfully.');
             // $this->index();
 
+        } else {
+            return response()->json(['success' => false, 'message' => 'ไม่สามารถเปิด Flie Zip ได้กรุณาลองใหม่อีกครั้ง.'])
+            ->header('Content-Type', 'application/json')
+            ->header('X-Trigger', 'ajaxComplete');
         }
-
-        // return response()->json(['success' => true, 'message' => 'File uploaded.'])
-        // ->header('Content-Type', 'application/json')
-        // ->header('X-Trigger', 'ajaxComplete');
         // $this->index();
-        return view('admin.upload', compact('lastmodified'))->with('error', 'Failed to extract ZIP file.');
-
+        // return view('admin.upload', compact('lastmodified'))->with('error', 'Failed to extract ZIP file.');
     }
 
     protected function processDbfFiles($extractPath, $level, $sc_code)
@@ -270,7 +269,7 @@ class ZipUploadController extends Controller
                             $modelClass::upsert($batchData, $unique_key, array_keys($convertedData));
                             // echo ('Model : '.$modelClassName.' Batch insert to avoid memory exhaustion... '.'<br>');
                         } catch (\Exception $e) {
-                            echo ('Model : '.$modelClassName.' Batch insert error: ' . $e->getMessage()).'<br>';
+                            // echo ('Model : '.$modelClassName.' Batch insert error: ' . $e->getMessage()).'<br>';
                         }
                         $batchData = [];
                     }
@@ -278,7 +277,7 @@ class ZipUploadController extends Controller
                 }
             } catch (\Exception $e) {
 
-                echo ('Model : '.$modelClassName.' Error processing records: ' . $e->getMessage()).'<br>';
+                //echo ('Model : '.$modelClassName.' Error processing records: ' . $e->getMessage()).'<br>';
             }
 
             // Insert remaining batch data
@@ -297,7 +296,7 @@ class ZipUploadController extends Controller
                         $unique_key = ['GRP_CODE'];
                         // echo 'uni key';
                     }
-                    echo ('Model : '.$modelClassName.' : Final batch insert success <br>');
+                    //echo ('Model : '.$modelClassName.' : Final batch insert success <br>');
                     $upsert = $modelClass::upsert($batchData, $unique_key, array_keys($batchData[0]));
                     $lastModifiedtime = filemtime($dbfPath);
 
@@ -310,7 +309,7 @@ class ZipUploadController extends Controller
                             'uploaded' => date("Y-m-d H:i:s")
                         ];
                         $save = DB::table('lastmodifiedfile')->updateOrInsert(['file_name' => $modelClassName], $lastModified);
-                        echo ('Model : '.$modelClassName.' บันทึกการอัพเดท '.date("Y-m-d H:i:s").' <br><br><br>');
+                        // echo ('Model : '.$modelClassName.' บันทึกการอัพเดท '.date("Y-m-d H:i:s").' <br><br><br>');
                     } else {
                         $lastModified = [
                             'file_name' => $modelClassName,
@@ -319,10 +318,10 @@ class ZipUploadController extends Controller
                             'uploaded' => date("Y-m-d H:i:s", '0000-00-00 00:00:00')
                         ];
                         $save = DB::table('lastmodifiedfile')->updateOrInsert(['file_name' => $modelClassName], $lastModified);
-                        echo ('Model : '.$modelClassName.' ไม่บันทึกการอัพเดท '.date("Y-m-d H:i:s").' <br><br><br>');
+                        // echo ('Model : '.$modelClassName.' ไม่บันทึกการอัพเดท '.date("Y-m-d H:i:s").' <br><br><br>');
                     }
                 } catch (\Exception $e) {
-                    echo ('Model : '.$modelClassName.'<br><br><br> Final batch insert error: ' . $e->getMessage()).'<br>';
+                    //echo ('Model : '.$modelClassName.'<br><br><br> Final batch insert error: ' . $e->getMessage()).'<br>';
                 }
             }
         }
@@ -367,6 +366,7 @@ class ZipUploadController extends Controller
             'Subject1', 'Subject2', 'Subject3',
             'group'
         ];
+
         foreach ($files as $file) {
     
             $lastModified = [
@@ -402,9 +402,9 @@ class ZipUploadController extends Controller
             $glastModified
         );
 
-        $student = [];
-        $student = DB::table('student3','student2','student1')->orderByDesc('ID')->limit(100)->get();
-        return view('admin.upload', compact('student'));
-
+        //return view('admin.upload', compact('$lastmodified'));
+        return response()->json(['success' => true, 'message' => 'ล้างข้อมูลสำเร็จ กรุณา reload หน้าเว็บใหม่.'])
+        ->header('Content-Type', 'application/json')
+        ->header('X-Trigger', 'ajaxComplete');
     }
 }

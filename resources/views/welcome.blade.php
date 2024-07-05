@@ -42,7 +42,7 @@
                         <h3 class="mb-5 text-xl font-normal text-indigo-500 dark:text-gray-400">
                             สิทธิผู้ใช้ : {{$role = request()->roletype}}.@if($role == 1)ผู้เรียน@endif @if($role == 2)ครูผู้สอน@endif @if($role == 3)ผู้บริหาร/ผู้ดูแลระบบ@endif
                         </h3>
-                        " คุณกำลังเข้าระบบส่วนที่ไม่มีสิทธิ กรุณาเลือกเมนูตามสิทธิ หรือ ออกจากระบบ "
+                        " คุณกำลังเข้าระบบส่วนที่ไม่มีสิทธิ กรุณาเลือกเมนูตามสิทธิ หรือ ออกจากระบบ เมนูด้านล่างระบบที่คุณสามารถเข้าได้ "
                         <div class="grid grid-cols-1 gap-4 mt-2">
                             @if($role == 1)
                             <a href="{{ route('login') }}" class=" sm:w-auto bg-yellow-300 text-gray-800 hover:bg-yellow-400 focus:ring-4 focus:outline-none focus:ring-gray-300 rounded-lg inline-flex items-center justify-center ">

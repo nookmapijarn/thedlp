@@ -222,7 +222,7 @@
       labels: labels,
       datasets: [
         {
-          label: config('app.name_th'),
+          label: 'สกร.อำเภอ',
           backgroundColor: '#E74C3C',
           borderColor: '#E74C3C',
           data: data_exam_avg,

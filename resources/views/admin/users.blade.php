@@ -1,16 +1,16 @@
 <x-admin-layout>
     <div class="p-4 sm:ml-64">
-        <div class="p-4 border-2 border-gray-200 border-dashed rounded-lg dark:border-gray-700 mt-14">
-            <form method="POST" action="{{ route('register') }}">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 border-2 border-gray-200 border-dashed rounded-lg dark:border-gray-700 mt-14">
+            <form method="POST" class="p-4" action="{{ route('adminregister') }}">
+                <h1 class="pt-4">เพิ่มผู้ใช้งาน สำหรับครู/ผู้ดูแลระบบ</h1>
                 @csrf
-        
-                <!-- student_id -->
+                <!-- role -->
                 <div>
-                    <x-input-label for="student_id" :value="__('รหัสนักศึกษา 10 หลัก')" />
-                    <x-text-input id="student_id" class="block mt-1 w-full" type="Number" name="student_id" :value="old('student_id')" required autofocus autocomplete="student_id" />
+                    <x-input-label for="role" :value="__('กำหนดสิทธิ ครู : 2 | ผู้ดูแล : 3')" />
+                    <x-text-input id="role" class="block mt-1 w-full" type="Number" min="2" max="3" name="role" :value="2" required autofocus autocomplete="role" />
                     <x-input-error :messages="$errors->get('student_id')" class="mt-2" />
                 </div>
-        
+
                 <!-- Name -->
                 <div class="mt-4">
                     <x-input-label for="name" :value="__('ชื่อผู้ใช้งาน')" />
@@ -68,19 +68,86 @@
                 </div>
         
                 <div class="flex items-center justify-end mt-4">
-                    <a class="underline text-sm text-gray-900 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800" href="{{ route('login') }}">
+                    {{-- <a class="underline text-sm text-gray-900 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800" href="{{ route('login') }}">
                         {{ __('ไปหน้า login') }}
-                    </a>
+                    </a> --}}
         
                     <x-primary-button class="ml-4">
                         {{ __('สมัครสมาชิก') }}
                     </x-primary-button>
                 </div>
-            </form>        
+            </form>      
+            <div class="relative overflow-x-auto w-full max-h-[750px]">
+                <h1 class="p-4">ตาราง user ครู/ผู้ดูแลระบบ</h1>
+                <table class="text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+                    <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                        <tr>
+                            <th scope="col" class="px-6 py-3 text-center">
+                                No.
+                            </th>
+                            {{-- <th scope="col" class="px-6 py-3">
+                                ID
+                            </th> --}}
+                            <th scope="col" class="px-6 py-3">
+                                NAME
+                            </th>
+                            <th scope="col" class="px-6 py-3">
+                                E-MAIL
+                            </th>
+                            {{-- <th scope="col" class="px-6 py-3">
+                                PASS
+                            </th> --}}
+                            <th scope="col" class="px-6 py-3">
+                                ROLE
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($users_admin as $user_ad)
+                        <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                            <th scope="row" class=" text-center font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                                {{$loop->iteration}}
+                            </th>
+                            {{-- <th scope="row" class="font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                                {{ $user_ad->id }}
+                            </th> --}}
+                            <td class="px-6 py-4">
+                                {{ $user_ad->name }}
+                            </td>
+                            <td class="px-6 py-4">
+                                {{ $user_ad->email }}
+                            </td>
+                            {{-- <td class="px-6 py-4">
+                                {{ $user->password }}
+                            </td> --}}
+                            <td class="px-6 py-4">
+                                {{ $user_ad->role }}
+                            </td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>    
+        </div>
+        <div class="p-4 rounded-lg dark:border-gray-700 mt-2">
+            <!-- แสดงข้อความ error -->
+            @if(session('error'))
+                <div class="bg-red-500 text-white p-2 rounded-lg mb-4">
+                    {{ session('error') }}
+                </div>
+            @endif
+
+            <!-- แสดงข้อความ success -->
+            @if(session('success'))
+                <div class="bg-green-500 text-white p-2 rounded-lg mb-4">
+                    {{ session('success') }}
+                </div>
+            @endif
         </div>
         {{-- Table --}}
         <div class="p-4 border-2 border-gray-200 border-dashed rounded-lg dark:border-gray-700 mt-2">
-            <div class="relative overflow-x-auto">
+            <th>ตาราง user ผู้เรียน </th> <br>
+            <div class="relative overflow-x-auto max-h-screen">
                 <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
                     <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                         <tr>
@@ -96,15 +163,15 @@
                             <th scope="col" class="px-6 py-3">
                                 E-MAIL
                             </th>
-                            <th scope="col" class="px-6 py-3">
+                            {{-- <th scope="col" class="px-6 py-3">
                                 PASS
-                            </th>
+                            </th> --}}
                             <th scope="col" class="px-6 py-3">
                                 CREATEAT
                             </th>
-                            <th scope="col" class="px-6 py-3">
+                            {{-- <th scope="col" class="px-6 py-3">
                                 ROLE
-                            </th>
+                            </th> --}}
                         </tr>
                     </thead>
                     <tbody>
@@ -122,15 +189,15 @@
                             <td class="px-6 py-4">
                                 {{ $user->email }}
                             </td>
-                            <td class="px-6 py-4">
+                            {{-- <td class="px-6 py-4">
                                 {{ $user->password }}
-                            </td>
+                            </td> --}}
                             <td class="px-6 py-4">
                                 {{ $user->created_at }}
                             </td>
-                            <td class="px-6 py-4">
+                            {{-- <td class="px-6 py-4">
                                 {{ $user->role }}
-                            </td>
+                            </td> --}}
                         </tr>
                         @endforeach
                     </tbody>

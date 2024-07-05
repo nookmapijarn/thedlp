@@ -66,8 +66,10 @@ Route::get('/', function () {
 // Admin
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::middleware('checkrole:3')->prefix('/admin')->group(function () {
-        Route::get('/adminuser', [AdminUserController::class, 'index'])->name('adminuser');
         Route::get('/', [ZipUploadController::class, 'index']);
+        Route::get('/adminuser', [AdminUserController::class, 'index'])->name('adminuser');
+        Route::get('/adminregister', [AdminUserController::class, 'index'])->name('adminregister');
+        Route::post('/adminregister', [AdminUserController::class, 'store'])->name('adminregister');
         Route::get('/adashboard', [ZipUploadController::class, 'index'])->name('admin');
         Route::get('/upload', [ZipUploadController::class, 'upload'])->name('zip.upload');
         Route::post('/upload', [ZipUploadController::class, 'upload'])->name('zip.upload');

@@ -5,14 +5,54 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Jenssegers\Agent\Agent;
+use App\Models\User;
+use Illuminate\Validation\Rules;
+use Illuminate\Support\Facades\Hash;
+
 
 class AdminUserController extends Controller
 {
     public function index(){
         $users = [];
+        $users_admin = [];
+        $users = DB::table('users')->where('role', '=', 1)->orderBy('created_at', 'DESC')->get();
+        $users_admin = DB::table('users')->where('role', '>', 1)->orderBy('created_at', 'DESC')->get();
+
+        return view('admin.users', compact('users', 'users_admin'));
+    }
+
+    public function store(Request $request)
+    {
+
+        $request->validate([
+                'role' => ['required'],
+                'name' => ['required', 'string', 'max:255'],
+                'email' => ['required', 'string', 'email', 'max:255', 'unique:'.User::class],
+                'password' => ['required', 'confirmed', Rules\Password::defaults()],
+                'pdpa_check' => 'accepted',
+            ], [
+                'role' => 'ไม่มี role',
+                // 'student_id.max' => 'รหัสต้องมี 10 หลัก',
+                // 'student_id.in' => 'ไม่มีนักศึกษารหัสนี้',
+                'email.email' => 'email ไม่ถูกต้อง',
+                'email.max' => 'email ยาวเกินไป',
+                'email.unique' => 'email ถูกใช้ไปแล้ว',
+                'password.confirmed' => 'Password ไม่ตรงกัน',
+                'pdpa_check.accepted' => 'โปรดกดยอมรับ'
+            ]);
+
+        
+        $user = User::create([
+            'student_id' => '0000000000',
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+            'pdpa_check' => $request->has('pdpa_check'),
+            'role' => $request->role
+        ]);
+
         $users = DB::table('users')->orderBy('created_at', 'DESC')->get();
 
-        return view('admin.users', compact('users'));
+        return redirect()->route('adminregister')->with('success', 'เพิ่มข้อมูลสำเร็จ.');
     }
 }

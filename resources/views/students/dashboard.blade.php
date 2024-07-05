@@ -15,7 +15,7 @@
             </div>
         </div>
     </section>
-
+    
     {{-- Progess --}}
     <section class="bg-white grid justify-items-center">
         <div class="max-w-screen-md p-2 w-full pt-10 pb-10">
@@ -90,6 +90,49 @@
                 </div>
             </div>
           </div>
+    </section>
+
+    {{-- คุณธรรม --}}
+    <section class="bg-white grid justify-items-center">
+        <h6 class="text-sm text-center font-medium leading-6 text-gray-900 font-kanit">
+            ประเมินคุณธรรม
+            @if($moral!=null && $moral == 0)
+                ปรับปรุง
+            @endif
+            @if($moral!=null && $moral == 1)
+                พอใช้
+            @endif
+            @if($moral!=null && $moral == 2)
+                ดี
+            @endif
+            @if($moral!=null && $moral == 3)
+                ดีมาก
+            @endif
+        </h6>
+        <div class="flex items-center max-w-screen-md">
+            <div class="flex items-center">
+                @if($moral!=null && $moral >= 0)
+                <svg class="w-8 h-8 ms-3 text-yellow-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 22 20">
+                    <path d="M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z"/>
+                </svg>
+                @endif
+                @if($moral!=null && $moral > 0)
+                <svg class="w-8 h-8 ms-3 text-yellow-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 22 20">
+                    <path d="M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z"/>
+                </svg>
+                @endif
+                @if($moral!=null && $moral > 1)
+                <svg class="w-8 h-8 ms-3 text-yellow-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 22 20">
+                    <path d="M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z"/>
+                </svg>
+                @endif
+                @if($moral!=null && $moral > 2)
+                <svg class="w-8 h-8 ms-3 text-yellow-400 dark:text-gray-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 22 20">
+                    <path d="M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z"/>
+                </svg>
+                @endif
+            </div>
+        </div>
     </section>
 
     {{-- Process Semestry --}}

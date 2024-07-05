@@ -19,9 +19,9 @@ class BossController extends Controller
         // SEMESTRY Labels
        $agent = new Agent();
        if( $agent->isMobile()){
-        $labels = $this->get_semestry(8);
+        $labels = $this->get_semestry(3);
        }else{
-        $labels = $this->get_semestry(8);
+        $labels = $this->get_semestry(6);
        }   
         
         $data_student = [];
@@ -54,6 +54,9 @@ class BossController extends Controller
         // echo $this->finish_student('65/2')->Count()."SEMMMMMMM";
 
         $index = 0;
+
+        $labels = array_reverse($labels, false);
+
         foreach($labels as $key=>$val) {
             // Use $key as an index, or...
             $allstudent = $this->current_student($val)->Count();
@@ -121,6 +124,8 @@ class BossController extends Controller
         $expectfin_student = 0;//$this->expectfin_student()->Count();
         $nofinish_student = 0;//$this->nofinish_student()->Count();
         
+        echo 'EX : '.json_encode($data_exam_avg);
+
         return view('boss.bdashboard',compact('allstudent', 
                                                 'exam_avg',   
                                                 'semestry', 
@@ -179,22 +184,40 @@ class BossController extends Controller
 
         return $g;
     }
-
-    public function get_semestry($limit){
-
-        $sem = DB::table('grade3')
+    public function get_semestry($limit)
+    {
+        $semestry1 = DB::table('grade1')
+            ->select('SEMESTRY')
+            ->orderBy('SEMESTRY', 'DESC')
+            ->groupBy('SEMESTRY');
+        $semestry2 = DB::table('grade2')
+            ->union($semestry1)
+            ->select('SEMESTRY')
+            ->orderBy('SEMESTRY', 'DESC')
+            ->groupBy('SEMESTRY');
+        $semestry3 = DB::table('grade3')
+            ->union($semestry2)
             ->select('SEMESTRY')
             ->orderBy('SEMESTRY', 'DESC')
             ->groupBy('SEMESTRY')
             ->take($limit)
-            ->get();
+            ->pluck('SEMESTRY')
+            ->toArray();
+        // echo '<pre>';
+        // echo print_r($semestry3);
+        // echo '</pre>';
+        return $semestry3;
+    }
 
-        $isem = [];
-
-        foreach($sem as $s){
-            array_push($isem, $s->SEMESTRY);
-        }
-        return  array_reverse($isem);
+    public function get_semestry1($limit)
+    {
+        return DB::table('grade3')
+            ->select('SEMESTRY')
+            ->orderBy('SEMESTRY', 'ASC')
+            ->groupBy('SEMESTRY')
+            ->take($limit)
+            ->pluck('SEMESTRY')
+            ->toArray();
     }
 
     public function student_primary($semestry, $tlavel){
@@ -207,26 +230,23 @@ class BossController extends Controller
         return $s;
     }
 
-    public function get_group($semestry){
-        $grp1 = DB::table('grade1')
-            ->select('GRP_CODE')
-            ->where('SEMESTRY', $semestry)
-            ->groupBy('GRP_CODE');
-        
-        $grp1_2 = DB::table('grade2')
-            ->select('GRP_CODE')
-            ->where('SEMESTRY', $semestry)
-            ->groupBy('GRP_CODE')
-            ->unionAll($grp1);
-
-        $grpAll = DB::table('grade3')
-            ->select('GRP_CODE')
-            ->where('SEMESTRY', $semestry)
-            ->groupBy('GRP_CODE')
-            ->unionAll($grp1_2)
-            ->get();
-        
-        return  $grpAll;
+    public function get_group($semestry)
+    {
+        // Implement the function to get all groups
+        $Group = collect(); // ใช้ collection เพื่อเก็บผลลัพธ์
+    
+        for ($i = 1; $i <= 3; $i++) {
+            $results = DB::table("grade{$i}")
+                ->where("grade{$i}.SEMESTRY", $semestry)
+                ->join("group", "group.GRP_CODE", '=', "grade{$i}.GRP_CODE")
+                ->select("group.GRP_CODE", "group.GRP_NAME", "group.GRP_ADVIS")
+                ->groupBy("group.GRP_CODE", "group.GRP_NAME", "group.GRP_ADVIS")
+                ->orderBy("GRP_CODE", "ASC")
+                ->get();
+    
+            $Group = $Group->merge($results)->unique()->sort(); // รวมผลลัพธ์
+        }
+        return $Group;
     }
 
     public function new_student($semestry){
@@ -332,67 +352,74 @@ class BossController extends Controller
     // }
     public function exam_avg($semestry, $tumbon=''){
 
-        if($tumbon!=''){
+        // if($tumbon!=''){
 
+        //     $grade1 = DB::table('grade1')
+        //         ->where('SEMESTRY', $semestry)
+        //         ->where('GRP_CODE', $tumbon)
+        //         ->select('STD_CODE');
+            
+        //     $grade1_2 = DB::table('grade2')
+        //         ->where('SEMESTRY', $semestry)
+        //         ->where('GRP_CODE', $tumbon)
+        //         ->select('STD_CODE')
+        //         ->unionAll($grade1);
+            
+        //     $exam_grade = DB::table('grade3')
+        //         ->where('SEMESTRY', $semestry)
+        //         ->where('GRP_CODE', $tumbon)
+        //         ->where('GRADE', '!=', 'ข')
+        //         ->where('GRADE', '!=', '')
+        //         ->select('STD_CODE')
+        //         ->groupBy('STD_CODE')
+        //         ->unionAll($grade1_2)
+        //         ->get();
+            
+        //     $all_grade = DB::table('grade3')
+        //         ->where('SEMESTRY', $semestry)
+        //         ->where('GRP_CODE', $tumbon)
+        //         ->select('STD_CODE')
+        //         ->groupBy('STD_CODE')
+        //         ->unionAll($grade1_2)
+        //         ->get();
+        // } else {
             $grade1 = DB::table('grade1')
                 ->where('SEMESTRY', $semestry)
-                ->where('GRP_CODE', $tumbon)
-                ->select('STD_CODE');
+                ->where('GRADE', 'NOT REGEXP', '[ข]')
+                ->where('GRADE', '!=', null)
+                ->select('STD_CODE', 'GRADE');
             
             $grade1_2 = DB::table('grade2')
                 ->where('SEMESTRY', $semestry)
-                ->where('GRP_CODE', $tumbon)
-                ->select('STD_CODE')
+                ->where('GRADE', 'NOT REGEXP', '[ข]')
+                ->where('GRADE', '!=', null)
+                ->select('STD_CODE', 'GRADE')
                 ->unionAll($grade1);
             
             $exam_grade = DB::table('grade3')
                 ->where('SEMESTRY', $semestry)
-                ->where('GRP_CODE', $tumbon)
-                ->where('GRADE', '!=', 'ข')
-                ->where('GRADE', '!=', '')
-                ->select('STD_CODE')
-                ->groupBy('STD_CODE')
                 ->unionAll($grade1_2)
-                ->get();
-            
-            $all_grade = DB::table('grade3')
-                ->where('SEMESTRY', $semestry)
-                ->where('GRP_CODE', $tumbon)
-                ->select('STD_CODE')
-                ->groupBy('STD_CODE')
-                ->unionAll($grade1_2)
-                ->get();
-        } else {
-            $grade1 = DB::table('grade1')
-                ->where('SEMESTRY', $semestry)
-                ->select('STD_CODE');
-            
-            $grade1_2 = DB::table('grade2')
-                ->where('SEMESTRY', $semestry)
-                ->select('STD_CODE')
-                ->unionAll($grade1);
-            
-            $exam_grade = DB::table('grade3')
-                ->where('SEMESTRY', $semestry)
-                ->where('GRADE', '!=', 'ข')
-                ->where('GRADE', '!=', '')
-                ->select('STD_CODE')
-                ->groupBy('STD_CODE')
-                ->unionAll($grade1_2)
+                ->where('GRADE', 'NOT REGEXP', '[ข]')
+                ->where('GRADE', '!=', null)
+                ->select('STD_CODE', 'GRADE')
+                // ->groupBy('STD_CODE', 'GRADE')
                 ->get();
         
             $all_grade = DB::table('grade3')
                 ->where('SEMESTRY', $semestry)
-                ->select('STD_CODE')
-                ->groupBy('STD_CODE')
+                ->select('STD_CODE', 'GRADE')
+                // ->groupBy('STD_CODE', 'GRADE')
                 ->unionAll($grade1_2)
                 ->get();
-        }
+        // }
 
         // echo 'All ->'.$all_grade->Count().'<br>';
         // echo 'g ->'.$exam_grade->Count().'<br>';
+
         if($exam_grade->Count()!=0){
+
             $result = ($exam_grade->Count()*100)/$all_grade->Count();
+
             return [
                 'result'   => round($result, 2), 
                 'semestry' => $semestry

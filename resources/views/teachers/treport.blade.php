@@ -123,10 +123,11 @@
               {{-- <th scope="col" class="p-2 hidden md:block text-center">ระดับ</th> --}}
               <th scope="col" class="p-2">ชื่อ</th>
               <th scope="col" class="p-2">นามสกุล</th>
-              <th scope="col" class="p-2 text-center">สถานะ/จบ</th>
-              <th scope="col" class="p-2 text-center">คาดว่าจะจบ</th>
               <th scope="col" class="p-2 text-center">กพช.</th>
+              <th scope="col" class="p-2 text-center">คุณธรรม</th>
+              <th scope="col" class="p-2 text-center">คาดว่าจะจบ</th>
               <th scope="col" class="p-2 text-center">N-NET</th>
+              <th scope="col" class="p-2 text-center">สถานะ/จบ</th>
               {{-- <th scope="col" class="p-2 text-center">จัดการ</th> --}}
             </tr>
           </thead>
@@ -143,6 +144,39 @@
               {{-- <td class="p-2 hidden md:block text-center">{{$d['lavel']}}</td> --}}
               <td class="p-2 w-15">{{$d['name']}}</td>
               <td class="p-2">{{$d['surname']}}</td>
+              {{-- กพช --}}
+              <td 
+                @if($d['activity']>=200) class="p-2 text-center text-green-400" @endif
+                @if($d['activity']<200) class="p-2 text-center text-yellow-600" @endif
+              >{{$d['activity']}}</td>
+              {{-- คุณธรรม --}}
+              <td class="p-2 text-center">
+                @if($d['ablevel1']==null) <span class="text-yellow-700">-</span> @endif
+                @if($d['ablevel1']==1) ปรับปรุง @endif 
+                @if($d['ablevel1']==2) พอใช้ @endif 
+                @if($d['ablevel1']==3) ดี @endif 
+                @if($d['ablevel1']==4) ดีมาก @endif 
+              </td>            
+              {{-- คาดว่าจะจบ --}}
+              @if($d['expfin']==1)
+              <td class="p-2 text-yellow-600 text-center flex flex-col-1 justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4 text-center">
+                  <path fill-rule="evenodd" d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.006 5.404.434c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.434 2.082-5.005Z" clip-rule="evenodd" />
+                </svg>                                                                               
+              </td>
+              @else
+              <td class="p-2 text-center">  </td>
+              @endif
+              {{-- ประเมินระดับชาติ --}}
+              @if($d['nt_sem']=="ผ่านแล้ว")
+              <td class="p-2 text-center text-green-500">{{$d['nt_sem']}}</td>
+              @elseif($d['nt_sem']=="มีสิทธิ")
+              <td class="p-2 text-center text-indigo-500">N-NET</td>
+              @elseif($d['nt_sem']=="E-Exam")
+              <td class="p-2 text-center text-yellow-500">{{$d['nt_sem']}}</td>
+              @else
+              <td class="p-2 text-center">{{$d['nt_sem']}}</td>
+              @endif
               {{-- สถานะ --}}
               <td class="p-2 text-center">
                 @if($d['fin_cause']=='' || $d['fin_cause']==0 || $d['fin_cause']==null) <span class="text-yellow-700">ศึกษาอยู่</span> @endif
@@ -156,32 +190,6 @@
                 @if($d['fin_cause']==8) อื่นๆ @endif 
                 @if($d['fin_cause']==9) จบอยู่ระหว่างตรวจสอบวุฒิ @endif 
               </td>
-              {{-- คาดว่าจะจบ --}}
-              @if($d['expfin']==1)
-              <td class="p-2 text-yellow-600 text-center flex flex-col-1 justify-center">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4 text-center">
-                  <path fill-rule="evenodd" d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.006 5.404.434c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.434 2.082-5.005Z" clip-rule="evenodd" />
-                </svg>                                                                               
-              </td>
-              @else
-              <td class="p-2 text-center">  </td>
-              @endif
-              {{-- กพช --}}
-              <td 
-                @if($d['activity']>=200) class="p-2 text-center text-green-400" @endif
-                @if($d['activity']<200) class="p-2 text-center text-yellow-600" @endif
-              >{{$d['activity']}}</td>
-              {{-- ประเมินระดับชาติ --}}
-              @if($d['nt_sem']=="ผ่านแล้ว")
-              <td class="p-2 text-center text-green-500">{{$d['nt_sem']}}</td>
-              @elseif($d['nt_sem']=="มีสิทธิ")
-              <td class="p-2 text-center text-indigo-500">N-NET</td>
-              @elseif($d['nt_sem']=="E-Exam")
-              <td class="p-2 text-center text-yellow-500">{{$d['nt_sem']}}</td>
-              @else
-              <td class="p-2 text-center">{{$d['nt_sem']}}</td>
-              @endif
-              {{-- <td><button id="openModalButton">Open Modal</button></td> --}}
             </tr>
           @endforeach
           </tbody>

@@ -97,7 +97,8 @@ class TeachersReportController extends Controller
                 'expfin'    =>  $expfin,
                 'activity'  =>  $this->get_activity($s->STD_CODE, $level),
                 'nt_sem'    =>  $nnet,
-                'grp_code'  =>  $s->GRP_CODE
+                'grp_code'  =>  $s->GRP_CODE,
+                'ablevel1'  =>  $s->ABLEVEL1
             ]);
         }
 
@@ -122,7 +123,8 @@ class TeachersReportController extends Controller
                             'expfin' => true,
                             'activity' => $this->get_activity($s->STD_CODE, $i),
                             'nt_sem' => ($s->NT_SEM != '') ? 'ผ่านแล้ว' : (($s->NT_NOSEM != '') ? 'E-Exam' : 'มีสิทธิ'),
-                            'grp_code' => $s->GRP_CODE
+                            'grp_code' => $s->GRP_CODE,
+                            'ablevel1' => $s->ABLEVEL1
                         ];
                     } else {
                         continue;
@@ -167,7 +169,8 @@ class TeachersReportController extends Controller
                         'expfin' => true,
                         'activity' => $this->get_activity($s->STD_CODE, $lavel),
                         'nt_sem' => ($s->NT_SEM != '') ? 'ผ่านแล้ว' : (($s->NT_NOSEM != '') ? 'E-Exam' : 'มีสิทธิ'),
-                        'grp_code' => $s->GRP_CODE
+                        'grp_code' => $s->GRP_CODE,
+                        'ablevel1' => $s->ABLEVEL1
                     ];
                 }
             }
@@ -251,7 +254,7 @@ class TeachersReportController extends Controller
                     }
                 })
                 ->join($tstudent, "$tgrade.STD_CODE", '=', "$tstudent.STD_CODE")
-                ->select("$tstudent.STD_CODE", "$tstudent.ID", "$tstudent.NAME", "$tstudent.SURNAME", "$tstudent.FIN_CAUSE", "$tstudent.NT_SEM", "$tstudent.NT_NOSEM", "$tstudent.GRP_CODE")
+                ->select("$tstudent.STD_CODE", "$tstudent.ID", "$tstudent.NAME", "$tstudent.SURNAME", "$tstudent.FIN_CAUSE", "$tstudent.NT_SEM", "$tstudent.NT_NOSEM", "$tstudent.GRP_CODE",  "$tstudent.ABLEVEL1", "$tstudent.ABLEVEL2")
                 ->distinct()
                 ->get();
     
@@ -306,8 +309,8 @@ class TeachersReportController extends Controller
                 })
                 //->whereNull("$tgrade.GRADE") // ตรวจสอบว่ารายการนี้ยังไม่ได้รับเกรด
                 ->where("$tstudent.FIN_SEM", '=', null) // fin_sem != 1-9
-                ->select("$tstudent.STD_CODE", "$tstudent.ID", "$tstudent.NAME", "$tstudent.SURNAME", "$tstudent.FIN_CAUSE", "$tstudent.NT_SEM", "$tstudent.NT_NOSEM", "$tstudent.GRP_CODE")
-                ->groupBy("$tstudent.STD_CODE", "$tstudent.ID", "$tstudent.NAME", "$tstudent.SURNAME", "$tstudent.FIN_CAUSE", "$tstudent.NT_SEM", "$tstudent.NT_NOSEM", "$tstudent.GRP_CODE")
+                ->select("$tstudent.STD_CODE", "$tstudent.ID", "$tstudent.NAME", "$tstudent.SURNAME", "$tstudent.FIN_CAUSE", "$tstudent.NT_SEM", "$tstudent.NT_NOSEM", "$tstudent.GRP_CODE",  "$tstudent.ABLEVEL1", "$tstudent.ABLEVEL2")
+                ->groupBy("$tstudent.STD_CODE", "$tstudent.ID", "$tstudent.NAME", "$tstudent.SURNAME", "$tstudent.FIN_CAUSE", "$tstudent.NT_SEM", "$tstudent.NT_NOSEM", "$tstudent.GRP_CODE",  "$tstudent.ABLEVEL1", "$tstudent.ABLEVEL2")
                 ->get();
             
             $students = $students->merge($not_current_student); // รวมข้อมูลจากทุกระดับชั้น
@@ -316,51 +319,6 @@ class TeachersReportController extends Controller
         return $students;
     }
 
-
-    public function not_current_student1($grp_code, $lavel, $semestry) {
-        // ตรวจสอบและกำหนดค่าตัวแปร $grp_code
-        $grp_code = ($grp_code == '0000' || $grp_code == ' ' || $grp_code == null) ? "[0-9]" : $grp_code;
-        // ใช้ตัวแปร $lavel ใน scope ที่ถูกต้อง
-        $tgrade = "grade{$lavel}";
-        $tstudent = "student{$lavel}";
-
-        $student = DB::table($tgrade)
-            ->join($tstudent, $tgrade . '.STD_CODE', '=', $tstudent. ' .STD_CODE')
-            ->where(function($query) use ($grp_code, $tgrade) {
-                if ($grp_code === "[0-9]") {
-                    $query->whereRaw("$tgrade.GRP_CODE REGEXP ?", [$grp_code]);
-                } else {
-                    $query->where("$tgrade.GRP_CODE", '=', $grp_code);
-                }
-            })
-            //->where("$tgrade.SEMESTRY", '!=', $semestry)
-            ->where('student.FIN_SEM', 'NOT REGEXP', '^[0-9]')  
-            ->select(
-                $tstudent.'.STD_CODE', 
-                $tstudent.'.ID', 
-                $tstudent.'.NAME', 
-                $tstudent.'.SURNAME', 
-                $tstudent.'.FIN_CAUSE', 
-                $tstudent.'.NT_SEM', 
-                $tstudent.'.NT_NOSEM', 
-                $tstudent.'.GRP_CODE'
-            )
-            ->orderBy('student.ID', 'ASC')
-            ->groupBy(
-                $tstudent.'.STD_CODE', 
-                $tstudent.'.ID', 
-                $tstudent.'.NAME', 
-                $tstudent.'.SURNAME', 
-                $tstudent.'.FIN_CAUSE', 
-                $tstudent.'.NT_SEM', 
-                $tstudent.'.NT_NOSEM', 
-                $tstudent.'.GRP_CODE'
-            )
-            ->get();
-
-        //echo $student;
-        return $student;
-    } 
     public function get_activity($std_code, $lavel){
         $tact = "activity{$lavel}";
         $activity = DB::table($tact)
@@ -407,9 +365,10 @@ class TeachersReportController extends Controller
                 ->join("group", "group.GRP_CODE", '=', "grade{$i}.GRP_CODE")
                 ->select("group.GRP_CODE", "group.GRP_NAME", "group.GRP_ADVIS")
                 ->groupBy("group.GRP_CODE", "group.GRP_NAME", "group.GRP_ADVIS")
+                ->orderBy("GRP_CODE", "ASC")
                 ->get();
     
-            $Group = $Group->merge($results); // รวมผลลัพธ์
+            $Group = $Group->merge($results)->unique()->sort(); // รวมผลลัพธ์
         }
         return $Group;
     }
