@@ -124,7 +124,7 @@ class BossController extends Controller
         $expectfin_student = 0;//$this->expectfin_student()->Count();
         $nofinish_student = 0;//$this->nofinish_student()->Count();
         
-        echo 'EX : '.json_encode($data_exam_avg);
+        //echo 'EX : '.json_encode($data_exam_avg);
 
         return view('boss.bdashboard',compact('allstudent', 
                                                 'exam_avg',   
