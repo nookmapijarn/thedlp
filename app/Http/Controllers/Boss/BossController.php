@@ -13,6 +13,8 @@ class BossController extends Controller
 {
     public function index(Request $request)
     {
+        ini_set('max_execution_time', '512M');
+
         $all_semestry = DB::table('grade3')->select('SEMESTRY')->groupBy('SEMESTRY')->orderBy('SEMESTRY', 'DESC')->get();
         $semestry = $all_semestry->first()->SEMESTRY;
 

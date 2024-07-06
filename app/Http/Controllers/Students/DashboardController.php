@@ -35,7 +35,8 @@ class DashboardController extends Controller
         if (Count($student)==0) {
             //Auth::logout();
             // return redirect('/dashboard')->with('status', 'Profile updated!');
-            return redirect('welcome/?roletype='.auth()->user()->student_id);
+            $role = auth()->user()->role;
+            return redirect()->to("welcome?roletype={$role}&studentnull=true");
         }
 
         $act_sum=0;

@@ -40,8 +40,11 @@
                             <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 11V6m0 8h.01M19 10a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"></path>
                         </svg>
                         <h3 class="mb-5 text-xl font-normal text-indigo-500 dark:text-gray-400">
-                            สิทธิผู้ใช้ : {{$role = request()->roletype}}.@if($role == 1)ผู้เรียน@endif @if($role == 2)ครูผู้สอน@endif @if($role == 3)ผู้บริหาร/ผู้ดูแลระบบ@endif
+                            สิทธิผู้ใช้ : {{$role = request()->roletype}}@if($role == 1)(ผู้เรียน)@endif @if($role == 2)(ครูผู้สอน)@endif @if($role == 3)(ผู้บริหาร)@endif @if($role == 4)(ผู้ดูแลระบบ)@endif
                         </h3>
+                        @if(request()->studentnull) 
+                            <p class="text-red-600"> "ไม่พบข้อมูลผู้เรียนรายนี้ โปรดติดต่อเจ้าหน้าที่" </p>
+                        @endif
                         " คุณกำลังเข้าระบบส่วนที่ไม่มีสิทธิ กรุณาเลือกเมนูตามสิทธิ หรือ ออกจากระบบ เมนูด้านล่างระบบที่คุณสามารถเข้าได้ "
                         <div class="grid grid-cols-1 gap-4 mt-2">
                             @if($role == 1)
@@ -76,6 +79,8 @@
                                     <div class="-mt-1 font-sans text-sm font-semibold">ผู้บริหาร</div>
                                 </div>
                             </a>
+                            @endif
+                            @if($role == 4)
                             <a href="{{ route('admin') }}" class=" w-full sm:w-auto bg-yellow-300 text-gray-800 hover:bg-yellow-400 focus:ring-4 focus:outline-none focus:ring-gray-300 rounded-lg inline-flex items-center justify-center px-4 py-2.5">
                                 <svg  class="mr-3 w-7 h-7" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.332A48.36 48.36 0 0 0 12 9.75c-2.551 0-5.056.2-7.5.582V21M3 21h18M12 6.75h.008v.008H12V6.75Z" />
@@ -176,7 +181,6 @@
 
         
     </body>
-    @include('layouts.footer')
 </html>
 
 <!-- Script to show modal on load if data is empty -->

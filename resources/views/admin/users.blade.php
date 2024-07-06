@@ -6,8 +6,8 @@
                 @csrf
                 <!-- role -->
                 <div>
-                    <x-input-label for="role" :value="__('กำหนดสิทธิ ครู : 2 | ผู้ดูแล : 3')" />
-                    <x-text-input id="role" class="block mt-1 w-full" type="Number" min="2" max="3" name="role" :value="2" required autofocus autocomplete="role" />
+                    <x-input-label for="role" :value="__('กำหนดสิทธิ ครู : 2 | ผู้บริหาร : 3 | ผู้ดูแล : 4')" />
+                    <x-text-input id="role" class="block mt-1 w-full" type="Number" min="2" max="4" name="role" :value="2" required autofocus autocomplete="role" />
                     <x-input-error :messages="$errors->get('student_id')" class="mt-2" />
                 </div>
 

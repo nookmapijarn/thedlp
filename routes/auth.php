@@ -22,6 +22,12 @@ Route::middleware('guest')->group(function () {
 
     Route::post('login', [AuthenticatedSessionController::class, 'store']);
 
+    Route::get('loginWithEmail', [AuthenticatedSessionController::class, 'create'])
+                ->name('loginWithEmail');
+
+    Route::post('loginWithEmail', [AuthenticatedSessionController::class, 'storeWithEmail'])
+                ->name('loginWithEmail');
+
     Route::get('admin', [AuthenticatedSessionController::class, 'create'])
     ->name('admin');
 
