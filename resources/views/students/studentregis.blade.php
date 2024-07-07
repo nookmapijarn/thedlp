@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
         <h6 class="font-semibold text-gray-800  leading-tight">
-            {{ __('การลงทะเบียน') }}
+            {{ __('ประวัติการลงทะเบียน') }}
         </h6>      
     </x-slot>
 {{-- Content --}}

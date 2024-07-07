@@ -43,7 +43,7 @@ class ZipUploadController extends Controller
 
     public function upload(Request $request)
     {
-        ini_set('max_execution_time', '512M');
+        ini_set('max_execution_time', '2048M');
 
         $lastmodified = [];
 

@@ -22,7 +22,7 @@
     @if($student_data)
     {{-- Start Table --}}
     {{-- **************** ข้อมูลทั่วไป ********************* --}}
-    <div class="sm:ml-64 max-w-lg border-2 border-gray-200 border-dashed rounded-lg dark:border-gray-700">
+    <div class="sm:ml-64 p-4 m-2 max-w-4lg border-2 border-gray-200 border-dashed rounded-lg dark:border-gray-700">
         <div class="flex justify-center p-4">
             <img class="rounded w-36 h-36 p-1 rounded-full ring-2 ring-gray-300" src="{{asset('storage/avatar/unkhonw.png');}}" alt="Extra large avatar">
         </div>
@@ -94,13 +94,13 @@
         <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 mx-auto mt-4 max-w-4xl sm:mt-4">
             <div class=" bg-white border border-gray-200 rounded-lg shadow sm:p-8 dark:bg-gray-800 dark:border-gray-700">
                 <div class="flex items-center justify-between mb-4">
-                    <h5 class="text-sm font-bold leading-none text-gray-900 dark:text-white">รายวิชาผ่านแล้ว</h5>
+                    <h5 class="ml-4 mt-4 text-lg font-bold leading-none text-gray-900 dark:text-white">รายวิชาผ่านแล้ว</h5>
                     {{-- <a href="#" class="text-sm font-medium text-blue-600 hover:underline dark:text-blue-500">
                         View all
                     </a> --}}
                 </div>
                 <div class="flow-root">
-                    <ul role="list" class="space-y-4 text-left text-gray-500 dark:text-gray-400 max-h-100">
+                    <ul role="list" class="p-2 space-y-4 text-left text-gray-500 dark:text-gray-400 max-h-100">
                         @foreach($grade_data as $g)
                         <li class="flex items-center space-x-3 rtl:space-x-reverse">
                             <svg class="flex-shrink-0 w-3.5 h-3.5 text-green-500 dark:text-green-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 16 12">
@@ -118,13 +118,13 @@
 
             <div class=" bg-white border border-gray-200 rounded-lg shadow sm:p-8 dark:bg-gray-800 dark:border-gray-700">
                 <div class="flex items-center justify-between mb-4">
-                    <h5 class="text-sm font-bold leading-none text-gray-900 dark:text-white">กิจกรรมพัฒนาคุณภาพชีวิต</h5>
+                    <h5 class="ml-4 mt-4 text-lg font-bold leading-none text-gray-900 dark:text-white">กิจกรรมพัฒนาคุณภาพชีวิต</h5>
                     {{-- <a href="#" class="text-sm font-medium text-blue-600 hover:underline dark:text-blue-500">
                         View all
                     </a> --}}
                 </div>
                 <div class="flow-root">
-                    <ul role="list" class="space-y-4 text-left text-gray-500 dark:text-gray-400">
+                    <ul role="list" class="p-2 space-y-4 text-left text-gray-500 dark:text-gray-400">
                         @foreach($activity_data as $a)
                         <li class="flex items-center space-x-3 rtl:space-x-reverse">
                             <svg class="flex-shrink-0 w-3.5 h-3.5 text-green-500 dark:text-green-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 16 12">
@@ -139,7 +139,8 @@
                     </ul>
                 </div>
             </div>
-        </div>  
+        </div> 
+    </div> 
     @endif
     {{-- End Table --}}
 </x-teachers-layout>

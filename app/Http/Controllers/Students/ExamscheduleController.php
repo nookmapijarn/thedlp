@@ -48,10 +48,15 @@ class ExamscheduleController extends Controller
                         );
         }
 
-        $key_values = array_column($schedule, 'exam_day'); 
-        array_multisort($key_values, SORT_ASC, $schedule);
-        $key_values2 = array_column($schedule, 'exam_start'); 
-        array_multisort($key_values2, SORT_ASC, $schedule);
+        // $key_values = array_column($schedule, 'exam_day'); 
+        // array_multisort($key_values, SORT_ASC, $schedule);
+        // $key_values2 = array_column($schedule, 'exam_start'); 
+        // array_multisort($key_values2, SORT_ASC, $schedule);
+        $exam_days = array_column($schedule, 'exam_day');
+        $exam_starts = array_column($schedule, 'exam_start');
+        // เรียงลำดับตาม 'exam_day' ก่อนแล้วตามด้วย 'exam_start'
+        array_multisort($exam_days, SORT_ASC, $exam_starts, SORT_ASC, $schedule);
+
         // print $schedule[0]['sub_code'];
         // print_r($schedule);
         return view('students.examschedule', compact('schedule', 'nnet', 'student', 'semestry'));

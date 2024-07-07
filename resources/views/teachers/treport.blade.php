@@ -1,9 +1,10 @@
 <x-teachers-layout>
   <div class="p-2 sm:ml-64">
     <div class="p-0 border-2 border-gray-200 border-dashed rounded-lg dark:border-gray-700 mt-14">
-      <form method="POST" action="{{ route('treport') }}" class="mx-auto mt-4 max-w-4xl sm:mt-6">
+      <form method="POST" action="{{ route('treport') }}" class="mx-auto mt-4 max-w-6xl sm:mt-6">
+        <p class="text-xl">รายงานนักศึกษาตามกลุ่ม</p>
         @csrf
-        <div class="grid grid-cols-1 gap-2 md:grid md:grid-cols-3 justify-items-center">
+        <div class="grid grid-cols-1 gap-2 md:grid md:grid-cols-4 justify-items-center">
           <div class="min-w-full">
             <label>ภาคเรียน</label>
             <select required id="semestry" name="semestry" class="bg-gray-50 border border-gray-300 text-gray-900 text-xl rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 ">
@@ -32,6 +33,15 @@
             </select>
           </div>
           <div class="min-w-full">
+            <label>ระดับชั้น</label>
+              <select required id="lavel" name="lavel" class="bg-gray-50 border border-gray-300 text-gray-900 text-xl rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                <option value="">เลือก</option>
+                <option @if($lavel == 1) selected @endif value="1">ประถมศึกษา</option>
+                <option @if($lavel == 2) selected @endif value="2">มัธยมต้น</option>
+                <option @if($lavel == 3) selected @endif value="3">มัธยมปลาย</option>
+              </select>
+          </div>
+          <div class="min-w-full">
             <label>รายงาน</label>
               {{-- <label for="countries" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">รายงาน</label> --}}
               <select required id="studreport" name="studreport" class="bg-gray-50 border border-gray-300 text-gray-900 text-xl rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600">
@@ -48,8 +58,8 @@
       </form>
       {{-- คำอธิบาย --}}
       <div class="grid grid-cols-3 gap-2 mt-2 mx-auto mt-4 max-w-4xl sm:mt-6">  
-        <div class="font-semibold text-xs truncate"> <span class="text-indigo-500">N-NET</span> : มีสิทธิสอบ N-NET ภาคเรียนปัจจุบัน </div> 
-        <div class="font-semibold pl-2 text-xs truncate"> <span class="text-yellow-500">E-EXAM</span> : มีสิทธิสอบ E-EXAM ภาคเรียนปัจจุบัน </div>
+        <div class="font-semibold text-sm truncate"> <span class="text-indigo-500">N-NET</span> : มีสิทธิสอบ N-NET ภาคเรียนปัจจุบัน </div> 
+        <div class="font-semibold pl-2 text-sm truncate"> <span class="text-yellow-500">E-EXAM</span> : มีสิทธิสอบ E-EXAM ภาคเรียนปัจจุบัน </div>
         <!-- Tag 1-->
         <div class="flex items-center text-xs">
           <div class="text-yellow-600 mr-1">
@@ -108,9 +118,15 @@
     {{-- Content body --}}
     @if($data) 
       <div class="flex flex-col-1 flex-row-1 justify-center drop-shadow sm:ml-64 max-w-auto p-2">
-        <div class="text-sm font-bold bg-indigo-200 w-full p-4 text-center">
+        <div class="text-md md:text-2xl font-bold bg-indigo-200 w-full p-4 text-center">
           ตำบล : <span class="font-normal">{{request()->get('tumbon')}}</span>
           รายงาน : <span class=" font-normal">{{request()->get('studreport')}}</span>
+          ระดับ : <span class="font-normal">
+            {{$req_lavel = request()->get('lavel')}}
+            @if($req_lavel == 1)  ประถมศึกษา @endif
+            @if($req_lavel == 2)  มัธยมต้น @endif
+            @if($req_lavel == 3)  มัธยมปลาย @endif
+          </span>
         </div>
       </div>
       <div class="overflow-auto flex flex-col-1 justify-center sm:ml-64 max-w-auto p-2">
