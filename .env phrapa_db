@@ -1,4 +1,4 @@
-APP_NAME="บางเสาร์ธง OLIS DLEC"
+APP_NAME="พระประแดง OLIS DLEC"
 APP_NAME_THAI="ศูนย์ส่งเสริมการเรียนรู้ระดับอำเภอ"
 APP_NAME_SYSTEM="ระบบบริหารจัดการข้อมูลผู้เรียนออนไลน์"
 
@@ -12,11 +12,11 @@ LOG_DEPRECATIONS_CHANNEL=null
 LOG_LEVEL=debug
 
 DB_CONNECTION=mysql
-DB_HOST=103.30.127.11
+DB_HOST=203.170.190.149
 DB_PORT=3306
-DB_DATABASE=bangsaot_db
-DB_USERNAME=bangsaot_db
-DB_PASSWORD=},amgGh:lL$u
+DB_DATABASE=phrapra_db
+DB_USERNAME=phrapra_db
+DB_PASSWORD=z!xO=bb2n:)B
 
 BROADCAST_DRIVER=log
 CACHE_DRIVER=file

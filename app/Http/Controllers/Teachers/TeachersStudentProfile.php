@@ -11,6 +11,7 @@ class TeachersStudentProfile extends Controller
     //
     public function index(Request $request)
     {
+
         //
         $student_id = null;
         $student_data = null;
@@ -22,9 +23,23 @@ class TeachersStudentProfile extends Controller
 
         if($request->student_id!=null){
 
+            $request->validate([
+                'student_id' => ['numeric', 'digits:10', 'digits:10'],
+            ],[
+                'student_id.numeric' => 'ตัวเลขเท่านั้น',
+                'student_id.digits' => 'รหัสต้องมี 10 หลัก',
+                'student_id.digits' => 'รหัสต้องมี 10 หลัก',
+            ]);
+
             $student_id = $request->student_id;
             $lavel = str_split($student_id, 1)[3]; //ตำแหน่งที่ 3 ของ ID คือ ระดับชั้น
-            $std_code = DB::table("student{$lavel}")->where('ID', $student_id)->select('STD_CODE')->groupBy('STD_CODE')->value('STD_CODE');
+
+            if($lavel >= 1 && $lavel <= 3){
+                $std_code = DB::table("student{$lavel}")->where('ID', $student_id)->select('STD_CODE')->groupBy('STD_CODE')->value('STD_CODE');
+
+            } else {
+                return view('teachers.tstudentprofile' ,compact('student_data', 'grade_data', 'activity_data', 'sum_grade', 'sum_act'));
+            }
 
             $tgrade = 'grade'.$lavel;
             $tstudent = 'student'.$lavel;

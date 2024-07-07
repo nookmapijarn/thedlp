@@ -12,9 +12,10 @@
                                 <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
                             </svg>
                         </div>
-                        <input type="search" name="student_id" autofocus maxlength="25" id="student_id" value="" class="block w-full p-4 pl-10 text-sm text-gray-900 border border-gray-300 rounded-full bg-gray-50 focus:ring-blue-500 focus:border-blue-500" placeholder="รหัสนักศึกษา" required>
+                        <x-text-input type="serch" minlength="3" maxlength="10" name="student_id" autofocus  id="student_id" :value="old('student_id')" required autofocus autocomplete="student_id" class="block w-full p-4 pl-10 text-sm text-gray-900 border border-gray-300 rounded-full bg-gray-50 focus:ring-blue-500 focus:border-blue-500" placeholder="รหัสนักศึกษา" required />
                         <button type="submit" class="text-white absolute right-2.5 bottom-2.5 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-full text-sm px-4 py-2">ค้นหา</button>
                     </div>
+                    <x-input-error :messages="$errors->get('student_id')" class="mt-2" />
                 </form>
             </div>
         </div>

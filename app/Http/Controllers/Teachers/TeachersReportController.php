@@ -248,7 +248,7 @@ class TeachersReportController extends Controller
 
             $current_students = DB::table($tgrade)
                 ->where("$tgrade.SEMESTRY", $semestry)
-                ->where("$tgrade.GRP_CODE", '=', $grp_code)
+                ->where("$tgrade.GRP_CODE", $grp_code)
                 ->join($tstudent, "$tgrade.STD_CODE", '=', "$tstudent.STD_CODE")
                 ->select("$tstudent.STD_CODE", "$tstudent.ID", "$tstudent.NAME", "$tstudent.SURNAME", "$tstudent.FIN_CAUSE", "$tstudent.NT_SEM", "$tstudent.NT_NOSEM", "$tstudent.GRP_CODE",  "$tstudent.ABLEVEL1", "$tstudent.ABLEVEL2")
                 ->distinct()
