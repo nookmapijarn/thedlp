@@ -19,11 +19,11 @@ class TeachersScoreController extends Controller
     {
         //
         $data=[];
-        $tumbon = '';
-        $lavel = '';
-        $subject = '';
-        $semestry = '';
-        $type = '';
+        $tumbon = null;
+        $lavel = null;
+        $subject = null;
+        $semestry = null;
+        $type = null;
         $all_grade = 0;
         $grade_not = 0;
         $grade_0 = 0;
@@ -34,8 +34,8 @@ class TeachersScoreController extends Controller
         $semestry = $all_semestry->first()->SEMESTRY;
         $all_tumbon = $this->get_group($semestry);
 
-        if($request->tumbon!=''){
-            $tumbon = str_split($request->tumbon, 4)[0];
+        if(isset($request->tumbon)){
+            $tumbon = $request->tumbon;
             $lavel = $request->lavel;
             $semestry = $request->semestry;
             $subject = $request->subject;

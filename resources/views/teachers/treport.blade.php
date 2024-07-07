@@ -48,9 +48,9 @@
                 {{-- @if(request()->get('studreport')!='') <option selected>{{request()->get('studreport')}}</option> @endif
                 @if(request()->get('studreport')=='') <option selected >เลือกรายงาน</option> @endif --}}
                 <option value="">เลือก</option>
-                <option value="นักศึกษาทั้งหมด">นักศึกษาทั้งหมด</option>
-                <option value="เฉพาะผู้คาดว่าจะจบ">เฉพาะผู้คาดว่าจะจบ</option>
-                <option value="ไม่จบตกค้าง(ที่ไม่ได้ลงทะเบียนแล้ว)">ไม่จบตกค้าง (ที่ไม่ได้ลงทะเบียนแล้ว)</option>
+                <option @if($studreport == "นักศึกษาทั้งหมด") selected @endif value="นักศึกษาทั้งหมด">นักศึกษาทั้งหมด</option>
+                <option @if($studreport == "เฉพาะผู้คาดว่าจะจบ") selected @endif value="เฉพาะผู้คาดว่าจะจบ">เฉพาะผู้คาดว่าจะจบ</option>
+                <option @if($studreport == "ไม่จบตกค้าง(ที่ไม่ได้ลงทะเบียนแล้ว) ย้อนหลัง 4 ปี") selected @endif value="ไม่จบตกค้าง(ที่ไม่ได้ลงทะเบียนแล้ว) ย้อนหลัง 4 ปี">ไม่จบตกค้าง (ที่ไม่ได้ลงทะเบียนแล้ว)  ย้อนหลัง 4 ปี</option>
               </select>
           </div>
         </div>
@@ -167,11 +167,12 @@
               >{{$d['activity']}}</td>
               {{-- คุณธรรม --}}
               <td class="p-2 text-center">
-                @if($d['ablevel1']==null) <span class="text-yellow-700">-</span> @endif
-                @if($d['ablevel1']==1) ปรับปรุง @endif 
-                @if($d['ablevel1']==2) พอใช้ @endif 
-                @if($d['ablevel1']==3) ดี @endif 
-                @if($d['ablevel1']==4) ดีมาก @endif 
+                {{-- {{$d['ablevel1']}} --}}
+                @if($d['ablevel1']===null) <span class="text-yellow-700">-</span> @endif
+                @if($d['ablevel1']===0) ปรับปรุง @endif 
+                @if($d['ablevel1']===1) พอใช้ @endif 
+                @if($d['ablevel1']===2) ดี @endif 
+                @if($d['ablevel1']===3) ดีมาก @endif 
               </td>            
               {{-- คาดว่าจะจบ --}}
               @if($d['expfin']==1)

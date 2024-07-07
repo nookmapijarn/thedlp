@@ -222,7 +222,7 @@
       labels: labels,
       datasets: [
         {
-          label: 'สกร.อำเภอ',
+          label: 'สกร.ระดับอำเภอ',
           backgroundColor: '#E74C3C',
           borderColor: '#E74C3C',
           data: data_exam_avg,

@@ -27,20 +27,21 @@ class TeachersReportController extends Controller
         ini_set('max_execution_time', '512M');
 
         $all_semestry = $this->get_semestry();
-        $lavel = $request->lavel;
+        
         $data=null;
-        $tumbon = '0000';
-        $studreport = '';
+        $tumbon = null;
+        $lavel = null;
+        $studreport = null;
         $semestry = $all_semestry->first()->SEMESTRY;
         $all_tumbon = $this->get_group($semestry);
 
-        if($request->tumbon!=''){
-            $grp_code = str_split($request->tumbon, 4)[0];
-            $semestry = $request->semestry;
+        if(isset($request->tumbon)){
             $tumbon = $request->tumbon;
+            $lavel = $request->lavel;
+            $semestry = $request->semestry;
             $studreport = $request->studreport;
         }else{
-            return view('teachers.treport' ,compact('data', 'semestry', 'tumbon', 'all_tumbon', 'all_semestry', 'lavel'));
+            return view('teachers.treport' ,compact('data', 'semestry', 'tumbon', 'all_tumbon', 'all_semestry', 'lavel', 'studreport'));
         }
 
         // เลือกรายงาน
@@ -49,22 +50,22 @@ class TeachersReportController extends Controller
                 $data = $this->allstudent($tumbon, $semestry, $lavel);
                 $data = collect($data)->sortBy('lavel')->toArray(); // $mystudent = collect($mystudent)->sortBy('lavel')->reverse()->toArray(); DESC
                 $data = count($data) !== 0 ? $data :  null;
-                return view('teachers.treport' ,compact('data', 'semestry', 'tumbon', 'all_tumbon', 'all_semestry', 'lavel'));
+                return view('teachers.treport' ,compact('data', 'semestry', 'tumbon', 'all_tumbon', 'all_semestry', 'lavel', 'studreport'));
               break;
             case 'เฉพาะผู้คาดว่าจะจบ':
                 $data = $this->expstudent($tumbon, $semestry, $lavel);
                 $data = collect($data)->sortBy('lavel')->toArray();
                 $data = count($data) !== 0 ? $data :  null;
-                return view('teachers.treport' ,compact('data', 'semestry', 'tumbon', 'all_tumbon', 'all_semestry', 'lavel'));
+                return view('teachers.treport' ,compact('data', 'semestry', 'tumbon', 'all_tumbon', 'all_semestry', 'lavel', 'studreport'));
               break;
-            case 'ไม่จบตกค้าง(ที่ไม่ได้ลงทะเบียนแล้ว)':
+            case 'ไม่จบตกค้าง(ที่ไม่ได้ลงทะเบียนแล้ว) ย้อนหลัง 4 ปี':
                 $data = $this->unfinishstudent($tumbon, $semestry, $lavel);
                 $data = collect($data)->sortBy('lavel')->toArray();
                 $data = count($data) !== 0 ? $data :  null;
-                return view('teachers.treport' ,compact('data', 'semestry', 'tumbon', 'all_tumbon', 'all_semestry', 'lavel'));
+                return view('teachers.treport' ,compact('data', 'semestry', 'tumbon', 'all_tumbon', 'all_semestry', 'lavel', 'studreport'));
               break;
             default:
-              return view('teachers.treport' ,compact('data', 'semestry', 'tumbon', 'all_tumbon', 'all_semestry', 'lavel'));
+              return view('teachers.treport' ,compact('data', 'semestry', 'tumbon', 'all_tumbon', 'all_semestry', 'lavel', 'studreport'));
           }                       
     }
 
@@ -247,13 +248,7 @@ class TeachersReportController extends Controller
 
             $current_students = DB::table($tgrade)
                 ->where("$tgrade.SEMESTRY", $semestry)
-                ->where(function($query) use ($grp_code, $tgrade) {
-                    if ($grp_code === "[0-9]") {
-                        $query->whereRaw("$tgrade.GRP_CODE REGEXP ?", [$grp_code]);
-                    } else {
-                        $query->where("$tgrade.GRP_CODE", '=', $grp_code);
-                    }
-                })
+                ->where("$tgrade.GRP_CODE", '=', $grp_code)
                 ->join($tstudent, "$tgrade.STD_CODE", '=', "$tstudent.STD_CODE")
                 ->select("$tstudent.STD_CODE", "$tstudent.ID", "$tstudent.NAME", "$tstudent.SURNAME", "$tstudent.FIN_CAUSE", "$tstudent.NT_SEM", "$tstudent.NT_NOSEM", "$tstudent.GRP_CODE",  "$tstudent.ABLEVEL1", "$tstudent.ABLEVEL2")
                 ->distinct()
@@ -273,13 +268,7 @@ class TeachersReportController extends Controller
         
                 $current_students = DB::table($tgrade)
                     ->where("$tgrade.SEMESTRY", $semestry)
-                    ->where(function($query) use ($grp_code, $tgrade) {
-                        if ($grp_code === "[0-9]") {
-                            $query->whereRaw("$tgrade.GRP_CODE REGEXP ?", [$grp_code]);
-                        } else {
-                            $query->where("$tgrade.GRP_CODE", '=', $grp_code);
-                        }
-                    })
+                    ->where("$tgrade.GRP_CODE", '=', $grp_code)
                     ->join($tstudent, "$tgrade.STD_CODE", '=', "$tstudent.STD_CODE")
                     ->select("$tstudent.STD_CODE", "$tstudent.ID", "$tstudent.NAME", "$tstudent.SURNAME", "$tstudent.FIN_CAUSE", "$tstudent.NT_SEM", "$tstudent.NT_NOSEM", "$tstudent.GRP_CODE",  "$tstudent.ABLEVEL1", "$tstudent.ABLEVEL2")
                     ->distinct()
@@ -304,8 +293,8 @@ class TeachersReportController extends Controller
         $current_year = (int)$current_year;
         $current_term = (int)$current_term;
     
-        // คำนวณภาคเรียนที่ย้อนหลัง 10 ภาคเรียน
-        $target_year = $current_year - 3;
+        // คำนวณภาคเรียนที่ย้อนหลัง 8 ภาคเรียน
+        $target_year = $current_year - 4;
         $target_term = $current_term;
     
         // สร้างช่วงภาคเรียน
@@ -330,13 +319,7 @@ class TeachersReportController extends Controller
                 ->join($tstudent, "$tgrade.STD_CODE", '=', "$tstudent.STD_CODE")
                 ->whereNotIn("$tgrade.SEMESTRY", [$semestry]) // นักศึกษาที่ยังไม่ได้ลงทะเบียนในภาคเรียนปัจจุบัน
                 ->whereIn("$tgrade.SEMESTRY", $valid_semesters) // เลือกเฉพาะภาคเรียนที่ต้องการ (ไม่เกิน 10 ภาคเรียนย้อนหลัง)
-                ->where(function($query) use ($grp_code, $tgrade) {
-                    if ($grp_code === "[0-9]") {
-                        $query->whereRaw("$tgrade.GRP_CODE REGEXP ?", [$grp_code]);
-                    } else {
-                        $query->where("$tgrade.GRP_CODE", '=', $grp_code);
-                    }
-                })
+                ->where("$tgrade.GRP_CODE", '=', $grp_code)
                 //->whereNull("$tgrade.GRADE") // ตรวจสอบว่ารายการนี้ยังไม่ได้รับเกรด
                 ->where("$tstudent.FIN_SEM", '=', null) // fin_sem != 1-9
                 ->select("$tstudent.STD_CODE", "$tstudent.ID", "$tstudent.NAME", "$tstudent.SURNAME", "$tstudent.FIN_CAUSE", "$tstudent.NT_SEM", "$tstudent.NT_NOSEM", "$tstudent.GRP_CODE",  "$tstudent.ABLEVEL1", "$tstudent.ABLEVEL2")
@@ -357,13 +340,7 @@ class TeachersReportController extends Controller
                     ->join($tstudent, "$tgrade.STD_CODE", '=', "$tstudent.STD_CODE")
                     ->whereNotIn("$tgrade.SEMESTRY", [$semestry]) // นักศึกษาที่ยังไม่ได้ลงทะเบียนในภาคเรียนปัจจุบัน
                     ->whereIn("$tgrade.SEMESTRY", $valid_semesters) // เลือกเฉพาะภาคเรียนที่ต้องการ (ไม่เกิน 10 ภาคเรียนย้อนหลัง)
-                    ->where(function($query) use ($grp_code, $tgrade) {
-                        if ($grp_code === "[0-9]") {
-                            $query->whereRaw("$tgrade.GRP_CODE REGEXP ?", [$grp_code]);
-                        } else {
-                            $query->where("$tgrade.GRP_CODE", '=', $grp_code);
-                        }
-                    })
+                    ->where("$tgrade.GRP_CODE", '=', $grp_code)
                     //->whereNull("$tgrade.GRADE") // ตรวจสอบว่ารายการนี้ยังไม่ได้รับเกรด
                     ->where("$tstudent.FIN_SEM", '=', null) // fin_sem != 1-9
                     ->select("$tstudent.STD_CODE", "$tstudent.ID", "$tstudent.NAME", "$tstudent.SURNAME", "$tstudent.FIN_CAUSE", "$tstudent.NT_SEM", "$tstudent.NT_NOSEM", "$tstudent.GRP_CODE",  "$tstudent.ABLEVEL1", "$tstudent.ABLEVEL2")

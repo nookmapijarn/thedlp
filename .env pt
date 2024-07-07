@@ -1,4 +1,4 @@
-APP_NAME="พระประแดง OLIS DLEC"
+APP_NAME="Amphur.. OLIS DLEC"
 APP_NAME_THAI="ศูนย์ส่งเสริมการเรียนรู้ระดับอำเภอ"
 APP_NAME_SYSTEM="ระบบบริหารจัดการข้อมูลผู้เรียนออนไลน์"
 
@@ -11,12 +11,19 @@ LOG_CHANNEL=stack
 LOG_DEPRECATIONS_CHANNEL=null
 LOG_LEVEL=debug
 
+# DB_CONNECTION=mysql
+# DB_HOST=103.30.127.29
+# DB_PORT=3306
+# DB_DATABASE=phothong_db
+# DB_USERNAME=phothong_db  
+# DB_PASSWORD=Ozirish0101
+
 DB_CONNECTION=mysql
-DB_HOST=203.170.190.149
+DB_HOST=103.30.127.29
 DB_PORT=3306
-DB_DATABASE=phrapra_db
-DB_USERNAME=phrapra_db
-DB_PASSWORD=z!xO=bb2n:)B
+DB_DATABASE=phothong_db_test
+DB_USERNAME=phothong_db_test
+DB_PASSWORD=Ozirish0101
 
 BROADCAST_DRIVER=log
 CACHE_DRIVER=file
@@ -31,6 +38,11 @@ REDIS_HOST=127.0.0.1
 REDIS_PASSWORD=null
 REDIS_PORT=6379
 
+# MAIL_MAILER=smtp
+# MAIL_HOST=smtp.mailtrap.io
+# MAIL_PORT=1025
+# MAIL_USERNAME=nookmapijarn@gmail.com
+# MAIL_PASSWORD=Ozirish01
 
 MAIL_DRIVER=smtp
 MAIL_HOST=smtp.gmail.com

@@ -22,14 +22,13 @@ class TeachersGradeController extends Controller
         $all_semestry = $this->get_semestry();
         
         $data=[];
-        $tumbon = '';
-        $lavel = '';
+        $tumbon = null;
+        $lavel = null;
         $semestry = $all_semestry->first()->SEMESTRY;
-
         $all_tumbon = $this->get_group($semestry);
 
-        if($request->tumbon!=''){
-            $tumbon = str_split($request->tumbon, 4)[0];
+        if(isset($request->tumbon)){
+            $tumbon = $request->tumbon;
             $lavel = $request->lavel;
             $semestry = $request->semestry;
         }else{
@@ -78,8 +77,8 @@ class TeachersGradeController extends Controller
 
         $student = DB::table($tgrade)
         ->join($tstudent, $tgrade.'.STD_CODE', '=', $tstudent.'.STD_CODE')
-        ->where($tgrade.'.GRP_CODE', '=', $grp_code)
-        ->where($tgrade.'.SEMESTRY', '=', $semestry)
+        ->where($tgrade.'.GRP_CODE', $grp_code)
+        ->where($tgrade.'.SEMESTRY', $semestry)
         ->select($tstudent.'.STD_CODE', $tstudent.'.ID', $tstudent.'.NAME', $tstudent.'.SURNAME')
         ->orderBy($tstudent.'.ID', 'ASC')
         ->groupBy($tstudent.'.STD_CODE', $tstudent.'.ID', $tstudent.'.NAME', $tstudent.'.SURNAME')
