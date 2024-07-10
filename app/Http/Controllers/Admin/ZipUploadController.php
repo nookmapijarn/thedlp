@@ -145,9 +145,9 @@ class ZipUploadController extends Controller
                 // ใช้ File::chmod() เพื่อเปลี่ยนแปลงสิทธิ์ไฟล์
                 if (File::chmod($groupDbfPath, 0777, true)) {
                     Log::info('Unlock $GroupdbfPath : ' . $groupDbfPath );
-                    $log_lastModified = DB::table('lastmodifiedfile')->where('FILE_NAME', 'Group')->first(['LAST_MODIFIED']);
-                    $lastModifiedtime = filemtime($groupDbfPath);
-                    $lastModifiedtime = date("Y-m-d H:i:s", $lastModifiedtime);
+                    // $log_lastModified = DB::table('lastmodifiedfile')->where('FILE_NAME', 'Group')->first(['LAST_MODIFIED']);
+                    // $lastModifiedtime = date("Y-m-d H:i:s");//filemtime($groupDbfPath);
+                    // $lastModifiedtime = date("Y-m-d H:i:s", $lastModifiedtime);
                 } else {
                     Log::error('Failed to unlock $GroupdbfPath : ' . $groupDbfPath );
                 }
@@ -157,7 +157,7 @@ class ZipUploadController extends Controller
 
 
 
-            if (File::exists($groupDbfPath) && $log_lastModified->LAST_MODIFIED !== $lastModifiedtime) {
+            if (File::exists($groupDbfPath)) {
                 $this->importDbfData($groupDbfPath, Group::class, null);
                 //File::deleteDirectory($extractPath);
             }
@@ -201,11 +201,11 @@ class ZipUploadController extends Controller
                 Log::error('File not found: ' . $dbfPath);
             }
 
-            $log_lastModified = DB::table('lastmodifiedfile')->where('FILE_NAME', $file.$level)->first(['LAST_MODIFIED']);
-            $lastModifiedtime = filemtime($dbfPath);
-            $lastModifiedtime = date("Y-m-d H:i:s", $lastModifiedtime);
+            // $log_lastModified = DB::table('lastmodifiedfile')->where('FILE_NAME', $file.$level)->first(['LAST_MODIFIED']);
+            // $lastModifiedtime = 0;//filemtime($dbfPath);
+            // $lastModifiedtime = date("Y-m-d H:i:s", $lastModifiedtime);
 
-            if (File::exists($dbfPath) && $log_lastModified->LAST_MODIFIED !== $lastModifiedtime) {
+            if (File::exists($dbfPath)) {
                 $model = $this->getModelClass($file, $level);
 
                 // ล้างข้อมูล
