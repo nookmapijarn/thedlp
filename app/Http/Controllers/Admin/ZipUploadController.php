@@ -138,7 +138,7 @@ class ZipUploadController extends Controller
             }
 
             // Process the GROUP.dbf file
-            $groupDbfPath = "phothongdlec.ac.th/storage/uploads/unzipped/{$this->sc_code}/GROUP.dbf";//"{$extractPath}/{$this->sc_code}/GROUP.dbf";
+            $groupDbfPath = "{$extractPath}/{$this->sc_code}/GROUP.dbf";//"{$extractPath}/{$this->sc_code}/GROUP.dbf";
 
             // ตรวจสอบว่าไฟล์มีอยู่หรือไม่ก่อนทำการเปลี่ยนแปลงสิทธิ์
             if (File::exists($groupDbfPath)) {
@@ -187,7 +187,7 @@ class ZipUploadController extends Controller
 
         foreach ($files as $file) {
 
-            $dbfPath = "phothongdlec.ac.th/storage/uploads/unzipped/{$sc_code}/{$level}/{$file}.dbf";//"{$extractPath}/{$sc_code}/$level/{$file}.dbf";
+            $dbfPath = "{$extractPath}/{$this->sc_code}/{$level}/{$file}.dbf";//"{$extractPath}/{$sc_code}/$level/{$file}.dbf";
 
             // ตรวจสอบว่าไฟล์มีอยู่หรือไม่ก่อนทำการเปลี่ยนแปลงสิทธิ์
             if (File::exists($dbfPath)) {
@@ -216,7 +216,7 @@ class ZipUploadController extends Controller
                 $this->importDbfData($dbfPath, $model, $level);
 
             } else {
-                log::info( 'Model : '.$file.$level.' :  Nothing ImportData !!!');
+                log::info( 'Model : '.$file.$level.' :  Nothing ImportData !!! :'.$dbfPath);
             }
         }
 
