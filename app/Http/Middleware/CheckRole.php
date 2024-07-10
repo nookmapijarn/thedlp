@@ -12,8 +12,8 @@ class CheckRole
     public function handle(Request $request, Closure $next, $role)
     {
         $userrole = Auth::user()->role;
-        Log::info('ck userrole ***************** '.$userrole);
-        Log::info('ck role ***************** '.$role);
+        // Log::info('ck userrole ***************** '.$userrole);
+        // Log::info('ck role ***************** '.$role);
 
         if (Auth::check()) {
             if (Auth::user()->role == $role) {

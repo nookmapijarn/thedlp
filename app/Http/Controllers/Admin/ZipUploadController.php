@@ -24,9 +24,6 @@ use App\Models\Schedule1;
 use App\Models\Schedule2;
 use App\Models\Schedule3;
 use App\Models\Group;
-use App\Models\LastModifiedFile;
-use Illuminate\Support\Carbon;
-
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -55,7 +52,7 @@ class ZipUploadController extends Controller
 
         // Upload ZIP file to temporary folder
         $file = $request->file('zip_file');
-        $path = $file->storeAs('uploads', 'uploaded.zip');
+        $path = $file->storeAs('public/uploads', 'uploaded');
 
         if (!Storage::exists($path)) {
             return view('admin.upload', compact('student'))->with('error', 'Failed to upload file.');
@@ -65,7 +62,9 @@ class ZipUploadController extends Controller
         $zip = new ZipArchive;
         if ($zip->open(Storage::path($path)) === TRUE) {
 
-            $extractPath = storage_path('app/uploads/unzipped/');
+            $extractPath = Storage::url($path);//storage_path('public/uploads/unzipped/');
+
+            Log::info('**********extractPath**********'.$extractPath);
 
             // ลบไปใน Folder
             File::deleteDirectory($extractPath);
@@ -97,33 +96,33 @@ class ZipUploadController extends Controller
             }
 
             Log::info($directories);
-            Log::info('****************************************************'.$this->sc_code.'********************');
+            Log::info('****************'.$this->sc_code.'********************');
             
             // หาระดับชั้น
             $lavellist = [];
-            // echo 'path : '.$extractPath.$this->sc_code.'<br>';
-            $allLavel = glob($extractPath.$this->sc_code. '/*', GLOB_ONLYDIR);
 
-            // ทำการแก้ไข
-            foreach ($allLavel as $lavel) {
-                $lavellist[] = basename($lavel);
+            Log::info('**************** Lavel path : '."{$extractPath}/{$this->sc_code}");
+            $allLavel = glob("{$extractPath}/{$this->sc_code}". '/*', GLOB_ONLYDIR);
+            
+            if(count($allLavel) != 0){
+                                // ทำการแก้ไข
+                foreach ($allLavel as $lavel) {
+                    $lavellist[] = basename($lavel);
+                    Log::info( 'level -------------- >'.$lavel );
+                }
+            } else {
+                    Log::info( 'not level ---------- >');
             }
 
-            //print_r($lavellist);
 
-            // Process .dbf files
             foreach($lavellist as $lv){
-                // echo 'LAVEL ***** '.$lv.'<br>';
                 if($lv != 0){
                     $this->processDbfFiles($extractPath, $lv, $this->sc_code);
                 }
             }
-            // for ($level = 1; $level <= 3; $level++) {
-            //     $this->processDbfFiles($extractPath, $level, $this->sc_code);
-            // }
 
             // Process the GROUP.dbf file
-            $groupDbfPath = "{$extractPath}{$this->sc_code}/GROUP.dbf";
+            $groupDbfPath = "{$extractPath}/{$this->sc_code}/GROUP.dbf";
 
             // ตรวจสอบว่าไฟล์มีอยู่หรือไม่ก่อนทำการเปลี่ยนแปลงสิทธิ์
             if (File::exists($groupDbfPath)) {
@@ -147,7 +146,7 @@ class ZipUploadController extends Controller
             }
 
             // Delete extracted folder
-            File::deleteDirectory($extractPath);
+            //File::deleteDirectory($extractPath);
 
             $lastmodified = DB::table('lastmodifiedfile')->get();
 
@@ -173,7 +172,7 @@ class ZipUploadController extends Controller
 
         foreach ($files as $file) {
 
-            $dbfPath = "{$extractPath}{$sc_code}/$level/{$file}.dbf";
+            $dbfPath = "{$extractPath}/{$sc_code}/$level/{$file}.dbf";
 
             // ตรวจสอบว่าไฟล์มีอยู่หรือไม่ก่อนทำการเปลี่ยนแปลงสิทธิ์
             if (File::exists($dbfPath)) {
@@ -190,18 +189,19 @@ class ZipUploadController extends Controller
             $log_lastModified = DB::table('lastmodifiedfile')->where('FILE_NAME', $file.$level)->first(['LAST_MODIFIED']);
             $lastModifiedtime = filemtime($dbfPath);
             $lastModifiedtime = date("Y-m-d H:i:s", $lastModifiedtime);
-            // echo 'lastModified : '.'LAST_MODIF_LOG : '.$log_lastModified->LAST_MODIFIED.' || '.'LAST_MODIF_FILE : '.$lastModifiedtime.'<br>';
 
             if (File::exists($dbfPath) && $log_lastModified->LAST_MODIFIED !== $lastModifiedtime) {
-                // echo 'Model : '.$file.$level.' : Starting ImportData >>> <br>';
                 $model = $this->getModelClass($file, $level);
 
                 // ล้างข้อมูล
                 if($file == 'grade' || $file == 'activity' || $file == 'schedule'){$model::truncate();} 
 
+                // ใช้ฟังชั่นนี้อ่านข้อมูลและบันทึก
+                log::info('Model : '.$file.$level.' : Starting ImportData >>>');
                 $this->importDbfData($dbfPath, $model, $level);
+
             } else {
-                // echo 'Model : '.$file.$level.' :  Nothing ImportData !!! <br>';
+                log::info( 'Model : '.$file.$level.' :  Nothing ImportData !!!');
             }
         }
 
@@ -228,7 +228,7 @@ class ZipUploadController extends Controller
         $fillableFields = (new $modelClass())->getFillable();
 
         //Load DBF file using XBase\TableReader
-        $dbf = new TableReader(
+        $table = new TableReader(
             $dbfPath,
             [
                 'encoding' => 'TIS-620', // encoding tis-620 => utf8
@@ -236,13 +236,13 @@ class ZipUploadController extends Controller
             ]
         );
 
-        if (class_exists($modelClass)) {
+        if (class_exists($modelClass) && $table) {
 
             $batchData = [];
 
             try {
                 $counter = 0;
-                while ($record = $dbf->nextRecord()) {
+                while ($record = $table->nextRecord()) {
                     // echo '<br>Model ******** '.$modelClassName.'************<br>';
                     $convertedData = [];
                     foreach ($fillableFields as $field) {
@@ -252,6 +252,8 @@ class ZipUploadController extends Controller
                         // if($field == 'SUB_NAME'){
                         //     echo '<br>*******************************************'.$value.'********************************<br> ';
                         // }
+
+                        // ตรวจวันที่
                         if ($field == 'fin_date' || $field == 'trscp_date' || $field == 'fin_date2' || $field == 'trn_date2' || $field == 'v_recvdate'|| $field == 'v_repdate' || $field == 'v_reqdate' || $field == 'v_repdate' || $field == 'v_retdate' || $field ==  'v_senddate') {
                             if($this->convertDate($value) == null){
                                 $convertedData[$field] = null;
@@ -263,6 +265,8 @@ class ZipUploadController extends Controller
                                 continue;
                             }
                         }
+
+                        // ตรวจค่าว่าง
                         if ($value == null || $value == " " || $value == '') {
                             //echo 'null Field'.$field.' Value = '.$value.'<br>';
                             $convertedData[$field] = null;
@@ -277,6 +281,8 @@ class ZipUploadController extends Controller
 
                     if (!empty($convertedData)) {
                         $batchData[] = $convertedData;
+                    } else {
+                        log::error(e:'ConvertData is Empty');
                     }
 
                     // Batch insert to avoid memory exhaustion
@@ -296,20 +302,20 @@ class ZipUploadController extends Controller
                                // echo 'uni key';
                             }
                             $modelClass::upsert($batchData, $unique_key, array_keys($convertedData));
-                            // echo ('Model : '.$modelClassName.' Batch insert to avoid memory exhaustion... '.'<br>');
+                            log::info('Model : '.$modelClassName.' Batch insert to avoid memory exhaustion... ');
                         } catch (\Exception $e) {
-                            // echo ('Model : '.$modelClassName.' Batch insert error: ' . $e->getMessage()).'<br>';
+                            log::error('Model : '.$modelClassName.' Batch insert error: ' . $e->getMessage());
                         }
                         $batchData = [];
                     }
                     $counter++;
                 }
             } catch (\Exception $e) {
-
+                log::error('Model : '.$modelClassName.' Error processing records: ' . $e->getMessage());
                 //echo ('Model : '.$modelClassName.' Error processing records: ' . $e->getMessage()).'<br>';
             }
 
-            // Insert remaining batch data
+            // Insert Final batch insert remaining batch data
             if (!empty($batchData)) {
                 try {
                     $unique_key = [];
@@ -325,7 +331,7 @@ class ZipUploadController extends Controller
                         $unique_key = ['GRP_CODE'];
                         // echo 'uni key';
                     }
-                    //echo ('Model : '.$modelClassName.' : Final batch insert success <br>');
+                    log::info('Model : '.$modelClassName.' : Final batch insert success');
                     $upsert = $modelClass::upsert($batchData, $unique_key, array_keys($batchData[0]));
                     $lastModifiedtime = filemtime($dbfPath);
 
@@ -338,7 +344,7 @@ class ZipUploadController extends Controller
                             'uploaded' => date("Y-m-d H:i:s")
                         ];
                         $save = DB::table('lastmodifiedfile')->updateOrInsert(['file_name' => $modelClassName], $lastModified);
-                        // echo ('Model : '.$modelClassName.' บันทึกการอัพเดท '.date("Y-m-d H:i:s").' <br><br><br>');
+                        log::info('Model : '.$modelClassName.' บันทึกการอัพเดท '.date("Y-m-d H:i:s"));
                     } else {
                         $lastModified = [
                             'file_name' => $modelClassName,
@@ -347,12 +353,14 @@ class ZipUploadController extends Controller
                             'uploaded' => date("Y-m-d H:i:s", '0000-00-00 00:00:00')
                         ];
                         $save = DB::table('lastmodifiedfile')->updateOrInsert(['file_name' => $modelClassName], $lastModified);
-                        // echo ('Model : '.$modelClassName.' ไม่บันทึกการอัพเดท '.date("Y-m-d H:i:s").' <br><br><br>');
+                        log::error('Model : '.$modelClassName.' ไม่บันทึกการอัพเดท '.date("Y-m-d H:i:s"), $e->getMessage());
                     }
                 } catch (\Exception $e) {
-                    //echo ('Model : '.$modelClassName.'<br><br><br> Final batch insert error: ' . $e->getMessage()).'<br>';
+                    log::error('Model : '.$modelClassName.' Final batch insert error: ' . $e->getMessage());
                 }
             }
+        } else {
+            log::error('Cant Not TableReader or ClassModel Dont Exit');
         }
     }
 
