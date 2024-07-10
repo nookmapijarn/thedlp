@@ -52,27 +52,43 @@ class ZipUploadController extends Controller
 
         // Upload ZIP file to temporary folder
         $file = $request->file('zip_file');
-        $path = $file->storeAs('public/uploads', 'uploaded');
+        $path = public_path('storage/uploads');//$file->storeAs('uploads', 'uploaded.zip');
 
-        if (!Storage::exists($path)) {
-            return view('admin.upload', compact('student'))->with('error', 'Failed to upload file.');
+        if (!File::exists($path)) {
+            File::makeDirectory($path, 0755, true);
+        }
+        
+        // เก็บไฟล์ในโฟลเดอร์ที่กำหนด
+        $file->move($path, 'uploaded.zip');
+
+        // เส้นทางไฟล์ที่เก็บไว้
+        $filePath = $path . '/uploaded.zip';
+
+        // เส้นทางไฟล์ที่ต้องแตก
+        $filePath = public_path('storage/uploads/uploaded.zip');
+        $extractPath = public_path('storage/uploads/unzipped');
+        
+        // ตรวจสอบว่ามีโฟลเดอร์นี้อยู่หรือไม่
+        if (!File::exists($extractPath)) {
+            File::makeDirectory($extractPath, 0755, true);
         }
 
         // Extract ZIP file
         $zip = new ZipArchive;
-        if ($zip->open(Storage::path($path)) === TRUE) {
+        if ($zip->open($filePath) === TRUE) {
 
-            $extractPath = Storage::url($path);//storage_path('public/uploads/unzipped/');
+            //$extractPath =  storage_path('app/uploads/unzipped/');//Storage::url($path);
 
-            Log::info('**********extractPath**********'.$extractPath);
 
             // ลบไปใน Folder
-            File::deleteDirectory($extractPath);
+            //File::deleteDirectory($extractPath);
 
             // แตกไฟล์
             $zip->extractTo($extractPath);
             $zip->close();
-            Storage::delete($path);
+            //Storage::delete($path);
+            
+            Log::info('**********extractPath**********'.$extractPath);
 
             // Get list of folders in the unzipped directory
             $directories = [];
@@ -105,7 +121,7 @@ class ZipUploadController extends Controller
             $allLavel = glob("{$extractPath}/{$this->sc_code}". '/*', GLOB_ONLYDIR);
             
             if(count($allLavel) != 0){
-                                // ทำการแก้ไข
+                // ทำการแก้ไข
                 foreach ($allLavel as $lavel) {
                     $lavellist[] = basename($lavel);
                     Log::info( 'level -------------- >'.$lavel );
@@ -122,13 +138,16 @@ class ZipUploadController extends Controller
             }
 
             // Process the GROUP.dbf file
-            $groupDbfPath = "{$extractPath}/{$this->sc_code}/GROUP.dbf";
+            $groupDbfPath = public_path('storage/uploads/unzipped/GROUP.dbf');//"{$extractPath}/{$this->sc_code}/GROUP.dbf";
 
             // ตรวจสอบว่าไฟล์มีอยู่หรือไม่ก่อนทำการเปลี่ยนแปลงสิทธิ์
             if (File::exists($groupDbfPath)) {
                 // ใช้ File::chmod() เพื่อเปลี่ยนแปลงสิทธิ์ไฟล์
                 if (File::chmod($groupDbfPath, 0777, true)) {
                     Log::info('Unlock $GroupdbfPath : ' . $groupDbfPath );
+                    $log_lastModified = DB::table('lastmodifiedfile')->where('FILE_NAME', 'Group')->first(['LAST_MODIFIED']);
+                    $lastModifiedtime = filemtime($groupDbfPath);
+                    $lastModifiedtime = date("Y-m-d H:i:s", $lastModifiedtime);
                 } else {
                     Log::error('Failed to unlock $GroupdbfPath : ' . $groupDbfPath );
                 }
@@ -136,19 +155,15 @@ class ZipUploadController extends Controller
                 Log::error('File not found: ' . $groupDbfPath);
             }
 
-            $log_lastModified = DB::table('lastmodifiedfile')->where('FILE_NAME', 'Group')->first(['LAST_MODIFIED']);
-            $lastModifiedtime = filemtime($groupDbfPath);
-            $lastModifiedtime = date("Y-m-d H:i:s", $lastModifiedtime);
+
 
             if (File::exists($groupDbfPath) && $log_lastModified->LAST_MODIFIED !== $lastModifiedtime) {
                 $this->importDbfData($groupDbfPath, Group::class, null);
-                File::deleteDirectory($extractPath);
+                //File::deleteDirectory($extractPath);
             }
 
             // Delete extracted folder
             //File::deleteDirectory($extractPath);
-
-            $lastmodified = DB::table('lastmodifiedfile')->get();
 
             return response()->json(['success' => true, 'message' => 'Upload สำเร็จ กรุณา reload '])
             ->header('Content-Type', 'application/json')
@@ -172,7 +187,7 @@ class ZipUploadController extends Controller
 
         foreach ($files as $file) {
 
-            $dbfPath = "{$extractPath}/{$sc_code}/$level/{$file}.dbf";
+            $dbfPath = public_path("storage/uploads/unzipped/{$extractPath}/{$sc_code}/$level/{$file}.dbf");//"{$extractPath}/{$sc_code}/$level/{$file}.dbf";
 
             // ตรวจสอบว่าไฟล์มีอยู่หรือไม่ก่อนทำการเปลี่ยนแปลงสิทธิ์
             if (File::exists($dbfPath)) {
