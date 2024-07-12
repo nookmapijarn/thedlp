@@ -218,7 +218,6 @@ class ZipUploadController extends Controller
                 if($file == 'grade' || $file == 'activity' || $file == 'schedule'){$model::truncate();} 
 
                 // ใช้ฟังชั่นนี้อ่านข้อมูลและบันทึก
-                log::info('Model : '.$file.$level.' : Starting ImportData >>>');
                 $this->importDbfData($dbfPath, $model, $level);
 
             } else {
@@ -245,6 +244,8 @@ class ZipUploadController extends Controller
     protected function importDbfData($dbfPath, $modelClass, $level)
     {
 
+        log::info('Model : '.$modelClass.' : Starting ImportData >>>'. "Path : ". $dbfPath);
+
         $modelClassName = class_basename($modelClass);
         
         $fillableFields = (new $modelClass())->getFillable();
@@ -257,6 +258,8 @@ class ZipUploadController extends Controller
                 'columns' => $fillableFields
             ]
         );
+
+        log::info('Tebel : '.print_r($table));
 
         if (class_exists($modelClass) && $table->nextRecord() !== null) {
 
