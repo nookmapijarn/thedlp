@@ -24,6 +24,7 @@ use App\Models\Schedule1;
 use App\Models\Schedule2;
 use App\Models\Schedule3;
 use App\Models\Group;
+use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -86,7 +87,7 @@ class ZipUploadController extends Controller
             // แตกไฟล์
             $zip->extractTo($extractPath);
             $zip->close();
-            //Storage::delete($path);
+            Storage::delete($path);
             
             Log::info('**********extractPath**********'.$extractPath);
 
@@ -187,18 +188,22 @@ class ZipUploadController extends Controller
 
         foreach ($files as $file) {
 
-            $dbfPath = "{$extractPath}/{$this->sc_code}/{$level}/{$file}.dbf";//"{$extractPath}/{$sc_code}/$level/{$file}.dbf";
+            $dbfPath = public_path("storage/uploads/unzipped/{$this->sc_code}/{$level}/{$file}.dbf");//"{$extractPath}/{$this->sc_code}/{$level}/{$file}.dbf";//"{$extractPath}/{$sc_code}/$level/{$file}.dbf";
 
             // ตรวจสอบว่าไฟล์มีอยู่หรือไม่ก่อนทำการเปลี่ยนแปลงสิทธิ์
-            if (File::exists($dbfPath)) {
+            try {
                 // ใช้ File::chmod() เพื่อเปลี่ยนแปลงสิทธิ์ไฟล์
-                if (File::chmod($dbfPath, 0777, true)) {
+                if (File::chmod($dbfPath, 0777, true) && File::exists($dbfPath)) {
+
+                    $lastmodified = File::lastModified($dbfPath);
                     Log::info('Unlock $dbfPath : ' . $dbfPath );
+                    Log::info('File Time  : ' . $lastmodified );
+                    
                 } else {
                     Log::error('Failed to unlock $dbfPath : ' . $dbfPath);
                 }
-            } else {
-                Log::error('File not found: ' . $dbfPath);
+            } catch (\Exception $e) {
+                Log::error('File not found: ' . $dbfPath . $e->getMessage());
             }
 
             // $log_lastModified = DB::table('lastmodifiedfile')->where('FILE_NAME', $file.$level)->first(['LAST_MODIFIED']);
@@ -206,6 +211,7 @@ class ZipUploadController extends Controller
             // $lastModifiedtime = date("Y-m-d H:i:s", $lastModifiedtime);
 
             if (File::exists($dbfPath)) {
+
                 $model = $this->getModelClass($file, $level);
 
                 // ล้างข้อมูล
@@ -240,6 +246,7 @@ class ZipUploadController extends Controller
     {
 
         $modelClassName = class_basename($modelClass);
+        
         $fillableFields = (new $modelClass())->getFillable();
 
         //Load DBF file using XBase\TableReader
@@ -251,7 +258,7 @@ class ZipUploadController extends Controller
             ]
         );
 
-        if (class_exists($modelClass) && $table) {
+        if (class_exists($modelClass) && $table->nextRecord() !== null) {
 
             $batchData = [];
 
@@ -375,7 +382,7 @@ class ZipUploadController extends Controller
                 }
             }
         } else {
-            log::error('Cant Not TableReader or ClassModel Dont Exit');
+            log::error('Cant Not TableReader or ClassModel Dont Exit !!!!!!!!!!!!!!!!!!!!!!!!!!!!! '. $table);
         }
     }
 
