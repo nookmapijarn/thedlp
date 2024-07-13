@@ -298,8 +298,11 @@ class ZipUploadController extends Controller
 
                         $value = $record->$field;
 
-                        if($field){
+                        if($value !== null){
                             log::info("Field : ".$field." Value : ".$value);
+                        } else {
+                            log::info("Field : ".$field." Null Value : ".$value);
+                            continue;
                         }
 
                         // if($field == 'SUB_NAME'){
