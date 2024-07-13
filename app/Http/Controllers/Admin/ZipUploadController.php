@@ -298,7 +298,7 @@ class ZipUploadController extends Controller
 
                         $value = $record->$field;
 
-                        if($field == 'std_code'){
+                        if($field){
                             log::info("Field : ".$field." Value : ".$value);
                         }
 
@@ -308,7 +308,7 @@ class ZipUploadController extends Controller
 
                         // ตรวจวันที่
                         if ($field == 'fin_date' || $field == 'trscp_date' || $field == 'fin_date2' || $field == 'trn_date2' || $field == 'v_recvdate'|| $field == 'v_repdate' || $field == 'v_reqdate' || $field == 'v_repdate' || $field == 'v_retdate' || $field ==  'v_senddate') {
-                            if($this->convertDate($value) == null){
+                            if($this->convertDate($value) === null){
                                 $convertedData[$field] = null;
                                 //echo 'date null'.$field.'<br>';
                                 continue;
@@ -425,11 +425,13 @@ class ZipUploadController extends Controller
     
         $date = trim($date);
         if (empty($date) || $date == '0000-00-00' || $date == '0000-00-00 00:00:00') {
+            log::info("return date Null");
             return null;
         }
         try {
             return date('Y-m-d', strtotime($date));
         } catch (\Exception $e) {
+            log::info("return date Null");
             return null;
         }
     }
