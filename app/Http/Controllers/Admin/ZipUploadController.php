@@ -251,15 +251,39 @@ class ZipUploadController extends Controller
         $fillableFields = (new $modelClass())->getFillable();
 
         //Load DBF file using XBase\TableReader
-        $table = new TableReader(
-            $dbfPath,
-            [
-                'encoding' => 'TIS-620', // encoding tis-620 => utf8
-                'columns' => $fillableFields
-            ]
-        );
+        // $table = new TableReader(
+        //     $dbfPath,
+        //     [
+        //         'encoding' => 'TIS-620', // encoding tis-620 => utf8
+        //         'columns' => $fillableFields
+        //     ]
+        // );
 
-        log::info('Tebel : '.print_r($table));
+        try {
+            $table = new TableReader(
+                $dbfPath,
+                [
+                    'encoding' => 'TIS-620', // encoding tis-620 => utf8
+                    'columns' => $fillableFields
+                ]
+            );
+    
+            // ใช้ ob_start() และ ob_get_clean() เพื่อแปลงออบเจ็กต์เป็นสตริง
+            ob_start();
+            print_r($table);
+            $output = ob_get_clean();
+    
+            // บันทึกลงใน log
+            //Log::info('Table details: ' . $output);
+    
+            // // หรือใช้ json_encode หากออบเจ็กต์นั้นสามารถแปลงเป็น JSON ได้
+            // Log::info('Table details (JSON): ' . json_encode($table));
+        } catch (\Exception $e) {
+            // บันทึกข้อผิดพลาดลงใน log
+            Log::error('Error loading DBF table: ' . $e->getMessage());
+        }
+
+        //log::info('Tebel : '.print_r($table));
 
         if (class_exists($modelClass) && $table->nextRecord() !== null) {
 
@@ -273,6 +297,10 @@ class ZipUploadController extends Controller
                     foreach ($fillableFields as $field) {
 
                         $value = $record->$field;
+
+                        if($field == 'std_code'){
+                            log::info("Field : ".$field." Value : ".$value);
+                        }
 
                         // if($field == 'SUB_NAME'){
                         //     echo '<br>*******************************************'.$value.'********************************<br> ';
