@@ -470,9 +470,10 @@ class ZipUploadController extends Controller
                                 $value = $record->$field ?? null;
                                 log::info("field : " . $field . " value : " . $value);
                             } else {
-                                log::info("field : " . $field . " value : Null");
+                                log::info("field : " . $field . " value empty : " .$record->$field);
                                 continue;
                             }
+
                             // ตรวจวันที่
                             if (in_array($field, ['fin_date', 'trscp_date', 'fin_date2', 'trn_date2', 'v_recvdate', 'v_repdate', 'v_reqdate', 'v_repdate', 'v_retdate', 'v_senddate'])) {
                                 $convertedData[$field] = $this->convertDate($value) ?? null;
@@ -485,6 +486,7 @@ class ZipUploadController extends Controller
                             } else {
                                 $convertedData[$field] = $value;
                             }
+
                         } catch (\Exception $e) {
                             log::error('Error processing field ' . $field . ': ' . $e->getMessage());
                             $convertedData[$field] = null;
