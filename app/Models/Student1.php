@@ -66,7 +66,7 @@ class Student1 extends Model
         // 'addr',
         'tambonid',
         'zipcode',
-        'curaddr',
+        // 'curaddr',
         'ctambonid',
         'czipcode',
         'dep_sem',
