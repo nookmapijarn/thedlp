@@ -465,7 +465,7 @@ class ZipUploadController extends Controller
                     $convertedData = [];
                     foreach ($fillableFields as $field) {
                         try {
-
+                            log::info("before Ck field : " . $field . " value : " . $record->$field);
                             if(!empty($record->$field)){
                                 $value = $record->$field ?? null;
                                 log::info("field : " . $field . " value : " . $value);
