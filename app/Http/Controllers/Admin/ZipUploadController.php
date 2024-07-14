@@ -139,7 +139,7 @@ class ZipUploadController extends Controller
             }
 
             // Process the GROUP.dbf file
-            $groupDbfPath = "{$extractPath}/{$this->sc_code}/GROUP.dbf";//"{$extractPath}/{$this->sc_code}/GROUP.dbf";
+            $groupDbfPath = public_path("storage/uploads/unzipped/{$this->sc_code}/{$file}.dbf");//"{$extractPath}/{$this->sc_code}/GROUP.dbf";
 
             // ตรวจสอบว่าไฟล์มีอยู่หรือไม่ก่อนทำการเปลี่ยนแปลงสิทธิ์
             if (File::exists($groupDbfPath)) {
@@ -450,57 +450,48 @@ class ZipUploadController extends Controller
         }
     
         if (class_exists($modelClass) && !empty($table->nextRecord())) {
+            
             $batchData = [];
     
             try {
                 $counter = 0;
                 while ($record = $table->nextRecord()) {
-                    if (!empty($record)) {
-                        log::info("record : OK");
-                    } else {
-                        log::info("record : NULL");
-                        continue;
-                    }
 
                     $convertedData = [];
+
                     foreach ($fillableFields as $field) {
+
                         try {  
 
-                            log::info("before trim field: " . $field . " value: " . $record->$field);
+                            log::info("before ck field: " . $field . " value: " . $record->$field);
                             $value = $record->$field;
-                            log::info("ater set value : " . $field . " value: " . $value);
                             
-                            // ตรวจสอบค่าว่างในฟิลด์
                             if (is_string($value)) {
                                 if (trim($value) === '') {
+                                    // ตรวจสอบค่าว่างในฟิลด์
                                     Log::info("Field '{$field}' is empty in record: " . json_encode($record));
+                                    $convertedData[$field] = null;
+                                    continue;
+                                } elseif (in_array($field, ['fin_date', 'trscp_date', 'fin_date2', 'trn_date2', 'v_recvdate', 'v_repdate', 'v_reqdate', 'v_retdate', 'v_senddate'])) {
+                                    // ตรวจวันที
+                                    $convertedData[$field] = $this->convertDate($value) ?? null;
+                                    continue;
+                                } else {
+                                    $convertedData[$field] = $value;
+                                    continue;
                                 }
                             } elseif (is_null($value)) {
                                 Log::info("Field '{$field}' is null in record: " . json_encode($record));
-                            } elseif (is_numeric($value)) {
-                                if ($value == 0) {
-                                    Log::info("Field '{$field}' is zero (which may indicate empty) in record: " . json_encode($record));
-                                }
-                            }
-                        
-                            // ตรวจวันที่
-                            if (in_array($field, ['fin_date', 'trscp_date', 'fin_date2', 'trn_date2', 'v_recvdate', 'v_repdate', 'v_reqdate', 'v_retdate', 'v_senddate'])) {
-                                $convertedData[$field] = $this->convertDate($value) ?? null;
-                                continue;
-                            }
-                        
-                            // ตรวจค่าว่างและแปลงข้อมูล
-                            if (trim($value) === '') {
                                 $convertedData[$field] = null;
-                            } else {
+                                continue;
+                            } elseif (is_numeric($value)) {
                                 $convertedData[$field] = $value;
+                                continue;
                             }
                         
                         } catch (\Exception $e) {
                             log::error('Error processing field ' . $field . ': ' . $e->getMessage());
-                            $convertedData[$field] = null;
                         }
-                                              
                     }
     
                     if (!empty($convertedData)) {
