@@ -187,7 +187,6 @@ class ZipUploadController extends Controller
     protected function processDbfFiles($level)
     {
         $files = ['student', 'grade', 'activity', 'schedule', 'subject'];
-        $processedFiles = 0;
 
         foreach ($files as $file) {
 
@@ -196,17 +195,27 @@ class ZipUploadController extends Controller
             // ตรวจสอบว่าไฟล์มีอยู่หรือไม่ก่อนทำการเปลี่ยนแปลงสิทธิ์
             try {
                 // ใช้ File::chmod() เพื่อเปลี่ยนแปลงสิทธิ์ไฟล์
-                if (File::chmod($dbfPath, 0777, true) && File::exists($dbfPath)) {
+                if(File::exists($dbfPath)){
 
+                    File::chmod($dbfPath, 0777, true);
                     $lastmodified = File::lastModified($dbfPath);
                     Log::info('Unlock $dbfPath : ' . $dbfPath );
                     Log::info('File Time  : ' . $lastmodified );
-                    
+
                 } else {
-                    Log::error('Failed to unlock $dbfPath : ' . $dbfPath);
+
+                    $file = strtoupper($file);
+                    $dbfPath = public_path("storage/uploads/unzipped/{$this->sc_code}/{$level}/{$file}.dbf");
+                    log::info('**** Upper File Name Case *****'. $dbfPath);
+                    File::chmod($dbfPath, 0777, true);
+                    $lastmodified = File::lastModified($dbfPath);
+                    Log::info('Unlock $dbfPath : ' . $dbfPath );
+                    Log::info('File Time  : ' . $lastmodified );
+
                 }
+
             } catch (\Exception $e) {
-                Log::error('File not found: ' . $dbfPath . "errorMessage : ".$e->getMessage());
+                Log::error('path not found: ' . $dbfPath . "errorMessage : ".$e->getMessage());
             }
 
             // $log_lastModified = DB::table('lastmodifiedfile')->where('FILE_NAME', $file.$level)->first(['LAST_MODIFIED']);
@@ -224,11 +233,10 @@ class ZipUploadController extends Controller
                 $this->importDbfData($dbfPath, $model, $level);
 
             } else {
-                log::info( 'Model : '.$file.$level.' :  Nothing ImportData !!! :'.$dbfPath);
+                log::info( 'Model : '.$file.$level.' :  DBF dose exist !!! :'.$dbfPath);
             }
         }
 
-        return $processedFiles;
     }
 
     protected function getModelClass($file, $level)
