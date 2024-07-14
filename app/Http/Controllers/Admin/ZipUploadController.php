@@ -466,20 +466,14 @@ class ZipUploadController extends Controller
                     foreach ($fillableFields as $field) {
                         try {  
 
-                            log::info("before isset field: " . $field . " value: " . $record->$field);
+                            log::info("before trim field: " . $field . " value: " . $record->$field);
+                            $value = $record->$field;
 
                             // ตรวจสอบฟิลด์และล็อกค่าก่อนการตรวจสอบ
-                            if (isset($record->$field)) {
-                                $value = $record->$field;
+                            if ($value === null || trim($value) === '') {
+                                
                                 log::info("field: " . $field . " value: " . $value);
                                 
-                                // ตรวจสอบค่าฟิลด์ว่ามีหรือไม่
-                                if ($value !== '') {
-                                    log::info("field: " . $field . " value: " . $value);
-                                } else {
-                                    log::info("field: " . $field . " value: empty");
-                                    continue;
-                                }
                             } else {
                                 log::info("field: " . $field . " does not exist");
                                 continue;
