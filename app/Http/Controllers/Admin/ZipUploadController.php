@@ -466,11 +466,11 @@ class ZipUploadController extends Controller
                     foreach ($fillableFields as $field) {
                         try {
 
-                            if(!empty($record->$field) || isset($record->$field)){
+                            if(!empty($record->$field)){
                                 $value = $record->$field ?? null;
                                 log::info("field : " . $field . " value : " . $value);
                             } else {
-                                log::info("field : " . $field . " value empty : " .$record->$field);
+                                log::info("field : " . $field . " value : empty ");
                                 continue;
                             }
 
