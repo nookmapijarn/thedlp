@@ -117,29 +117,32 @@ class ZipUploadController extends Controller
             
             // หาระดับชั้น
             $lavellist = [];
-
-            Log::info('**************** Lavel path : '."{$extractPath}/{$this->sc_code}");
-            $allLavel = glob("{$extractPath}/{$this->sc_code}". '/*', GLOB_ONLYDIR);
+            $lavelpath = public_path("storage/uploads/unzipped/{$this->sc_code}");
+            Log::info('**************** Lavel path : '."{$lavelpath}");
+            $allLavel = glob($lavelpath. '/*', GLOB_ONLYDIR);
             
             if(count($allLavel) != 0){
-                // ทำการแก้ไข
                 foreach ($allLavel as $lavel) {
-                    $lavellist[] = basename($lavel);
-                    Log::info( 'level -------------- >'.$lavel );
+                    $lavelName = basename($lavel);
+                    if (is_dir($lavel) && preg_match('/^\d{1}$/', $lavelName)) {
+                        $lavellist[] = $lavelName;
+                    }
                 }
             } else {
-                    Log::info( 'not level ---------- >');
+                return response()->json(['success' => false, 'message' => 'ไม่พบ Folder ระดับชั้น.'])
+                ->header('Content-Type', 'application/json')
+                ->header('X-Trigger', 'ajaxComplete');           
             }
 
-
+            log::info('lavellist : '.json_encode($lavellist));
             foreach($lavellist as $lv){
                 if($lv != 0){
-                    $this->processDbfFiles($extractPath, $lv, $this->sc_code);
+                    $this->processDbfFiles($lv);
                 }
             }
 
             // Process the GROUP.dbf file
-            $groupDbfPath = public_path("storage/uploads/unzipped/{$this->sc_code}/{$file}.dbf");//"{$extractPath}/{$this->sc_code}/GROUP.dbf";
+            $groupDbfPath = public_path("storage/uploads/unzipped/{$this->sc_code}/GROUP.dbf");//"{$extractPath}/{$this->sc_code}/GROUP.dbf";
 
             // ตรวจสอบว่าไฟล์มีอยู่หรือไม่ก่อนทำการเปลี่ยนแปลงสิทธิ์
             if (File::exists($groupDbfPath)) {
@@ -153,7 +156,7 @@ class ZipUploadController extends Controller
                     Log::error('Failed to unlock $GroupdbfPath : ' . $groupDbfPath );
                 }
             } else {
-                Log::error('File not found: ' . $groupDbfPath);
+                Log::error('File not found in Group : ' . $groupDbfPath);
             }
 
 
@@ -181,7 +184,7 @@ class ZipUploadController extends Controller
         // return view('admin.upload', compact('lastmodified'))->with('error', 'Failed to extract ZIP file.');
     }
 
-    protected function processDbfFiles($extractPath, $level, $sc_code)
+    protected function processDbfFiles($level)
     {
         $files = ['student', 'grade', 'activity', 'schedule', 'subject'];
         $processedFiles = 0;
@@ -203,7 +206,7 @@ class ZipUploadController extends Controller
                     Log::error('Failed to unlock $dbfPath : ' . $dbfPath);
                 }
             } catch (\Exception $e) {
-                Log::error('File not found: ' . $dbfPath . $e->getMessage());
+                Log::error('File not found: ' . $dbfPath . "errorMessage : ".$e->getMessage());
             }
 
             // $log_lastModified = DB::table('lastmodifiedfile')->where('FILE_NAME', $file.$level)->first(['LAST_MODIFIED']);
@@ -463,13 +466,13 @@ class ZipUploadController extends Controller
 
                         try {  
 
-                            log::info("before ck field: " . $field . " value: " . $record->$field);
+                            //log::info("before ck field: " . $field . " value: " . $record->$field);
                             $value = $record->$field;
                             
                             if (is_string($value)) {
                                 if (trim($value) === '') {
                                     // ตรวจสอบค่าว่างในฟิลด์
-                                    Log::info("Field '{$field}' is empty in record: " . json_encode($record));
+                                    //Log::info("Field '{$field}' is empty in record: " . json_encode($record));
                                     $convertedData[$field] = null;
                                     continue;
                                 } elseif (in_array($field, ['fin_date', 'trscp_date', 'fin_date2', 'trn_date2', 'v_recvdate', 'v_repdate', 'v_reqdate', 'v_retdate', 'v_senddate'])) {
@@ -481,7 +484,7 @@ class ZipUploadController extends Controller
                                     continue;
                                 }
                             } elseif (is_null($value)) {
-                                Log::info("Field '{$field}' is null in record: " . json_encode($record));
+                                //Log::info("Field '{$field}' is null in record: " . json_encode($record));
                                 $convertedData[$field] = null;
                                 continue;
                             } elseif (is_numeric($value)) {
