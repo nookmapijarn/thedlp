@@ -241,6 +241,7 @@ class ZipUploadController extends Controller
 
     protected function getModelClass($file, $level)
     {
+        $file = strtolower($file);
         $modelClasses = [
             'student' => [Student1::class, Student2::class, Student3::class],
             'activity' => [Activity1::class, Activity2::class, Activity3::class],
@@ -430,7 +431,7 @@ class ZipUploadController extends Controller
     //         log::error('Cant Not TableReader or ClassModel Dont Exit !!!!!!!!!!!!!!!!!!!!!!!!!!!!! '. $table);
     //     }
     // }
-    protected function importDbfData($dbfPath, $modelClass, $level)
+    protected function importDbfData($dbfPath, $modelClass)
     {
         log::info('Model : ' . $modelClass . ' : Starting ImportData >>>' . "Path : " . $dbfPath);
     
