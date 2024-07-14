@@ -63,7 +63,7 @@ class Student1 extends Model
         // 't_school',
         // 't_province',
         'houseid',
-        'addr',
+        // 'addr',
         'tambonid',
         'zipcode',
         'curaddr',
