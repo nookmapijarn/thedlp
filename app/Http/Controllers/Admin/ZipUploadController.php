@@ -468,7 +468,8 @@ class ZipUploadController extends Controller
 
                             log::info("before trim field: " . $field . " value: " . $record->$field);
                             $value = $record->$field;
-
+                            log::info("ater set value : " . $field . " value: " . $value);
+                            
                             // ตรวจสอบค่าว่างในฟิลด์
                             if (is_string($value)) {
                                 if (trim($value) === '') {
