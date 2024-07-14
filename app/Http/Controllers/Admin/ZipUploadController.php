@@ -465,32 +465,34 @@ class ZipUploadController extends Controller
                     $convertedData = [];
                     foreach ($fillableFields as $field) {
                         try {
-                            log::info("before Ck field : " . $field . " value : " . $record->$field);
-                            if(!empty($record->$field)){
-                                $value = $record->$field ?? null;
-                                log::info("field : " . $field . " value : " . $value);
+                            log::info("before Ck field: " . $field . " value: " . $record->$field);
+                            
+                            // ตรวจสอบว่าฟิลด์ถูกกำหนดและไม่ว่างเปล่า
+                            if (isset($record->$field) && $record->$field !== '') {
+                                $value = $record->$field;
+                                log::info("field: " . $field . " value: " . $value);
                             } else {
-                                log::info("field : " . $field . " value : empty ");
+                                log::info("field: " . $field . " value: dont have ? ");
                                 continue;
                             }
-
+                        
                             // ตรวจวันที่
-                            if (in_array($field, ['fin_date', 'trscp_date', 'fin_date2', 'trn_date2', 'v_recvdate', 'v_repdate', 'v_reqdate', 'v_repdate', 'v_retdate', 'v_senddate'])) {
+                            if (in_array($field, ['fin_date', 'trscp_date', 'fin_date2', 'trn_date2', 'v_recvdate', 'v_repdate', 'v_reqdate', 'v_retdate', 'v_senddate'])) {
                                 $convertedData[$field] = $this->convertDate($value) ?? null;
                                 continue;
                             }
-    
+                        
                             // ตรวจค่าว่าง
-                            if ($value === null || $value === " " || $value === '') {
+                            if ($value === null || trim($value) === '') {
                                 $convertedData[$field] = null;
                             } else {
                                 $convertedData[$field] = $value;
                             }
-
+                        
                         } catch (\Exception $e) {
                             log::error('Error processing field ' . $field . ': ' . $e->getMessage());
                             $convertedData[$field] = null;
-                        }
+                        }                        
                     }
     
                     if (!empty($convertedData)) {
