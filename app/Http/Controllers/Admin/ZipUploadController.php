@@ -461,18 +461,27 @@ class ZipUploadController extends Controller
                         log::info("record : NULL");
                         continue;
                     }
-    
+
                     $convertedData = [];
                     foreach ($fillableFields as $field) {
-                        try {
-                            log::info("before Ck field: " . $field . " value: " . $record->$field);
-                            
-                            // ตรวจสอบว่าฟิลด์ถูกกำหนดและไม่ว่างเปล่า
-                            if (isset($record->$field) && $record->$field !== '') {
+                        try {  
+
+                            log::info("before isset field: " . $field . " value: " . $record->$field);
+
+                            // ตรวจสอบฟิลด์และล็อกค่าก่อนการตรวจสอบ
+                            if (isset($record->$field)) {
                                 $value = $record->$field;
                                 log::info("field: " . $field . " value: " . $value);
+                                
+                                // ตรวจสอบค่าฟิลด์ว่ามีหรือไม่
+                                if ($value !== '') {
+                                    log::info("field: " . $field . " value: " . $value);
+                                } else {
+                                    log::info("field: " . $field . " value: empty");
+                                    continue;
+                                }
                             } else {
-                                log::info("field: " . $field . " value: dont have ? ");
+                                log::info("field: " . $field . " does not exist");
                                 continue;
                             }
                         
@@ -482,8 +491,8 @@ class ZipUploadController extends Controller
                                 continue;
                             }
                         
-                            // ตรวจค่าว่าง
-                            if ($value === null || trim($value) === '') {
+                            // ตรวจค่าว่างและแปลงข้อมูล
+                            if (trim($value) === '') {
                                 $convertedData[$field] = null;
                             } else {
                                 $convertedData[$field] = $value;
@@ -492,7 +501,8 @@ class ZipUploadController extends Controller
                         } catch (\Exception $e) {
                             log::error('Error processing field ' . $field . ': ' . $e->getMessage());
                             $convertedData[$field] = null;
-                        }                        
+                        }
+                                              
                     }
     
                     if (!empty($convertedData)) {
