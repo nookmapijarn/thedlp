@@ -469,14 +469,17 @@ class ZipUploadController extends Controller
                             log::info("before trim field: " . $field . " value: " . $record->$field);
                             $value = $record->$field;
 
-                            // ตรวจสอบฟิลด์และล็อกค่าก่อนการตรวจสอบ
-                            if ($value === null || trim($value) === '') {
-                                
-                                log::info("field: " . $field . " value: " . $value);
-                                
-                            } else {
-                                log::info("field: " . $field . " does not exist");
-                                continue;
+                            // ตรวจสอบค่าว่างในฟิลด์
+                            if (is_string($value)) {
+                                if (trim($value) === '') {
+                                    Log::info("Field '{$field}' is empty in record: " . json_encode($record));
+                                }
+                            } elseif (is_null($value)) {
+                                Log::info("Field '{$field}' is null in record: " . json_encode($record));
+                            } elseif (is_numeric($value)) {
+                                if ($value == 0) {
+                                    Log::info("Field '{$field}' is zero (which may indicate empty) in record: " . json_encode($record));
+                                }
                             }
                         
                             // ตรวจวันที่
