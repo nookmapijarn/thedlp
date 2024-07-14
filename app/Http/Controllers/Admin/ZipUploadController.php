@@ -205,7 +205,7 @@ class ZipUploadController extends Controller
                 } else {
 
                     $file = strtoupper($file);
-                    $dbfPath = public_path("storage/uploads/unzipped/{$this->sc_code}/{$level}/{$file}.dbf");
+                    $dbfPath = public_path("storage/uploads/unzipped/{$this->sc_code}/{$level}/{$file}.DBF");
                     log::info('**** Upper File Name Case *****'. $dbfPath);
                     File::chmod($dbfPath, 0777, true);
                     $lastmodified = File::lastModified($dbfPath);
