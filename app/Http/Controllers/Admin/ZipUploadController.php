@@ -449,7 +449,7 @@ class ZipUploadController extends Controller
             return; // หยุดการทำงานถ้าเกิดข้อผิดพลาด
         }
     
-        if (class_exists($modelClass) && $table->nextRecord() !== null) {
+        if (class_exists($modelClass) && !empty($table->nextRecord())) {
             $batchData = [];
     
             try {
@@ -465,9 +465,14 @@ class ZipUploadController extends Controller
                     $convertedData = [];
                     foreach ($fillableFields as $field) {
                         try {
-                            $value = $record->$field ?? null;
-                            log::info("field : " . $field . " value : " . $value);
-    
+
+                            if(!empty($record->$field) || isset($record->$field)){
+                                $value = $record->$field ?? null;
+                                log::info("field : " . $field . " value : " . $value);
+                            } else {
+                                log::info("field : " . $field . " value : Null");
+                                continue;
+                            }
                             // ตรวจวันที่
                             if (in_array($field, ['fin_date', 'trscp_date', 'fin_date2', 'trn_date2', 'v_recvdate', 'v_repdate', 'v_reqdate', 'v_repdate', 'v_retdate', 'v_senddate'])) {
                                 $convertedData[$field] = $this->convertDate($value) ?? null;
