@@ -475,7 +475,7 @@ class ZipUploadController extends Controller
 
                         try {  
 
-                            //log::info("before ck field: " . $field . " value: " . $record->$field);
+                            log::info("before ck field: " . $field . " value: " . $record->$field);
                             $value = $record->$field;
                             
                             if (is_string($value)) {
