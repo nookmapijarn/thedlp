@@ -27,6 +27,7 @@ use App\Models\Group;
 use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Carbon\Carbon;
 
 
 class ZipUploadController extends Controller
@@ -42,8 +43,6 @@ class ZipUploadController extends Controller
     public function upload(Request $request)
     {
         ini_set('max_execution_time', '2048M');
-
-        $lastmodified = [];
 
         $request->validate([
             'zip_file' => 'required|mimes:zip',
@@ -142,29 +141,42 @@ class ZipUploadController extends Controller
             }
 
             // Process the GROUP.dbf file
-            $groupDbfPath = public_path("storage/uploads/unzipped/{$this->sc_code}/GROUP.dbf");//"{$extractPath}/{$this->sc_code}/GROUP.dbf";
+            $groupDbfPath = public_path("storage/uploads/unzipped/{$this->sc_code}/GROUP.DBF");//"{$extractPath}/{$this->sc_code}/GROUP.dbf";
 
             // ตรวจสอบว่าไฟล์มีอยู่หรือไม่ก่อนทำการเปลี่ยนแปลงสิทธิ์
             if (File::exists($groupDbfPath)) {
-                // ใช้ File::chmod() เพื่อเปลี่ยนแปลงสิทธิ์ไฟล์
-                if (File::chmod($groupDbfPath, 0777, true)) {
-                    Log::info('Unlock $GroupdbfPath : ' . $groupDbfPath );
-                    // $log_lastModified = DB::table('lastmodifiedfile')->where('FILE_NAME', 'Group')->first(['LAST_MODIFIED']);
-                    // $lastModifiedtime = date("Y-m-d H:i:s");//filemtime($groupDbfPath);
-                    // $lastModifiedtime = date("Y-m-d H:i:s", $lastModifiedtime);
+
+                $log_lastModified = DB::table('lastmodifiedfile')->where('FILE_NAME', "Group")->first(['LAST_MODIFIED']);
+                $log_lastModified = $log_lastModified->LAST_MODIFIED;
+                $lastModifiedTimestamp = File::lastModified($groupDbfPath);
+                $lastModifiedDatetime = Carbon::createFromTimestamp($lastModifiedTimestamp)->format('Y-m-d H:i:s');
+
+                log::info( 'LAST% FILE TIME : '.$lastModifiedDatetime.' :   LOG TIME :'.$log_lastModified);
+
+                if($lastModifiedDatetime === $log_lastModified){
+                    log::info( 'Model : Group'.' :  Nothing Modified Change !!! :'.$groupDbfPath);
                 } else {
-                    Log::error('Failed to unlock $GroupdbfPath : ' . $groupDbfPath );
+                    $this->importDbfData($groupDbfPath, Group::class, null);
                 }
+                // ใช้ File::chmod() เพื่อเปลี่ยนแปลงสิทธิ์ไฟล์
+                // if (File::chmod($groupDbfPath, 0777, true)) {
+                //     Log::info('Unlock $GroupdbfPath : ' . $groupDbfPath );
+                //     $log_lastModified = DB::table('lastmodifiedfile')->where('FILE_NAME', 'Group')->first(['LAST_MODIFIED']);
+                //     $lastModifiedtime = date("Y-m-d H:i:s");//filemtime($groupDbfPath);
+                //     $lastModifiedtime = date("Y-m-d H:i:s", $lastModifiedtime);
+                // } else {
+                //     Log::error('Failed to unlock $GroupdbfPath : ' . $groupDbfPath );
+                // }
             } else {
                 Log::error('File not found in Group : ' . $groupDbfPath);
             }
 
 
 
-            if (File::exists($groupDbfPath)) {
-                $this->importDbfData($groupDbfPath, Group::class, null);
-                //File::deleteDirectory($extractPath);
-            }
+            // if (File::exists($groupDbfPath)) {
+            //     $this->importDbfData($groupDbfPath, Group::class, null);
+            //     //File::deleteDirectory($extractPath);
+            // }
 
             // Delete extracted folder
             //File::deleteDirectory($extractPath);
@@ -196,44 +208,69 @@ class ZipUploadController extends Controller
             try {
                 // ใช้ File::chmod() เพื่อเปลี่ยนแปลงสิทธิ์ไฟล์
                 if(File::exists($dbfPath)){
+                    // File::chmod($dbfPath, 0777, true);
+                    // $lastmodified = File::lastModified($dbfPath);
+                    // Log::info('Unlock $dbfPath : ' . $dbfPath );
+                    // Log::info('File Time  : ' . $lastmodified );
+                    $log_lastModified = DB::table('lastmodifiedfile')->where('FILE_NAME', $file.$level)->first(['LAST_MODIFIED']);
+                    $log_lastModified = $log_lastModified->LAST_MODIFIED;
 
-                    File::chmod($dbfPath, 0777, true);
-                    $lastmodified = File::lastModified($dbfPath);
-                    Log::info('Unlock $dbfPath : ' . $dbfPath );
-                    Log::info('File Time  : ' . $lastmodified );
+                    // Get the last modified time of the file using File facade
+                    $lastModifiedTimestamp = File::lastModified($dbfPath);
+                    $lastModifiedDatetime = Carbon::createFromTimestamp($lastModifiedTimestamp)->format('Y-m-d H:i:s');
+
+                    log::info( 'LAST% FILE TIME : '.$lastModifiedDatetime.' :   LOG TIME :'.$log_lastModified);
+
+                    if($lastModifiedDatetime === $log_lastModified){
+                        log::info( 'Model : '.$file.$level.' :  Nothing Modified Change !!! :'.$dbfPath);
+                        continue;
+                    } else {
+                        // get model จากฟังชั้นนี้
+                        $model = $this->getModelClass($file, $level);
+                        // ล้างข้อมูล
+                        if($file == 'grade' || $file == 'activity' || $file == 'schedule'){$model::truncate();} 
+                        // ใช้ฟังชั่นนี้อ่านข้อมูลและบันทึก
+                        $this->importDbfData($dbfPath, $model);
+                    }
 
                 } else {
-
+                    // **** กรณีที่ชื่อไฟล์ .dbf เป็นพิมพ์ใหญ่ ****
                     $file = strtoupper($file);
                     $dbfPath = public_path("storage/uploads/unzipped/{$this->sc_code}/{$level}/{$file}.DBF");
                     log::info('**** Upper File Name Case *****'. $dbfPath);
-                    File::chmod($dbfPath, 0777, true);
-                    $lastmodified = File::lastModified($dbfPath);
-                    Log::info('Unlock $dbfPath : ' . $dbfPath );
-                    Log::info('File Time  : ' . $lastmodified );
+                    // File::chmod($dbfPath, 0777, true);
+                    // Log::info('Unlock $dbfPath : ' . $dbfPath );
+                    // Log::info('File Time  : ' . $lastmodified );
+                    if(File::exists($dbfPath)){
 
+                        $log_lastModified = DB::table('lastmodifiedfile')->where('FILE_NAME', $file.$level)->first(['LAST_MODIFIED']);
+                        $log_lastModified = $log_lastModified->LAST_MODIFIED;
+    
+                        // Get the last modified time of the file using File facade
+                        $lastModifiedTimestamp = File::lastModified($dbfPath);
+                        $lastModifiedDatetime = Carbon::createFromTimestamp($lastModifiedTimestamp)->format('Y-m-d H:i:s');
+
+                        log::info( 'LAST% FILE TIME : '.$lastModifiedDatetime.' :   LOG TIME :'.$log_lastModified);
+
+                        if($lastModifiedDatetime === $log_lastModified){
+                            log::info( 'Model : '.$file.$level.' :  Nothing Modified  Change !!! :'.$dbfPath);
+                            continue;
+                        } else {
+                            // get model จากฟังชั้นนี้
+                            $model = $this->getModelClass($file, $level);
+                            // ล้างข้อมูล
+                            if($file == 'grade' || $file == 'activity' || $file == 'schedule'){$model::truncate();} 
+                            // ใช้ฟังชั่นนี้อ่านข้อมูลและบันทึก
+                            $this->importDbfData($dbfPath, $model);
+                        }
+
+                    } else {
+                        log::error( 'Model : '.$file.$level.' :  DBF dose exist !!! :'.$dbfPath);
+                    }
                 }
 
             } catch (\Exception $e) {
                 Log::error('path not found: ' . $dbfPath . "errorMessage : ".$e->getMessage());
-            }
-
-            // $log_lastModified = DB::table('lastmodifiedfile')->where('FILE_NAME', $file.$level)->first(['LAST_MODIFIED']);
-            // $lastModifiedtime = 0;//filemtime($dbfPath);
-            // $lastModifiedtime = date("Y-m-d H:i:s", $lastModifiedtime);
-
-            if (File::exists($dbfPath)) {
-
-                $model = $this->getModelClass($file, $level);
-
-                // ล้างข้อมูล
-                if($file == 'grade' || $file == 'activity' || $file == 'schedule'){$model::truncate();} 
-
-                // ใช้ฟังชั่นนี้อ่านข้อมูลและบันทึก
-                $this->importDbfData($dbfPath, $model, $level);
-
-            } else {
-                log::info( 'Model : '.$file.$level.' :  DBF dose exist !!! :'.$dbfPath);
             }
         }
 
@@ -253,187 +290,9 @@ class ZipUploadController extends Controller
         return $modelClasses[$file][$level - 1] ?? null;
     }
 
-    // protected function importDbfData($dbfPath, $modelClass, $level)
-    // {
-
-    //     log::info('Model : '.$modelClass.' : Starting ImportData >>>'. "Path : ". $dbfPath);
-
-    //     $modelClassName = class_basename($modelClass);
-        
-    //     $fillableFields = (new $modelClass())->getFillable();
-
-    //     //Load DBF file using XBase\TableReader
-    //     // $table = new TableReader(
-    //     //     $dbfPath,
-    //     //     [
-    //     //         'encoding' => 'TIS-620', // encoding tis-620 => utf8
-    //     //         'columns' => $fillableFields
-    //     //     ]
-    //     // );
-
-    //     try {
-    //         $table = new TableReader(
-    //             $dbfPath,
-    //             [
-    //                 'encoding' => 'TIS-620', // encoding tis-620 => utf8
-    //                 'columns' => $fillableFields
-    //             ]
-    //         );
-    
-    //         // ใช้ ob_start() และ ob_get_clean() เพื่อแปลงออบเจ็กต์เป็นสตริง
-    //         ob_start();
-    //         print_r($table);
-    //         $output = ob_get_clean();
-    
-    //         // บันทึกลงใน log
-    //         //Log::info('Table details: ' . $output);
-    
-    //         // // หรือใช้ json_encode หากออบเจ็กต์นั้นสามารถแปลงเป็น JSON ได้
-    //         // Log::info('Table details (JSON): ' . json_encode($table));
-    //     } catch (\Exception $e) {
-    //         // บันทึกข้อผิดพลาดลงใน log
-    //         Log::error('Error loading DBF table: ' . $e->getMessage());
-    //     }
-
-    //     //log::info('Tebel : '.print_r($table));
-
-    //     if (class_exists($modelClass) && $table->nextRecord() !== null) {
-
-    //         $batchData = [];
-
-    //         try {
-    //             $counter = 0;
-    //             while ($record = $table->nextRecord()) {
-    //                 // echo '<br>Model ******** '.$modelClassName.'************<br>';
-    //                 $convertedData = [];
-    //                 foreach ($fillableFields as $field) {
-
-    //                     $value = $record->$field;
-
-    //                     if($value !== null){
-    //                         log::info("Field : ".$field." Value : ".$value);
-    //                     } else {
-    //                         log::info("Field : ".$field." Null Value : ".$value);
-    //                         continue;
-    //                     }
-
-    //                     // if($field == 'SUB_NAME'){
-    //                     //     echo '<br>*******************************************'.$value.'********************************<br> ';
-    //                     // }
-
-    //                     // ตรวจวันที่
-    //                     if ($field == 'fin_date' || $field == 'trscp_date' || $field == 'fin_date2' || $field == 'trn_date2' || $field == 'v_recvdate'|| $field == 'v_repdate' || $field == 'v_reqdate' || $field == 'v_repdate' || $field == 'v_retdate' || $field ==  'v_senddate') {
-    //                         if($this->convertDate($value) === null){
-    //                             $convertedData[$field] = null;
-    //                             //echo 'date null'.$field.'<br>';
-    //                             continue;
-    //                         }else{
-    //                             $convertedData[$field] = $value;
-    //                             //echo 'date value'.$field.'<br>';
-    //                             continue;
-    //                         }
-    //                     }
-
-    //                     // ตรวจค่าว่าง
-    //                     if ($value == null || $value == " " || $value == '') {
-    //                         //echo 'null Field'.$field.' Value = '.$value.'<br>';
-    //                         $convertedData[$field] = null;
-    //                         continue;
-    //                     } else {
-    //                         //echo 'Have Field = '.$field.' Value = '.$value. '<br>';
-    //                         // echo '<br><br>iconv = '.mb_convert_encoding($value, 'UTF-8', 'auto').'<br><br>';
-    //                         $convertedData[$field] = $value;
-    //                     }
-
-    //                 }
-
-    //                 if (!empty($convertedData)) {
-    //                     $batchData[] = $convertedData;
-    //                 } else {
-    //                     log::error(e:'ConvertData is Empty');
-    //                 }
-
-    //                 // Batch insert to avoid memory exhaustion
-    //                 if (count($batchData) >= 100) {
-    //                     try {                   
-    //                         $unique_key = [];
-    //                         if($modelClassName == 'Student1'||$modelClassName == 'Student2'||$modelClassName == 'Student3' ){
-    //                             $unique_key = ['STD_CODE'];
-    //                             // echo 'uni key';
-    //                         }
-    //                         if($modelClassName == 'Subject1'||$modelClassName == 'Subject2'||$modelClassName == 'Subject3' ){
-    //                             $unique_key = ['SUB_CODE'];
-    //                             // echo 'uni key';
-    //                         }
-    //                         if($modelClassName == 'GROUP'){
-    //                             $unique_key = ['GRP_CODE'];
-    //                            // echo 'uni key';
-    //                         }
-    //                         $modelClass::upsert($batchData, $unique_key, array_keys($convertedData));
-    //                         log::info('Model : '.$modelClassName.' Batch insert to avoid memory exhaustion... ');
-    //                     } catch (\Exception $e) {
-    //                         log::error('Model : '.$modelClassName.' Batch insert error: ' . $e->getMessage());
-    //                     }
-    //                     $batchData = [];
-    //                 }
-    //                 $counter++;
-    //             }
-    //         } catch (\Exception $e) {
-    //             log::error('Model : '.$modelClassName.' Error processing records: ' . $e->getMessage());
-    //             //echo ('Model : '.$modelClassName.' Error processing records: ' . $e->getMessage()).'<br>';
-    //         }
-
-    //         // Insert Final batch insert remaining batch data
-    //         if (!empty($batchData)) {
-    //             try {
-    //                 $unique_key = [];
-    //                 if($modelClassName == 'Student1'||$modelClassName == 'Student2'||$modelClassName == 'Student3' ){
-    //                     $unique_key = ['STD_CODE'];
-    //                     // echo 'uni key';
-    //                 }
-    //                 if($modelClassName == 'Subject1'||$modelClassName == 'Subject2'||$modelClassName == 'Subject3' ){
-    //                     $unique_key = ['SUB_CODE'];
-    //                     // echo 'uni key';
-    //                 }
-    //                 if($modelClassName == 'GROUP'){
-    //                     $unique_key = ['GRP_CODE'];
-    //                     // echo 'uni key';
-    //                 }
-    //                 log::info('Model : '.$modelClassName.' : Final batch insert success');
-    //                 $upsert = $modelClass::upsert($batchData, $unique_key, array_keys($batchData[0]));
-    //                 $lastModifiedtime = filemtime($dbfPath);
-
-    //                 // บันทึกเวลา upload
-    //                 if($upsert > 0){
-    //                     $lastModified = [
-    //                         'file_name' => $modelClassName,
-    //                         'level' => 0,
-    //                         'last_modified' => date("Y-m-d H:i:s", $lastModifiedtime),
-    //                         'uploaded' => date("Y-m-d H:i:s")
-    //                     ];
-    //                     $save = DB::table('lastmodifiedfile')->updateOrInsert(['file_name' => $modelClassName], $lastModified);
-    //                     log::info('Model : '.$modelClassName.' บันทึกการอัพเดท '.date("Y-m-d H:i:s"));
-    //                 } else {
-    //                     $lastModified = [
-    //                         'file_name' => $modelClassName,
-    //                         'level' => 0,
-    //                         'last_modified' => date("Y-m-d H:i:s", '0000-00-00 00:00:00'),
-    //                         'uploaded' => date("Y-m-d H:i:s", '0000-00-00 00:00:00')
-    //                     ];
-    //                     $save = DB::table('lastmodifiedfile')->updateOrInsert(['file_name' => $modelClassName], $lastModified);
-    //                     log::error('Model : '.$modelClassName.' ไม่บันทึกการอัพเดท '.date("Y-m-d H:i:s"), $e->getMessage());
-    //                 }
-    //             } catch (\Exception $e) {
-    //                 log::error('Model : '.$modelClassName.' Final batch insert error: ' . $e->getMessage());
-    //             }
-    //         }
-    //     } else {
-    //         log::error('Cant Not TableReader or ClassModel Dont Exit !!!!!!!!!!!!!!!!!!!!!!!!!!!!! '. $table);
-    //     }
-    // }
     protected function importDbfData($dbfPath, $modelClass)
     {
-        log::info('Model : ' . $modelClass . ' : Starting ImportData >>>' . "Path : " . $dbfPath);
+        log::info('Model : ' . $modelClass . ' : Starting ImportData >>> ' . "Path : " . $dbfPath);
     
         $modelClassName = class_basename($modelClass);
         $fillableFields = (new $modelClass())->getFillable();
@@ -475,7 +334,7 @@ class ZipUploadController extends Controller
 
                         try {  
 
-                            log::info("before ck field: " . $field . " value: " . $record->$field);
+                            // log::info("before ck field: " . $field . " value: " . $record->$field);
                             $value = $record->$field;
                             
                             if (is_string($value)) {
@@ -603,6 +462,36 @@ class ZipUploadController extends Controller
         }
     }
     
+    protected function clearDateModifiled(){
+
+        DB::table('lastmodifiedfile')->truncate();
+
+        $files = [
+            'Student1', 'Student2', 'Student3',
+            'Grade1', 'Grade2', 'Grade3',
+            'Activity1', 'Activity2', 'Activity3',
+            'Schedule1', 'Schedule2', 'Schedule3',
+            'Subject1', 'Subject2', 'Subject3',
+            'Group'
+        ];
+
+        foreach ($files as $file) {
+            $lastModified = [
+                'FILE_NAME' => $file,
+                'LEVEL' => 0,
+                'LAST_MODIFIED' => null, // หรือค่าที่เหมาะสมสำหรับคุณ
+                'UPLOADED' => null // วันที่และเวลาปัจจุบัน
+            ];
+            $save = DB::table('lastmodifiedfile')->updateOrInsert(
+                ['FILE_NAME' => $file],
+                $lastModified
+            );
+        }
+        return response()->json(['success' => true, 'message' => 'ลบค่าในตาราง Lastmodifiled แล้ว.'])
+        ->header('Content-Type', 'application/json')
+        ->header('X-Trigger', 'ajaxComplete');
+    }
+
     protected function clearTable() {
 
         $extractPath = storage_path('app/uploads/unzipped/');
@@ -623,7 +512,7 @@ class ZipUploadController extends Controller
             'Activity1', 'Activity2', 'Activity3',
             'Schedule1', 'Schedule2', 'Schedule3',
             'Subject1', 'Subject2', 'Subject3',
-            'group'
+            'Group'
         ];
 
         foreach ($files as $file) {
@@ -635,33 +524,12 @@ class ZipUploadController extends Controller
                 'UPLOADED' => null // วันที่และเวลาปัจจุบัน
             ];
 
-            
-
             $save = DB::table('lastmodifiedfile')->updateOrInsert(
                 ['FILE_NAME' => $file],
                 $lastModified
             );
-
-            // if ($save) {
-            //     echo '************************************************** lastModifiedreset **************************<br>';
-            // } else {
-            //     echo '************************************************** NOT lastModifiedreset **************************<br>';
-            // }
         }
-        // Group
-        $glastModified = [
-            'FILE_NAME' => 'group',
-            'LEVEL' => 0,
-            'LAST_MODIFIED' => null, // หรือค่าที่เหมาะสมสำหรับคุณ
-            'UPLOADED' => null // วันที่และเวลาปัจจุบัน
-        ];
 
-        DB::table('lastmodifiedfile')->updateOrInsert(
-            ['FILE_NAME' => 'group'],
-            $glastModified
-        );
-
-        //return view('admin.upload', compact('$lastmodified'));
         return response()->json(['success' => true, 'message' => 'ล้างข้อมูลสำเร็จ กรุณา reload หน้าเว็บใหม่.'])
         ->header('Content-Type', 'application/json')
         ->header('X-Trigger', 'ajaxComplete');

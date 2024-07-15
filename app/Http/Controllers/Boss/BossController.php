@@ -23,7 +23,7 @@ class BossController extends Controller
        if( $agent->isMobile()){
         $labels = $this->get_semestry(3);
        }else{
-        $labels = $this->get_semestry(6);
+        $labels = $this->get_semestry(8);
        }   
         
         $data_student = [];

@@ -75,6 +75,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/upload', [ZipUploadController::class, 'upload'])->name('zip.upload');
         Route::get('/clearTable', [ZipUploadController::class, 'clearTable'])->name('clearTable');
         Route::post('/clearTable', [ZipUploadController::class, 'clearTable'])->name('clearTable');
+        Route::get('/clearDateModifiled', [ZipUploadController::class, 'clearDateModifiled'])->name('clearDateModifiled');
+        Route::post('/clearDateModifiled', [ZipUploadController::class, 'clearDateModifiled'])->name('clearDateModifiled');
     });
 });
 

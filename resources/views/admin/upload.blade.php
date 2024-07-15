@@ -19,12 +19,17 @@
             </form>
         </div>
 
+        {{-- Clear Table --}}
         <form id="yourForm" action="{{ route('clearTable') }}" method="POST" class="p-2">
             @csrf
-            <button type="submit" class="mt-2 text-red-200 right-2.5 bottom-2.5 hover:text-red-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-full text-sm">X ล้างข้อมูล</button>
+            <button type="submit" class="mt-2 text-red-200 right-2.5 bottom-2.5 hover:text-red-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-full text-sm">X ล้างข้อมูลทั้งหมด</button>
         </form>
 
-        {{-- Clear Table --}}
+        <form id="yourForm" action="{{ route('clearDateModifiled') }}" method="POST" class="p-2">
+            @csrf
+            <button type="submit" class="mt-2 text-red-200 right-2.5 bottom-2.5 hover:text-red-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-full text-sm">X ล้างตารางเวลาอัพเดท</button>
+        </form>
+
         <div class="pt-2 rounded-lg dark:border-gray-700 mt-2">
             <!-- แสดงข้อความ error -->
             @if(session('error'))
