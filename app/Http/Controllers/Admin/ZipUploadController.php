@@ -44,11 +44,11 @@ class ZipUploadController extends Controller
         ini_set('max_execution_time', '40960M');
 
         $request->validate([
-            'zip_file' => 'required|mimes:zip|max:40960',
+            'zip_file' => 'required|mimes:zip|max:60960',
         ], [
             'zip_file.required' => 'โปรดอัพโหลดไฟล์ Zip เท่านั้น!',
             'zip_file.mimes' => 'โปรดอัพโหลดไฟล์ Zip เท่านั้น!',
-            'zip_file.max' => 'ขนาดไฟล์ต้องไม่เกิน 40 MB! กรณีที่สถานศึกษาขนาดใหญ่ ให้นำเข้าทีละระดับแทน',
+            'zip_file.max' => 'ขนาดไฟล์ต้องไม่เกิน 60 MB !! กรณีที่สถานศึกษาขนาดใหญ่ ให้นำเข้าทีละระดับแทน',
         ]);
 
         // Upload ZIP file to temporary folder
