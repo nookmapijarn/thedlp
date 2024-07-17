@@ -24,7 +24,6 @@ use App\Models\Schedule1;
 use App\Models\Schedule2;
 use App\Models\Schedule3;
 use App\Models\Group;
-use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
@@ -42,12 +41,14 @@ class ZipUploadController extends Controller
 
     public function upload(Request $request)
     {
-        ini_set('max_execution_time', '2048M');
+        ini_set('max_execution_time', '40960M');
 
         $request->validate([
-            'zip_file' => 'required|mimes:zip',
-        ],[
-            'zip_file' => 'โปรดอัพโหลดไฟล์ Zip เท่านั้น !',
+            'zip_file' => 'required|mimes:zip|max:40960',
+        ], [
+            'zip_file.required' => 'โปรดอัพโหลดไฟล์ Zip เท่านั้น!',
+            'zip_file.mimes' => 'โปรดอัพโหลดไฟล์ Zip เท่านั้น!',
+            'zip_file.max' => 'ขนาดไฟล์ต้องไม่เกิน 40 MB! กรณีที่สถานศึกษาขนาดใหญ่ ให้นำเข้าทีละระดับแทน',
         ]);
 
         // Upload ZIP file to temporary folder
@@ -71,6 +72,10 @@ class ZipUploadController extends Controller
         // ตรวจสอบว่ามีโฟลเดอร์นี้อยู่หรือไม่
         if (!File::exists($extractPath)) {
             File::makeDirectory($extractPath, 0755, true);
+        } else {
+            // ลบไปใน Folder
+            File::deleteDirectory($extractPath);
+            //File::makeDirectory($extractPath, 0755, true);
         }
 
         // Extract ZIP file
@@ -79,9 +84,6 @@ class ZipUploadController extends Controller
 
             //$extractPath =  storage_path('app/uploads/unzipped/');//Storage::url($path);
 
-
-            // ลบไปใน Folder
-            //File::deleteDirectory($extractPath);
 
             // แตกไฟล์
             $zip->extractTo($extractPath);
@@ -306,45 +308,44 @@ class ZipUploadController extends Controller
                     'columns' => $fillableFields
                 ]
             );
+
+            // นับจำนวน record ทั้งหมดในไฟล์ .dbf
+            $totalRecords = $table->getRecordCount();
+            log::info('Model'.$modelClass.'Total records in DBF file: ' . $totalRecords);
     
-            // ใช้ ob_start() และ ob_get_clean() เพื่อแปลงออบเจ็กต์เป็นสตริง
-            // ob_start();
-            // print_r($table);
-            // $output = ob_get_clean();
-    
-            // บันทึกลงใน log
-            //Log::info('Table details: ' . $output);
         } catch (\Exception $e) {
             // บันทึกข้อผิดพลาดลงใน log
             Log::error('Error loading DBF table: ' . $e->getMessage());
             return; // หยุดการทำงานถ้าเกิดข้อผิดพลาด
         }
     
-        if (class_exists($modelClass) && !empty($table->nextRecord())) {
-            
+        if (class_exists($modelClass)) {
             $batchData = [];
-    
+            $processedRecords = 0;
+            $insertedRecords = 0;
+            
             try {
                 $counter = 0;
+                // เริ่มต้นการอ่าน record จากตำแหน่งแรกของตาราง
                 while ($record = $table->nextRecord()) {
 
+                    if ($record === false) {
+                        log::error('Error reading record at position ' . $processedRecords . 'record : ' . json_encode($record));
+                        continue;
+                    }
+
+                    $processedRecords++;
                     $convertedData = [];
 
                     foreach ($fillableFields as $field) {
-
-                        try {  
-
-                            // log::info("before ck field: " . $field . " value: " . $record->$field);
+                        try {
                             $value = $record->$field;
                             
                             if (is_string($value)) {
                                 if (trim($value) === '') {
-                                    // ตรวจสอบค่าว่างในฟิลด์
-                                    //Log::info("Field '{$field}' is empty in record: " . json_encode($record));
                                     $convertedData[$field] = null;
                                     continue;
                                 } elseif (in_array($field, ['fin_date', 'trscp_date', 'fin_date2', 'trn_date2', 'v_recvdate', 'v_repdate', 'v_reqdate', 'v_retdate', 'v_senddate'])) {
-                                    // ตรวจวันที
                                     $convertedData[$field] = $this->convertDate($value) ?? null;
                                     continue;
                                 } else {
@@ -352,7 +353,6 @@ class ZipUploadController extends Controller
                                     continue;
                                 }
                             } elseif (is_null($value)) {
-                                //Log::info("Field '{$field}' is null in record: " . json_encode($record));
                                 $convertedData[$field] = null;
                                 continue;
                             } elseif (is_numeric($value)) {
@@ -364,14 +364,13 @@ class ZipUploadController extends Controller
                             log::error('Error processing field ' . $field . ': ' . $e->getMessage());
                         }
                     }
-    
+
                     if (!empty($convertedData)) {
                         $batchData[] = $convertedData;
                     } else {
                         log::error('ConvertData is Empty');
                     }
     
-                    // Batch insert to avoid memory exhaustion
                     if (count($batchData) >= 100) {
                         try {
                             $unique_key = [];
@@ -385,7 +384,8 @@ class ZipUploadController extends Controller
                                 $unique_key = ['GRP_CODE'];
                             }
                             $modelClass::upsert($batchData, $unique_key, array_keys($convertedData));
-                            log::info('Model : ' . $modelClassName . ' Batch insert to avoid memory exhaustion...');
+                            $insertedRecords += count($batchData);
+                            //log::info('Model : ' . $modelClassName . ' Batch insert to avoid memory exhaustion...');
                         } catch (\Exception $e) {
                             log::error('Model : ' . $modelClassName . ' Batch insert error: ' . $e->getMessage());
                         }
@@ -410,8 +410,10 @@ class ZipUploadController extends Controller
                     if ($modelClassName == 'GROUP') {
                         $unique_key = ['GRP_CODE'];
                     }
+
                     log::info('Model : ' . $modelClassName . ' : Final batch insert success');
                     $upsert = $modelClass::upsert($batchData, $unique_key, array_keys($batchData[0]));
+                    $insertedRecords += count($batchData);
                     $lastModifiedtime = filemtime($dbfPath);
     
                     // บันทึกเวลา upload
@@ -438,10 +440,16 @@ class ZipUploadController extends Controller
                     log::error('Model : ' . $modelClassName . ' Final batch insert error: ' . $e->getMessage());
                 }
             }
+    
+            // บันทึกจำนวน record ที่ประมวลผลได้และนำเข้ามาได้สำเร็จ
+            log::info('Model'.$modelClass.' Total processed records: ' . $processedRecords);
+            log::info('Model'.$modelClass.' Total inserted records: ' . $insertedRecords);
+    
         } else {
             log::error('Cannot use TableReader or ModelClass does not exist!');
         }
     }
+    
     
     protected function convertDate($date)
     {

@@ -1,6 +1,7 @@
 <x-admin-layout>
+
     <div class="p-4 sm:ml-64">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 border-2 border-gray-200 border-dashed rounded-lg dark:border-gray-700 mt-14">
+        <div class="grid grid-cols-1 md:grid-cols-1 gap-4 border-2 border-gray-200 border-dashed rounded-lg dark:border-gray-700 mt-14">
             <form method="POST" class="p-4" action="{{ route('adminregister') }}">
                 <h1 class="pt-4">เพิ่มผู้ใช้งาน สำหรับครู/ผู้ดูแลระบบ</h1>
                 @csrf
@@ -76,59 +77,10 @@
                         {{ __('สมัครสมาชิก') }}
                     </x-primary-button>
                 </div>
-            </form>      
-            <div class="relative overflow-x-auto w-full max-h-[750px]">
-                <h1 class="p-4">ตาราง user ครู/ผู้ดูแลระบบ</h1>
-                <table class="text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
-                    <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-                        <tr>
-                            <th scope="col" class="px-6 py-3 text-center">
-                                No.
-                            </th>
-                            {{-- <th scope="col" class="px-6 py-3">
-                                ID
-                            </th> --}}
-                            <th scope="col" class="px-6 py-3">
-                                NAME
-                            </th>
-                            <th scope="col" class="px-6 py-3">
-                                E-MAIL
-                            </th>
-                            {{-- <th scope="col" class="px-6 py-3">
-                                PASS
-                            </th> --}}
-                            <th scope="col" class="px-6 py-3">
-                                ROLE
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($users_admin as $user_ad)
-                        <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
-                            <th scope="row" class=" text-center font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                {{$loop->iteration}}
-                            </th>
-                            {{-- <th scope="row" class="font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                {{ $user_ad->id }}
-                            </th> --}}
-                            <td class="px-6 py-4">
-                                {{ $user_ad->name }}
-                            </td>
-                            <td class="px-6 py-4">
-                                {{ $user_ad->email }}
-                            </td>
-                            {{-- <td class="px-6 py-4">
-                                {{ $user->password }}
-                            </td> --}}
-                            <td class="px-6 py-4">
-                                {{ $user_ad->role }}
-                            </td>
-                        </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>    
+            </form>    
         </div>
+
+
         <div class="p-4 rounded-lg dark:border-gray-700 mt-2">
             <!-- แสดงข้อความ error -->
             @if(session('error'))
@@ -136,73 +88,130 @@
                     {{ session('error') }}
                 </div>
             @endif
-
+    
             <!-- แสดงข้อความ success -->
             @if(session('success'))
                 <div class="bg-green-500 text-white p-2 rounded-lg mb-4">
                     {{ session('success') }}
                 </div>
             @endif
-        </div>
-        {{-- Table --}}
+        </div>   
+
+        {{-- USER TABLE --}}
         <div class="p-4 border-2 border-gray-200 border-dashed rounded-lg dark:border-gray-700 mt-2">
-            <th>ตาราง user ผู้เรียน </th> <br>
-            <div class="relative overflow-x-auto max-h-screen">
-                <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+            <div class="relative overflow-x-auto w-full max-h-[950px]">
+                <h1 class="text-2xl mb-2">ตารางผู้ใช้งาน</h1>
+                <table id="AdminTable" class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
                     <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                         <tr>
-                            <th scope="col" class="px-6 py-3 text-center">
-                                No.
-                            </th>
-                            <th scope="col" class="px-6 py-3">
-                                ID
-                            </th>
-                            <th scope="col" class="px-6 py-3">
-                                NAME
-                            </th>
-                            <th scope="col" class="px-6 py-3">
-                                E-MAIL
-                            </th>
-                            {{-- <th scope="col" class="px-6 py-3">
-                                PASS
-                            </th> --}}
-                            <th scope="col" class="px-6 py-3">
-                                CREATEAT
-                            </th>
-                            {{-- <th scope="col" class="px-6 py-3">
-                                ROLE
-                            </th> --}}
+                            <th scope="col" class="px-6 py-3 text-center">No.</th>
+                            <th scope="col" class="px-6 py-3 text-center">ROLE</th>
+                            <th scope="col" class="px-6 py-3">NAME</th>
+                            <th scope="col" class="px-6 py-3">E-MAIL</th>
+                            <th scope="col" class="px-6 py-3">Update</th>
+                            <th scope="col" class="px-6 py-3">Remove</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach($users as $user)
+                        @foreach($users as $user_ad)
                         <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
-                            <th scope="row" class=" text-center font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                {{$loop->iteration}}
+                            <th scope="row" class="text-center font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                                {{ $loop->iteration }}
                             </th>
-                            <th scope="row" class="font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                {{ $user->id }}
-                            </th>
+                            <td class="px-6 py-4 text-center">
+                                @if($user_ad->role === 1) ผู้เรียน @endif
+                                @if($user_ad->role === 2) ครู @endif
+                                @if($user_ad->role === 3) ผู้บริหาร @endif
+                                @if($user_ad->role === 4) ผู้ดูแลระบบ @endif
+                            </td>
+                            <input id="id" name="id" type="hidden" class="block mt-1 w-full" value="{{ $user_ad->id }}" />
                             <td class="px-6 py-4">
-                                {{ $user->name }}
+                                <input id="name" name="name" type="text" class="block w-full p-4 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" value="{{ $user_ad->name }}" />
                             </td>
                             <td class="px-6 py-4">
-                                {{ $user->email }}
+                                <input id="email" class="block w-full p-4 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" type="email" name="email" value="{{ $user_ad->email }}" required />
+                                <x-input-error :messages="$errors->get('email')" class="mt-2" />
                             </td>
-                            {{-- <td class="px-6 py-4">
-                                {{ $user->password }}
-                            </td> --}}
                             <td class="px-6 py-4">
-                                {{ $user->created_at }}
+                                <button type="button" class="btn-update text-yellow-400 hover:text-yellow-800">Update</button>
                             </td>
-                            {{-- <td class="px-6 py-4">
-                                {{ $user->role }}
-                            </td> --}}
+                            <td class="px-6 py-4">
+                                <button type="button" class="btn-remove text-red-400 hover:text-red-800">Remove</button>
+                            </td>
                         </tr>
                         @endforeach
                     </tbody>
                 </table>
+                
             </div>   
         </div>
     </div>
 </x-admin-layout>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.21/css/jquery.dataTables.min.css" />
+
+<script>
+    $(document).ready(function () {
+       $("#StudentTable").DataTable();
+    });
+ </script>
+
+<script>
+    $(document).ready(function () {
+        $("#AdminTable").DataTable();
+
+        // Event listener for update button
+        $('#AdminTable').on('click', '.btn-update', function () {
+            var row = $(this).closest('tr');
+            var id = row.find('input[name="id"]').val();
+            var name = row.find('input[name="name"]').val();
+            var email = row.find('input[name="email"]').val();
+
+            $.ajax({
+                url: '{{ route("adminuserupdate") }}',
+                type: 'POST',
+                data: {
+                    _token: '{{ csrf_token() }}',
+                    id: id,
+                    name: name,
+                    email: email
+                },
+                success: function(response) {
+                    console.log(response);
+                    alert('User updated successfully!');
+                },
+                error: function(xhr) {
+                    console.log(xhr.responseText);
+                }
+            });
+        });
+
+        // Event listener for remove button
+        $('#AdminTable').on('click', '.btn-remove', function () {
+            var row = $(this).closest('tr');
+            var id = row.find('input[name="id"]').val();
+
+            if (confirm('Are you sure you want to remove this user?')) {
+                $.ajax({
+                    url: '{{ route("adminuserremove") }}',
+                    type: 'POST',
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                        id: id
+                    },
+                    success: function(response) {
+                        console.log(response);
+                        alert('User removed successfully!');
+                        row.remove();
+                    },
+                    error: function(xhr) {
+                        console.log(xhr.responseText);
+                    }
+                });
+            }
+        });
+    });
+</script>

@@ -61,13 +61,13 @@ class StudentRegisController extends Controller
         foreach ($gradelist as $g) {
             // เอาเฉพาะที่มีเกรด ตรวจค่าตัวเลข และไม่เท่ากับ 0
             if(is_numeric($g->GRADE) && $g->GRADE != 0){   
-                $credit = ($this->getSubject($g->SUB_CODE)!=null) ? $this->getSubject($g->SUB_CODE)->SUB_CREDIT:0;
+                $credit = $this->getSubject($g->SUB_CODE)->SUB_CREDIT;
                 $sumcredit += $credit;
                 array_push($learned, 
                 [
                     'sub_code'   => $g->SUB_CODE, 
-                    'sub_name'   => ($this->getSubject($g->SUB_CODE)!=null) ? $this->getSubject($g->SUB_CODE)->SUB_NAME:'ไม่มีข้อมูล', 
-                    'sub_type'   => ($this->getSubject($g->SUB_CODE)!=null) ? $this->getSubject($g->SUB_CODE)->SUB_TYPE:'ไม่มีข้อมูล',
+                    'sub_name'   => $this->getSubject($g->SUB_CODE)->SUB_NAME, 
+                    'sub_type'   => $this->getSubject($g->SUB_CODE)->SUB_TYPE,
                     'sub_credit' => ($credit) ? $credit:'ไม่มีข้อมูล',
                     'grade' => $g->GRADE,
                 ]
@@ -146,16 +146,20 @@ class StudentRegisController extends Controller
     }
 
     public function getSubject($sub_code){
+        // echo "sub_code : ".$sub_code;
         $subject = DB::table("subject{$this->lavel}")
         ->where('SUB_CODE', $sub_code)
-        ->first();
-        //print_r($subject);
-        if($subject){
-            //echo '<br><br><br>'.$subject->SUB_CODE;
-            return $subject; //ข้อมูลตารางรายวิชา
-        }else{
-            //echo '<br><br><br> ไม่มีวิชานี้'.$sub_code;
-            return null;
+        ->get();
+        // print_r($subject);
+        // echo $subject[0]->SUB_NAME;
+        if($subject->isNotEmpty()){
+            return $subject[0]; //ข้อมูลตารางรายวิชา
+        } else {
+            return json_decode(json_encode([
+                'SUB_NAME' => '**** ไม่มีข้อมูลในตารางรายยวิชา ****',
+                'SUB_TYPE' => null,
+                'SUB_CREDIT' => 0
+            ]));
         }
     }
 

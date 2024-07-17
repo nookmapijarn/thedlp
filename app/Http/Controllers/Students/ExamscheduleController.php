@@ -146,12 +146,21 @@ class ExamscheduleController extends Controller
         
     }
     public function get_subject($sub_code){
+        // echo "sub_code : ".$sub_code;
         $subject = DB::table("subject{$this->lavel}")
         ->where('SUB_CODE', $sub_code)
         ->get();
-        return $subject[0]; //ข้อมูลตารางรายวิชา
-        //print_r($subject);
-        //echo $subject[0]->SUB_NAME;
+        // print_r($subject);
+        // echo $subject[0]->SUB_NAME;
+        if($subject->isNotEmpty()){
+            return $subject[0]; //ข้อมูลตารางรายวิชา
+        } else {
+            return json_decode(json_encode([
+                'SUB_NAME' => '**** ไม่มีข้อมูลในตารางรายยวิชา ****',
+                'SUB_CREDIT' => 0
+            ]));
+        }
+        
     }
 
     public function timeFormatSch($time){

@@ -79,11 +79,11 @@ class TeachersReportController extends Controller
             switch ($this->expfin($s->STD_CODE, $level)) {
                 case true :
                 $expfin = 1;
-                $nnet = ($s->NT_SEM!='' ? 'ผ่านแล้ว' : ($s->NT_NOSEM!='' ? 'E-Exam': 'มีสิทธิ'));
+                $nnet = (!empty($s->NT_SEM) ? 'ผ่านแล้ว' : (!empty($s->NT_NOSEM) ? 'E-Exam': 'มีสิทธิ'));
                 break;
                 case false:
                 $expfin = 0;
-                $nnet = ($s->NT_SEM!='' ? $s->NT_SEM : ($s->NT_NOSEM!='' ? 'E-Exam': '-'));
+                $nnet = (!empty($s->NT_SEM) ? $s->NT_SEM : (!empty($s->NT_NOSEM) ? 'E-Exam': '-'));
                 break;
                 default:
                     $expfin = '*';
@@ -124,7 +124,7 @@ class TeachersReportController extends Controller
                             'fin_cause' => $s->FIN_CAUSE,
                             'expfin' => true,
                             'activity' => $this->get_activity($s->STD_CODE, $i),
-                            'nt_sem' => ($s->NT_SEM != '') ? 'ผ่านแล้ว' : (($s->NT_NOSEM != '') ? 'E-Exam' : 'มีสิทธิ'),
+                            'nt_sem' => (!empty($s->NT_SEM) ? 'ผ่านแล้ว' : (!empty($s->NT_NOSEM) ? 'E-Exam': 'มีสิทธิ')),
                             'grp_code' => $s->GRP_CODE,
                             'ablevel1' => $s->ABLEVEL1
                         ];
@@ -226,8 +226,10 @@ class TeachersReportController extends Controller
         $sum_credit = $grade->sum('SUB_CREDIT');
 
         if (($lavel == 1 && $sum_credit >= 48) || ($lavel == 2 && $sum_credit >= 55) || ($lavel == 3 && $sum_credit >= 76)) {
+            // echo '*******************EXP STUDENT ***********************'.$sum_credit;
             return true;
         } else {
+            // echo '*******************!! NOT EXP STUDENT ***********************'.$sum_credit;
             return false;
         }
     }

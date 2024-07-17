@@ -77,6 +77,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/clearTable', [ZipUploadController::class, 'clearTable'])->name('clearTable');
         Route::get('/clearDateModifiled', [ZipUploadController::class, 'clearDateModifiled'])->name('clearDateModifiled');
         Route::post('/clearDateModifiled', [ZipUploadController::class, 'clearDateModifiled'])->name('clearDateModifiled');
+        Route::get('/adminuserupdate', [AdminUserController::class, 'update'])->name('adminuserupdate');
+        Route::post('/adminuserupdate', [AdminUserController::class, 'update'])->name('adminuserupdate');
+        Route::get('/adminuserremove', [AdminUserController::class, 'remove'])->name('adminuserremove');
+        Route::post('/adminuserremove', [AdminUserController::class, 'remove'])->name('adminuserremove');
     });
 });
 

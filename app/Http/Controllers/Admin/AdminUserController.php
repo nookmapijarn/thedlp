@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\DB;
 use App\Models\User;
 use Illuminate\Validation\Rules;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 
 
 class AdminUserController extends Controller
@@ -15,10 +16,9 @@ class AdminUserController extends Controller
     public function index(){
         $users = [];
         $users_admin = [];
-        $users = DB::table('users')->where('role', '=', 1)->orderBy('created_at', 'DESC')->get();
-        $users_admin = DB::table('users')->where('role', '>', 1)->orderBy('created_at', 'DESC')->get();
+        $users = DB::table('users')->orderBy('role', 'DESC')->get();
 
-        return view('admin.users', compact('users', 'users_admin'));
+        return view('admin.users', compact('users'));
     }
 
     public function store(Request $request)
@@ -54,5 +54,26 @@ class AdminUserController extends Controller
         $users = DB::table('users')->orderBy('created_at', 'DESC')->get();
 
         return redirect()->route('adminregister')->with('success', 'เพิ่มข้อมูลสำเร็จ.');
+    }
+
+    public function update(Request $request)
+    {
+        $user = User::find($request->id);
+        $user->name = $request->name;
+        $user->email = $request->email;
+        $user->save();
+    
+        return response()->json(['success' => 'User updated successfully']);
+    }
+    
+    public function remove(Request $request)
+    {
+        $user = User::find($request->id);
+        if ($user) {
+            $user->delete();
+            return response()->json(['success' => 'User removed successfully']);
+        }
+    
+        return response()->json(['error' => 'User not found'], 404);
     }
 }
