@@ -74,7 +74,7 @@ class ZipUploadController extends Controller
             File::makeDirectory($extractPath, 0755, true);
         } else {
             // ลบไปใน Folder
-            File::deleteDirectory($extractPath);
+            File::deleteDirectory($extractPath, 0755, true);
             //File::makeDirectory($extractPath, 0755, true);
         }
 
@@ -88,7 +88,8 @@ class ZipUploadController extends Controller
             // แตกไฟล์
             $zip->extractTo($extractPath);
             $zip->close();
-            Storage::delete($path);
+            // ลบไฟล์ zip
+            File::delete($filePath);
             
             Log::info('**********extractPath**********'.$extractPath);
 
@@ -160,42 +161,27 @@ class ZipUploadController extends Controller
                 } else {
                     $this->importDbfData($groupDbfPath, Group::class, null);
                 }
-                // ใช้ File::chmod() เพื่อเปลี่ยนแปลงสิทธิ์ไฟล์
-                // if (File::chmod($groupDbfPath, 0777, true)) {
-                //     Log::info('Unlock $GroupdbfPath : ' . $groupDbfPath );
-                //     $log_lastModified = DB::table('lastmodifiedfile')->where('FILE_NAME', 'Group')->first(['LAST_MODIFIED']);
-                //     $lastModifiedtime = date("Y-m-d H:i:s");//filemtime($groupDbfPath);
-                //     $lastModifiedtime = date("Y-m-d H:i:s", $lastModifiedtime);
-                // } else {
-                //     Log::error('Failed to unlock $GroupdbfPath : ' . $groupDbfPath );
-                // }
             } else {
                 Log::error('File not found in Group : ' . $groupDbfPath);
             }
-
-
-
-            // if (File::exists($groupDbfPath)) {
-            //     $this->importDbfData($groupDbfPath, Group::class, null);
-            //     //File::deleteDirectory($extractPath);
-            // }
-
+            
             // Delete extracted folder
-            //File::deleteDirectory($extractPath);
+            File::deleteDirectory($extractPath, 0755, true);
 
             return response()->json(['success' => true, 'message' => 'Upload สำเร็จ กรุณา reload '])
             ->header('Content-Type', 'application/json')
             ->header('X-Trigger', 'ajaxComplete');
-            // return view('admin.upload', compact('lastmodified'))->with('success', 'Files uploaded and data imported successfully.');
-            // $this->index();
+
 
         } else {
+
+            // Delete extracted folder
+            File::deleteDirectory($extractPath, 0755, true);
+
             return response()->json(['success' => false, 'message' => 'ไม่สามารถเปิด Flie Zip ได้กรุณาลองใหม่อีกครั้ง.'])
             ->header('Content-Type', 'application/json')
             ->header('X-Trigger', 'ajaxComplete');
         }
-        // $this->index();
-        // return view('admin.upload', compact('lastmodified'))->with('error', 'Failed to extract ZIP file.');
     }
 
     protected function processDbfFiles($level)
@@ -229,8 +215,6 @@ class ZipUploadController extends Controller
                     } else {
                         // get model จากฟังชั้นนี้
                         $model = $this->getModelClass($file, $level);
-                        // ล้างข้อมูล
-                        if($file == 'grade' || $file == 'activity' || $file == 'schedule'){$model::truncate();} 
                         // ใช้ฟังชั่นนี้อ่านข้อมูลและบันทึก
                         $this->importDbfData($dbfPath, $model);
                     }
@@ -260,8 +244,6 @@ class ZipUploadController extends Controller
                         } else {
                             // get model จากฟังชั้นนี้
                             $model = $this->getModelClass($file, $level);
-                            // ล้างข้อมูล
-                            if($file == 'grade' || $file == 'activity' || $file == 'schedule'){$model::truncate();} 
                             // ใช้ฟังชั่นนี้อ่านข้อมูลและบันทึก
                             $this->importDbfData($dbfPath, $model);
                         }
@@ -298,6 +280,16 @@ class ZipUploadController extends Controller
     
         $modelClassName = class_basename($modelClass);
         $fillableFields = (new $modelClass())->getFillable();
+
+        // ล้างข้อมูลตารางที่ไม่มี kay ป้องกันค่าซ้ำ
+        if(in_array($modelClassName, [
+            'Student1', 'Student2', 'Student3', 
+            'Activity1', 'Activity2', 'Activity3', 
+            'Schedule1', 'Schedule2', 'Schedule3'])) {
+                if($modelClass::truncate()){
+                    log::info($modelClass." truncate success");
+                }
+            }
     
         try {
             // โหลดไฟล์ DBF โดยใช้ XBase\TableReader
@@ -311,7 +303,7 @@ class ZipUploadController extends Controller
 
             // นับจำนวน record ทั้งหมดในไฟล์ .dbf
             $totalRecords = $table->getRecordCount();
-            log::info('Model'.$modelClass.'Total records in DBF file: ' . $totalRecords);
+            log::info('Model'.$modelClass.' Total records in DBF file: ' . $totalRecords);
     
         } catch (\Exception $e) {
             // บันทึกข้อผิดพลาดลงใน log
@@ -502,15 +494,29 @@ class ZipUploadController extends Controller
 
     protected function clearTable() {
 
-        $extractPath = storage_path('app/uploads/unzipped/');
+        $extractPath = public_path('storage/uploads');
         File::deleteDirectory($extractPath);
 
         Student1::truncate();
         Student2::truncate();
         Student3::truncate();
+
         Subject1::truncate();
         Subject2::truncate();
         Subject3::truncate();
+
+        Grade1::truncate();
+        Grade2::truncate();
+        Grade3::truncate();
+
+        Activity1::truncate();
+        Activity2::truncate();
+        Activity3::truncate();
+
+        Schedule1::truncate();
+        Schedule2::truncate();
+        Schedule3::truncate();
+
         Group::truncate();
         DB::table('lastmodifiedfile')->truncate();
 

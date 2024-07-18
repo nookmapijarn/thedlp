@@ -388,6 +388,7 @@ class TeachersReportController extends Controller
         // echo '<pre>';
         // echo print_r($semestry3);
         // echo '</pre>';
+        
         return $semestry3;
     }
     public function get_group($semestry)
