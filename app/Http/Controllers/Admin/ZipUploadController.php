@@ -144,7 +144,7 @@ class ZipUploadController extends Controller
             }
 
             // Process the GROUP.dbf file
-            $groupDbfPath = public_path("storage/uploads/unzipped/{$this->sc_code}/group.DBF");
+            $groupDbfPath = public_path("storage/uploads/unzipped/{$this->sc_code}/group.dbf");
 
             // ตรวจสอบว่าไฟล์มีอยู่หรือไม่ก่อนทำการเปลี่ยนแปลงสิทธิ์
             if (File::exists($groupDbfPath)) {
@@ -165,22 +165,23 @@ class ZipUploadController extends Controller
                 // upper case
                 $groupDbfPath = public_path("storage/uploads/unzipped/{$this->sc_code}/GROUP.DBF");
                 
-                if (!File::exists($groupDbfPath)){
-                    log::info( 'File Not Found ? '.$groupDbfPath);
-                }
-
-                $log_lastModified = DB::table('lastmodifiedfile')->where('FILE_NAME', "Group")->first(['LAST_MODIFIED']);
-                $log_lastModified = $log_lastModified->LAST_MODIFIED;
-                $lastModifiedTimestamp = File::lastModified($groupDbfPath);
-                $lastModifiedDatetime = Carbon::createFromTimestamp($lastModifiedTimestamp)->format('Y-m-d H:i:s');
-
-                log::info( 'LAST% FILE TIME : '.$lastModifiedDatetime.' :   LOG TIME :'.$log_lastModified);
-
-                if($lastModifiedDatetime === $log_lastModified){
-                    log::info( 'Model : Group'.' :  Nothing Modified Change !!! :'.$groupDbfPath);
+                if (File::exists($groupDbfPath)){
+                    $log_lastModified = DB::table('lastmodifiedfile')->where('FILE_NAME', "Group")->first(['LAST_MODIFIED']);
+                    $log_lastModified = $log_lastModified->LAST_MODIFIED;
+                    $lastModifiedTimestamp = File::lastModified($groupDbfPath);
+                    $lastModifiedDatetime = Carbon::createFromTimestamp($lastModifiedTimestamp)->format('Y-m-d H:i:s');
+    
+                    log::info( 'LAST% FILE TIME : '.$lastModifiedDatetime.' :   LOG TIME :'.$log_lastModified);
+    
+                    if($lastModifiedDatetime === $log_lastModified){
+                        log::info( 'Model : Group'.' :  Nothing Modified Change !!! :'.$groupDbfPath);
+                    } else {
+                        $this->importDbfData($groupDbfPath, Group::class, null);
+                    }
                 } else {
-                    $this->importDbfData($groupDbfPath, Group::class, null);
+                    log::error( 'File Not Found ? '.$groupDbfPath);
                 }
+
             }
             
             // Delete extracted folder
