@@ -144,7 +144,7 @@ class ZipUploadController extends Controller
             }
 
             // Process the GROUP.dbf file
-            $groupDbfPath = public_path("storage/uploads/unzipped/{$this->sc_code}/GROUP.DBF");//"{$extractPath}/{$this->sc_code}/GROUP.dbf";
+            $groupDbfPath = public_path("storage/uploads/unzipped/{$this->sc_code}/group.DBF");
 
             // ตรวจสอบว่าไฟล์มีอยู่หรือไม่ก่อนทำการเปลี่ยนแปลงสิทธิ์
             if (File::exists($groupDbfPath)) {
@@ -162,7 +162,25 @@ class ZipUploadController extends Controller
                     $this->importDbfData($groupDbfPath, Group::class, null);
                 }
             } else {
-                Log::error('File not found in Group : ' . $groupDbfPath);
+                // upper case
+                $groupDbfPath = public_path("storage/uploads/unzipped/{$this->sc_code}/GROUP.DBF");
+                
+                if (!File::exists($groupDbfPath)){
+                    log::info( 'File Not Found ? '.$groupDbfPath);
+                }
+
+                $log_lastModified = DB::table('lastmodifiedfile')->where('FILE_NAME', "Group")->first(['LAST_MODIFIED']);
+                $log_lastModified = $log_lastModified->LAST_MODIFIED;
+                $lastModifiedTimestamp = File::lastModified($groupDbfPath);
+                $lastModifiedDatetime = Carbon::createFromTimestamp($lastModifiedTimestamp)->format('Y-m-d H:i:s');
+
+                log::info( 'LAST% FILE TIME : '.$lastModifiedDatetime.' :   LOG TIME :'.$log_lastModified);
+
+                if($lastModifiedDatetime === $log_lastModified){
+                    log::info( 'Model : Group'.' :  Nothing Modified Change !!! :'.$groupDbfPath);
+                } else {
+                    $this->importDbfData($groupDbfPath, Group::class, null);
+                }
             }
             
             // Delete extracted folder
@@ -375,8 +393,31 @@ class ZipUploadController extends Controller
                             if ($modelClassName == 'GROUP') {
                                 $unique_key = ['GRP_CODE'];
                             }
-                            $modelClass::upsert($batchData, $unique_key, array_keys($convertedData));
+
+                            $upsert = $modelClass::upsert($batchData, $unique_key, array_keys($convertedData));
                             $insertedRecords += count($batchData);
+                            $lastModifiedtime = filemtime($dbfPath);
+                            
+                            // บันทึกเวลา  upload
+                            if ($upsert > 0) {
+                                $lastModified = [
+                                    'file_name' => $modelClassName,
+                                    'level' => 0,
+                                    'last_modified' => date("Y-m-d H:i:s", $lastModifiedtime),
+                                    'uploaded' => date("Y-m-d H:i:s")
+                                ];
+                                $save = DB::table('lastmodifiedfile')->updateOrInsert(['file_name' => $modelClassName], $lastModified);
+                                log::info('Model : ' . $modelClassName . ' บันทึกการอัพเดท ' . date("Y-m-d H:i:s"));
+                            } else {
+                                $lastModified = [
+                                    'file_name' => $modelClassName,
+                                    'level' => 0,
+                                    'last_modified' => date("Y-m-d H:i:s", '0000-00-00 00:00:00'),
+                                    'uploaded' => date("Y-m-d H:i:s", '0000-00-00 00:00:00')
+                                ];
+                                $save = DB::table('lastmodifiedfile')->updateOrInsert(['file_name' => $modelClassName], $lastModified);
+                                log::error('Model : ' . $modelClassName . ' ไม่บันทึกการอัพเดท ' . date("Y-m-d H:i:s"));
+                            }
                             //log::info('Model : ' . $modelClassName . ' Batch insert to avoid memory exhaustion...');
                         } catch (\Exception $e) {
                             log::error('Model : ' . $modelClassName . ' Batch insert error: ' . $e->getMessage());
