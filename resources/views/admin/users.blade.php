@@ -126,7 +126,8 @@
                             </td>
                             <input id="id" name="id" type="hidden" class="block mt-1 w-full" value="{{ $user_ad->id }}" />
                             <td class="px-6 py-4">
-                                <input id="name" name="name" type="text" class="block w-full p-4 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" value="{{ $user_ad->name }}" />
+                                {{-- <input id="name" name="name" type="text" class="block w-full p-4 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" value="{{ $user_ad->name }}" /> --}}
+                                {{ $user_ad->name }}
                             </td>
                             <td class="px-6 py-4">
                                 <input id="email" class="block w-full p-4 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" type="email" name="email" value="{{ $user_ad->email }}" required />

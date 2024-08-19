@@ -302,7 +302,7 @@ class ZipUploadController extends Controller
 
         // ล้างข้อมูลตารางที่ไม่มี kay ป้องกันค่าซ้ำ
         if(in_array($modelClassName, [
-            'Student1', 'Student2', 'Student3', 
+            'Grade1', 'Grade2', 'Grade3', 
             'Activity1', 'Activity2', 'Activity3', 
             'Schedule1', 'Schedule2', 'Schedule3'])) {
                 if($modelClass::truncate()){

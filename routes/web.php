@@ -8,6 +8,8 @@ use App\Http\Controllers\ProfileController;
 // Admin
 use App\Http\Controllers\Admin\ZipUploadController;
 use App\Http\Controllers\Admin\AdminUserController;
+use App\Http\Controllers\Admin\DatareviweController;
+
 
 // Stdudent
 use App\Http\Controllers\Students\DashboardController;
@@ -81,6 +83,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/adminuserupdate', [AdminUserController::class, 'update'])->name('adminuserupdate');
         Route::get('/adminuserremove', [AdminUserController::class, 'remove'])->name('adminuserremove');
         Route::post('/adminuserremove', [AdminUserController::class, 'remove'])->name('adminuserremove');
+        Route::get('/datareview', [DatareviweController::class, 'index'])->name('datareview');
+        Route::post('/datareview', [DatareviweController::class, 'index'])->name('datareview');
     });
 });
 
