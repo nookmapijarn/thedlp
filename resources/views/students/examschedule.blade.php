@@ -26,23 +26,23 @@
       @if($schedule)
       <thead class="text-sm text-gray-700 uppercase bg-violet-300 dark:bg-gray-700 dark:text-gray-400">                  
         <tr>
-          <th scope="col" class="px-6 py-3 text-center">ลำดับ</th>
-          <th scope="col" class="px-6 py-3">รหัสวิชา</th>
-          <th scope="col" class="px-6 py-3">รายวิชา</th>
-          <th scope="col" class="px-6 py-3">วัน</th>
-          <th scope="col" class="px-6 py-3">เวลา</th>
-          <th scope="col" class="px-6 py-3 text-center">ห้อง</th>
+          <th scope="col" class="py-3 text-center">ลำดับ</th>
+          <th scope="col" class="px-2 py-3">รหัสวิชา</th>
+          <th scope="col" class="px-2 py-3">รายวิชา</th>
+          <th scope="col" class="px-2 py-3">วัน</th>
+          <th scope="col" class="px-2 py-3">เวลา</th>
+          <th scope="col" class="px-2 py-3 text-center">ห้อง</th>
         </tr>
       </thead>
       <tbody class="text-xs md:text-sm">
           @foreach($schedule as $s)
             <tr class="bg-violet-50 border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 hover:bg-violet-200 active:bg-violet-200">
-              <td class="p-2 text-center">{{$loop->iteration}}</td>
-              <td class="px-6 py-4">{{$s['sub_code']}}</td>
-              <td class="px-6 py-4 text-ellipsis overflow-hidden">{{$s['sub_name']}}</td>
-              <td class="px-6 py-4 w-15">@if($s['exam_day']!=0)  {{$s['exam_day']}} @endif</td>
-              <td class="px-6 py-4">@if($s['exam_start']!=0) {{$s['exam_start']}}-{{$s['exam_end']}} น. @endif</td>
-              <td class="px-6 py-4 text-center">{{$s['exam_room']}}</td>
+              <td class="text-center">{{$loop->iteration}}</td>
+              <td class="px-2 py-3">{{$s['sub_code']}}</td>
+              <td class="px-2 py-3 text-ellipsis overflow-hidden">{{$s['sub_name']}}</td>
+              <td class="px-2 py-3">@if($s['exam_day']!=0)  {{$s['exam_day']}} @endif</td>
+              <td class="px-2 py-3">@if($s['exam_start']!=0) {{$s['exam_start']}}-{{$s['exam_end']}} น. @endif</td>
+              <td class="px-2 py-3 text-center">{{$s['exam_room']}}</td>
             </tr>
           @endforeach
       </tbody>
