@@ -62,30 +62,30 @@ class ProfileController extends Controller
     
     public function updateAvatar(Request $request)
     {
+        // ตรวจสอบว่ามีข้อมูลรูปภาพหรือไม่
         if ($request->has('cropped_image')) {
             // รับข้อมูล base64 ของรูปที่ถูก crop
             $imageData = $request->input('cropped_image');
         } elseif ($request->has('original_image')) {
             // รับข้อมูล base64 ของรูปต้นฉบับ
             $imageData = $request->input('original_image');
+        } else {
+            return redirect()->back()->withErrors(['message' => 'No image provided.']);
         }
     
-        // ลบข้อมูล prefix ออก
+        // ลบข้อมูล prefix base64 ออก
         $imageData = str_replace('data:image/png;base64,', '', $imageData);
         $imageData = base64_decode($imageData);
     
         // สร้างชื่อไฟล์
         $imageName = auth()->user()->student_id . '_avatar' . '.png';
     
-        // บันทึกไฟล์ลง storage
-        $path = storage_path('app/public/images/avatar/' . $imageName);
-        file_put_contents($path, $imageData);
+        // บันทึกไฟล์ลง storage (public disk)
+        $path = 'images/avatar/' . $imageName;
+        Storage::disk('public')->put($path, $imageData);
     
-        // อัปเดต URL ของ avatar
-        $imageUrl = Storage::url('images/avatar/' . $imageName);
-        DB::table('users')
-            ->where('student_id', auth()->user()->student_id)
-            ->update(['avatar' => $imageUrl]);
+        // อัปเดต URL ของ avatar ในฐานข้อมูล
+        auth()->user()->update(['avatar' => $path]); 
     
         return redirect()->back()->with('status', 'Avatar updated successfully.');
     }
