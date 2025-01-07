@@ -8,6 +8,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
 
 class ProfileController extends Controller
 {
@@ -57,4 +59,38 @@ class ProfileController extends Controller
 
         return Redirect::to('/');
     }
+    
+    public function updateAvatar(Request $request)
+    {
+        if ($request->has('cropped_image')) {
+            // รับข้อมูล base64 ของรูปที่ถูก crop
+            $imageData = $request->input('cropped_image');
+        } elseif ($request->has('original_image')) {
+            // รับข้อมูล base64 ของรูปต้นฉบับ
+            $imageData = $request->input('original_image');
+        }
+    
+        // ลบข้อมูล prefix ออก
+        $imageData = str_replace('data:image/png;base64,', '', $imageData);
+        $imageData = base64_decode($imageData);
+    
+        // สร้างชื่อไฟล์
+        $imageName = auth()->user()->student_id . '_avatar' . '.png';
+    
+        // บันทึกไฟล์ลง storage
+        $path = storage_path('app/public/images/avatar/' . $imageName);
+        file_put_contents($path, $imageData);
+    
+        // อัปเดต URL ของ avatar
+        $imageUrl = Storage::url('images/avatar/' . $imageName);
+        DB::table('users')
+            ->where('student_id', auth()->user()->student_id)
+            ->update(['avatar' => $imageUrl]);
+    
+        return redirect()->back()->with('status', 'Avatar updated successfully.');
+    }
+
+
+      
+    
 }

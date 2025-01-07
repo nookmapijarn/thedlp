@@ -23,7 +23,8 @@ class User extends Authenticatable
         'email',
         'password',
         'pdpa_check',
-        'role'
+        'role',
+        'avatar'
     ];
 
     /**

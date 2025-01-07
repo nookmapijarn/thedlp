@@ -20,7 +20,7 @@
                     <x-nav-link :href="route('ติดตามผู้จบ')" :active="request()->routeIs('ติดตามผู้จบ')" class="text-white">
                         {{ __('ติดตามผู้จบ') }}
                     </x-nav-link>
-                    <x-nav-link :href="route('ติดต่อครู')" :active="request()->routeIs('ติดต่อครู')" class="text-white">
+                    <x-nav-link href="https://we.phothongdlec.ac.th/?page_id=66" class="text-white">
                         {{ __('ติดต่อครู') }}
                     </x-nav-link>
                 </div>
@@ -84,7 +84,7 @@
             <x-responsive-nav-link :href="route('ติดตามผู้จบ')" :active="request()->routeIs('ติดตามผู้จบ')" class="{{request()->routeIs('ติดตามผู้จบ') ? 'text-indigo-800' : 'text-white'}}">
                 {{ __('ติดตามผู้จบ') }}
             </x-responsive-nav-link>
-            <x-responsive-nav-link :href="route('ติดต่อครู')" :active="request()->routeIs('ติดต่อครู')" class="{{request()->routeIs('ติดต่อครู') ? 'text-indigo-800' : 'text-white'}}">
+            <x-responsive-nav-link href="https://we.phothongdlec.ac.th/?page_id=66">
                 {{ __('ติดต่อครู') }}
             </x-responsive-nav-link>
         </div>

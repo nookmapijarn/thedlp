@@ -66,7 +66,6 @@
                         <button
                             class="flex items-center text-sm font-medium text-gray-100 hover:text-gray-700 hover:border-gray-300 focus:outline-none focus:text-gray-700 focus:border-gray-300 transition duration-150 ease-in-out">
                             <div>{{ Auth::user()->name }}</div>
-
                             <div class="ml-1">
                                 <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg"
                                     viewBox="0 0 20 20">
@@ -80,9 +79,11 @@
 
                     <x-slot name="content">
                         <!-- Authentication -->
+                        <x-dropdown-link :href="route('profile.edit')">
+                            {{ __('ตั้งค่าผู้ใช้งาน') }}
+                        </x-dropdown-link>
                         <form method="POST" action="{{ route('logout') }}" class=" text-white">
                             @csrf
-
                             <x-dropdown-link :href="route('logout')" onclick="event.preventDefault();
                                                 this.closest('form').submit();" class="text-gray-400">
                                 {{ __('ออกจากระบบ') }}

@@ -28,7 +28,7 @@ class TeachersController extends Controller
 
         // $province = $this->province();
         $all_tumbon = $this->get_group($current_semestry);
-        $student_tumbon = null;//$this->get_student_tumbon_counts($current_semestry, $all_tumbon);
+        $student_tumbon = $this->get_student_tumbon_counts($current_semestry, $all_tumbon); //จำนวนรายตำบล
 
         return view('teachers.tdashboard', compact('labels', 'data_student', 'all_tumbon', 'student_tumbon', 'current_semestry'));
     }
@@ -84,25 +84,32 @@ class TeachersController extends Controller
     public function get_student_tumbon_counts($semestry, $all_tumbon)
     {
         $student_tumbon = [];
+    
         foreach ($all_tumbon as $tb) {
+            // สืบค้นนักเรียนสำหรับทุกเกรดพร้อมกันโดยใช้ union
             $student_count = [];
             for ($i = 1; $i <= 3; $i++) {
                 $count_s = DB::table("grade{$i}")
-                    ->select('GRP_CODE', 'SEMESTRY', 'STD_CODE')
+                    ->select('GRP_CODE', DB::raw("COUNT(DISTINCT STD_CODE) as student_count"))
                     ->where('SEMESTRY', $semestry)
                     ->where('GRP_CODE', $tb->GRP_CODE)
-                    ->groupBy('GRP_CODE', 'SEMESTRY', 'STD_CODE')
-                    ->get()
-                    ->count();
-                $student_count["ST{$i}"] = $count_s;
+                    ->groupBy('GRP_CODE', 'SEMESTRY')
+                    ->first();
+    
+                // เก็บข้อมูลจำนวนนักเรียนลงใน array
+                $student_count["ST{$i}"] = $count_s ? $count_s->student_count : 0;
             }
+    
+            // เก็บข้อมูลของแต่ละ GRP
             $student_tumbon[] = [
                 'GRP' => $tb,
                 'STUDENT' => $student_count
             ];
         }
+        echo json_encode($student_tumbon);
         return $student_tumbon;
     }
+    
 
     public function get_semestry($limit)
     {

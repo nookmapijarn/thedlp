@@ -23,14 +23,14 @@
         }" >
         <!-- Tab Navigation-->
         <div class="mb-2 text-sm md:text-md font-medium text-center text-gray-500 dark:text-gray-400 dark:border-gray-700">
-            <ul class="flex flex-col-1 justify-center">
+            <ul class="grid grid-cols-1 gap-2 sm:grid-cols-2 justify-center">
                 {{-- <li class="mr-2">
                     <span class="inline-block p-4 rounded-t-lg border-b-2 border-transparent">
                         เลือก :
                     </span>
                 </li> --}}
 
-                <li class="mr-2 cursor-pointer"
+                <li class="cursor-pointer"
                     @click="activeTab = {{1}}">
                     <a :class="isActive({{1}}) ? 'w-full sm:w-auto bg-yellow-300 text-gray-800 hover:bg-yellow-400 focus:ring-4 focus:outline-none focus:ring-gray-300 rounded-lg inline-flex items-center justify-center px-4 py-2.5 ' : 'w-full sm:w-auto bg-gray-300 text-gray-800 hover:bg-yellow-400 focus:ring-4 focus:outline-none focus:ring-gray-300 rounded-lg inline-flex items-center justify-center px-4 py-2.5'">
                         <svg class=" w-7 h-7" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
@@ -42,7 +42,7 @@
                         </div>
                     </a>
                 </li>
-                <li class="mr-2 cursor-pointer"
+                <li class="cursor-pointer"
                     @click="activeTab = {{2}}">
                     <a :class="isActive({{2}}) ? 'w-full sm:w-auto bg-yellow-300 text-gray-800 hover:bg-yellow-400 focus:ring-4 focus:outline-none focus:ring-gray-300 rounded-lg inline-flex items-center justify-center px-4 py-2.5 ' : 'w-full sm:w-auto bg-gray-300 text-gray-800 hover:bg-yellow-400 focus:ring-4 focus:outline-none focus:ring-gray-300 rounded-lg inline-flex items-center justify-center px-4 py-2.5'">
                         <svg  class="mr-3 w-7 h-7" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
@@ -169,7 +169,7 @@
             </div>
         </div>
 
-        <!-- MAne -->
+        <!-- Manu -->
         <div class="flex items-center justify-center ">
             <a class="mt-4 m-2 hover:text-sky-900" href="{{ route('/welcome') }}">
                 <div class="rounded-full">
