@@ -19,7 +19,7 @@
         {{-- Avatar Upload form --}}
         <div class="flex items-center justify-center w-44 h-48 relative overflow-hidden border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50">
             <div id="preview-container" class="relative w-full h-full">
-                <img id="preview" src="{{ asset('storage/' . auth()->user()->avatar) }}" alt="Preview Image" >
+                <img id="preview" src="#" alt="Preview Image" >
             </div>
             <label for="IMG_1" class="flex flex-col absolute items-center justify-center">
                 <div class="flex flex-col items-center justify-center pt-5 pb-6">
@@ -32,7 +32,21 @@
 
         {{-- messages --}}
         <div>
-            <x-input-error class="mt-2" :messages="$errors->get('avatar')" />
+            @if (session('status'))
+                @php
+                    $status = session('status');
+                    $urlStartPos = strpos($status, 'URL : ');
+                    $url = $urlStartPos !== false ? substr($status, $urlStartPos + 6) : '';
+                    $message = $url ? substr($status, 0, $urlStartPos) : $status;
+                @endphp
+
+                <div class="alert alert-success">
+                    <p>{{ $message }}</p>
+                    @if ($url)
+                        <p>View Avatar: <a href="{{ $url }}" target="_blank">{{ $url }}</a></p>
+                    @endif
+                </div>
+            @endif
         </div>
 
         {{-- Crop Modal --}}
