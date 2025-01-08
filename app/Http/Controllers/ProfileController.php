@@ -81,14 +81,14 @@ class ProfileController extends Controller
         $imageName = auth()->user()->student_id . '.png';
     
         // บันทึกไฟล์ลง storage (public disk)
-        $path = 'images/avatar/' . $imageName; // เส้นทางสัมพันธ์ใน storage
-        Storage::disk('public')->put($path, $imageData);
-        $publicUrl = asset('storage/' . $path);
+        $path = public_path('storage/images/avatar/' . $imageName); // ใช้ public_path เพื่อกำหนดเส้นทางแบบเต็ม
+        file_put_contents($path, $imageData); // เขียนไฟล์ไปยังเส้นทางที่ระบุ
+        $publicUrl = asset('storage/images/avatar/' . $imageName); // URL สำหรับการเข้าถึงไฟล์
 
         // อัปเดต URL ของ avatar ในฐานข้อมูล
-        auth()->user()->update(['avatar' => $path]); 
+        auth()->user()->update(['avatar' => $publicUrl]); 
     
-        return redirect()->back()->with('status', 'Avatar updated successfully. URL : '. $publicUrl);
+        return redirect()->back()->with('status', 'อัพโหลดรูปภาพสำเร็จ.');
     }
 
 
