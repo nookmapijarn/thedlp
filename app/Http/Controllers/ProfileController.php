@@ -88,7 +88,7 @@ class ProfileController extends Controller
         // อัปเดต URL ของ avatar ในฐานข้อมูล
         auth()->user()->update(['avatar' => $publicUrl]); 
     
-        return redirect()->back()->with('status', 'อัพโหลดรูปภาพสำเร็จ.');
+        return redirect()->back()->with('status', 'อัพโหลดรูปภาพสำเร็จ.'. $publicUrl);
     }
 
 
