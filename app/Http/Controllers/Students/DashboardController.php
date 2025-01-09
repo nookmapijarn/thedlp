@@ -24,6 +24,7 @@ class DashboardController extends Controller
         // SET
         $id = auth()->user()->student_id;
         $this->lavel = str_split($id, 1)[3];
+        $lavel = $this->lavel;
         $this->std_code = DB::table("student{$this->lavel}")->where('ID', $id)->select('STD_CODE')->groupBy('STD_CODE')->value('STD_CODE');
 
         $student = $this->get_student($this->std_code, $this->lavel);
@@ -95,6 +96,7 @@ class DashboardController extends Controller
          //print $student[0]->ID;
 
         return view('students.dashboard', compact(   'grade',
+                                            'lavel',
                                             'semestrylist1', 
                                             'student',
                                             'act_sum',

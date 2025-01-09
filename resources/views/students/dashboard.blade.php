@@ -6,15 +6,88 @@
     </x-slot>
 
     {{-- Avatar --}}
-    <section class="bg-white dark:bg-gray-900">
+    <section class="bg-white dark:bg-gray-900"> 
         <div class="flex items-center space-x-4 gap- items-center py-1 px-4 mx-auto max-w-screen-md">
-            <img class="w-10 h-10 rounded-full" src="data:image/png;base64,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" alt="">
-            <div class="font-medium dark:text-white">
-                <div> รหัสนักศึกษา: {{ auth()->user()->student_id }} </div>
-                <div class="text-sm text-gray-500 dark:text-gray-400">ชื่อ-สกุล {{$student[0]->NAME}} {{$student[0]->SURNAME}}</div>
+            <!-- Horizontal Student Card -->
+            <div class="w-full max-w-4xl bg-white shadow-lg rounded-lg flex overflow-hidden relative">
+                <!-- Background Logo -->
+                <div class="absolute inset-0">
+                    <img src="https://phothongdlec.ac.th/storage/logo.png" alt="School Logo" 
+                    class="opacity-10 w-full h-full object-contain">
+                </div>
+            
+                <!-- Card Content -->
+                <div class="w-full flex flex-col relative z-10">
+                    <!-- Header Section -->
+                    <div class="bg-blue-600 text-white text-center py-2">
+                        <h1 class="text-lg font-bold">บัตรประจำตัวนักศึกษา</h1>
+                    </div>
+            
+                    <!-- Main Content Section -->
+                    <div class="flex">
+                        <!-- Profile Image Section -->
+                        <div class="w-1/3 p-4 flex justify-center items-center relative">
+                            <div class="w-48 h-64 bg-gray-200 rounded-md overflow-hidden transform shadow-md">
+                                <img class="w-full h-full object-cover"
+                                    src="{{ auth()->user()->avatar ? auth()->user()->avatar : 'https://phothongdlec.ac.th/storage/images/avatar/unkhonw.png' }}" 
+                                    alt="Preview Image" 
+                                    onerror="this.src='https://phothongdlec.ac.th/storage/images/avatar/unkhonw.png'">
+                            </div>
+                            <!-- Edit Icon -->
+                            <a href="/profile" class="absolute top-4 right-6 bg-blue-500 text-white p-2 rounded-full hover:bg-blue-700">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5">
+                                    <path d="M16.862 3.487a1.5 1.5 0 0 1 2.121 2.121l-8.379 8.38a1.5 1.5 0 0 1-.53.354l-4.5 1.5a.75.75 0 0 1-.96-.96l1.5-4.5a1.5 1.5 0 0 1 .354-.53l8.38-8.379z" />
+                                </svg>
+                            </a>
+                        </div>
+            
+                        <!-- Information Section -->
+                        <div class="w-2/3 p-6 flex flex-col justify-between">
+                            <div>
+                                @foreach($student as $std)
+                                <h2 class="text-2xl font-bold text-gray-800">{{$std->PRENAME}}{{$std->NAME}} {{$std->SURNAME}}</h2>
+                                <p class="text-gray-600 text-sm mt-1">นักศึกษาศูนย์ส่งเสริมการเรียนรู้ระดับอำเภอโพธิ์ทอง</p>
+                                <p class="text-gray-500 text-sm">สังกัดสำนักงานส่งเสริมการเรียนรู้ประจำจังหวัดอ่างทอง</p>
+                                <div class="mt-4">
+                                    <p class="text-gray-700 text-sm"><span class="font-bold">รหัสนักศึกษา:</span> {{$std->ID}}</p>
+                                    <p class="text-gray-700 text-sm"><span class="font-bold">ระดับชั้น:</span> 
+                                        @if($lavel==1) ประถมศึกษา @endif 
+                                        @if($lavel==2) มัธยมต้น @endif 
+                                        @if($lavel==3) มัธยมปลาย @endif 
+                                    </p>
+                                    <p class="text-gray-700 text-sm"><span class="font-bold">กลุ่มตำบล:</span> {{$std->GRP_CODE}}</p>
+                                    <p class="text-gray-700 text-sm"><span class="font-bold">สถานะ:</span> 
+                                        @if($std->FIN_CAUSE==1) "จบหลักสูตร" @endif 
+                                        @if($std->FIN_CAUSE==2) "ลาออก" @endif 
+                                        @if($std->FIN_CAUSE==3) "หมดสภาพ" @endif 
+                                        @if($std->FIN_CAUSE==4) "พ้นสภาพ"  @endif 
+                                        @if($std->FIN_CAUSE==5) "ศึกษาต่อที่อื่น"  @endif 
+                                        @if($std->FIN_CAUSE==6) "ศึกษาเพิ่งหลังจบ"  @endif 
+                                        @if($std->FIN_CAUSE==7) "จบตกหล่น"  @endif 
+                                        @if($std->FIN_CAUSE==8) "อื่นๆ"  @endif 
+                                        @if($std->FIN_CAUSE==9) "จบอยู่ระหว่างตรวจสอบวุฒิ"  @endif 
+                                        @if($std->FIN_CAUSE=='' || $std->FIN_CAUSE==null || $std->FIN_CAUSE==0) เป็นนักศึกษา @endif   
+                                    </p>
+                                </div>
+                                @endforeach
+                            </div>
+                        </div>
+                    </div>
+            
+                    <!-- Print Button -->
+                    <div class="px-6 pb-4 text-right">
+                        <a href="/profile" class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-700 mr-2">
+                            แก้ไขรูปภาพ
+                        </a>
+                        <button onclick="printCard()" class="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-700">
+                            พิมพ์บัตร
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
     </section>
+    
     
     {{-- Progess --}}
     <section class="bg-white grid justify-items-center">
@@ -395,3 +468,118 @@
         config
     );
 </script>
+<!-- Include html2canvas library -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script>
+    // Function to format date as DD/MM/YYYY
+    function formatDate(date) {
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are zero-based
+        const year = date.getFullYear();
+        return `${day}/${month}/${year}`;
+    }
+
+    // Function to calculate expiry date (current date + 5 years)
+    function calculateExpiryDate() {
+        const currentDate = new Date();
+        const expiryDate = new Date(currentDate);
+        expiryDate.setFullYear(currentDate.getFullYear() + 5);
+        return expiryDate;
+    }
+
+    // Print Card Function
+    function printCard() {
+        const currentDate = new Date();
+        const expiryDate = calculateExpiryDate();
+        let level;
+
+        if (@json($lavel) == 3) {
+            level = 'มัธยมปลาย';
+        } else if (@json($lavel) == 2) {
+            level = 'มัธยมต้น';
+        } else {
+            level = 'ประถมศึกษา';
+        }
+
+        const studentData = {
+            prename: @json($student[0]->PRENAME),
+            name: @json($student[0]->NAME),
+            surname: @json($student[0]->SURNAME),
+            id: @json($student[0]->ID),
+            level: level,
+            department: 'สกร.ระดับอำเภอโพธิ์ทอง',
+            issueDate: formatDate(currentDate), // Current date
+            expiryDate: formatDate(expiryDate), // Current date + 5 years
+        };
+
+        const printContent = `
+            <div id="student-card" style="width: 8.6cm; height: 5.4cm; border: 1px solid #000; padding: 0px; font-family: 'Prompt', sans-serif; font-size: 12px; position: relative; box-sizing: border-box;">
+                <!-- Background Logo with Reduced Opacity -->
+                <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-image: url('https://phothongdlec.ac.th/storage/logo.png'); background-size: contain; background-repeat: no-repeat; background-position: center; opacity: 0.1; z-index: 1;"></div>
+                <!-- Card Content -->
+                <div style="position: relative; z-index: 2;">
+                    <canvas id="qr-code" style="position: absolute; top: 10px; right: 10px;">
+                    QR CODE
+                    </canvas>
+                    <h1 style="text-align: center; font-size: 16px; margin-bottom: 5px;">บัตรประจำตัวนักศึกษา</h1>
+                    <div style="display: flex; height: calc(100% - 30px); justify-content: space-between; align-items: flex-start;">
+                        <!-- Profile Image Section -->
+                        <div style="width: 40%; display: flex; justify-content: center; align-items: center;">
+                            <div style="width: 70%; aspect-ratio: 7 / 8; border: 1px solid #000; overflow: hidden; display: flex; align-items: center; justify-content: center;">
+                                <img src="{{ auth()->user()->avatar ? auth()->user()->avatar : 'https://phothongdlec.ac.th/storage/images/avatar/unkhonw.png' }}" 
+                                    alt="Student Image" 
+                                    style="width: 100%; height: 100%; object-fit: cover;" />
+                            </div>
+                        </div>
+                        <!-- Information Section -->
+                        <div style="width: calc(100% - 3cm); display: flex; flex-direction: column; justify-content: space-between; padding-left: 10px; box-sizing: border-box;">
+                            <p style="margin: 0;"><strong>ชื่อ:</strong> ${studentData.prename}${studentData.name} ${studentData.surname}</p>
+                            <p style="margin: 0;"><strong>รหัสนักศึกษา:</strong> ${studentData.id}</p>
+                            <p style="margin: 0;"><strong>ระดับชั้น:</strong> ${studentData.level}</p>
+                            <p style="margin: 0;"><strong>สถานศึกษา:</strong> ${studentData.department}</p>
+                            <p style="margin: 0;"><strong>ออกบัตร:</strong> ${studentData.issueDate}</p>
+                            <p style="margin: 0;"><strong>หมดอายุ:</strong> ${studentData.expiryDate}</p>
+                        </div>
+                    </div>
+                    <!-- Signature Section -->
+                    <div style="width: 100%; display: flex; justify-content: space-between; margin-top: -45px;">
+                        <div style="width: 48%; text-align: center; padding: 10px;">
+                            <div style="border-top: 1px solid #000; width: 100%; margin: 0 auto;"></div>
+                            <p style="margin-top: 5px; margin-bottom: 0;">ลงชื่อนักศึกษา</p>
+                        </div>
+                        <div style="width: 48%; text-align: center; padding: 10px;">
+                            <div style="border-top: 1px solid #000; width: 100%; margin: 0 auto;"></div>
+                            <p style="margin-top: 5px; margin-bottom: 0;">ลงชื่อผู้อำนวยการฯ</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Print and Download Buttons -->
+            <div style="text-align: center; margin-top: 20px; width: 8.6cm;">
+                <button onclick="window.print()" style="background-color: green; color: white; padding: 5px 10px; border: none; border-radius: 5px; cursor: pointer; margin-right: 10px;">
+                    กดพิมพ์บัตร
+                </button>
+            </div>
+            <link href="https://fonts.googleapis.com/css2?family=Prompt&display=swap" rel="stylesheet">
+        `;
+
+        const newWindow = window.open('', '', 'width=800,height=600');
+        newWindow.document.write(printContent);
+
+        // Generate QR Code
+        const qrCanvas = newWindow.document.getElementById('qr-code');
+        QRCode.toCanvas(qrCanvas, JSON.stringify(studentData), {
+            width: 80,
+            margin: 2,
+        })
+        .then(() => {
+            newWindow.document.close();
+        })
+        .catch((error) => {
+            console.error('Error generating QR code:', error);
+            newWindow.document.close();
+        });
+    }
+</script>
+
+  

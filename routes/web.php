@@ -144,6 +144,7 @@ Route::prefix('/help')->group(function () {
 
 
 Route::middleware('auth')->group(function () {
+    Route::get('/avatar/update', [ProfileController::class, 'updateAvatar'])->name('avatar.update');
     Route::post('/avatar/update', [ProfileController::class, 'updateAvatar'])->name('avatar.update');
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
