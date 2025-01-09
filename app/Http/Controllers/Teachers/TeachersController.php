@@ -106,7 +106,7 @@ class TeachersController extends Controller
                 'STUDENT' => $student_count
             ];
         }
-        echo json_encode($student_tumbon);
+        //echo json_encode($student_tumbon);
         return $student_tumbon;
     }
     
