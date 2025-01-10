@@ -70,7 +70,6 @@
           <span class="text-indigo font-semibold truncate"> : คาดว่าจะจบหลักสูตร</span>
         </div>
       </div>
-
       @if($data==null && (request()->get('tumbon')!=''))
       <br>
       <div id="alert-additional-content-2" class="p-4 mb-4 text-yellow-800 border border-red-300 rounded-lg bg-yellow-50 dark:bg-yellow-800 dark:text-yellow-400 dark:border-yellow-800" role="alert">
@@ -127,6 +126,12 @@
             @if($req_lavel == 2)  มัธยมต้น @endif
             @if($req_lavel == 3)  มัธยมปลาย @endif
           </span>
+          <button onclick="printAllCards({{ json_encode($data) }})" type="button" class="px-3 py-2 text-xs font-medium text-center inline-flex items-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+            <svg class="w-6 h-6 text-gray-100 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+              <path fill-rule="evenodd" d="M8 3a2 2 0 0 0-2 2v3h12V5a2 2 0 0 0-2-2H8Zm-3 7a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h1v-4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v4h1a2 2 0 0 0 2-2v-5a2 2 0 0 0-2-2H5Zm4 11a1 1 0 0 1-1-1v-4h8v4a1 1 0 0 1-1 1H9Z" clip-rule="evenodd"/>
+            </svg>  
+            พิมพ์บัตรทั้งหมด
+          </button>
         </div>
       </div>
       <div class="overflow-auto flex flex-col-1 justify-center sm:ml-64 max-w-auto p-2">
@@ -366,4 +371,149 @@
         });
     }
 
+
+
+// ***********************************
+function printAllCards(students) {
+    if (!students || students.length === 0) {
+        alert('ไม่มีข้อมูลนักศึกษา');
+        return;
+    }
+
+    // สร้าง HTML สำหรับบัตรทั้งหมด
+    let allCardsContent = `
+        <style>
+            @media print {
+                /* บังคับให้พิมพ์ background image และ background color */
+                .print-background {
+                    -webkit-print-color-adjust: exact; /* สำหรับ Chrome/Safari */
+                    color-adjust: exact; /* สำหรับ Firefox */
+                    print-color-adjust: exact; /* มาตรฐานใหม่ */
+                }
+                .student-card {
+                    page-break-inside: avoid; /* ป้องกันบัตรถูกตัดระหว่างหน้า */
+                    margin-bottom: 20px; /* ระยะห่างระหว่างบัตร */
+                }
+                .print-button {
+                    display: none; /* ซ่อนปุ่มพิมพ์เมื่อพิมพ์ */
+                }
+            }
+            /* จัดรูปแบบบัตรใน 2 คอลัมน์ */
+            .card-container {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 20px;
+                padding: 20px;
+            }
+            /* ปุ่มพิมพ์ที่มุมบนขวา */
+            .print-button {
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background-color: green;
+                color: white;
+                padding: 10px 20px;
+                border: none;
+                border-radius: 5px;
+                cursor: pointer;
+                z-index: 1000;
+            }
+        </style>
+        <!-- ปุ่มพิมพ์ -->
+        <button class="print-button" onclick="window.print()">พิมพ์</button>
+        <!-- บัตรทั้งหมด -->
+        <div class="card-container">
+    `;
+
+    // เพิ่มบัตรแต่ละใบเข้าไปใน HTML
+    students.forEach((student) => {
+        const cardContent = generateCardContent(student);
+        allCardsContent += `<div class="student-card">${cardContent}</div>`;
+    });
+
+    allCardsContent += `</div>`; // ปิดแท็ก div หลัก
+
+    // เปิดหน้าต่างใหม่และแสดงบัตรทั้งหมด
+    const newWindow = window.open('', '', 'width=800,height=600');
+    newWindow.document.write(allCardsContent);
+    newWindow.document.close();
+}
+
+// สร้าง HTML สำหรับบัตรแต่ละใบ
+function generateCardContent(student_data) {
+    const currentDate = new Date();
+    const expiryDate = calculateExpiryDate(currentDate, 5); // หมดอายุใน 5 ปี
+    let level;
+
+    // กำหนดระดับชั้น
+    if (student_data['lavel'] == 3) {
+        level = 'มัธยมปลาย';
+    } else if (student_data['lavel'] == 2) {
+        level = 'มัธยมต้น';
+    } else {
+        level = 'ประถมศึกษา';
+    }
+
+    // ข้อมูลนักศึกษา
+    const studentData = {
+        prename: student_data['prename'], // คำนำหน้า (ถ้ามี)
+        name: student_data['name'] || 'ไม่ระบุ',
+        surname: student_data['surname'] || 'ไม่ระบุ',
+        id: student_data['id'] || '000000000', // รหัสนักศึกษา
+        cardid: student_data['cardid'],
+        level: level, // ระดับชั้น
+        department: 'สกร.ระดับอำเภอโพธิ์ทอง', // สถานศึกษา
+        issueDate: formatDate(currentDate), // วันที่ออกบัตร
+        expiryDate: formatDate(expiryDate), // วันที่หมดอายุ
+    };
+    
+    // URL รูปภาพโปรไฟล์
+    const avatarUrl = student_data['user_avatar'] || 'https://phothongdlec.ac.th/storage/images/avatar/unkhonw.png';
+
+    // HTML สำหรับบัตร
+    return `
+            <div id="student-card" style="width: 8.6cm; height: 5.4cm; border: 1px solid #000; padding: 0px; font-family: 'Prompt', sans-serif; font-size: 12px; font-weight: bold; position: relative; box-sizing: border-box; color: black;">
+                <!-- Background Logo with Reduced Opacity -->
+                <div class="print-background" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-image: url('https://phothongdlec.ac.th/storage/logo.png'); background-size: contain; background-repeat: no-repeat; background-position: center; opacity: 0.05; z-index: 1;"></div>
+                <!-- Card Content -->
+                <div style="position: relative; z-index: 2;">
+                    <canvas id="qr-code" style="position: absolute; top: 10px; right: 10px;">
+                    QR CODE
+                    </canvas>
+                    <h1 style="text-align: center; font-size: 16px; margin-bottom: 5px; color: black;">บัตรประจำตัวนักศึกษา</h1>
+                    <div style="display: flex; height: calc(100% - 30px); justify-content: space-between; align-items: flex-start;">
+                        <!-- Profile Image Section -->
+                        <div style="width: 40%; display: flex; justify-content: center; align-items: center;">
+                            <div style="width: 70%; aspect-ratio: 7 / 8; border: 1px solid #000; overflow: hidden; display: flex; align-items: center; justify-content: center;">
+                                <img id="preview" src="${avatarUrl}" alt="Student Image" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='https://phothongdlec.ac.th/storage/images/avatar/unkhonw.png'">
+                            </div>
+                        </div>
+                        <!-- Information Section -->
+                        <div style="width: calc(100% - 3cm); display: flex; flex-direction: column; justify-content: space-between; padding-left: 3px; box-sizing: border-box;">
+                            <p style="margin: 0; color: black;"><strong>ชื่อ:</strong> ${studentData.prename}${studentData.name} ${studentData.surname}</p>
+                            <p style="margin: 0; color: black;"><strong>รหัสนักศึกษา:</strong> ${studentData.id}</p>
+                            <p style="margin: 0; color: black;"><strong>รหัสบัตรประชาชน:</strong> ${studentData.cardid}</p>
+                            <p style="margin: 0; color: black;"><strong>ระดับชั้น:</strong> ${studentData.level}</p>
+                            <p style="margin: 0; color: black;"><strong>สถานศึกษา:</strong> ${studentData.department}</p>
+                            <p style="margin: 0; display: none; color: black;"><strong>ออกบัตร:</strong> ${studentData.issueDate}</p>
+                            <p style="margin: 0; display: none; color: black;"><strong>หมดอายุ:</strong> ${studentData.expiryDate}</p>
+                        </div>
+                    </div>
+                    <!-- Signature Section -->
+                    <div style="width: 100%; display: flex; justify-content: space-between; margin-top: -45px;">
+                        <div style="width: 48%; text-align: center; padding: 10px;">
+                            <div style="border-top: 1px solid #000; width: 100%; margin: 0 auto;"></div>
+                            <p style="margin-top: 5px; margin-bottom: 0; color: black;">ลงชื่อนักศึกษา</p>
+                        </div>
+                        <div style="width: 48%; text-align: center; padding: 10px;">
+                            <div style="border-top: 1px solid #000; width: 100%; margin: 0 auto;"></div>
+                            <p style="margin-top: 5px; margin-bottom: 0; color: black;">ลงชื่อผู้อำนวยการฯ</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    `;
+}
 </script>
+
+
