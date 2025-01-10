@@ -92,7 +92,9 @@ class TeachersReportController extends Controller
             array_push($allstudent, 
             [
                 'id'        =>  $s->ID,
-                'lavel'     =>  $level,  
+                'cardid'    =>  $s->CARDID,
+                'lavel'     =>  $level,
+                'prename'   =>  $s->PRENAME, 
                 'name'      =>  $s->NAME,
                 'surname'   =>  $s->SURNAME,
                 'fin_cause' =>  $s->FIN_CAUSE,
@@ -100,7 +102,8 @@ class TeachersReportController extends Controller
                 'activity'  =>  $this->get_activity($s->STD_CODE, $level),
                 'nt_sem'    =>  $nnet,
                 'grp_code'  =>  $s->GRP_CODE,
-                'ablevel1'  =>  $s->ABLEVEL1
+                'ablevel1'  =>  $s->ABLEVEL1,
+                'user_avatar' => $s->user_avatar
             ]);
         }
 
@@ -117,16 +120,19 @@ class TeachersReportController extends Controller
                 foreach ($current_students as $s) {
                     if($this->expfin($s->STD_CODE, $i)){
                         $expstudents[] = [
-                            'id' => $s->ID,
-                            'lavel' => $i,
-                            'name' => $s->NAME,
-                            'surname' => $s->SURNAME,
-                            'fin_cause' => $s->FIN_CAUSE,
+                            'id'        =>  $s->ID,
+                            'cardid'    =>  $s->CARDID,
+                            'lavel'     =>  $i,
+                            'prename'   =>  $s->PRENAME, 
+                            'name'      =>  $s->NAME,
+                            'surname'   =>  $s->SURNAME,
+                            'fin_cause' =>  $s->FIN_CAUSE,
                             'expfin' => true,
                             'activity' => $this->get_activity($s->STD_CODE, $i),
                             'nt_sem' => (!empty($s->NT_SEM) ? 'ผ่านแล้ว' : (!empty($s->NT_NOSEM) ? 'E-Exam': 'มีสิทธิ')),
                             'grp_code' => $s->GRP_CODE,
-                            'ablevel1' => $s->ABLEVEL1
+                            'ablevel1' => $s->ABLEVEL1,
+                            'user_avatar' => $s->user_avatar
                         ];
                     } else {
                         continue;
@@ -163,16 +169,19 @@ class TeachersReportController extends Controller
                     // echo '*********************************************************** ' . $semestry . ' ' . $s->ID . ' ' . $s->NAME . ' ' . $s->SURNAME . ' ***************************************!!! <br>';
                     
                     $unfinishstudent[] = [
-                        'id' => $s->ID,
-                        'lavel' => $lavel,
-                        'name' => $s->NAME,
-                        'surname' => $s->SURNAME,
-                        'fin_cause' => $s->FIN_CAUSE,
+                        'id'        =>  $s->ID,
+                        'cardid'    =>  $s->CARDID,
+                        'lavel'     =>  $lavel,
+                        'prename'   =>  $s->PRENAME, 
+                        'name'      =>  $s->NAME,
+                        'surname'   =>  $s->SURNAME,
+                        'fin_cause' =>  $s->FIN_CAUSE,
                         'expfin' => true,
                         'activity' => $this->get_activity($s->STD_CODE, $lavel),
                         'nt_sem' => ($s->NT_SEM != '') ? 'ผ่านแล้ว' : (($s->NT_NOSEM != '') ? 'E-Exam' : 'มีสิทธิ'),
                         'grp_code' => $s->GRP_CODE,
-                        'ablevel1' => $s->ABLEVEL1
+                        'ablevel1' => $s->ABLEVEL1,
+                        'user_avatar' => $s->user_avatar
                     ];
                 }
             }
@@ -249,14 +258,30 @@ class TeachersReportController extends Controller
             $tstudent = "student{$lavel}";
 
             $current_students = DB::table($tgrade)
-                ->where("$tgrade.SEMESTRY", $semestry)
-                ->where("$tgrade.GRP_CODE", $grp_code)
-                ->join($tstudent, "$tgrade.STD_CODE", '=', "$tstudent.STD_CODE")
-                ->select("$tstudent.STD_CODE", "$tstudent.ID", "$tstudent.NAME", "$tstudent.SURNAME", "$tstudent.FIN_CAUSE", "$tstudent.NT_SEM", "$tstudent.NT_NOSEM", "$tstudent.GRP_CODE",  "$tstudent.ABLEVEL1", "$tstudent.ABLEVEL2")
-                ->distinct()
-                ->get();
+            ->where("$tgrade.SEMESTRY", $semestry)
+            ->where("$tgrade.GRP_CODE", $grp_code)
+            ->join($tstudent, "$tgrade.STD_CODE", '=', "$tstudent.STD_CODE")
+            ->join('users', 'users.student_id', '=', "$tstudent.ID") // Join ตาราง users
+            ->select(
+                "$tstudent.STD_CODE",
+                "$tstudent.ID",
+                "$tstudent.CARDID",
+                "$tstudent.PRENAME",
+                "$tstudent.NAME",
+                "$tstudent.SURNAME",
+                "$tstudent.FIN_CAUSE",
+                "$tstudent.NT_SEM",
+                "$tstudent.NT_NOSEM",
+                "$tstudent.GRP_CODE",
+                "$tstudent.ABLEVEL1",
+                "$tstudent.ABLEVEL2",
+                'users.id as user_id', // เลือกคอลัมน์จากตาราง users (ถ้าต้องการ)
+                'users.avatar as user_avatar' // เลือกคอลัมน์จากตาราง users (ถ้าต้องการ)
+            )
+            ->distinct()
+            ->get();
 
-                return $current_students;
+            return $current_students;
 
         } else {
             // ส่งค่า $lavel = null จะเอาทุกระดับ

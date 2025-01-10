@@ -5,11 +5,11 @@
 <section>
     <header>
         <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100">
-            {{ __('รูปภาพ') }}
+            {{ __('รูปภาพของคุณ') }}
         </h2>
 
         <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
-            {{ __("อัพโหลดภาพของคุณ") }}
+            {{ __("รูปภาพควรมี ใบหน้าชัดเจน มองตรงไปที่กล้อง สวมชุดนักศึกษา หรือชุดสุภาพ และมีแสงสว่างเพียงพอ") }}
         </p>
     </header>
 
@@ -56,8 +56,8 @@
         <div id="crop-modal" class="hidden fixed inset-0 z-50 bg-gray-800 bg-opacity-50 flex justify-center items-center">
             <div class="bg-white p-4 rounded-lg max-w-4xl w-full">
                 <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100">Crop your avatar</h3>
-                <div class="relative">
-                    <img id="crop-image" src="#" alt="Image to crop" class="w-full h-auto">
+                <div class="relative" style="max-width: 70vw; max-height: 70vh;">
+                    <img id="crop-image" src="#" alt="Image to crop" class="w-full h-full object-contain">
                 </div>
                 <div class="mt-4 flex justify-between">
                     <button type="button" class="px-4 py-2 bg-gray-500 text-white rounded" onclick="closeModal()">Cancel</button>
@@ -70,7 +70,7 @@
         <input type="hidden" name="original_image" id="original_image">
 
         <div class="flex items-center gap-4">
-            <x-primary-button>{{ __('Upload') }}</x-primary-button>
+            <x-primary-button>{{ __('บันทึกรูป') }}</x-primary-button>
         </div>
     </form>
 </section>

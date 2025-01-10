@@ -16,33 +16,32 @@
                     class="opacity-10 w-full h-full object-contain">
                 </div>
             
-                <!-- Card Content -->
                 <div class="w-full flex flex-col relative z-10">
                     <!-- Header Section -->
                     <div class="bg-blue-600 text-white text-center py-2">
                         <h1 class="text-lg font-bold">บัตรประจำตัวนักศึกษา</h1>
                     </div>
-            
+                
                     <!-- Main Content Section -->
-                    <div class="flex">
+                    <div class="flex flex-col md:flex-row">
                         <!-- Profile Image Section -->
-                        <div class="w-1/3 p-4 flex justify-center items-center relative">
+                        <div class="w-full md:w-1/3 p-4 flex justify-center items-center relative">
                             <div class="w-48 h-64 bg-gray-200 rounded-md overflow-hidden transform shadow-md">
-                                <img class="w-full h-full object-cover"
-                                src="{{ auth()->user()->avatar ? auth()->user()->avatar . '?v=' . time() : 'https://phothongdlec.ac.th/storage/images/avatar/unkhonw.png' }}" 
-                                alt="Preview Image" 
-                                onerror="this.src='https://phothongdlec.ac.th/storage/images/avatar/unkhonw.png'">
+                                <img class="w-full h-full object-cover md:aspect-auto aspect-[7/8]"
+                                     src="{{ auth()->user()->avatar ? auth()->user()->avatar . '?v=' . time() : 'https://phothongdlec.ac.th/storage/images/avatar/unkhonw.png' }}" 
+                                     alt="Preview Image" 
+                                     onerror="this.src='https://phothongdlec.ac.th/storage/images/avatar/unkhonw.png'">
+                                <!-- Edit Icon -->
+                                <a href="/profile" class="absolute top-2 right-2 bg-blue-500 text-white p-2 rounded-full hover:bg-blue-700">
+                                    <svg class="w-6 h-6 text-gray-100 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                                        <path stroke="currentColor" stroke-linecap="square" stroke-linejoin="round" stroke-width="2" d="M7 19H5a1 1 0 0 1-1-1v-1a3 3 0 0 1 3-3h1m4-6a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm7.441 1.559a1.907 1.907 0 0 1 0 2.698l-6.069 6.069L10 19l.674-3.372 6.07-6.07a1.907 1.907 0 0 1 2.697 0Z"/>
+                                    </svg>                                  
+                                </a>
                             </div>
-                            <!-- Edit Icon -->
-                            <a href="/profile" class="absolute top-4 right-6 bg-blue-500 text-white p-2 rounded-full hover:bg-blue-700">
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5">
-                                    <path d="M16.862 3.487a1.5 1.5 0 0 1 2.121 2.121l-8.379 8.38a1.5 1.5 0 0 1-.53.354l-4.5 1.5a.75.75 0 0 1-.96-.96l1.5-4.5a1.5 1.5 0 0 1 .354-.53l8.38-8.379z" />
-                                </svg>
-                            </a>
                         </div>
-            
+                
                         <!-- Information Section -->
-                        <div class="w-2/3 p-6 flex flex-col justify-between">
+                        <div class="w-full md:w-2/3 p-6 flex flex-col justify-between">
                             <div>
                                 @foreach($student as $std)
                                 <h2 class="text-2xl font-bold text-gray-800">{{$std->PRENAME}}{{$std->NAME}} {{$std->SURNAME}}</h2>
@@ -73,13 +72,13 @@
                             </div>
                         </div>
                     </div>
-            
+                
                     <!-- Print Button -->
                     <div class="px-6 pb-4 text-right">
                         <a href="/profile" class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-700 mr-2">
                             แก้ไขรูปภาพ
                         </a>
-                        <button onclick="printCard()" class="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-700">
+                        <button onclick="printCard('{{ auth()->user()->avatar }}')" class="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-700">
                             พิมพ์บัตร
                         </button>
                     </div>
@@ -488,98 +487,106 @@
     }
 
     // Print Card Function
-    function printCard() {
-        const currentDate = new Date();
-        const expiryDate = calculateExpiryDate();
-        let level;
+    function printCard(avatarUrl) {
+    const currentDate = new Date();
+    const expiryDate = calculateExpiryDate();
+    let level;
 
-        if (@json($lavel) == 3) {
-            level = 'มัธยมปลาย';
-        } else if (@json($lavel) == 2) {
-            level = 'มัธยมต้น';
-        } else {
-            level = 'ประถมศึกษา';
-        }
+    if (@json($lavel) == 3) {
+        level = 'มัธยมปลาย';
+    } else if (@json($lavel) == 2) {
+        level = 'มัธยมต้น';
+    } else {
+        level = 'ประถมศึกษา';
+    }
 
-        const studentData = {
-            prename: @json($student[0]->PRENAME),
-            name: @json($student[0]->NAME),
-            surname: @json($student[0]->SURNAME),
-            id: @json($student[0]->ID),
-            level: level,
-            department: 'สกร.ระดับอำเภอโพธิ์ทอง',
-            issueDate: formatDate(currentDate), // Current date
-            expiryDate: formatDate(expiryDate), // Current date + 5 years
-        };
+    const studentData = {
+        prename: @json($student[0]->PRENAME),
+        name: @json($student[0]->NAME),
+        surname: @json($student[0]->SURNAME),
+        id: @json($student[0]->ID),
+        level: level,
+        department: 'สกร.ระดับอำเภอโพธิ์ทอง',
+        issueDate: formatDate(currentDate), // Current date
+        expiryDate: formatDate(expiryDate), // Current date + 5 years
+    };
 
-        const printContent = `
-            <div id="student-card" style="width: 8.6cm; height: 5.4cm; border: 1px solid #000; padding: 0px; font-family: 'Prompt', sans-serif; font-size: 12px; position: relative; box-sizing: border-box;">
-                <!-- Background Logo with Reduced Opacity -->
-                <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-image: url('https://phothongdlec.ac.th/storage/logo.png'); background-size: contain; background-repeat: no-repeat; background-position: center; opacity: 0.1; z-index: 1;"></div>
-                <!-- Card Content -->
-                <div style="position: relative; z-index: 2;">
-                    <canvas id="qr-code" style="position: absolute; top: 10px; right: 10px;">
-                    QR CODE
-                    </canvas>
-                    <h1 style="text-align: center; font-size: 16px; margin-bottom: 5px;">บัตรประจำตัวนักศึกษา</h1>
-                    <div style="display: flex; height: calc(100% - 30px); justify-content: space-between; align-items: flex-start;">
-                        <!-- Profile Image Section -->
-                        <div style="width: 40%; display: flex; justify-content: center; align-items: center;">
-                            <div style="width: 70%; aspect-ratio: 7 / 8; border: 1px solid #000; overflow: hidden; display: flex; align-items: center; justify-content: center;">
-                                <img src="{{ auth()->user()->avatar ? auth()->user()->avatar : 'https://phothongdlec.ac.th/storage/images/avatar/unkhonw.png' }}" 
-                                    alt="Student Image" 
-                                    style="width: 100%; height: 100%; object-fit: cover;" />
-                            </div>
-                        </div>
-                        <!-- Information Section -->
-                        <div style="width: calc(100% - 3cm); display: flex; flex-direction: column; justify-content: space-between; padding-left: 10px; box-sizing: border-box;">
-                            <p style="margin: 0;"><strong>ชื่อ:</strong> ${studentData.prename}${studentData.name} ${studentData.surname}</p>
-                            <p style="margin: 0;"><strong>รหัสนักศึกษา:</strong> ${studentData.id}</p>
-                            <p style="margin: 0;"><strong>ระดับชั้น:</strong> ${studentData.level}</p>
-                            <p style="margin: 0;"><strong>สถานศึกษา:</strong> ${studentData.department}</p>
-                            <p style="margin: 0;"><strong>ออกบัตร:</strong> ${studentData.issueDate}</p>
-                            <p style="margin: 0;"><strong>หมดอายุ:</strong> ${studentData.expiryDate}</p>
+    const printContent = `
+        <style>
+            @media print {
+                /* บังคับให้พิมพ์ background image และ background color */
+                .print-background {
+                    -webkit-print-color-adjust: exact; /* สำหรับ Chrome/Safari */
+                    color-adjust: exact; /* สำหรับ Firefox */
+                    print-color-adjust: exact; /* มาตรฐานใหม่ */
+                }
+            }
+        </style>
+        <div id="student-card" style="width: 8.6cm; height: 5.4cm; border: 1px solid #000; padding: 0px; font-family: 'Prompt', sans-serif; font-size: 12px; position: relative; box-sizing: border-box;">
+            <!-- Background Logo with Reduced Opacity -->
+            <div class="print-background" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-image: url('https://phothongdlec.ac.th/storage/logo.png'); background-size: contain; background-repeat: no-repeat; background-position: center; opacity: 0.1; z-index: 1;"></div>
+            <!-- Card Content -->
+            <div style="position: relative; z-index: 2;">
+                <canvas id="qr-code" style="position: absolute; top: 10px; right: 10px;">
+                QR CODE
+                </canvas>
+                <h1 style="text-align: center; font-size: 16px; margin-bottom: 5px;">บัตรประจำตัวนักศึกษา</h1>
+                <div style="display: flex; height: calc(100% - 30px); justify-content: space-between; align-items: flex-start;">
+                    <!-- Profile Image Section -->
+                    <div style="width: 40%; display: flex; justify-content: center; align-items: center;">
+                        <div style="width: 70%; aspect-ratio: 7 / 8; border: 1px solid #000; overflow: hidden; display: flex; align-items: center; justify-content: center;">
+                            <img id="preview" src="${avatarUrl ? avatarUrl + '?v=' + Date.now() : 'https://phothongdlec.ac.th/storage/images/avatar/unkhonw.png'}" alt="Student Image" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='https://phothongdlec.ac.th/storage/images/avatar/unkhonw.png'">
                         </div>
                     </div>
-                    <!-- Signature Section -->
-                    <div style="width: 100%; display: flex; justify-content: space-between; margin-top: -45px;">
-                        <div style="width: 48%; text-align: center; padding: 10px;">
-                            <div style="border-top: 1px solid #000; width: 100%; margin: 0 auto;"></div>
-                            <p style="margin-top: 5px; margin-bottom: 0;">ลงชื่อนักศึกษา</p>
-                        </div>
-                        <div style="width: 48%; text-align: center; padding: 10px;">
-                            <div style="border-top: 1px solid #000; width: 100%; margin: 0 auto;"></div>
-                            <p style="margin-top: 5px; margin-bottom: 0;">ลงชื่อผู้อำนวยการฯ</p>
-                        </div>
+                    <!-- Information Section -->
+                    <div style="width: calc(100% - 3cm); display: flex; flex-direction: column; justify-content: space-between; padding-left: 10px; box-sizing: border-box;">
+                        <p style="margin: 0;"><strong>ชื่อ:</strong> ${studentData.prename}${studentData.name} ${studentData.surname}</p>
+                        <p style="margin: 0;"><strong>รหัสนักศึกษา:</strong> ${studentData.id}</p>
+                        <p style="margin: 0;"><strong>ระดับชั้น:</strong> ${studentData.level}</p>
+                        <p style="margin: 0;"><strong>สถานศึกษา:</strong> ${studentData.department}</p>
+                        <p style="margin: 0;"><strong>ออกบัตร:</strong> ${studentData.issueDate}</p>
+                        <p style="margin: 0;"><strong>หมดอายุ:</strong> ${studentData.expiryDate}</p>
+                    </div>
+                </div>
+                <!-- Signature Section -->
+                <div style="width: 100%; display: flex; justify-content: space-between; margin-top: -45px;">
+                    <div style="width: 48%; text-align: center; padding: 10px;">
+                        <div style="border-top: 1px solid #000; width: 100%; margin: 0 auto;"></div>
+                        <p style="margin-top: 5px; margin-bottom: 0;">ลงชื่อนักศึกษา</p>
+                    </div>
+                    <div style="width: 48%; text-align: center; padding: 10px;">
+                        <div style="border-top: 1px solid #000; width: 100%; margin: 0 auto;"></div>
+                        <p style="margin-top: 5px; margin-bottom: 0;">ลงชื่อผู้อำนวยการฯ</p>
                     </div>
                 </div>
             </div>
-            <!-- Print and Download Buttons -->
-            <div style="text-align: center; margin-top: 20px; width: 8.6cm;">
-                <button onclick="window.print()" style="background-color: green; color: white; padding: 5px 10px; border: none; border-radius: 5px; cursor: pointer; margin-right: 10px;">
-                    กดพิมพ์บัตร
-                </button>
-            </div>
-            <link href="https://fonts.googleapis.com/css2?family=Prompt&display=swap" rel="stylesheet">
-        `;
+        </div>
+        <!-- Print and Download Buttons -->
+        <div style="text-align: center; margin-top: 20px; width: 8.6cm;">
+            <button onclick="window.print()" style="background-color: green; color: white; padding: 5px 10px; border: none; border-radius: 5px; cursor: pointer; margin-right: 10px;">
+                กดพิมพ์บัตร
+            </button>
+        </div>
+        <link href="https://fonts.googleapis.com/css2?family=Prompt&display=swap" rel="stylesheet">
+    `;
 
-        const newWindow = window.open('', '', 'width=800,height=600');
-        newWindow.document.write(printContent);
+    const newWindow = window.open('', '', 'width=800,height=600');
+    newWindow.document.write(printContent);
 
-        // Generate QR Code
-        const qrCanvas = newWindow.document.getElementById('qr-code');
-        QRCode.toCanvas(qrCanvas, JSON.stringify(studentData), {
-            width: 80,
-            margin: 2,
-        })
-        .then(() => {
-            newWindow.document.close();
-        })
-        .catch((error) => {
-            console.error('Error generating QR code:', error);
-            newWindow.document.close();
-        });
-    }
+    // Generate QR Code
+    const qrCanvas = newWindow.document.getElementById('qr-code');
+    QRCode.toCanvas(qrCanvas, JSON.stringify(studentData), {
+        width: 80,
+        margin: 2,
+    })
+    .then(() => {
+        newWindow.document.close();
+    })
+    .catch((error) => {
+        console.error('Error generating QR code:', error);
+        newWindow.document.close();
+    });
+}
 </script>
 
   
