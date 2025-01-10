@@ -29,9 +29,9 @@
                         <div class="w-1/3 p-4 flex justify-center items-center relative">
                             <div class="w-48 h-64 bg-gray-200 rounded-md overflow-hidden transform shadow-md">
                                 <img class="w-full h-full object-cover"
-                                    src="{{ auth()->user()->avatar ? auth()->user()->avatar : 'https://phothongdlec.ac.th/storage/images/avatar/unkhonw.png' }}" 
-                                    alt="Preview Image" 
-                                    onerror="this.src='https://phothongdlec.ac.th/storage/images/avatar/unkhonw.png'">
+                                src="{{ auth()->user()->avatar ? auth()->user()->avatar . '?v=' . time() : 'https://phothongdlec.ac.th/storage/images/avatar/unkhonw.png' }}" 
+                                alt="Preview Image" 
+                                onerror="this.src='https://phothongdlec.ac.th/storage/images/avatar/unkhonw.png'">
                             </div>
                             <!-- Edit Icon -->
                             <a href="/profile" class="absolute top-4 right-6 bg-blue-500 text-white p-2 rounded-full hover:bg-blue-700">

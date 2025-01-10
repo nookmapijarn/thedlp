@@ -19,11 +19,10 @@
         {{-- Avatar Upload form --}}
         <div class="flex items-center justify-center w-44 h-48 relative overflow-hidden border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50">
             <div id="preview-container" class="relative w-full h-full">
-                <img id="preview" 
-                    src="{{ auth()->user()->avatar ? auth()->user()->avatar : 'https://phothongdlec.ac.th/storage/images/avatar/unkhonw.png' }}" 
+                <img id="preview"
+                    src="{{ auth()->user()->avatar ? auth()->user()->avatar . '?v=' . time() : 'https://phothongdlec.ac.th/storage/images/avatar/unkhonw.png' }}" 
                     alt="Preview Image" 
-                    onerror="this.src='https://phothongdlec.ac.th/storage/images/avatar/unkhonw.png'" 
-                >
+                    onerror="this.src='https://phothongdlec.ac.th/storage/images/avatar/unkhonw.png'">
             </div>
             <label for="IMG_1" class="flex flex-col absolute items-center justify-center w-full h-full">
                 <div class="flex flex-col items-center justify-center pt-5 pb-6">
