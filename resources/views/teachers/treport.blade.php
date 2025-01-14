@@ -162,7 +162,7 @@
                 <td class="p-2 text-center">{{$loop->iteration}}</td>
                 <td class="flex justify-center items-center p-2">
                   <img class="w-12 h-13 object-cover md:aspect-auto aspect-[7/8]"
-                      src="{{ $d['user_avatar'] ? $d['user_avatar'] . '?v=' . time() : 'https://phothongdlec.ac.th/storage/images/avatar/unkhonw.png' }}" 
+                      src="https://phothongdlec.ac.th/storage/images/avatar/{{$d['id']}}.png" 
                       alt="Preview Image" 
                       onerror="this.src='https://phothongdlec.ac.th/storage/images/avatar/unkhonw.png'">
                 </td>

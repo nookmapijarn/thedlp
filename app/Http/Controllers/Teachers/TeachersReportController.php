@@ -103,7 +103,6 @@ class TeachersReportController extends Controller
                 'nt_sem'    =>  $nnet,
                 'grp_code'  =>  $s->GRP_CODE,
                 'ablevel1'  =>  $s->ABLEVEL1,
-                'user_avatar' => '#'//$s->user_avatar
             ]);
         }
 
@@ -132,7 +131,6 @@ class TeachersReportController extends Controller
                             'nt_sem' => (!empty($s->NT_SEM) ? 'ผ่านแล้ว' : (!empty($s->NT_NOSEM) ? 'E-Exam': 'มีสิทธิ')),
                             'grp_code' => $s->GRP_CODE,
                             'ablevel1' => $s->ABLEVEL1,
-                            'user_avatar' => '#'//$s->user_avatar
                         ];
                     } else {
                         continue;
@@ -181,7 +179,6 @@ class TeachersReportController extends Controller
                         'nt_sem' => ($s->NT_SEM != '') ? 'ผ่านแล้ว' : (($s->NT_NOSEM != '') ? 'E-Exam' : 'มีสิทธิ'),
                         'grp_code' => $s->GRP_CODE,
                         'ablevel1' => $s->ABLEVEL1,
-                        'user_avatar' => '#'//$s->user_avatar
                     ];
                 }
             }
@@ -261,7 +258,6 @@ class TeachersReportController extends Controller
             ->where("$tgrade.SEMESTRY", $semestry)
             ->where("$tgrade.GRP_CODE", $grp_code)
             ->join($tstudent, "$tgrade.STD_CODE", '=', "$tstudent.STD_CODE")
-            // ->join('users', 'users.student_id', '=', "$tstudent.ID") // Join ตาราง users
             ->select(
                 "$tstudent.STD_CODE",
                 "$tstudent.ID",
@@ -275,8 +271,6 @@ class TeachersReportController extends Controller
                 "$tstudent.GRP_CODE",
                 "$tstudent.ABLEVEL1",
                 "$tstudent.ABLEVEL2",
-                // 'users.id as user_id', // เลือกคอลัมน์จากตาราง users (ถ้าต้องการ)
-                // 'users.avatar as user_avatar' // เลือกคอลัมน์จากตาราง users (ถ้าต้องการ)
             )
             ->distinct()
             ->get();

@@ -85,28 +85,49 @@ class TeachersController extends Controller
     {
         $student_tumbon = [];
     
+        // วนลูปผ่านทุกตำบล
         foreach ($all_tumbon as $tb) {
-            // สืบค้นนักเรียนสำหรับทุกเกรดพร้อมกันโดยใช้ union
-            $student_count = [];
-            for ($i = 1; $i <= 3; $i++) {
-                $count_s = DB::table("grade{$i}")
-                    ->select('GRP_CODE', DB::raw("COUNT(DISTINCT STD_CODE) as student_count"))
-                    ->where('SEMESTRY', $semestry)
-                    ->where('GRP_CODE', $tb->GRP_CODE)
-                    ->groupBy('GRP_CODE', 'SEMESTRY')
-                    ->first();
+            $student_count = [
+                'ST1' => 0,
+                'ST2' => 0,
+                'ST3' => 0,
+            ];
     
-                // เก็บข้อมูลจำนวนนักเรียนลงใน array
-                $student_count["ST{$i}"] = $count_s ? $count_s->student_count : 0;
+            // สร้าง query สำหรับทุกเกรดด้วย UNION ALL
+            $query = DB::table('grade1')
+                ->select('GRP_CODE', DB::raw("'ST1' as grade"), DB::raw("COUNT(DISTINCT STD_CODE) as student_count"))
+                ->where('SEMESTRY', $semestry)
+                ->where('GRP_CODE', $tb->GRP_CODE)
+                ->groupBy('GRP_CODE')
+                ->unionAll(
+                    DB::table('grade2')
+                        ->select('GRP_CODE', DB::raw("'ST2' as grade"), DB::raw("COUNT(DISTINCT STD_CODE) as student_count"))
+                        ->where('SEMESTRY', $semestry)
+                        ->where('GRP_CODE', $tb->GRP_CODE)
+                        ->groupBy('GRP_CODE')
+                )
+                ->unionAll(
+                    DB::table('grade3')
+                        ->select('GRP_CODE', DB::raw("'ST3' as grade"), DB::raw("COUNT(DISTINCT STD_CODE) as student_count"))
+                        ->where('SEMESTRY', $semestry)
+                        ->where('GRP_CODE', $tb->GRP_CODE)
+                        ->groupBy('GRP_CODE')
+                );
+    
+            // ดึงผลลัพธ์
+            $results = $query->get();
+    
+            // จัดกลุ่มผลลัพธ์
+            foreach ($results as $result) {
+                $student_count[$result->grade] = $result->student_count;
             }
     
             // เก็บข้อมูลของแต่ละ GRP
             $student_tumbon[] = [
                 'GRP' => $tb,
-                'STUDENT' => $student_count
+                'STUDENT' => $student_count,
             ];
         }
-        //echo json_encode($student_tumbon);
         return $student_tumbon;
     }
     
@@ -134,20 +155,36 @@ class TeachersController extends Controller
 
     public function get_group($semestry)
     {
-        // Implement the function to get all groups
-        $Group = collect(); // ใช้ collection เพื่อเก็บผลลัพธ์
+        // ใช้ UNION ALL เพื่อรวมข้อมูลจากตาราง grade1, grade2, และ grade3
+        $query = DB::table('grade1')
+            ->select('GRP_CODE')
+            ->where('SEMESTRY', $semestry)
+            ->unionAll(
+                DB::table('grade2')
+                    ->select('GRP_CODE')
+                    ->where('SEMESTRY', $semestry)
+            )
+            ->unionAll(
+                DB::table('grade3')
+                    ->select('GRP_CODE')
+                    ->where('SEMESTRY', $semestry)
+            );
     
-        for ($i = 1; $i <= 3; $i++) {
-            $results = DB::table("grade{$i}")
-                ->where("grade{$i}.SEMESTRY", $semestry)
-                ->join("group", "group.GRP_CODE", '=', "grade{$i}.GRP_CODE")
-                ->select("group.GRP_CODE", "group.GRP_NAME", "group.GRP_ADVIS")
-                ->groupBy("group.GRP_CODE", "group.GRP_NAME", "group.GRP_ADVIS")
-                ->get();
+        // ดึงข้อมูล GRP_CODE ที่ไม่ซ้ำกัน
+        $uniqueGrpCodes = DB::table(DB::raw("({$query->toSql()}) as sub"))
+            ->mergeBindings($query)
+            ->select('GRP_CODE')
+            ->groupBy('GRP_CODE')
+            ->get()
+            ->pluck('GRP_CODE');
     
-            $Group = $Group->merge($results); // รวมผลลัพธ์
-        }
-        return $Group;
+        // ดึงข้อมูลกลุ่ม (group) จากตาราง group โดยใช้ GRP_CODE ที่ไม่ซ้ำกัน
+        $groups = DB::table('group')
+            ->select('GRP_CODE', 'GRP_NAME', 'GRP_ADVIS')
+            ->whereIn('GRP_CODE', $uniqueGrpCodes)
+            ->get();
+    
+        return $groups;
     }
     
 }

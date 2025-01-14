@@ -93,7 +93,21 @@
             </thead>
             
             <tbody>
+                @php
+                    // กำหนดตัวแปรเพื่อเก็บผลรวม
+                    $totalST1 = 0;
+                    $totalST2 = 0;
+                    $totalST3 = 0;
+                @endphp
+            
                 @foreach($student_tumbon as $index => $sttm)
+                    @php
+                        // คำนวณผลรวมภายในลูป
+                        $totalST1 += $sttm['STUDENT']['ST1'];
+                        $totalST2 += $sttm['STUDENT']['ST2'];
+                        $totalST3 += $sttm['STUDENT']['ST3'];
+                    @endphp
+            
                     <tr class="border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-100 hover:border-fuchsia-600">
                         <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
                             {{ $index + 1 }}
@@ -123,12 +137,6 @@
                 @endforeach
             
                 {{-- สรุปรวม --}}
-                @php
-                    // คำนวณผลรวมของ ST1, ST2, และ ST3
-                    $totalST1 = array_sum(array_column(array_column($student_tumbon, 'STUDENT'), 'ST1'));
-                    $totalST2 = array_sum(array_column(array_column($student_tumbon, 'STUDENT'), 'ST2'));
-                    $totalST3 = array_sum(array_column(array_column($student_tumbon, 'STUDENT'), 'ST3'));
-                @endphp
                 <tr class="border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-100 hover:border-fuchsia-600">
                     <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"></th>
                     <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"></td>
