@@ -85,9 +85,30 @@
                     >
                       <p>
                         <strong> ศกร.ตำบล : </strong> {{$tumbon}}
-                        <strong> ระดับ : </strong> @if($lavel==1) ประถมศึกษา @elseif($lavel==2) มัธยมต้น @elseif($lavel==3) มัธยมปลาย @endif
+                        <strong> ระดับ : </strong> 
+                        @if($lavel==1) ประถมศึกษา 
+                        @elseif($lavel==2) มัธยมต้น 
+                        @elseif($lavel==3) มัธยมปลาย 
+                        @endif
                         <strong> รายวิชา : </strong> {{$subject}}
-                        @if($type == 0) (สอบปลายภาค) @elseif ($type == 7) (สอบซ่อม) @endif
+                        @if($type == 0) (สอบปลายภาค) 
+                        @elseif ($type == 7) (สอบซ่อม) 
+                        @endif
+                        {{-- Print --}}
+                        <button onclick="printCover({{ json_encode([
+                          'all_grade' => $all_grade,
+                          'pass_grade' => $all_grade - ($grade_0 + $grade_not + $grade_null),
+                          'notpass_grade' => $grade_0 + $grade_not + $grade_null,
+                          'tumbon' => $tumbon, 
+                          'lavel' => $lavel, 
+                          'subject' => $subject, 
+                          'data' => $data]) 
+                        }})" type="button" class="px-3 py-2 text-xs font-medium text-center inline-flex items-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+                          <svg class="w-6 h-6 text-gray-100 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+                            <path fill-rule="evenodd" d="M8 3a2 2 0 0 0-2 2v3h12V5a2 2 0 0 0-2-2H8Zm-3 7a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h1v-4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v4h1a2 2 0 0 0 2-2v-5a2 2 0 0 0-2-2H5Zm4 11a1 1 0 0 1-1-1v-4h8v4a1 1 0 0 1-1 1H9Z" clip-rule="evenodd"/>
+                          </svg>  
+                          พิมพ์ กศน.4
+                        </button>
                       </p>
                       <div class="flex flex-col-4 gap-4 mt-2">
                         {{-- <strong> ทั้งหมด = <span class="text-blue-600 underline"> {{$all_grade}} </span></strong>
@@ -189,3 +210,278 @@
   </div>
 </x-teachers-layout>
 @include('layouts.footer')
+
+<script>
+function printCover(data) {
+    // กำหนดระดับชั้น
+    let level;
+    if (data.lavel == 3) {
+        level = 'มัธยมปลาย';
+    } else if (data.lavel == 2) {
+        level = 'มัธยมต้น';
+    } else {
+        level = 'ประถมศึกษา';
+    }
+    // ดึง element ของ select
+    const tumbonSelect = document.getElementById('tumbon');
+    // ดึง option ที่ถูกเลือก
+    const tumbonOption = tumbonSelect.options[tumbonSelect.selectedIndex];
+    // ดึงข้อความที่แสดงอยู่ใน option ที่ถูกเลือก
+    const tumbonText = tumbonOption.textContent;
+
+    // ดึง element ของ select
+    const subjectSelect = document.getElementById('subject');
+    // ดึง option ที่ถูกเลือก
+    const subjectOption = subjectSelect.options[subjectSelect.selectedIndex];
+    // ดึงข้อความที่แสดงอยู่ใน option ที่ถูกเลือก
+    const subjectText = subjectOption.textContent;
+
+    const semesterValue = document.getElementById('semestry').value;
+    const [year, semester] = semesterValue.split('/');
+    const fullYear = `25${year}`; // หรือใช้ `20${year}` หากเป็นปี ค.ศ.
+    const semesterText = `ภาคเรียนที่ ${semester} ปีการศึกษา ${fullYear}`;
+
+
+    // ข้อมูลที่ต้องแสดง
+    const studentData = {
+        students: data.data,
+        tumbon: tumbonText,
+        subject: subjectText,
+        semestry: semesterText,
+        type: document.getElementById('type').value,
+        totalStudents: data.all_grade, // จำนวนนักศึกษาทั้งหมด (ตัวอย่าง)
+        passedStudents: data.pass_grade, // จำนวนนักศึกษาผ่านการประเมิน (ตัวอย่าง)
+        failedStudents: data.notpass_grade, // จำนวนนักศึกษาไม่ผ่านการประเมิน (ตัวอย่าง)
+    };
+
+    // HTML สำหรับเอกสาร
+    const printContent = `
+    <style>
+        @media print {
+            /* ซ่อน URL, วันที่ และเวลา */
+            @page :first {
+                margin: 0 10mm; /* ลดขอบกระดาษด้านซ้ายและขวาเหลือ 10mm สำหรับหน้าแรก */
+                size: A4 portrait; /* กำหนดขนาดกระดาษเป็น A4 แนวตั้งสำหรับหน้าแรก */
+            }
+            @page {
+                margin: 10mm 10mm 10mm 20mm; /* ลดขอบกระดาษด้านซ้ายและขวาเหลือ 10mm และเว้นขอบด้านบน 10mm สำหรับหน้าอื่นๆ */
+                size: A4 landscape; /* กำหนดขนาดกระดาษเป็น A4 แนวนอนสำหรับหน้าอื่นๆ */
+            }
+            /* บังคับให้พิมพ์ background image และ background color */
+            .print-background {
+                -webkit-print-color-adjust: exact; /* สำหรับ Chrome/Safari */
+                color-adjust: exact; /* สำหรับ Firefox */
+                print-color-adjust: exact; /* มาตรฐานใหม่ */
+            }
+            body {
+                margin: 0;
+                padding: 0;
+                font-family: 'TH Sarabun SPK', sans-serif; /* ใช้ฟอนต์ Thai Sarabun SPK */
+                font-size: 16px; /* ขนาดฟอนต์ */
+                text-align: center;
+            }
+            .container {
+                width: 100%; /* ใช้ความกว้างเต็มหน้า */
+                height: 100%; /* ใช้ความสูงเต็มหน้า */
+                margin: 0 auto;
+                padding: 20px;
+                box-sizing: border-box;
+                position: relative;
+            }
+            .logo {
+                width: 150px;
+                margin: 0 auto;
+            }
+            .header {
+                margin-top: 20px;
+            }
+            .content {
+                margin-left: 75px;
+                margin-top: 30px;
+                text-align: left;
+            }
+            .footer {
+                margin-top: 50px;
+                text-align: center;
+            }
+            .signature {
+                margin-top: 20px;
+                text-align: center;
+            }
+            .signature-line {
+                border-top: 1px solid #000;
+                width: 200px;
+                margin: 10px auto;
+            }
+            table {
+                width: 100%; /* ตารางเต็มความกว้าง */
+                border-collapse: collapse;
+                margin-top: 20px;
+                table-layout: auto; /* ปรับความกว้างคอลัมน์ตามเนื้อหา */
+            }
+            th, td {
+                border: 1px solid #000;
+                padding: 8px;
+                text-align: center;
+                box-sizing: border-box; /* รวม padding และ border ในความกว้าง */
+            }
+            th {
+                background-color: #f0f0f0;
+            }
+            .textAlignVer {
+                writing-mode: vertical-rl;
+                transform: rotate(180deg);
+                white-space: nowrap;
+            }
+            /* ปรับช่อง "รหัส" และ "ชื่อ-สกุล" */
+            .id-column {
+                width: auto; /* ปรับความกว้างตามเนื้อหา */
+                min-width: 50px; /* ความกว้างขั้นต่ำ */
+            }
+            .name-column {
+                width: auto; /* ปรับความกว้างตามเนื้อหา */
+                min-width: 150px; /* ความกว้างขั้นต่ำ */
+                white-space: nowrap; /* ป้องกันการขึ้นบรรทัดใหม่ */
+                text-overflow: ellipsis; /* แสดง ... หากข้อความยาวเกิน */
+                overflow: hidden; /* ซ่อนข้อความที่เกิน */
+            }
+            /* ปรับความกว้างของคอลัมน์อื่นๆ */
+            .fixed-width-column {
+                width: 12mm; /* ความกว้างคงที่ */
+            }
+        }
+    </style>
+    <div class="container">
+
+        <!-- Header -->
+        <div class="header">
+            <p style="text-align: right; margin: 0;">กศน.4</p>
+              <!-- Logo -->
+              <div class="logo">
+                  <img src="https://phothongdlec.ac.th/storage/images/Garuda.png" alt="Logo" style="width: 100%;">
+              </div>
+            <h4 style="margin: 10px 0;">เอกสารบันทึกผลการพัฒนาคุณภาพผู้เรียน</h4>
+            <p>หลักสูตรการศึกษานอกระบบระดับการศึกษาขั้นพื้นฐาน พุทธศักราช 2551</p>
+            <p>ระดับ ${level} ${studentData.semestry ?? ""} </p>
+        </div>
+
+        <!-- Content -->
+        <div class="content">
+            <p><strong>สถานศึกษา:</strong> ศูนย์ส่งเสริมการเรียนรู้ระดับอำเภอโพธิ์ทอง </p>
+            <p><strong>อำเภอเขต:</strong> โพธิ์ทอง <strong>จังหวัด:</strong> อ่างทอง </p>
+            <p><strong>ชื่อกลุ่ม:</strong> ${studentData.tumbon ?? ""} <strong>รายวิชา:</strong> ${studentData.subject ?? ""}</p>
+            <h4>สรุปผลการเรียน</h4>
+            <p style="padding-left: 25px;">จำนวนนักศึกษาทั้งหมด:         ${studentData.totalStudents ?? ""}  คน</p>
+            <p style="padding-left: 25px;">จำนวนนักศึกษาผ่านการประเมิน:   ${studentData.passedStudents ?? ""} คน</p>
+            <p style="padding-left: 25px;">จำนวนนักศึกษาไม่ผ่านการประเมิน: ${studentData.failedStudents ?? ""} คน</p>
+            <h4>การตัดสินผลการประเมิน</h4>
+            <p>.............................................................. ครู</p>
+            <p>.............................................................. นายทะเบียน</p>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p>อนุมัติผลการเรียน เมื่อวันที่ ...... เดือน .................. พ.ศ. ...........</p>
+            <br>
+            <div class="signature">
+                <p>(ลงชื่อ) .................................................. ผู้อนุมัติ</p>
+                <p>(นางสาวกุหลาบ  อ่อนระทวย)</p>
+                <p>ผู้อำนวยการศูนย์ส่งเสริมการเรียนรู้ระดับอำเภอโพธิ์ทอง</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- หน้าถัดไปสำหรับตาราง -->
+    <div class="container" style="page-break-before: always; margin-top: 10mm;">
+        <h4>ตารางสรุปผลการเรียน</h4>
+        <table>
+            <thead>
+                <tr>
+                    <th class="fixed-width-column">ลำดับ</th>
+                    <th class="id-column">รหัส</th>
+                    <th class="name-column">ชื่อ-สกุล</th>
+                    <th class="fixed-width-column"><div class="textAlignVer">บันทึกการเรียนรู้</div></th>
+                    <th class="fixed-width-column"><div class="textAlignVer">บันทึกการฝึกทักษะ</div></th>
+                    <th class="fixed-width-column"><div class="textAlignVer">รายงาน</div></th>
+                    <th class="fixed-width-column"><div class="textAlignVer">แบบฝึกหัด</div></th>
+                    <th class="fixed-width-column"><div class="textAlignVer">แฟ้มสะสมงาน</div></th>
+                    <th class="fixed-width-column"><div class="textAlignVer">ผลงานชิ้นงาน</div></th>
+                    <th class="fixed-width-column"><div class="textAlignVer">โครงงาน</div></th>
+                    <th class="fixed-width-column"><div class="textAlignVer">ทดสอบย่อย</div></th>
+                    <th class="fixed-width-column"><div class="textAlignVer">อื่นๆ</div></th>
+                    <th class="fixed-width-column"><div class="textAlignVer">รวมระหว่างภาค</div></th>
+                    <th class="fixed-width-column"><div class="textAlignVer">คะแนนปลายภาค</div></th>
+                    <th class="fixed-width-column"><div class="textAlignVer">รวมคะแนนทั้งสิ้น</div></th>
+                    <th class="fixed-width-column"><div class="textAlignVer">เกรด</div></th>
+                    <th class="fixed-width-column"><div class="textAlignVer">หมายเหตุ</div></th>
+                </tr>
+            </thead>
+            <tbody>
+                ${studentData.students.map((s, index) => `
+                    <tr>
+                        <td class="fixed-width-column">${index + 1}</td>
+                        <td class="id-column">${s.ID ?? ""}</td>
+                        <td class="name-column">${s.PRENAME ?? ""}${s.NAME ?? ""} ${s.SURNAME ?? ""}</td>
+                        <td class="fixed-width-column">${s.MIDTERM1 ?? ""}</td>
+                        <td class="fixed-width-column">${s.MIDTERM2 ?? ""}</td>
+                        <td class="fixed-width-column">${s.MIDTERM3 ?? ""}</td>
+                        <td class="fixed-width-column">${s.MIDTERM4 ?? ""}</td>
+                        <td class="fixed-width-column">${s.MIDTERM5 ?? ""}</td>
+                        <td class="fixed-width-column">${s.MIDTERM6 ?? ""}</td>
+                        <td class="fixed-width-column">${s.MIDTERM7 ?? ""}</td>
+                        <td class="fixed-width-column">${s.MIDTERM8 ?? ""}</td>
+                        <td class="fixed-width-column">${s.MIDTERM9 ?? ""}</td>
+                        <td class="fixed-width-column">${s.MIDTERM ?? ""}</td>
+                        <td class="fixed-width-column">${s.FINAL ?? ""}</td>
+                        <td class="fixed-width-column">${s.TOTAL ?? ""}</td>
+                        <td class="fixed-width-column">
+                            <span style="${s.GRADE == 0 || s.GRADE == '' || s.GRADE == null ? 'color: red;' : ''}">
+                                ${s.GRADE ?? ""}
+                            </span>
+                        </td>
+                        <td class="fixed-width-column">${s.TYP_CODE == 1 ? 'ทอ*' : ''}</td>
+                    </tr>
+                `).join('')}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- เพิ่มฟอนต์ Thai Sarabun SPK -->
+    <link href="https://fonts.googleapis.com/css2?family=TH+Sarabun+SPK:wght@400;700&display=swap" rel="stylesheet">
+`;
+
+    // สร้าง iframe ชั่วคราว
+    const iframe = document.createElement('iframe');
+    iframe.style.position = 'absolute';
+    iframe.style.width = '0';
+    iframe.style.height = '0';
+    iframe.style.border = 'none';
+    document.body.appendChild(iframe);
+
+    // เขียนเนื้อหาลงใน iframe
+    const iframeDoc = iframe.contentWindow.document;
+    iframeDoc.open();
+    iframeDoc.write(printContent);
+    iframeDoc.close();
+
+    // รอให้รูปภาพโหลดเสร็จก่อนพิมพ์
+    const logoImg = iframeDoc.querySelector('.logo img');
+    logoImg.onload = () => {
+        // พิมพ์เนื้อหาใน iframe
+        iframe.contentWindow.focus(); // ให้ iframe โฟกัส
+        iframe.contentWindow.print(); // พิมพ์
+
+        // ลบ iframe หลังจากพิมพ์เสร็จ
+        document.body.removeChild(iframe);
+    };
+
+    // หากรูปภาพไม่โหลด (เช่น URL ไม่ถูกต้อง) ให้พิมพ์โดยไม่รอ
+    logoImg.onerror = () => {
+        iframe.contentWindow.focus(); // ให้ iframe โฟกัส
+        iframe.contentWindow.print(); // พิมพ์
+
+        // ลบ iframe หลังจากพิมพ์เสร็จ
+        document.body.removeChild(iframe);
+    };
+}
+</script>
