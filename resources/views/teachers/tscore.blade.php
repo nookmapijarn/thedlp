@@ -264,7 +264,7 @@ function printCover(data) {
                 size: A4 portrait; /* กำหนดขนาดกระดาษเป็น A4 แนวตั้งสำหรับหน้าแรก */
             }
             @page {
-                margin: 10mm 10mm 10mm 20mm; /* ลดขอบกระดาษด้านซ้ายและขวาเหลือ 10mm และเว้นขอบด้านบน 10mm สำหรับหน้าอื่นๆ */
+                margin: 10mm 0mm 10mm 0mm; /* บน ขาว ล่าง ซ้าย ลดขอบกระดาษด้านซ้ายและขวาเหลือ 10mm และเว้นขอบด้านบน 10mm สำหรับหน้าอื่นๆ */
                 size: A4 landscape; /* กำหนดขนาดกระดาษเป็น A4 แนวนอนสำหรับหน้าอื่นๆ */
             }
             /* บังคับให้พิมพ์ background image และ background color */
@@ -393,9 +393,13 @@ function printCover(data) {
 
     <!-- หน้าถัดไปสำหรับตาราง -->
     <div class="container" style="page-break-before: always; margin-top: 10mm;">
-        <h4>ตารางสรุปผลการเรียน</h4>
+        <h4>การประเมินผลการเรียน</h4>
+        <h4>อัตราส่วนคะแนนระหว่างภาคเรียน : ปลายภาค = 60 : 40</h4>
         <table>
             <thead>
+                <tr>
+                  การประเมินผลการเรียนรายวิชา ${studentData.subject ?? ""}
+                </tr>
                 <tr>
                     <th class="fixed-width-column">ลำดับ</th>
                     <th class="id-column">รหัส</th>
@@ -444,6 +448,15 @@ function printCover(data) {
                 `).join('')}
             </tbody>
         </table>
+        <!-- Footer -->
+        <div class="footer">
+            <p>ข้าพเจ้าขอรับรองว่าถูกต้องและเป็นจริง</p>
+            <br>
+            <div class="signature">
+                <p>(ลงชื่อ) .................................................. ครูผู้สอน</p>
+                <p>(........................................................)</p>
+            </div>
+        </div>
     </div>
 
     <!-- เพิ่มฟอนต์ Thai Sarabun SPK -->
