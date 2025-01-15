@@ -289,7 +289,7 @@
         };
 
         // URL รูปภาพโปรไฟล์
-        const avatarUrl = student_data['user_avatar'] || 'https://phothongdlec.ac.th/storage/images/avatar/unkhonw.png';
+        const avatarUrl = `https://phothongdlec.ac.th/storage/images/avatar/${studentData.id}.png` || 'https://phothongdlec.ac.th/storage/images/avatar/unkhonw.png';
 
         // HTML สำหรับบัตร
         const printContent = `
