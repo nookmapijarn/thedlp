@@ -61,6 +61,10 @@ Route::get('/regis', function () {
     return view('welcome');
 })->name('regis');
 
+Route::get('/olis', function () {
+    return view('welcome');
+})->name('olis');
+
 Route::get('/', function () {
     return view('welcome');
 })->name('/');
