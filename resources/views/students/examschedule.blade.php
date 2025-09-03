@@ -5,7 +5,7 @@
     </h6>      
 </x-slot>
 {{-- ปลายภาค --}}
-<div class="flex justify-center mt-4">
+<div class="flex justify-center mt-4 p-4 sm:ml-64">
   <div class="max-w-screen-lg w-full bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
     <div class="p-4 text-xl text-gray-100 dark:text-white bg-violet-800">
       <div class="text-yellow-500 flex flex-col-2">
@@ -62,7 +62,7 @@
 
   {{-- N-NET --}}
   @if($nnet === 'N-NET') 
-  <div class="flex justify-center mt-4 mb-4">
+  <div class="flex justify-center mt-4 p-4 sm:ml-64">
     <div class="max-w-screen-lg w-full bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
       <div class="p-4 text-xl text-gray-100 dark:text-white bg-indigo-800">
         <p>ตารางสอบ N-NET {{$semestry}}</p>
@@ -80,7 +80,7 @@
       <div class=" text-center text-sm" >  สนามสอบ</div>
       <div class=" text-center text-sm" >  ประถม และ ม.ต้น สอบระบบปกติ</div>
       <div class=" text-center text-sm" >  ม.ปลาย สอบระบบคอมพิวเตอร์</div>
-        <table class="p-15 text-left text-xs md:text-sm font-light">
+        <table class="p-15 text-left text-xs md:text-sm font-light max-w-screen-lg w-full">
             <thead class="border-b font-medium dark:border-neutral-500 bg-white">                  
               <tr>
                 <th scope="col" class="p-2">รหัส</th>

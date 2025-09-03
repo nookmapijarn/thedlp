@@ -26,7 +26,7 @@
     </head>
     
     <body class="font-sans antialiased">
-        {{-- @include('layouts.studentssidebar') --}}
+        @include('layouts.studentssidebar')
         @include('layouts.navigation')
         @include('layouts.studentstab')
         <div class="min-h-screen bg-gray-100 bg-indio-500">
@@ -39,7 +39,7 @@
                 </header>
             @endif --}}
             <!-- Page Content -->
-            <main class="max-w-lg">
+            <main class="mt-4">
                 {{ $slot }}
             </main>
         </div>

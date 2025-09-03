@@ -4,5 +4,7 @@
 
 {{-- <img src="{{url('/dlp/resources/img/logo.png')}}" width="100px"> --}}
     {{-- Label --}}
-<img src="{{asset('storage/logo.png');}}" 
+{{-- <img src="{{asset('storage/logo.png');}}" 
+@if(Route::is('login') || Route::is('register') ) width="120px" @else width="45px" @endif> --}}
+<img src="https://phothongdlec.ac.th/storage/logo.png" 
 @if(Route::is('login') || Route::is('register') ) width="120px" @else width="45px" @endif>

@@ -45,4 +45,32 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    /**
+     * Check if the user is enrolled in a given course.
+     *
+     * @param  \App\Models\Course  $course
+     * @return bool
+     */
+    public function isEnrolledIn(Course $course)
+    {
+        return $this->enrollments()->where('course_id', $course->id)->exists();
+    }
+
+    /**
+     * Get the enrollments for the user.
+     */
+    public function enrollments()
+    {
+        return $this->hasMany(Enrollment::class);
+    }
+
+    /**
+     * Get the lesson completions for the user.
+     * This method defines a one-to-many relationship with the LessonCompletion model.
+     */
+    public function lessonCompletions()
+    {
+        return $this->hasMany(LessonCompletion::class);
+    }
 }

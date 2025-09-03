@@ -110,7 +110,7 @@
         <section class="pt-15 bg-center bg-no-repeat bg-[url('storage/studentall.jpg')] background-animate bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-700"> 
             <div class="px-4 mx-auto max-w-screen-xl text-center py-12 lg:py-56">
                 <div class="flex justify-center mb-3 md:m-5">
-                    <img src="{{asset('storage/logo.png');}}" width="120px" class="drop-shadow-2xl">
+                    <img src="https://phothongdlec.ac.th/storage/logo.png" width="120px" class="drop-shadow-2xl">
                 </div>
                 <h1 class="md:mb-4 text-xl font-extrabold tracking-tight leading-none text-white md:text-4xl lg:text-5xl tracking-wider leading-relaxed drop-shadow-2xl">{{ config('app.name') }}</h1>
                 <p class="md:mb-4 text-sm font-extrabold tracking-tight leading-none text-white md:text-4xl lg:text-2xl tracking-wider leading-relaxed drop-shadow-2xl">{{ config('app.name_system') }}</p>
