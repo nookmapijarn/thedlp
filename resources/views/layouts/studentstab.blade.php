@@ -30,7 +30,7 @@
         </ul>
     </div>
 </aside>
----
+
 <nav class="fixed bottom-0 left-0 z-50 w-full h-16 bg-white border-t border-gray-200 dark:bg-gray-800 dark:border-gray-700 sm:hidden">
     <div class="grid h-full max-w-lg grid-cols-4 mx-auto font-medium">
         {{-- เมนูหลัก 3 รายการ --}}

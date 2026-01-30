@@ -1,169 +1,130 @@
 <x-guest-layout>
-    <!-- Main Container -->
-    <div class=" flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 py-12 px-4 sm:px-6 lg:px-8">
-        <div class="max-w-lg w-full space-y-8">
-            <!-- Header Section -->
-            <div class="text-center space-y-4">
-                <div class="space-y-2">
-                    <h1 class="text-2xl font-light text-gray-600">{{ config('app.name_system') }}</h1>
-                    <h2 class="text-xl font-light text-gray-500">{{ config('app.name_th') }}</h2>
-                    <h3 class="text-3xl font-bold text-gray-900 tracking-tight">{{ config('app.name') }}</h3>
-                </div>
-            </div>
+    <style> [x-cloak] { display: none !important; } </style>
 
-            <!-- Session Status -->
-            <x-auth-session-status class="mb-4" :status="session('status')" />
+    <div class="grid grid-cols-1 gap-2 justify-items-center max-h-screen bg-white/0 backdrop-blur-md rounded-[0.3rem] from-slate-50 via-slate-100 to-slate-200 py-6 px-4 ">
 
-            <!-- Login Card -->
-            <div class="bg-white/70 backdrop-blur-sm rounded-2xl shadow-xl p-8 border border-white/20"
-                 x-data="{
-                    activeTab: 'student',
-                    isActive(tab) {
-                        return this.activeTab === tab;
-                    }
-                 }">
-                
-                <!-- Tab Navigation -->
-                <div class="mb-8">
-                    <div class="flex space-x-1 rounded-xl bg-gray-100 p-1">
-                        <!-- Student Tab -->
-                        <button @click="activeTab = 'student'"
-                                :class="isActive('student') ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'"
-                                class="flex-1 flex items-center justify-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200">
-                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                                      d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                            </svg>
-                            <div class="text-left">
-                                <div class="text-xs opacity-75">เข้าสู่ระบบ</div>
-                                <div class="font-semibold">ผู้เรียน</div>
-                            </div>
-                        </button>
+        <div class="text-center space-y-3 animate-in fade-in slide-in-from-top-4 duration-1000">
+            <div class="flex flex-col items-center">
+
+                <div class="flex flex-col items-center justify-center py-2">
+                    <a href="/" class="relative group">
+                        <div class="absolute inset-0 bg-blue-500/20 blur-[60px] rounded-full animate-[pulse_5s_ease-in-out_infinite]"></div>
                         
-                        <!-- Staff Tab -->
-                        <button @click="activeTab = 'staff'"
-                                :class="isActive('staff') ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'"
-                                class="flex-1 flex items-center justify-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200">
-                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                                      d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                            </svg>
-                            <div class="text-left">
-                                <div class="text-xs opacity-75">เข้าสู่ระบบ</div>
-                                <div class="font-semibold">เจ้าหน้าที่</div>
-                            </div>
+                        <div class="absolute -bottom-12 left-1/2 -translate-x-1/2 w-32 h-4 bg-blue-600/10 blur-xl rounded-[100%] animate-[shadow-scale_6s_ease-in-out_infinite]"></div>
+
+                        <div class="relative animate-[mega-float_6s_ease-in-out_infinite]">
+                            <img class="w-56" src="https://phothongdlec.ac.th/storage/olislogo.png" alt="Logo">
+                            {{-- <x-application-logo class="w-[150px] sm:w-64 h-auto fill-current text-blue-600 filter drop-shadow-[0_20px_30px_rgba(37,99,235,0.25)] transition-all duration-1000 group-hover:scale-110 group-hover:brightness-110" /> --}}
+                        </div>
+                    </a>
+                </div>
+
+                {{-- <h3 class="text-2xl font-black text-gray-800 tracking-[0.25em] uppercase mb-1 drop-shadow-sm">
+                    {{ config('app.name') }}
+                </h3> --}}
+                
+                <div class="h-[1px] w-12 bg-purple-500 mb-2 opacity-80"></div>
+
+                <h1 class="text-[15px] sm:text-md font-bold text-gray-900 uppercase tracking-[0.2em] mb-1">
+                    {{ config('app.name_system') }}
+                </h1>
+                <h2 class="text-md sm:text-md font-light text-gray-500 tracking-wide">
+                    {{ config('app.name_th') }}
+                </h2>
+            </div>
+        </div>
+
+        {{-- Login Card --}}
+        <div class="sm:max-w-md w-full space-y-4">
+
+            <x-auth-session-status class="mb-2 text-md text-center font-medium text-green-600" :status="session('status')" />
+
+            <div class="bg-white/70 backdrop-blur-md rounded-[2rem] p-8 border border-white shadow-2xl shadow-slate-200/50"
+                 x-cloak
+                 x-data="{ 
+                    activeTab: '{{ $errors->has('email') ? 'staff' : 'student' }}',
+                    isActive(tab) { return this.activeTab === tab; } 
+                 }">
+                <div class="mb-8">
+                    <div class="flex p-1 bg-slate-100 rounded-2xl">
+                        <button type="button" @click="activeTab = 'student'"
+                                :class="isActive('student') ? 'bg-white text-gray-900 shadow-md' : 'text-gray-400 hover:text-gray-600'"
+                                class="flex-1 py-2 text-md font-bold rounded-xl transition-all duration-300 uppercase tracking-widest">
+                            ผู้เรียน
+                        </button>
+                        <button type="button" @click="activeTab = 'staff'"
+                                :class="isActive('staff') ? 'bg-white text-gray-900 shadow-md' : 'text-gray-400 hover:text-gray-600'"
+                                class="flex-1 py-2 text-md font-bold rounded-xl transition-all duration-300 uppercase tracking-widest">
+                            เจ้าหน้าที่
                         </button>
                     </div>
                 </div>
 
-                <!-- Student Login Form -->
-                <div x-show="isActive('student')" x-transition:enter="transition ease-out duration-300"
-                     x-transition:enter-start="opacity-0 transform scale-95"
-                     x-transition:enter-end="opacity-100 transform scale-100">
-                    <form method="POST" action="{{ route('login') }}" class="space-y-6">
-                        @csrf
-                        
-                        <!-- Student ID -->
-                        <div class="space-y-1">
-                            <label for="student_id" class="block text-sm font-medium text-gray-700">รหัสนักศึกษา</label>
-                            <input id="student_id" name="student_id" type="number" 
-                                   value="{{ old('student_id') }}" required autofocus
-                                   class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-center text-lg"
-                                   placeholder="กรอกรหัสนักศึกษา">
-                            <x-input-error :messages="$errors->get('student_id')" class="mt-2" />
-                        </div>
+                <div class="mt-4">
+                    <div x-show="isActive('student')" x-transition:enter="transition duration-500" x-transition:enter-start="opacity-0 translate-y-2">
+                        <form method="POST" action="{{ route('login') }}" class="space-y-5">
+                            @csrf
+                            <div class="space-y-2">
+                                <label class="block text-[15px] font-bold text-gray-400 uppercase tracking-[0.2em] text-center">รหัสนักศึกษา</label>
+                                <input name="student_id" type="text" value="{{ old('student_id') }}" required autofocus
+                                       class="w-full px-4 py-3 bg-slate-50 border-none rounded-xl focus:ring-2 focus:ring-blue-500/20 text-center text-gray-700 font-medium transition-all"
+                                       placeholder="0000000000">
+                                <x-input-error :messages="$errors->get('student_id')" class="mt-1 flex flex-col items-center text-center" />
+                            </div>
 
-                        <!-- Password -->
-                        <div class="space-y-1">
-                            <label for="student_password" class="block text-sm font-medium text-gray-700">รหัสผ่าน</label>
-                            <input id="student_password" name="password" type="password" required
-                                   class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-center"
-                                   placeholder="กรอกรหัสผ่าน">
-                            <x-input-error :messages="$errors->get('password')" class="mt-2" />
-                        </div>
+                            <div class="space-y-2">
+                                <label class="block text-[15px] font-bold text-gray-400 uppercase tracking-[0.2em] text-center">Password</label>
+                                <input name="password" type="password" required
+                                       class="w-full px-4 py-3 bg-slate-50 border-none rounded-xl focus:ring-2 focus:ring-blue-500/20 text-center text-gray-700 transition-all"
+                                       placeholder="••••••••">
+                                <x-input-error :messages="$errors->get('password')" class="mt-1 flex flex-col items-center text-center" />
+                            </div>
 
-                        <!-- Remember Me -->
-                        <div class="flex items-center">
-                            <input id="remember_student" name="remember" type="checkbox"
-                                   class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
-                            <label for="remember_student" class="ml-2 text-sm text-gray-600">จดจำการเข้าสู่ระบบ</label>
-                        </div>
+                            <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white text-md font-bold py-4 rounded-xl shadow-lg transition-all active:scale-95 tracking-[0.2em] uppercase">
+                                เข้าสู่ระบบ
+                            </button>
+                        </form>
+                    </div>
 
-                        <!-- Submit Button -->
-                        <button type="submit" 
-                                class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-center group">
-                            เข้าสู่ระบบ
-                            <svg class="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform duration-200" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd"/>
-                            </svg>
-                        </button>
-                    </form>
+                    <div x-show="isActive('staff')" x-transition:enter="transition duration-500" x-transition:enter-start="opacity-0 translate-y-2">
+                        <form method="POST" action="{{ route('loginWithEmail') }}" class="space-y-5">
+                            @csrf
+                            <div class="space-y-2">
+                                <label class="block text-[15px] font-bold text-gray-400 uppercase tracking-[0.2em] text-center">Email (เจ้าหน้าที่)</label>
+                                <input name="email" type="email" value="{{ old('email') }}" required
+                                       class="w-full px-4 py-3 bg-slate-50 border-none rounded-xl focus:ring-2 focus:ring-blue-500/20 text-center text-gray-700 font-medium transition-all"
+                                       placeholder="staff@example.com">
+                                <x-input-error :messages="$errors->get('email')" class="mt-1 flex flex-col items-center text-center" />
+                            </div>
+
+                            <div class="space-y-2">
+                                <label class="block text-[15px] font-bold text-gray-400 uppercase tracking-[0.2em] text-center">Password</label>
+                                <input name="password" type="password" required
+                                       class="w-full px-4 py-3 bg-slate-50 border-none rounded-xl focus:ring-2 focus:ring-blue-500/20 text-center text-gray-700 transition-all"
+                                       placeholder="••••••••">
+                            </div>
+
+                            <button type="submit" class="w-full bg-gray-900 hover:bg-gray-700 text-white text-md font-bold py-4 rounded-xl shadow-lg shadow-blue-200 transition-all active:scale-95 tracking-[0.2em] uppercase">
+                                เข้าสู่ระบบเจ้าหน้าที่
+                            </button>
+                        </form>
+                    </div>
                 </div>
 
-                <!-- Staff Login Form -->
-                <div x-show="isActive('staff')" x-transition:enter="transition ease-out duration-300"
-                     x-transition:enter-start="opacity-0 transform scale-95"
-                     x-transition:enter-end="opacity-100 transform scale-100">
-                    <form method="POST" action="{{ route('loginWithEmail') }}" class="space-y-6">
-                        @csrf
-                        
-                        <!-- Email -->
-                        <div class="space-y-1">
-                            <label for="email" class="block text-sm font-medium text-gray-700">อีเมล</label>
-                            <input id="email" name="email" type="email" 
-                                   value="{{ old('email') }}" required autofocus
-                                   class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-center"
-                                   placeholder="กรอกอีเมล">
-                            <x-input-error :messages="$errors->get('email')" class="mt-2" />
-                        </div>
-
-                        <!-- Password -->
-                        <div class="space-y-1">
-                            <label for="staff_password" class="block text-sm font-medium text-gray-700">รหัสผ่าน</label>
-                            <input id="staff_password" name="password" type="password" required
-                                   class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-center"
-                                   placeholder="กรอกรหัสผ่าน">
-                            <x-input-error :messages="$errors->get('password')" class="mt-2" />
-                        </div>
-
-                        <!-- Remember Me -->
-                        <div class="flex items-center">
-                            <input id="remember_staff" name="remember" type="checkbox"
-                                   class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
-                            <label for="remember_staff" class="ml-2 text-sm text-gray-600">จดจำการเข้าสู่ระบบ</label>
-                        </div>
-
-                        <!-- Submit Button -->
-                        <button type="submit" 
-                                class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-center group">
-                            เข้าสู่ระบบ
-                            <svg class="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform duration-200" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd"/>
-                            </svg>
-                        </button>
-                    </form>
+                <div class="flex flex-col items-center space-y-3 mt-8">
+                    <div class="h-[1px] w-full bg-gray-100"></div>
+                    <div class="flex items-center space-x-6">
+                        <a href="{{ route('register') }}" class="text-[15px] font-bold text-gray-400 hover:text-blue-600 transition-colors uppercase tracking-widest">สมัครสมาชิก</a>
+                        <span class="text-gray-200">/</span>
+                        <a href="{{ route('password.request') }}" class="text-[15px] font-bold text-gray-400 hover:text-blue-600 transition-colors uppercase tracking-widest">ลืมรหัสผ่าน?</a>
+                    </div>
                 </div>
             </div>
-
-            <!-- Navigation Links -->
-            <div class="flex items-center justify-center space-x-6 text-sm">
-                <a href="{{ route('/welcome') }}" 
-                   class="text-gray-600 hover:text-gray-900 font-medium transition-colors duration-200">
-                    หน้าหลัก
-                </a>
-                <span class="text-gray-300">•</span>
-                <a href="{{ route('register') }}" 
-                   class="text-gray-600 hover:text-gray-900 font-medium transition-colors duration-200">
-                    สมัครสมาชิก
-                </a>
-                @if (Route::has('password.request'))
-                <span class="text-gray-300">•</span>
-                <a href="{{ route('password.request') }}" 
-                   class="text-gray-600 hover:text-gray-900 font-medium transition-colors duration-200">
-                    ลืมรหัสผ่าน?
-                </a>
-                @endif
-            </div>
+            
+            <p class="text-[9px] text-center text-gray-400 font-medium uppercase tracking-[0.2em]">
+                &copy; {{ date('Y') }} — นนทชัย มาพิจารณ์
+            </p>
         </div>
     </div>
 </x-guest-layout>
+

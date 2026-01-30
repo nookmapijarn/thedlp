@@ -100,56 +100,103 @@
         </div>
     </div>
 
-    {{-- Modal สำหรับสร้างแบบทดสอบใหม่ --}}
-    <div id="createQuizModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
-        <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-4/5 lg:w-3/5 shadow-lg rounded-md bg-white">
-            <div class="flex justify-between items-center pb-3">
-                <h3 class="text-2xl font-bold text-gray-800">สร้างแบบทดสอบใหม่</h3>
-                <div class="modal-close cursor-pointer z-50" onclick="closeCreateQuizModal()">
-                    <svg class="fill-current text-black" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18">
-                        <path d="M14.53 4.53L9 10.06 3.47 4.53 2 5.94l6.53 6.53L14.53 17l1.41-1.41L9.94 9l6.53-6.53z"/>
-                    </svg>
-                </div>
+    {{-- Modal สำหรับสร้างแบบทดสอบใหม่ (Minimal) --}}
+    <div id="createQuizModal"
+        class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black/40 backdrop-blur-sm">
+
+        <div class="w-full max-w-3xl mx-4 bg-white rounded-2xl shadow-xl
+                    max-h-[90vh] flex flex-col">
+
+            {{-- Header (ไม่เลื่อน) --}}
+            <div class="flex items-center justify-between px-6 py-4 border-b shrink-0">
+                <h3 class="text-lg font-semibold text-gray-800">
+                    สร้างแบบทดสอบใหม่
+                </h3>
+                <button onclick="closeCreateQuizModal()"
+                        class="text-gray-400 hover:text-gray-600 transition">
+                    ✕
+                </button>
             </div>
 
-            <form id="createQuizForm" action="{{ route('ttest.store') }}" method="POST">
+            {{-- Body (เลื่อนได้) --}}
+            <form id="createQuizForm"
+                action="{{ route('ttest.store') }}"
+                method="POST"
+                class="px-6 py-6 space-y-6 overflow-y-auto">
                 @csrf
-                <h2 class="text-2xl font-semibold mb-4 text-gray-700">ข้อมูลแบบทดสอบ</h2>
-                <div class="mb-4">
-                    <label for="create_quiz_title" class="block text-gray-700 text-sm font-bold mb-2">ชื่อแบบทดสอบ:</label>
-                    <input type="text" id="create_quiz_title" name="quiz_title" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required value="{{ old('quiz_title') }}">
-                </div>
 
-                <div class="mb-4">
-                    <label for="create_quiz_description" class="block text-gray-700 text-sm font-bold mb-2">คำอธิบาย:</label>
-                    <textarea id="create_quiz_description" name="quiz_description" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline resize-y min-h-[60px]">{{ old('quiz_description') }}</textarea>
-                </div>
+                {{-- ข้อมูลแบบทดสอบ --}}
+                <section class="space-y-4">
+                    <h4 class="text-sm font-semibold text-gray-500 uppercase tracking-wide">
+                        ข้อมูลแบบทดสอบ
+                    </h4>
 
-                <div class="mb-4">
-                    <label for="create_subject_code" class="block text-gray-700 text-sm font-bold mb-2">รหัสวิชา (SUB_CODE):</label>
-                    <input type="text" id="create_subject_code" name="subject_code" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required value="{{ old('subject_code') }}">
-                </div>
+                    <div>
+                        <label class="block text-sm text-gray-600 mb-1">ชื่อแบบทดสอบ</label>
+                        <input type="text" name="quiz_title" required
+                            class="w-full rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500 text-sm">
+                    </div>
 
-                <div class="mb-6">
-                    <label for="create_time_limit" class="block text-gray-700 text-sm font-bold mb-2">เวลาจำกัด (นาที):</label>
-                    <input type="number" id="create_time_limit" name="time_limit" min="0" value="{{ old('time_limit', 0) }}" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                </div>
+                    <div>
+                        <label class="block text-sm text-gray-600 mb-1">คำอธิบาย</label>
+                        <textarea name="quiz_description"
+                                class="w-full rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500 text-sm min-h-[80px]"></textarea>
+                    </div>
 
-                <hr class="my-6 border-gray-300">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm text-gray-600 mb-1">รหัสวิชา</label>
+                            <input type="text" name="subject_code" required
+                                class="w-full rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500 text-sm">
+                        </div>
 
-                <h2 class="text-2xl font-semibold mb-4 text-gray-700">คำถาม</h2>
-                <div id="create_questions_container">
-                    {{-- Questions will be added here by JavaScript --}}
-                </div>
+                        <div>
+                            <label class="block text-sm text-gray-600 mb-1">เวลาจำกัด (นาที)</label>
+                            <input type="number" name="time_limit" min="0"
+                                class="w-full rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500 text-sm">
+                        </div>
+                    </div>
+                </section>
 
-                <button type="button" class="mt-4 px-6 py-2 bg-green-500 text-white font-bold rounded hover:bg-green-700 focus:outline-none focus:shadow-outline add-item" onclick="addQuestion('create_')">เพิ่มคำถาม</button>
+                {{-- คำถาม --}}
+                <section class="space-y-4 pt-4 border-t">
+                    <h4 class="text-sm font-semibold text-gray-500 uppercase tracking-wide">
+                        คำถาม
+                    </h4>
 
-                <div class="mt-8 text-right">
-                    <button type="submit" class="px-6 py-2 bg-blue-500 text-white font-bold rounded hover:bg-blue-700 focus:outline-none focus:shadow-outline">บันทึกแบบทดสอบ</button>
-                </div>
+                    <div id="create_questions_container" class="space-y-4">
+                        {{-- JS inject --}}
+                    </div>
+
+                    <button type="button"
+                            onclick="addQuestion('create_')"
+                            class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium
+                                text-green-700 bg-green-100 rounded-lg hover:bg-green-200 transition">
+                        ＋ เพิ่มคำถาม
+                    </button>
+                </section>
             </form>
+
+            {{-- Footer (ไม่เลื่อน) --}}
+            <div class="flex justify-end gap-3 px-6 py-4 border-t shrink-0 bg-white">
+                <button type="button"
+                        onclick="closeCreateQuizModal()"
+                        class="px-4 py-2 text-sm text-gray-600 hover:text-gray-800">
+                    ยกเลิก
+                </button>
+
+                <button type="submit"
+                        form="createQuizForm"
+                        class="px-6 py-2 text-sm font-semibold text-white
+                            bg-blue-600 rounded-lg hover:bg-blue-700 transition">
+                    บันทึกแบบทดสอบ
+                </button>
+            </div>
+
         </div>
     </div>
+
+
 
     {{-- Modal สำหรับแก้ไขแบบทดสอบ --}}
     <div id="editQuizModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">

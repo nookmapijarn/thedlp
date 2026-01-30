@@ -24,14 +24,15 @@
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
     <body class="antialiased">
-        <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 dark:bg-gray-900 background-animate bg-gradient-to-r from-purple-500 via-violet-800 to-purple-500">
+        <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 dark:bg-gray-900">
+            {{-- background-animate bg-gradient-to-r from-purple-500 via-violet-800 to-purple-500 --}}
             <div>
-                <a href="/">
+                {{-- <a href="/">
                     <x-application-logo class="w-20 h-20 fill-current text-gray-500" />
-                </a>
+                </a> --}}
             </div>
 
-            <div class="w-full sm:max-w-md mt-6 px-6 py-4 dark:bg-gray-800 shadow-none overflow-hidden sm:rounded-lg  bg-white bg-opacity-60 rounded-2xl">
+            <div class="w-full  mt-6 px-6 py-4 dark:bg-gray-800 shadow-none overflow-hidden sm:rounded-lg   rounded-2xl">
                 {{ $slot }}
             </div>
         </div>
