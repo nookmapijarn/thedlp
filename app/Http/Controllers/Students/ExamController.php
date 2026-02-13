@@ -14,51 +14,169 @@ class ExamController extends Controller
     protected $lavel;
     protected $std_code;
 
-    public function index(){
-
-        // ดึงข้อมูล Level และ STD_CODE ของนักเรียนที่ล็อกอินอยู่
-        // ส่วนนี้คงเดิมตามโค้ดของคุณ
+    public function index(Request $request)
+    {
+        // 1. ดึงข้อมูลพื้นฐานของนักเรียน (ส่วนเดิม)
         $id = auth()->user()->student_id;
+        $userId = auth()->id(); // ID จากตาราง users
         $this->lavel = str_split($id, 1)[3];
         $this->std_code = DB::table("student{$this->lavel}")->where('ID', $id)->select('STD_CODE')->groupBy('STD_CODE')->value('STD_CODE');
 
         $all_semestry = DB::table("grade{$this->lavel}")->select('SEMESTRY')->groupBy('SEMESTRY')->orderBy('SEMESTRY', 'DESC')->get();
-        $semestry = $all_semestry->first()->SEMESTRY;
-        
-        // ***************************************************************
-        // ส่วนเดิม: ดึงข้อมูลแบบทดสอบทั้งหมด
-        // ***************************************************************
-        $quizzes = DB::table('quizzes')
-                      ->leftJoin('users', 'quizzes.created_by', '=', 'users.id')
-                      ->select(
-                          'quizzes.*',
-                          'users.name as created_by_name' // ดึงชื่อผู้สร้างเพื่อนำไปแสดงผล
-                      )
-                      ->get();
+        $semestry = $all_semestry->first() ? $all_semestry->first()->SEMESTRY : null;
 
-        // ***************************************************************
-        // ส่วนที่เพิ่มเข้ามา: ดึงประวัติการทำแบบทดสอบของนักเรียนปัจจุบัน
-        // ***************************************************************
-        $userId = Auth::id(); // รับ ID ของผู้ใช้ที่ล็อกอินอยู่
+        // 2. ดึงข้อมูล "งานที่ได้รับมอบหมาย" (Assigned Quizzes)
+        // ดึงเฉพาะที่ครูสั่งให้ User นี้ทำผ่านตาราง quiz_assignments
+        $assignedQuizzes = DB::table('quiz_assignments')
+            ->join('quizzes', 'quiz_assignments.quiz_id', '=', 'quizzes.id')
+            ->leftJoin('users', 'quizzes.created_by', '=', 'users.id')
+            ->where('quiz_assignments.user_id', $userId)
+            ->select(
+                'quizzes.*',
+                'users.name as created_by_name',
+                'quiz_assignments.assigned_at',
+                'quiz_assignments.due_date',
+                'quiz_assignments.is_completed'
+            )
+            ->orderBy('quiz_assignments.is_completed', 'asc') // เอาที่ยังไม่ทำขึ้นก่อน
+            ->orderBy('quiz_assignments.assigned_at', 'desc')
+            ->get();
 
+        // 3. สร้าง Query สำหรับ "คลังข้อสอบทั้งหมด" (All Quizzes)
+        $query = DB::table('quizzes')
+            ->leftJoin('users', 'quizzes.created_by', '=', 'users.id')
+            ->select(
+                'quizzes.*',
+                'users.name as created_by_name'
+            )
+            // เพิ่มการเช็คว่า user นี้เคยทำข้อสอบนี้หรือยัง
+            ->addSelect([
+                'is_attempted' => DB::table('quiz_attempts')
+                    ->selectRaw('count(*)')
+                    ->whereColumn('quiz_id', 'quizzes.id')
+                    ->where('user_id', $userId)
+                    ->whereNotNull('finished_at') // ต้องทำเสร็จแล้วเท่านั้น
+                    ->limit(1)
+            ])
+            ->where('quizzes.is_active', 1);
+
+        // --- ระบบค้นหาและกรอง (Search & Filters) ---
+        if ($request->filled('search')) {
+            $query->where(function($q) use ($request) {
+                $q->where('quizzes.title', 'like', '%' . $request->search . '%')
+                ->orWhere('quizzes.descriptio', 'like', '%' . $request->search . '%');
+            });
+        }
+
+        if ($request->filled('subject')) {
+            $query->where('quizzes.subject_table_type', $request->subject);
+        }
+
+        if ($request->filled('grade')) {
+            $query->where('quizzes.grade_level', $request->grade);
+        }
+
+        if ($request->filled('creator')) {
+            $query->where('quizzes.created_by', $request->creator);
+        }
+
+        // เรียงลำดับ
+        $sortField = $request->get('sort', 'id'); 
+        $sortOrder = $request->get('order', 'desc');
+        $quizzes = $query->orderBy("quizzes.{$sortField}", $sortOrder)->get();
+
+        // 4. ดึงข้อมูลสำหรับ Dropdown Filter
+        $subjects = DB::table('quizzes')->where('subject_table_type', '!=', '')->distinct()->pluck('subject_table_type');
+        $grades = DB::table('quizzes')->distinct()->pluck('grade_level')->sort();
+        $creators = DB::table('users')
+            ->whereIn('id', function($q) {
+                $q->select('created_by')->from('quizzes');
+            })
+            ->select('id', 'name')
+            ->get();
+
+        // 5. ดึงประวัติการทำข้อสอบ (History)
         $quizAttemptsHistory = DB::table('quiz_attempts')
-                                ->where('quiz_attempts.user_id', $userId) // ใช้ alias หรือชื่อตารางที่ชัดเจน
-                                ->join('quizzes', 'quiz_attempts.quiz_id', '=', 'quizzes.id')
-                                ->select(
-                                    'quiz_attempts.id as attempt_id',
-                                    'quiz_attempts.total_score as user_score', // คะแนนที่นักเรียนทำได้
-                                    'quiz_attempts.finished_at',
-                                    'quizzes.title as quiz_title', // ชื่อแบบทดสอบ
-                                    'quizzes.total_score as quiz_total_score', // คะแนนเต็มของแบบทดสอบ
-                                    'quizzes.subject_code as subject_code' // รหัสวิชา
-                                )
-                                ->orderBy('quiz_attempts.finished_at', 'desc') // เรียงลำดับจากล่าสุดไปเก่าสุด
-                                ->get();
+            ->where('quiz_attempts.user_id', $userId)
+            ->join('quizzes', 'quiz_attempts.quiz_id', '=', 'quizzes.id')
+            ->select(
+                'quiz_attempts.id as attempt_id',
+                'quiz_attempts.total_score as user_score',
+                'quiz_attempts.finished_at',
+                'quizzes.title as quiz_title',
+                'quizzes.total_score as quiz_total_score',
+                'quizzes.cover_image as cover_image',
+                'quizzes.certificate_image as certificate_image',
+            )
+            ->orderBy('quiz_attempts.finished_at', 'desc')
+            ->get();
 
-        // ส่งข้อมูลทั้งหมดไปยัง View
-        return view('students.exam', compact('quizzes', 'quizAttemptsHistory', 'all_semestry', 'semestry'));
+        // 6. ส่งข้อมูลไปยัง View
+        return view('students.exam', compact(
+            'assignedQuizzes', // งานที่ครูสั่ง
+            'quizzes',         // ข้อสอบทั้งหมด
+            'quizAttemptsHistory', 
+            'all_semestry', 
+            'semestry',
+            'subjects',
+            'grades',
+            'creators'
+        ));
     }
 
+    public function initializeAttempt(Request $request, $id)
+    {
+        try {
+            $quiz = DB::table('quizzes')->where('id', $id)->first();
+            if (!$quiz) {
+                return response()->json(['success' => false, 'message' => 'ไม่พบแบบทดสอบ'], 404);
+            }
+
+            $publicUrl = null;
+
+            // --- Logic: การถ่ายภาพ (require_snapshot) ---
+            $quiz = DB::table('quizzes')->where('id', $id)->first();
+            if ($quiz->require_snapshot == 1) {
+                $imageData = $request->input('start_photo');
+                if (!$imageData) {
+                    return response()->json(['success' => false, 'message' => 'ต้องถ่ายภาพเพื่อยืนยันตัวตน'], 400);
+                }
+
+                $imageData = preg_replace('#^data:image/\w+;base64,#i', '', $imageData);
+                $imageData = base64_decode($imageData);
+
+                $studentId = Auth::user()->student_id; 
+                $imageName = $studentId . '_quiz_' . $id . '_' . time() . '.png';
+                $directory = public_path('storage/images/exams/start_photo');
+                if (!file_exists($directory)) { mkdir($directory, 0777, true); }
+
+                file_put_contents($directory . '/' . $imageName, $imageData);
+                $publicUrl = asset('storage/images/exams/start_photo' . $imageName);
+            }
+
+            // --- บันทึก Attempt ลง Database ---
+            $attemptId = DB::table('quiz_attempts')->insertGetId([
+                'user_id'    => Auth::id(),
+                'quiz_id'    => $id,
+                'started_at' => now(),
+                'ip_address' => $request->ip(),
+                // บันทึกพิกัดเฉพาะเมื่อ require_location เป็น 1
+                'latitude'   => ($quiz->require_location == 1) ? $request->input('latitude') : null,
+                'longitude'  => ($quiz->require_location == 1) ? $request->input('longitude') : null,
+                'browser_fingerprint' => substr($request->header('User-Agent'), 0, 250),
+                'start_photo' => $publicUrl,
+                'tab_switch_count' => 0,
+                'total_score' => 0,
+                'is_passed'  => 0,
+            ]);
+
+            session()->put("active_attempt_{$id}", $attemptId);
+            return response()->json(['success' => true]);
+
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
+        }
+    }
     /**
      * แสดงหน้าทำแบบทดสอบสำหรับนักเรียน
      * @param int $quizId
@@ -104,178 +222,83 @@ class ExamController extends Controller
      * @param int $quizId
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function submitQuiz(Request $request, $quizId)
+    public function submitQuiz(Request $request, $id)
     {
-        // ตรวจสอบความถูกต้องของข้อมูลที่ส่งมา
-        $request->validate([
-            'questions' => 'required|array',
-            'questions.*.question_id' => 'required|integer|exists:questions,id',
-            'questions.*.question_type' => 'required|string|in:multiple_choice,true_false,short_answer',
-            // 'questions.*.answer' => 'nullable|string', // หรือใช้กฎที่เฉพาะเจาะจงมากขึ้น
-        ]);
+        // dd($request->all());
 
-        $userId = Auth::id(); // ผู้ใช้ที่กำลังทำข้อสอบ
+        $attemptId = session("active_attempt_{$id}");
 
-        // เริ่มต้น Transaction
+        if (!$attemptId) {
+            return redirect()->route('ทดสอบออนไลน์')->with('error', 'ไม่พบประวัติการเริ่มสอบ หรือเซสชันหมดอายุ');
+        }
+
         DB::beginTransaction();
-
         try {
-            // ดึงเวลาเริ่มต้นจาก session หรือใช้เวลาปัจจุบันหากไม่มี (ซึ่งตอนนี้ควรจะมีแล้ว)
-            $startedAt = session('quiz_start_time_' . $quizId) ?? Carbon::now();
+            $totalScoreEarned = 0;
+            $questionsData = $request->input('questions', []);
 
-            // 1. บันทึกการพยายามทำข้อสอบ (quiz_attempts)
-            $attemptId = DB::table('quiz_attempts')->insertGetId([
-                'user_id' => $userId, 
-                'quiz_id' => $quizId,
-                'started_at' => $startedAt,
-                'finished_at' => Carbon::now(),
-                'total_score' => 0, // จะคำนวณในภายหลัง
-            ]);
+            foreach ($questionsData as $item) {
+                $questionId = $item['question_id'];
+                $userAnswer = $item['answer'] ?? null;
 
-            $totalScoreEarned = 0; // คะแนนรวมที่ได้จากการทำข้อสอบครั้งนี้
-            $answeredQuestionsCount = 0; // นับจำนวนข้อที่ผู้ใช้ตอบ
-
-            // 2. วนลูปบันทึกคำตอบแต่ละข้อ (answers)
-            foreach ($request->input('questions') as $index => $answerData) {
-                $questionId = $answerData['question_id'];
-                $questionType = $answerData['question_type'];
-                $userAnswer = $answerData['answer'] ?? null; // คำตอบของผู้ใช้
-
-                // ดึงข้อมูลคำถามและคะแนนของคำถามนั้นจากฐานข้อมูล
+                // ดึงคำตอบที่ถูกต้องจาก Database
                 $question = DB::table('questions')->where('id', $questionId)->first();
-                if (!$question) {
-                    throw new \Exception("Question with ID {$questionId} not found.");
-                }
 
-                $isCorrect = false;
-                $scoreEarned = 0;
-                $selectedChoiceId = null;
-                $writtenAnswer = null;
-
-                // ตรวจสอบว่าผู้ใช้ได้ตอบคำถามข้อนี้หรือไม่ (ไม่ว่างเปล่า)
-                if (!is_null($userAnswer) && (is_string($userAnswer) ? trim($userAnswer) !== '' : true)) {
-                    $answeredQuestionsCount++;
-                }
-
-                if ($questionType === 'multiple_choice') {
-                    $correctChoice = DB::table('choices')
-                                        ->where('question_id', $questionId)
-                                        ->where('is_correct', 1)
-                                        ->value('id');
-
-                    if ($userAnswer && (int)$userAnswer === (int)$correctChoice) {
-                        $isCorrect = true;
-                        $scoreEarned = $question->score;
+                if ($question) {
+                    if ($question->question_type === 'multiple_choice') {
+                        // เช็คจากตาราง choices ว่าข้อที่เลือก is_correct หรือไม่
+                        $choice = DB::table('choices')->where('id', $userAnswer)->first();
+                        if ($choice && $choice->is_correct) {
+                            $totalScoreEarned += $question->score;
+                        }
+                    } 
+                    elseif ($question->question_type === 'true_false') {
+                        // เช็คค่า 0 หรือ 1 ตรงๆ
+                        if ($userAnswer !== null && (int)$userAnswer === (int)$question->correct_answer) {
+                            $totalScoreEarned += $question->score;
+                        }
                     }
-                    $selectedChoiceId = $userAnswer;
-                    $writtenAnswer = null;
-
-                } elseif ($questionType === 'true_false') {
-                    // **โปรดปรับ logic นี้ให้ตรงกับวิธีเก็บคำตอบที่ถูกต้องของ True/False ของคุณ**
-                    // ตัวอย่าง: ถ้าคำถามนี้มีคำตอบที่ถูกต้องคือ '1' (ถูก)
-                    // if ($userAnswer !== null && (int)$userAnswer === (int)$question->true_false_correct_value) { ... }
-                    
-                    if ($userAnswer !== null && (int)$userAnswer === 1 /* && <replace_with_your_true_false_correct_value_check> */) {
-                        $isCorrect = true;
-                        $scoreEarned = $question->score;
-                    }
-                    $selectedChoiceId = null;
-                    $writtenAnswer = $userAnswer === '1' ? 'True' : ($userAnswer === '0' ? 'False' : null);
-
-                } elseif ($questionType === 'short_answer') {
-                    $isCorrect = false; // ต้องตรวจด้วยมือ
-                    $scoreEarned = 0;
-                    $selectedChoiceId = null;
-                    $writtenAnswer = $userAnswer;
+                    // กรณี short_answer คุณอาจต้องตรวจด้วยมือ (Manual Grade) หรือ Logic อื่น
                 }
-
-                // บันทึกคำตอบ
-                DB::table('answers')->insert([
-                    'attempt_id' => $attemptId,
-                    'question_id' => $questionId,
-                    'selected_choice_id' => $selectedChoiceId,
-                    'written_answer' => $writtenAnswer,
-                    'is_correct' => $isCorrect,
-                    'score' => $scoreEarned,
-                ]);
-
-                $totalScoreEarned += $scoreEarned;
             }
 
-            // 3. อัปเดตคะแนนรวมใน quiz_attempts
+            // ดึงเกณฑ์ผ่านจากตาราง quizzes
+            $quiz = DB::table('quizzes')->where('id', $id)->first();
+            $passScore = $quiz->pass_score ?? 0;
+            $isPassed = ($totalScoreEarned >= $passScore) ? 1 : 0;
+
+            // อัปเดตข้อมูลลงใน Record เดิม
             DB::table('quiz_attempts')->where('id', $attemptId)->update([
-                'total_score' => $totalScoreEarned,
                 'finished_at' => Carbon::now(),
+                'total_score'  => $totalScoreEarned,
+                'is_passed'   => $isPassed,
+                'tab_switch_count'  => $request->input('tab_switches', 0),
             ]);
 
-            // Commit Transaction หากสำเร็จ
             DB::commit();
+            
+            // ล้าง Session เมื่อทำเสร็จ
+            session()->forget("active_attempt_{$id}");
 
-            // 4. ดึงข้อมูล quiz_attempts และข้อมูลที่เกี่ยวข้องทั้งหมดสำหรับ Modal
-            $attempt = DB::table('quiz_attempts')
-                          ->where('id', $attemptId)
-                          ->first();
-
-            // ดึงข้อมูล Quiz และ Subject ที่เกี่ยวข้อง
-            $quiz = DB::table('quizzes')
-                      ->where('id', $attempt->quiz_id)
-                      ->first();
-
-            $id = auth()->user()->student_id;
-            $lavel = str_split($id, 1)[3];
-            $subject = null;
-            $tableName = "subject".$lavel;
-
-            if ($quiz->subject_code) { // ตรวจสอบว่ามี subject_code หรือไม่
-                $subject = DB::table($tableName)
-                              ->where('SUB_CODE', $quiz->subject_code)
-                              ->first();
-            }
-
-            // คำนวณเวลาที่ใช้ไป
-            $timeTaken = 'ไม่ระบุ';
-            if ($attempt->started_at && $attempt->finished_at) {
-                $start = Carbon::parse($attempt->started_at);
-                $end = Carbon::parse($attempt->finished_at);
-                $diffInSeconds = $end->diffInSeconds($start);
-                $minutes = floor($diffInSeconds / 60);
-                $seconds = $diffInSeconds % 60;
-                $timeTaken = sprintf('%02d นาที %02d วินาที', $minutes, $seconds);
-            }
-
-            // นับจำนวนคำถามทั้งหมดในแบบทดสอบ
-            $totalQuestionsInQuiz = DB::table('questions')
-                                      ->where('quiz_id', $quizId)
-                                      ->count();
-
-            // เตรียมข้อมูลสำหรับ Modal
-            $attemptDetails = [
-                'quizTitle' => $quiz->title,
-                'score' => $attempt->total_score,
-                'totalQuizScore' => $quiz->total_score, // คะแนนเต็มของแบบทดสอบ (จากตาราง quizzes)
-                'answeredQuestions' => $answeredQuestionsCount, // จำนวนข้อที่ผู้ใช้ตอบจริงๆ
-                'totalQuestions' => $totalQuestionsInQuiz, // จำนวนข้อทั้งหมดในแบบทดสอบ
-                'timeTaken' => $timeTaken,
-                'subjectName' => $subject ? $subject->SUB_NAME : 'ไม่ระบุ', // ใช้จาก $subject
-                'subjectCode' => $subject ? $subject->SUB_CODE : 'ไม่ระบุ', // ใช้จาก $subject
-                'attemptDate' => Carbon::parse($attempt->finished_at)->translatedFormat('j F Y, H:i'),
-            ];
-
-            // ลบเวลาเริ่มต้นออกจาก session หลังจากทำเสร็จ
-            $request->session()->forget('quiz_start_time_' . $quizId);
-
-            // ส่งข้อมูลรายละเอียดการทำแบบทดสอบและข้อความสำเร็จกลับไป
-            // ใช้ route students.exams.index เพื่อความสอดคล้องกับเมธอด index
-            return redirect()->route('ทดสอบออนไลน์') 
-                             ->with('success', 'ส่งแบบทดสอบสำเร็จ!')
-                             ->with('attempt_details', $attemptDetails);
+            return redirect()->route('ทดสอบออนไลน์')->with('success', "ส่งข้อสอบสำเร็จ! ได้คะแนน: $totalScoreEarned");
 
         } catch (\Exception $e) {
-            // Rollback หากเกิดข้อผิดพลาด
             DB::rollBack();
-            // Log error
-            Log::error('Error submitting quiz: ' . $e->getMessage() . ' on line ' . $e->getLine() . ' in ' . $e->getFile());
-            return redirect()->back()->with('error', 'เกิดข้อผิดพลาดในการส่งแบบทดสอบ: ' . $e->getMessage())->withInput();
+            \Log::error("Submit Quiz Error: " . $e->getMessage());
+            return redirect()->back()->with('error', 'เกิดข้อผิดพลาดในการส่งข้อสอบ: ' . $e->getMessage());
+        }
+    }
+
+    // ใน Controller ของคุณ (เช่น QuizController)
+    public function getCertificateBase64(Request $request) {
+        $url = $request->query('url');
+        try {
+            $imageData = file_get_contents($url);
+            $type = pathinfo($url, PATHINFO_EXTENSION);
+            $base64 = 'data:image/' . $type . ';base64,' . base64_encode($imageData);
+            return response()->json(['base64' => $base64]);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Could not load image'], 500);
         }
     }
 }

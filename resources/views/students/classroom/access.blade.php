@@ -1,5 +1,5 @@
 <x-app-layout>
-    <div class="sm:ml-64">
+    <div class="">
         <div class="container mx-auto px-4 py-8">
             <div class="course-title mt-24">รายวิชา : {{ $course->title }}</div>
 

@@ -1,59 +1,60 @@
-<nav class="fixed top-0 z-50 w-full bg-purple-800 border-b border-gray-200 dark:bg-gray-800 dark:border-gray-700">
-  <div class="px-3 py-3 lg:px-5 lg:pl-3">
+<nav class="fixed top-0 z-50 w-full bg-white/80 backdrop-blur-md border-b border-gray-100 dark:bg-gray-900/80 dark:border-gray-800 transition-all duration-300">
+  <div class="px-4 py-2.5 lg:px-6">
     <div class="flex items-center justify-between">
-      <div class="flex items-center justify-start rtl:justify-end">
-        <button data-drawer-target="logo-sidebar" data-drawer-toggle="logo-sidebar" aria-controls="logo-sidebar" type="button" class="inline-flex items-center p-2 text-sm text-gray-100 rounded-lg sm:hidden hover:bg-purple-800 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600">
-            <span class="sr-only">Open sidebar</span>
-            <svg class="w-6 h-6" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-               <path clip-rule="evenodd" fill-rule="evenodd" d="M2 4.75A.75.75 0 012.75 4h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 4.75zm0 10.5a.75.75 0 01.75-.75h7.5a.75.75 0 010 1.5h-7.5a.75.75 0 01-.75-.75zM2 10a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 10z"></path>
-            </svg>
-         </button>
-        <a href="{{ url('teachers/') }}" class="flex ms-2 md:me-24">
-          <x-application-logo class="block w-auto fill-current text-gray-600" />                        
-          <span class="pl-1 self-center text-gray-100 text-xl font-semibold sm:text-2xl whitespace-nowrap dark:text-white"> {{ config('app.name') }}</span>
+      
+      <div class="flex items-center justify-start">
+        <button data-drawer-target="logo-sidebar" data-drawer-toggle="logo-sidebar" aria-controls="logo-sidebar" type="button" class="inline-flex items-center p-2 text-gray-500 rounded-xl sm:hidden hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-100 dark:text-gray-400 dark:hover:bg-gray-800 dark:focus:ring-gray-700 transition-colors">
+          <span class="sr-only">Open sidebar</span>
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 6h16M4 12h16M4 18h7"></path>
+          </svg>
+        </button>
+        
+        <a href="{{ url('/adminuser') }}" class="flex ms-2 md:me-24 items-center group">
+          <div class="p-1.5 rounded-lg bg-purple-50 dark:bg-purple-900/30 group-hover:scale-105 transition-transform">
+             <x-application-logo class="w-7 h-7 fill-current text-purple-600 dark:text-purple-400" />
+          </div>
+          <span class="ms-3 self-center text-lg font-semibold tracking-tight text-gray-800 sm:text-xl whitespace-nowrap dark:text-white">
+            {{ config('app.name') }} (Admin)
+          </span>
         </a>
       </div>
-      <div class="flex items-center">
-          <div class="flex items-center ms-3">
-            <div>
-              <button type="button" class="flex text-sm bg-gray-800 rounded-full focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600" aria-expanded="false" data-dropdown-toggle="dropdown-user">
-                <span class="sr-only">Open user menu</span>
-                <img class="w-8 h-8 rounded-full" src="https://as1.ftcdn.net/v2/jpg/03/46/83/96/1000_F_346839683_6nAPzbhpSkIpb8pmAwufkC7c5eD7wYws.jpg" alt="user photo">
-              </button>
+
+      <div class="flex items-center gap-4">
+        <div class="flex items-center ms-3">
+          <div>
+            <button type="button" class="flex items-center gap-2 p-1 pr-3 text-sm bg-gray-50 dark:bg-gray-800 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-all border border-gray-100 dark:border-gray-700 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-800" id="user-menu-button" aria-expanded="false" data-dropdown-toggle="dropdown-user">
+              <span class="sr-only">Open user menu</span>
+              <img class="w-8 h-8 rounded-full object-cover shadow-sm ring-2 ring-white dark:ring-gray-900" src="https://as1.ftcdn.net/v2/jpg/03/46/83/96/1000_F_346839683_6nAPzbhpSkIpb8pmAwufkC7c5eD7wYws.jpg" alt="user photo">
+              <span class="hidden md:block text-xs font-medium text-gray-700 dark:text-gray-200">{{ Auth::user()->name }}</span>
+              <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+            </button>
+          </div>
+
+          <div class="z-50 hidden my-4 text-base list-none bg-white border border-gray-100 divide-y divide-gray-50 rounded-2xl shadow-xl dark:bg-gray-800 dark:border-gray-700 dark:divide-gray-700 transition-all" id="dropdown-user">
+            <div class="px-5 py-4" role="none">
+              <p class="text-sm font-semibold text-gray-900 dark:text-white" role="none">
+                {{ Auth::user()->name }}
+              </p>
+              <p class="text-xs font-medium text-gray-400 truncate mt-0.5" role="none">
+                {{ Auth::user()->email }}
+              </p>
             </div>
-            <div class="z-50 hidden my-4 text-base list-none bg-white divide-y divide-gray-100 rounded shadow dark:bg-gray-700 dark:divide-gray-600" id="dropdown-user">
-              <div class="px-4 py-3" role="none">
-                <p class="text-sm text-gray-900 dark:text-white" role="none">
-                  {{ Auth::user()->name }}
-                </p>
-                <p class="text-sm font-medium text-gray-900 truncate dark:text-gray-300" role="none">
-                  {{ Auth::user()->email }}
-                </p>
-              </div>
-              <ul class="py-1" role="none">
-                {{-- <li>
-                  <a href="{{ url('teachers/') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white" role="menuitem">Dashboard</a>
-                </li> --}}
-                {{-- <li>
-                  <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white" role="menuitem">Settings</a>
-                </li>
-                <li>
-                  <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white" role="menuitem">Earnings</a>
-                </li> --}}
-                <li>
-                  <form method="POST" action="{{ route('logout') }}" class=" text-white">
-                      @csrf
-                      <x-dropdown-link :href="route('logout')" onclick="event.preventDefault();
-                                          this.closest('form').submit();" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white">
-                          {{ __('ออกจากระบบ') }}
-                      </x-dropdown-link>
-                  </form>
-                  {{-- <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white" role="menuitem">Sign out</a> --}}
-                </li>
-              </ul>
-            </div>
+            <ul class="py-1" role="none">
+              <li>
+                <form method="POST" action="{{ route('logout') }}">
+                  @csrf
+                  <button type="submit" class="flex items-center w-full px-5 py-2.5 text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors" role="menuitem">
+                    <svg class="w-4 h-4 me-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+                    {{ __('ออกจากระบบ') }}
+                  </button>
+                </form>
+              </li>
+            </ul>
           </div>
         </div>
+      </div>
+
     </div>
   </div>
 </nav>

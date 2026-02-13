@@ -7,18 +7,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class Quiz extends Model
 {
-    use HasFactory;
-    
-    protected $fillable = [
-        'title',
-        'description',
-        'total_score',
-        'time_limit',
-        'created_by',
-    ];
-
-    public function questions()
-    {
-        return $this->hasMany(Question::class);
-    }
+    protected $table = 'quizzes'; // ชื่อตารางใน DB
+    protected $fillable = ['title', 'description', 'subject_code', 'total_score', 'time_limit', 'created_by'];
 }

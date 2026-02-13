@@ -1,5 +1,5 @@
 <x-app-layout>
-<div class="flex flex-col sm:ml-64 p-10">
+<div class="flex flex-col p-10">
       <div class=" overflow-x-auto">
         <div class="min-w-full inline-block align-middle">
             <div class="relative  text-gray-500 focus-within:text-gray-900 mb-4">

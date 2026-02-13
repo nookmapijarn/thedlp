@@ -1,50 +1,42 @@
 <x-guest-layout>
     <style> [x-cloak] { display: none !important; } </style>
 
-    <div class="grid grid-cols-1 gap-2 justify-items-center max-h-screen bg-white/0 backdrop-blur-md rounded-[0.3rem] from-slate-50 via-slate-100 to-slate-200 py-6 px-4 ">
-
-        <div class="text-center space-y-3 animate-in fade-in slide-in-from-top-4 duration-1000">
-            <div class="flex flex-col items-center">
-
-                <div class="flex flex-col items-center justify-center py-2">
-                    <a href="/" class="relative group">
-                        <div class="absolute inset-0 bg-blue-500/20 blur-[60px] rounded-full animate-[pulse_5s_ease-in-out_infinite]"></div>
-                        
-                        <div class="absolute -bottom-12 left-1/2 -translate-x-1/2 w-32 h-4 bg-blue-600/10 blur-xl rounded-[100%] animate-[shadow-scale_6s_ease-in-out_infinite]"></div>
-
-                        <div class="relative animate-[mega-float_6s_ease-in-out_infinite]">
-                            <img class="w-56" src="https://phothongdlec.ac.th/storage/olislogo.png" alt="Logo">
-                            {{-- <x-application-logo class="w-[150px] sm:w-64 h-auto fill-current text-blue-600 filter drop-shadow-[0_20px_30px_rgba(37,99,235,0.25)] transition-all duration-1000 group-hover:scale-110 group-hover:brightness-110" /> --}}
-                        </div>
-                    </a>
-                </div>
-
-                {{-- <h3 class="text-2xl font-black text-gray-800 tracking-[0.25em] uppercase mb-1 drop-shadow-sm">
-                    {{ config('app.name') }}
-                </h3> --}}
-                
-                <div class="h-[1px] w-12 bg-purple-500 mb-2 opacity-80"></div>
-
-                <h1 class="text-[15px] sm:text-md font-bold text-gray-900 uppercase tracking-[0.2em] mb-1">
-                    {{ config('app.name_system') }}
-                </h1>
-                <h2 class="text-md sm:text-md font-light text-gray-500 tracking-wide">
-                    {{ config('app.name_th') }}
-                </h2>
-            </div>
-        </div>
+    <div class="grid grid-cols-1 gap-2 justify-items-center max-h-screen">
 
         {{-- Login Card --}}
         <div class="sm:max-w-md w-full space-y-4">
 
             <x-auth-session-status class="mb-2 text-md text-center font-medium text-green-600" :status="session('status')" />
 
-            <div class="bg-white/70 backdrop-blur-md rounded-[2rem] p-8 border border-white shadow-2xl shadow-slate-200/50"
+            <div class="p-2 sm:p-6 bg-white/90 backdrop-blur-md rounded-[2rem] border border-white shadow-2xl shadow-slate-200/50"
                  x-cloak
                  x-data="{ 
                     activeTab: '{{ $errors->has('email') ? 'staff' : 'student' }}',
                     isActive(tab) { return this.activeTab === tab; } 
                  }">
+
+                <div class="flex flex-col items-center mb-2">
+                    <div class="flex flex-col items-center justify-center py-2">
+                        <a href="/" class="relative group">
+                            <div class="absolute inset-0 bg-blue-500/20 blur-[60px] rounded-full animate-[pulse_5s_ease-in-out_infinite]"></div>
+                            
+                            <div class="absolute -bottom-12 left-1/2 -translate-x-1/2 w-32 h-4 bg-blue-600/10 blur-xl rounded-[100%] animate-[shadow-scale_6s_ease-in-out_infinite]"></div>
+
+                            <div class="relative animate-[mega-float_6s_ease-in-out_infinite]">
+                                <img class="w-56" src="https://phothongdlec.ac.th/storage/olislogo.png" alt="Logo">
+                                {{-- <x-application-logo class="w-[150px] sm:w-64 h-auto fill-current text-blue-600 filter drop-shadow-[0_20px_30px_rgba(37,99,235,0.25)] transition-all duration-1000 group-hover:scale-110 group-hover:brightness-110" /> --}}
+                            </div>
+                        </a>
+                    </div>
+                    <div class="h-[1px] w-12 bg-purple-500 mb-2 opacity-80"></div>
+                    <h1 class="text-xs sm:text-md font-bold text-gray-900 text-center uppercase tracking-[0.2em] mb-1">
+                        {{ config('app.name_system') }}
+                    </h1>
+                    <h2 class="text-xs sm:text-md font-light text-gray-500 text-center  tracking-wide">
+                        {{ config('app.name_th') }}
+                    </h2>
+                </div>
+
                 <div class="mb-8">
                     <div class="flex p-1 bg-slate-100 rounded-2xl">
                         <button type="button" @click="activeTab = 'student'"
@@ -65,7 +57,7 @@
                         <form method="POST" action="{{ route('login') }}" class="space-y-5">
                             @csrf
                             <div class="space-y-2">
-                                <label class="block text-[15px] font-bold text-gray-400 uppercase tracking-[0.2em] text-center">รหัสนักศึกษา</label>
+                                <label class="block text-[12px] font-bold text-gray-400 uppercase tracking-[0.2em] text-center">รหัสนักศึกษา</label>
                                 <input name="student_id" type="text" value="{{ old('student_id') }}" required autofocus
                                        class="w-full px-4 py-3 bg-slate-50 border-none rounded-xl focus:ring-2 focus:ring-blue-500/20 text-center text-gray-700 font-medium transition-all"
                                        placeholder="0000000000">
@@ -73,7 +65,7 @@
                             </div>
 
                             <div class="space-y-2">
-                                <label class="block text-[15px] font-bold text-gray-400 uppercase tracking-[0.2em] text-center">Password</label>
+                                <label class="block text-[12px] font-bold text-gray-400 uppercase tracking-[0.2em] text-center">Password</label>
                                 <input name="password" type="password" required
                                        class="w-full px-4 py-3 bg-slate-50 border-none rounded-xl focus:ring-2 focus:ring-blue-500/20 text-center text-gray-700 transition-all"
                                        placeholder="••••••••">
@@ -90,7 +82,7 @@
                         <form method="POST" action="{{ route('loginWithEmail') }}" class="space-y-5">
                             @csrf
                             <div class="space-y-2">
-                                <label class="block text-[15px] font-bold text-gray-400 uppercase tracking-[0.2em] text-center">Email (เจ้าหน้าที่)</label>
+                                <label class="block text-[12px] font-bold text-gray-400 uppercase tracking-[0.2em] text-center">Email (เจ้าหน้าที่)</label>
                                 <input name="email" type="email" value="{{ old('email') }}" required
                                        class="w-full px-4 py-3 bg-slate-50 border-none rounded-xl focus:ring-2 focus:ring-blue-500/20 text-center text-gray-700 font-medium transition-all"
                                        placeholder="staff@example.com">
@@ -98,7 +90,7 @@
                             </div>
 
                             <div class="space-y-2">
-                                <label class="block text-[15px] font-bold text-gray-400 uppercase tracking-[0.2em] text-center">Password</label>
+                                <label class="block text-[12px] font-bold text-gray-400 uppercase tracking-[0.2em] text-center">Password</label>
                                 <input name="password" type="password" required
                                        class="w-full px-4 py-3 bg-slate-50 border-none rounded-xl focus:ring-2 focus:ring-blue-500/20 text-center text-gray-700 transition-all"
                                        placeholder="••••••••">
@@ -114,9 +106,9 @@
                 <div class="flex flex-col items-center space-y-3 mt-8">
                     <div class="h-[1px] w-full bg-gray-100"></div>
                     <div class="flex items-center space-x-6">
-                        <a href="{{ route('register') }}" class="text-[15px] font-bold text-gray-400 hover:text-blue-600 transition-colors uppercase tracking-widest">สมัครสมาชิก</a>
+                        <a href="{{ route('register') }}" class="text-[12px] font-bold text-gray-400 hover:text-blue-600 transition-colors uppercase tracking-widest">สมัครสมาชิก</a>
                         <span class="text-gray-200">/</span>
-                        <a href="{{ route('password.request') }}" class="text-[15px] font-bold text-gray-400 hover:text-blue-600 transition-colors uppercase tracking-widest">ลืมรหัสผ่าน?</a>
+                        <a href="{{ route('password.request') }}" class="text-[12px] font-bold text-gray-400 hover:text-blue-600 transition-colors uppercase tracking-widest">ลืมรหัสผ่าน?</a>
                     </div>
                 </div>
             </div>

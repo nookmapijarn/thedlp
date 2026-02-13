@@ -1,519 +1,368 @@
 <x-teachers-layout>
-  <div class="p-2 sm:ml-64">
-    <div class="p-0 border-2 border-gray-200 border-dashed rounded-lg dark:border-gray-700 mt-14">
-      <form method="POST" action="{{ route('treport') }}" class="mx-auto mt-4 max-w-6xl sm:mt-6">
-        <p class="text-xl">รายงานนักศึกษาตามกลุ่ม</p>
-        @csrf
-        <div class="grid grid-cols-1 gap-2 md:grid md:grid-cols-4 justify-items-center">
-          <div class="min-w-full">
-            <label>ภาคเรียน</label>
-            <select required id="semestry" name="semestry" class="bg-gray-50 border border-gray-300 text-gray-900 text-xl rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 ">
-              <option value="">เลือก</option>
-              @foreach($all_semestry as $sem)
-                  <option value="{{ $sem->SEMESTRY }}"
-                    @if($semestry === $sem->SEMESTRY) selected @endif
-                    >
-                      {{ $sem->SEMESTRY }}
-                  </option>
-              @endforeach    
-            </select>
-          </div>
-          <div class="min-w-full" >
-            <label>ศกร.ตำบล</label>
-            <select required id="tumbon" name="tumbon" class="bg-gray-50 border border-gray-300 text-gray-900 text-xl rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 ">
-              <option value="">เลือก</option>
-              {{-- <option value="0000">ทุกตำบล</option> --}}
-              @foreach($all_tumbon as $tm)
-                  <option value="{{ $tm->GRP_CODE }}"
-                    @if($tumbon == $tm->GRP_CODE) selected @endif  
-                    >
-                      {{ $tm->GRP_CODE }} {{ $tm->GRP_NAME }}
-                  </option>
-              @endforeach    
-            </select>
-          </div>
-          <div class="min-w-full">
-            <label>ระดับชั้น</label>
-              <select required id="lavel" name="lavel" class="bg-gray-50 border border-gray-300 text-gray-900 text-xl rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-                <option value="">เลือก</option>
-                <option @if($lavel == 1) selected @endif value="1">ประถมศึกษา</option>
-                <option @if($lavel == 2) selected @endif value="2">มัธยมต้น</option>
-                <option @if($lavel == 3) selected @endif value="3">มัธยมปลาย</option>
-              </select>
-          </div>
-          <div class="min-w-full">
-            <label>รายงาน</label>
-              {{-- <label for="countries" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">รายงาน</label> --}}
-              <select required id="studreport" name="studreport" class="bg-gray-50 border border-gray-300 text-gray-900 text-xl rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600">
-                {{-- @if(request()->get('studreport')!='') <option selected>{{request()->get('studreport')}}</option> @endif
-                @if(request()->get('studreport')=='') <option selected >เลือกรายงาน</option> @endif --}}
-                <option value="">เลือก</option>
-                <option @if($studreport == "นักศึกษาทั้งหมด") selected @endif value="นักศึกษาทั้งหมด">นักศึกษาทั้งหมด</option>
-                <option @if($studreport == "เฉพาะผู้คาดว่าจะจบ") selected @endif value="เฉพาะผู้คาดว่าจะจบ">เฉพาะผู้คาดว่าจะจบ</option>
-                <option @if($studreport == "ไม่จบตกค้าง(ที่ไม่ได้ลงทะเบียนแล้ว) ย้อนหลัง 4 ปี") selected @endif value="ไม่จบตกค้าง(ที่ไม่ได้ลงทะเบียนแล้ว) ย้อนหลัง 4 ปี">ไม่จบตกค้าง (ที่ไม่ได้ลงทะเบียนแล้ว)  ย้อนหลัง 4 ปี</option>
-              </select>
-          </div>
-        </div>
-        <button type="submit" class="rounded-full p-2 mt-2 min-w-full bg-indigo-500 text-white">ดูรายงาน</button> 
-      </form>
-      {{-- คำอธิบาย --}}
-      <div class="grid grid-cols-3 gap-2 mt-2 mx-auto mt-4 max-w-4xl sm:mt-6">  
-        <div class="font-semibold text-sm truncate"> <span class="text-indigo-500">N-NET</span> : มีสิทธิสอบ N-NET ภาคเรียนปัจจุบัน </div> 
-        <div class="font-semibold pl-2 text-sm truncate"> <span class="text-yellow-500">E-EXAM</span> : มีสิทธิสอบ E-EXAM ภาคเรียนปัจจุบัน </div>
-        <!-- Tag 1-->
-        <div class="flex items-center text-xs">
-          <div class="text-yellow-600 mr-1">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4">
-              <path fill-rule="evenodd" d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.006 5.404.434c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.434 2.082-5.005Z" clip-rule="evenodd" />
-            </svg>                            
-          </div>
-          <span class="text-indigo font-semibold truncate"> : คาดว่าจะจบหลักสูตร</span>
-        </div>
-      </div>
-      @if($data==null && (request()->get('tumbon')!=''))
-      <br>
-      <div id="alert-additional-content-2" class="p-4 mb-4 text-yellow-800 border border-red-300 rounded-lg bg-yellow-50 dark:bg-yellow-800 dark:text-yellow-400 dark:border-yellow-800" role="alert">
-        <div class="flex justify-center">
-          <svg class="flex-shrink-0 w-6 h-6 me-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
-            <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"/>
-          </svg>
-          <span class="sr-only">Info</span>
-          <h3 class="text-lg font-medium">ไม่พบข้อมูล</h3>
-        </div>
-        <div class="flex justify-center mt-2 mb-4 text-sm">
-          กรุณาเลือกรายการใหม่อีกครั้ง.
-        </div>
-        <div class="flex justify-center">
-          {{-- <button type="button" class="text-white bg-red-800 hover:bg-red-900 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-xs px-3 py-1.5 me-2 text-center inline-flex items-center dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800">
-            <svg class="me-2 h-3 w-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 14">
-              <path d="M10 0C4.612 0 0 5.336 0 7c0 1.742 3.546 7 10 7 6.454 0 10-5.258 10-7 0-1.664-4.612-7-10-7Zm0 10a3 3 0 1 1 0-6 3 3 0 0 1 0 6Z"/>
-            </svg>
-            View more
-          </button> --}}
-          <button type="button" class="w-24 text-yellow-800 bg-transparent border border-red-800 hover:bg-red-900 hover:text-white focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-xs px-3 py-1.5 text-center dark:hover:bg-red-600 dark:border-red-600 dark:text-red-500 dark:hover:text-white dark:focus:ring-red-800" data-dismiss-target="#alert-additional-content-2" aria-label="Close">
-            ปิด
-          </button>
-        </div>
-      </div>
-        @endif
-        @if((request()->get('tumbon')==''))
-        <div id="alert-border-1" class="mt-2 flex items-center p-4 mb-4 text-blue-800 border-t-4 border-blue-300 bg-blue-50 dark:text-blue-400 dark:bg-gray-800 dark:border-blue-800" role="alert">
-            <svg class="flex-shrink-0 w-4 h-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
-              <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"/>
-            </svg>
-            <div class="ms-3 text-sm font-medium">
-              กรุณาเลือกรายการที่คุณต้องดู
+  <style>
+      /* --- ส่วนหน้าจอปกติ --- */
+      .no-print { display: block; }
+      #print-section { display: none; }
+
+      /* --- ส่วนการตั้งค่าการพิมพ์ --- */
+      @media print {
+          body * { visibility: hidden; }
+          #print-section { 
+              display: block !important; 
+              visibility: visible !important; 
+              position: absolute; 
+              left: 0; top: 0; width: 100%; 
+          }
+          #print-section * { visibility: visible !important; }
+          @page { size: A4; margin: 1cm; }
+
+          /* การจัดเรียงบัตร */
+          .print-grid {
+              display: grid;
+              grid-template-columns: 8.56cm 8.56cm;
+              justify-content: center;
+              gap: 10px;
+          }
+
+          /* คำสั่งขึ้นหน้าใหม่ (สำหรับพิมพ์คนละหน้า) */
+          .page-break { page-break-before: always; }
+
+          .official-card { 
+              width: 8.56cm; height: 5.4cm; 
+              border: 0.5pt solid #000; 
+              background: white !important; 
+              position: relative; box-sizing: border-box; 
+              overflow: hidden; page-break-inside: avoid;
+              margin-bottom: 10px;
+          }
+          
+          .card-content-print { padding: 0.2cm 0.3cm; height: 100%; display: flex; flex-direction: column; }
+          .card-header-print { text-align: center; margin-bottom: 2px; border-bottom: 0.2pt solid #eee; }
+          .card-header-print p { margin: 0; line-height: 1.2; font-size: 8pt; font-weight: bold; }
+          .card-body-print { display: flex; margin-top: 5px; }
+          .photo-box-print { width: 2.1cm; height: 2.7cm; border: 0.5pt solid black; flex-shrink: 0; overflow: hidden; }
+          .photo-box-print img { width: 100%; height: 100%; object-fit: cover; }
+          .info-box-print { flex-grow: 1; padding-left: 0.2cm; display: flex; flex-direction: column; align-items: center; }
+          .digit-row { display: flex; margin-top: 2px; }
+          .d-cell { width: 16px; height: 20px; border: 0.5pt solid black; border-right: none; display: flex; align-items: center; justify-content: center; font-size: 9pt; font-weight: bold; }
+          .d-cell:last-child { border-right: 0.5pt solid black; }
+          .name-display-print { font-size: 10pt; font-weight: bold; margin-top: 5px; text-align: center; }
+          
+          /* ลายเซ็น */
+          .card-footer-print { position: absolute; bottom: 0.4cm; left: 0.3cm; right: 0.3cm; display: flex; justify-content: space-between; font-size: 6pt; }
+          .sign-underline { width: 1.8cm; border-bottom: 0.5pt solid black; margin-bottom: 2px; height: 10px; }
+          
+          .card-back { display: flex; flex-direction: column; align-items: center; justify-content: center; }
+          .qr-code-print { width: 2.5cm; height: 2.5cm; display: block; }
+      }
+  </style>
+
+  <div id="print-section"></div>
+
+  <div class="p-2 no-print">
+    <div class="mt-14">
+        <div class="bg-white dark:bg-gray-800 shadow-xl rounded-2xl border border-gray-100 dark:border-gray-700 overflow-hidden">
+            <div class="bg-indigo-600 p-4">
+                <h3 class="text-white text-lg font-bold flex items-center gap-2">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2"></path></svg>
+                    รายงานสำหรับครู
+                </h3>
             </div>
-            <button type="button" class="ms-auto -mx-1.5 -my-1.5 bg-blue-50 text-blue-500 rounded-lg focus:ring-2 focus:ring-blue-400 p-1.5 hover:bg-blue-200 inline-flex items-center justify-center h-8 w-8 dark:bg-gray-800 dark:text-blue-400 dark:hover:bg-gray-700" data-dismiss-target="#alert-border-1" aria-label="Close">
-              <span class="sr-only">Dismiss</span>
-              <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
-                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
-              </svg>
+
+            <form method="POST" action="{{ route('treport') }}" class="p-6">
+                @csrf
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                    <div class="space-y-2">
+                        <label class="text-sm font-semibold text-gray-700 dark:text-gray-300 ml-1">ภาคเรียน</label>
+                        <div class="relative">
+                            <select required name="semestry" class="appearance-none w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-gray-900 dark:text-white text-sm rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 block p-3 transition-all">
+                                <option value="">เลือกภาคเรียน</option>
+                                @foreach($all_semestry as $sem)
+                                    <option value="{{ $sem->SEMESTRY }}" @if($semestry === $sem->SEMESTRY) selected @endif>{{ $sem->SEMESTRY }}</option>
+                                @endforeach    
+                            </select>
+                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="text-sm font-semibold text-gray-700 dark:text-gray-300 ml-1">ศกร.ระดับตำบล</label>
+                        <div class="relative">
+                            <select required name="tumbon" class="appearance-none w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-gray-900 dark:text-white text-sm rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 block p-3 transition-all">
+                                <option value="">เลือกตำบล</option>
+                                @foreach($all_tumbon as $tm)
+                                    <option value="{{ $tm->GRP_CODE }}" @if($tumbon == $tm->GRP_CODE) selected @endif>{{ $tm->GRP_CODE }} {{ $tm->GRP_NAME }}</option>
+                                @endforeach    
+                            </select>
+                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="text-sm font-semibold text-gray-700 dark:text-gray-300 ml-1">ระดับชั้น</label>
+                        <div class="relative">
+                            <select required name="lavel" class="appearance-none w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-gray-900 dark:text-white text-sm rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 block p-3 transition-all">
+                                <option value="">เลือกระดับชั้น</option>
+                                <option @if($lavel == 1) selected @endif value="1">ประถมศึกษา</option>
+                                <option @if($lavel == 2) selected @endif value="2">มัธยมต้น</option>
+                                <option @if($lavel == 3) selected @endif value="3">มัธยมปลาย</option>
+                            </select>
+                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="text-sm font-semibold text-gray-700 dark:text-gray-300 ml-1">รายงาน</label>
+                        <div class="relative">
+                            <select required name="studreport" class="appearance-none w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-gray-900 dark:text-white text-sm rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 block p-3 transition-all">
+                                <option value="">เลือกประเภทรายงาน</option>
+                                <option @if($studreport == "นักศึกษาทั้งหมด") selected @endif value="นักศึกษาทั้งหมด">นักศึกษาทั้งหมด</option>
+                                <option @if($studreport == "เฉพาะผู้คาดว่าจะจบ") selected @endif value="เฉพาะผู้คาดว่าจะจบ">เฉพาะผู้คาดว่าจะจบ</option>
+                            </select>
+                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-8">
+                    <button type="submit" class="group relative flex justify-center w-full md:w-64 mx-auto p-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-lg shadow-indigo-200 dark:shadow-none transition-all duration-200 hover:scale-[1.02] active:scale-95">
+                        <span class="flex items-center gap-2">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                            ดึงข้อมูลรายงาน
+                        </span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+@if($data) 
+    <div class="mt-4 p-4 bg-white rounded-t-xl border border-b-0 flex flex-col md:flex-row justify-between items-center gap-4 shadow-sm">
+        <div>
+            <div class="text-xl font-bold text-slate-800">รายชื่อกลุ่ม: {{ $tumbon }}</div>
+            <p class="text-sm text-gray-500">จัดการข้อมูลนักศึกษาและพิมพ์บัตร</p>
+        </div>
+        
+        <div class="flex flex-wrap gap-2 justify-center">
+
+            <button onclick="prepareAndPrint('front_all', {{ json_encode($data) }})" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 shadow-lg shadow-blue-200 transition">
+                พิมพ์หน้าบัตรทั้งหมด
+            </button>
+            <button onclick="prepareAndPrint('back_all', {{ json_encode($data) }})" class="bg-orange-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-orange-700 shadow-lg shadow-orange-200 transition">
+                พิมพ์หลังบัตรทั้งหมด
             </button>
         </div>
-        @endif
-      </div>
     </div>
-    {{-- Content body --}}
-    @if($data) 
-      <div class="flex flex-col-1 flex-row-1 justify-center drop-shadow sm:ml-64 max-w-auto p-2">
-        <div class="text-md md:text-2xl font-bold bg-indigo-200 w-full p-4 text-center">
-          ตำบล : <span class="font-normal">{{request()->get('tumbon')}}</span>
-          รายงาน : <span class=" font-normal">{{request()->get('studreport')}}</span>
-          ระดับ : <span class="font-normal">
-            {{$req_lavel = request()->get('lavel')}}
-            @if($req_lavel == 1)  ประถมศึกษา @endif
-            @if($req_lavel == 2)  มัธยมต้น @endif
-            @if($req_lavel == 3)  มัธยมปลาย @endif
-          </span>
-          <button onclick="printAllCards({{ json_encode($data) }})" type="button" class="px-3 py-2 text-xs font-medium text-center inline-flex items-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
-            <svg class="w-6 h-6 text-gray-100 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
-              <path fill-rule="evenodd" d="M8 3a2 2 0 0 0-2 2v3h12V5a2 2 0 0 0-2-2H8Zm-3 7a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h1v-4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v4h1a2 2 0 0 0 2-2v-5a2 2 0 0 0-2-2H5Zm4 11a1 1 0 0 1-1-1v-4h8v4a1 1 0 0 1-1 1H9Z" clip-rule="evenodd"/>
-            </svg>  
-            พิมพ์บัตรทั้งหมด
-          </button>
+
+    <div class="shadow-xl border border-gray-100 rounded-b-2xl bg-white overflow-hidden">
+        <div class="p-4 border-b bg-gray-50/50">
+            <input type="text" id="tableSearch" placeholder="🔍 ค้นหาชื่อ หรือ รหัสนักศึกษา..." 
+                   class="w-full md:w-80 px-4 py-2 border rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition">
         </div>
-      </div>
-      <div class="overflow-auto flex flex-col-1 justify-center sm:ml-64 max-w-auto p-2">
-        <table class="min-w-full text-left text-sm font-light">
-          <thead class="border-b font-medium bg-white drop-shadow text-xs md:text-sm">                 
-            <tr class="bg-gray-200">
-              <th scope="col" class="p-2 text-center">ลำดับ</th>
-              <th scope="col" class="p-2 text-center">รูปถ่าย</th>
-              <th scope="col" class="p-2 text-center">ตำบล</th>
-              <th scope="col" class="p-2">รหัส</th>
-              <th scope="col" class="p-2">ชื่อ</th>
-              <th scope="col" class="p-2">นามสกุล</th>
-              <th scope="col" class="p-2 text-center">กพช.</th>
-              <th scope="col" class="p-2 text-center">คุณธรรม</th>
-              <th scope="col" class="p-2 text-center">คาดว่าจะจบ</th>
-              <th scope="col" class="p-2 text-center">N-NET</th>
-              <th scope="col" class="p-2 text-center">สถานะ/จบ</th>
-              <th scope="col" class="p-2 text-center">พิมพ์บัตร</th>
-            </tr>
-          </thead>
-          <tbody class="text-xs md:text-sm">
-            @foreach($data as $d)
-              <tr 
-                @if($d['lavel']==1) class="border-b bg-pink-100 shadow-md hover:bg-pink-300" @endif
-                @if($d['lavel']==2) class="border-b bg-green-100 shadow-md hover:bg-green-300" @endif
-                @if($d['lavel']==3) class="border-b bg-yellow-100 shadow-md hover:bg-yellow-300" @endif
-              >
-                <td class="p-2 text-center">{{$loop->iteration}}</td>
-                <td class="flex justify-center items-center p-2">
-                  <img class="w-12 h-13 object-cover md:aspect-auto aspect-[7/8]"
-                      src="https://phothongdlec.ac.th/storage/images/avatar/{{$d['id']}}.png" 
-                      alt="Preview Image" 
-                      onerror="this.src='https://phothongdlec.ac.th/storage/images/avatar/unkhonw.png'">
-                </td>
-                <td class="p-2 text-center">{{$d['grp_code']}}</td>
-                <td class="p-2">{{$d['id']}}</td>
-                <td class="p-2 w-15">{{$d['name']}}</td>
-                <td class="p-2">{{$d['surname']}}</td>
-                <td 
-                  @if($d['activity']>=200) class="p-2 text-center text-green-400" @endif
-                  @if($d['activity']<200) class="p-2 text-center text-yellow-600" @endif
-                >{{$d['activity']}}</td>
-                <td class="p-2 text-center">
-                  @if($d['ablevel1']===null) <span class="text-yellow-700">-</span> @endif
-                  @if($d['ablevel1']===0) ปรับปรุง @endif 
-                  @if($d['ablevel1']===1) พอใช้ @endif 
-                  @if($d['ablevel1']===2) ดี @endif 
-                  @if($d['ablevel1']===3) ดีมาก @endif 
-                </td>            
-                @if($d['expfin']==1)
-                  <td class="p-2 text-yellow-600 text-center">
-                    <div class="flex justify-center items-center">
-                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4">
-                        <path fill-rule="evenodd" d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.006 5.404.434c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.434 2.082-5.005Z" clip-rule="evenodd" />
-                      </svg>
-                    </div>
-                  </td>              
-                @else
-                  <td class="p-2 text-center">  </td>
-                @endif
-                @if($d['nt_sem']=="ผ่านแล้ว")
-                  <td class="p-2 text-center text-green-500">{{$d['nt_sem']}}</td>
-                @elseif($d['nt_sem']=="มีสิทธิ")
-                  <td class="p-2 text-center text-indigo-500">N-NET</td>
-                @elseif($d['nt_sem']=="E-Exam")
-                  <td class="p-2 text-center text-yellow-500">{{$d['nt_sem']}}</td>
-                @else
-                  <td class="p-2 text-center">{{$d['nt_sem']}}</td>
-                @endif
-                <td class="p-2 text-center">
-                  @if($d['fin_cause']=='' || $d['fin_cause']==0 || $d['fin_cause']==null) <span class="text-yellow-700">ศึกษาอยู่</span> @endif
-                  @if($d['fin_cause']==1) <span class="text-green-400">จบหลักสูตร</span> @endif 
-                  @if($d['fin_cause']==2) ลาออก @endif 
-                  @if($d['fin_cause']==3) <span class="text-red-400">หมดสภาพ</span> @endif 
-                  @if($d['fin_cause']==4) พ้นสภาพ @endif 
-                  @if($d['fin_cause']==5) ศึกษาต่อที่อื่น @endif 
-                  @if($d['fin_cause']==6) ศึกษาเพิ่งหลังจบ @endif 
-                  @if($d['fin_cause']==7) จบตกหล่น @endif 
-                  @if($d['fin_cause']==8) อื่นๆ @endif 
-                  @if($d['fin_cause']==9) จบอยู่ระหว่างตรวจสอบวุฒิ @endif 
-                </td>
-                <td class="p-2 text-center">
-                  <button onclick="printCard({{ json_encode($d) }})" type="button" class="px-3 py-2 text-xs font-medium text-center inline-flex items-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
-                    <svg class="w-6 h-6 text-gray-100 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
-                      <path fill-rule="evenodd" d="M8 3a2 2 0 0 0-2 2v3h12V5a2 2 0 0 0-2-2H8Zm-3 7a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h1v-4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v4h1a2 2 0 0 0 2-2v-5a2 2 0 0 0-2-2H5Zm4 11a1 1 0 0 1-1-1v-4h8v4a1 1 0 0 1-1 1H9Z" clip-rule="evenodd"/>
-                    </svg>                  
-                  </button>
-                </td>
-              </tr>
-            @endforeach
-          </tbody>
-        </table>
-      </div>
-    @endif
-  
+
+        <div class="overflow-x-auto">
+            <table id="studentTable" class="min-w-full text-sm">
+                <thead>
+                    <tr class="bg-slate-800 text-white uppercase tracking-wider">
+                        <th class="p-4 font-semibold no-sort">รูป</th>
+                        <th class="p-4 font-semibold cursor-pointer">รหัสนักศึกษา ↕</th>
+                        <th class="p-4 font-semibold text-left cursor-pointer">ชื่อ-นามสกุล ↕</th>
+                        <th class="p-4 font-semibold cursor-pointer text-center">จะจบ ↕</th>
+                        <th class="p-4 font-semibold cursor-pointer text-center">กพช. ↕</th>
+                        <th class="p-4 font-semibold cursor-pointer text-center">N-NET ↕</th>
+                        <th class="p-4 font-semibold cursor-pointer text-center">สถานะ ↕</th>
+                        <th class="p-4 font-semibold no-sort text-center">จัดการ</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                    @foreach($data as $d)
+                    <tr class="hover:bg-gray-50 transition-colors @if($d['lavel']==1) bg-pink-50/30 @elseif($d['lavel']==2) bg-green-50/30 @else bg-yellow-50/30 @endif">
+                        <td class="p-3 text-center">
+                            <img class="w-10 h-12 object-cover rounded shadow-sm border border-gray-200 mx-auto" 
+                                 src="https://phothongdlec.ac.th/storage/images/avatar/{{$d['id']}}.png" 
+                                 onerror="this.src='https://phothongdlec.ac.th/storage/images/avatar/unkhonw.png'">
+                        </td>
+                        <td class="p-3 text-center font-mono font-medium text-gray-700">{{$d['id']}}</td>
+                        <td class="p-3 font-semibold text-gray-800">{{$d['prename']}}{{$d['name']}} {{$d['surname']}}</td>
+                        <td class="p-3 text-center" data-order="{{$d['expfin']}}">
+                            @if($d['expfin']==1) <span class="text-indigo-600 font-bold">✓</span> @else <span class="text-gray-300">-</span> @endif
+                        </td>
+                        <td class="p-3 text-center font-bold {{ $d['activity'] >= 200 ? 'text-green-600' : 'text-orange-500' }}">
+                            {{$d['activity']}}
+                        </td>
+                        <td class="p-3 text-center font-bold text-blue-600">{{$d['nt_sem']}}</td>
+                        <td class="p-3 text-center" data-order="{{$d['fin_cause']}}">
+                            <span class="px-2 py-1 rounded-full text-[10px] font-bold {{ $d['fin_cause']==1 ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500' }}">
+                                {{ $d['fin_cause']==1 ? 'จบ' : 'ศึกษาอยู่' }}
+                            </span>
+                        </td>
+                        <td class="p-3 text-center">
+                            <button onclick="prepareAndPrint('single', {{ json_encode($d) }})" class="px-3 py-1.5 bg-slate-700 text-white rounded-lg text-xs hover:bg-slate-900 transition-all shadow-md">
+                                พิมพ์
+                            </button>
+                        </td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+    </div>
+@endif
+
+  </div>
+
   <script>
-    function printCard(studentData) {
-      // ตัวอย่างการใช้งานข้อมูลนักศึกษา
-      console.log("ข้อมูลนักศึกษา:", studentData);
-  
-      // ตัวอย่างการพิมพ์บัตร
-      alert(`พิมพ์บัตรสำหรับนักศึกษา: ${studentData.name} ${studentData.surname}`);
-      
-      // คุณสามารถเพิ่มโค้ดเพื่อพิมพ์บัตรที่นี่
-      // เช่น เปิดหน้าต่างใหม่และแสดงข้อมูลบัตร
+    function getCardFront(s) {
+        const idCells = (s.id || '0000000000').toString().split('').map(char => `<div class="d-cell">${char}</div>`).join('');
+        const lv = s.lavel == 3 ? 'มัธยมศึกษาตอนปลาย' : (s.lavel == 2 ? 'มัธยมศึกษาตอนต้น' : 'ประถมศึกษา');
+        return `
+        <div class="official-card">
+            <div class="card-content-print">
+                <div class="card-header-print"><p>บัตรประจำตัวนักศึกษาระดับ ${lv}</p><p>{{ config('app.name_th') }} (กลุ่ม {{ $tumbon }})</p></div>
+                <div class="card-body-print">
+                    <div class="photo-box-print"><img src="https://phothongdlec.ac.th/storage/images/avatar/${s.id}.png" onerror="this.src='https://phothongdlec.ac.th/storage/images/avatar/unkhonw.png'"></div>
+                    <div class="info-box-print">
+                        <div style="font-size: 6pt; font-style: italic; width: 100%; text-align: center;">วิธีเรียน กศน. แบบพบกลุ่ม</div>
+                        <div style="font-size:7pt;">รหัสประจำตัวนักศึกษา</div>
+                        <div class="digit-row">${idCells}</div>
+                        <div class="name-display-print">${s.prename || ''}${s.name} ${s.surname}</div>
+                    </div>
+                </div>
+                <div class="card-footer-print">
+                    <div style="text-align:center"><div class="sign-underline"></div>ลงชื่อนักศึกษา</div>
+                    <div style="text-align:center"><div class="sign-underline"></div>ผู้อำนวยการสถานศึกษา</div>
+                </div>
+            </div>
+        </div>`;
+    }
+
+    function getCardBack(s) {
+        return `
+        <div class="official-card card-back">
+            <img class="qr-code-print" src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${s.id}">
+            <div style="font-weight:bold; margin-top:5px; font-size:12pt;">${s.id}</div>
+            <div style="font-size:7pt; text-align:center;">{{ config('app.name_th') }}</div>
+        </div>`;
+    }
+
+    async function prepareAndPrint(mode, data) {
+        const container = document.getElementById('print-section');
+        let html = '';
+        
+        if (mode === 'single') {
+            // กรณีพิมพ์รายคน: หน้าบัตรอยู่แผ่น 1, หลังบัตรอยู่แผ่น 2
+            html = `<div class="print-grid">${getCardFront(data)}</div>`;
+            html += `<div class="page-break print-grid">${getCardBack(data)}</div>`;
+        } else if (mode === 'front_all') {
+            html = '<div class="print-grid">' + data.map(s => getCardFront(s)).join('') + '</div>';
+        } else if (mode === 'back_all') {
+            html = '<div class="print-grid">' + data.map(s => getCardBack(s)).join('') + '</div>';
+        }
+        
+        container.innerHTML = html;
+
+        // รอโหลดภาพและ QR
+        const images = container.getElementsByTagName('img');
+        await Promise.all(Array.from(images).map(img => {
+            return new Promise(resolve => {
+                if (img.complete) resolve();
+                else { img.onload = resolve; img.onerror = resolve; }
+            });
+        }));
+
+        window.print();
     }
   </script>
-  </div>
-</x-teachers-layout>
-@include('layouts.footer')
 
-<!-- Include html2canvas library -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<script>
-    // คำนวณวันหมดอายุ (เพิ่มปี)
-    function calculateExpiryDate(currentDate, yearsToAdd) {
-        const expiryDate = new Date(currentDate);
-        expiryDate.setFullYear(expiryDate.getFullYear() + yearsToAdd);
-        return expiryDate;
-    }
 
-    // จัดรูปแบบวันที่ (dd/mm/yyyy)
-    function formatDate(date) {
-        const day = String(date.getDate()).padStart(2, '0');
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const year = date.getFullYear();
-        return `${day}/${month}/${year}`;
-    }
-    // Print Card Function
-    function printCard(student_data) {
-        const currentDate = new Date();
-        const expiryDate = calculateExpiryDate(currentDate, 5); // หมดอายุใน 5 ปี
-        let level;
-
-        // กำหนดระดับชั้น
-        if (student_data['lavel'] == 3) {
-            level = 'มัธยมปลาย';
-        } else if (student_data['lavel'] == 2) {
-            level = 'มัธยมต้น';
-        } else {
-            level = 'ประถมศึกษา';
+<style>
+    /* CSS สำหรับการจัดระเบียบเวลาพิมพ์ */
+    @media print {
+        /* ซ่อนทุกอย่างที่ไม่ต้องการ */
+        header, footer, nav, .no-print, #control-panel, #tableSearch, .dataTables_paginate, .dataTables_info {
+            display: none !important;
         }
 
-        // ข้อมูลนักศึกษา
-        const studentData = {
-            prename: student_data['prename'], // คำนำหน้า (ถ้ามี)
-            name: student_data['name'] || 'ไม่ระบุ',
-            surname: student_data['surname'] || 'ไม่ระบุ',
-            id: student_data['id'] || '000000000', // รหัสนักศึกษา
-            cardid: student_data['cardid'],
-            level: level, // ระดับชั้น
-            department: 'สกร.ระดับอำเภอโพธิ์ทอง', // สถานศึกษา
-            issueDate: formatDate(currentDate), // วันที่ออกบัตร
-            expiryDate: formatDate(expiryDate), // วันที่หมดอายุ
-        };
+        /* ปรับแต่งพื้นที่ที่จะพิมพ์ */
+        body {
+            background-color: white !important;
+            padding: 0 !important;
+            margin: 0 !important;
+        }
 
-        // URL รูปภาพโปรไฟล์
-        const avatarUrl = `https://phothongdlec.ac.th/storage/images/avatar/${studentData.id}.png` || 'https://phothongdlec.ac.th/storage/images/avatar/unkhonw.png';
+        #printable-area {
+            border: none !important;
+            box-shadow: none !important;
+            width: 100% !important;
+            position: absolute;
+            left: 0;
+            top: 0;
+        }
 
-        // HTML สำหรับบัตร
-        const printContent = `
-            <style>
-                @media print {
-                    /* บังคับให้พิมพ์ background image และ background color */
-                    .print-background {
-                        -webkit-print-color-adjust: exact; /* สำหรับ Chrome/Safari */
-                        color-adjust: exact; /* สำหรับ Firefox */
-                        print-color-adjust: exact; /* มาตรฐานใหม่ */
-                    }
-                }
-            </style>
-            <div id="student-card" style="width: 8.6cm; height: 5.4cm; border: 1px solid #000; padding: 0px; font-family: 'Prompt', sans-serif; font-size: 12px; position: relative; box-sizing: border-box;">
-                <!-- Background Logo with Reduced Opacity -->
-                <div class="print-background" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-image: url('https://phothongdlec.ac.th/storage/logo.png'); background-size: contain; background-repeat: no-repeat; background-position: center; opacity: 0.1; z-index: 1;"></div>
-                <!-- Card Content -->
-                <div style="position: relative; z-index: 2;">
-                    <canvas id="qr-code" style="position: absolute; top: 10px; right: 10px;">
-                    QR CODE
-                    </canvas>
-                    <h1 style="text-align: center; font-size: 16px; margin-bottom: 5px;">บัตรประจำตัวนักศึกษา</h1>
-                    <div style="display: flex; height: calc(100% - 30px); justify-content: space-between; align-items: flex-start;">
-                        <!-- Profile Image Section -->
-                        <div style="width: 40%; display: flex; justify-content: center; align-items: center;">
-                            <div style="width: 70%; aspect-ratio: 7 / 8; border: 1px solid #000; overflow: hidden; display: flex; align-items: center; justify-content: center;">
-                                <img id="preview" src="${avatarUrl}" alt="Student Image" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='https://phothongdlec.ac.th/storage/images/avatar/unkhonw.png'">
-                            </div>
-                        </div>
-                        <!-- Information Section -->
-                        <div style="width: calc(100% - 3cm); display: flex; flex-direction: column; justify-content: space-between; padding-left: 10px; box-sizing: border-box;">
-                            <p style="margin: 0;"><strong>ชื่อ:</strong> ${studentData.prename}${studentData.name} ${studentData.surname}</p>
-                            <p style="margin: 0;"><strong>รหัสนักศึกษา:</strong> ${studentData.id}</p>
-                            <p style="margin: 0;"><strong>รหัสบัตรประชาชน:</strong> ${studentData.cardid}</p>
-                            <p style="margin: 0;"><strong>ระดับชั้น:</strong> ${studentData.level}</p>
-                            <p style="margin: 0;"><strong>สถานศึกษา:</strong> ${studentData.department}</p>
-                            <p style="margin: 0; display: none;"><strong>ออกบัตร:</strong> ${studentData.issueDate}</p>
-                            <p style="margin: 0; display: none;"><strong>หมดอายุ:</strong> ${studentData.expiryDate}</p>
-                        </div>
-                    </div>
-                    <!-- Signature Section -->
-                    <div style="width: 100%; display: flex; justify-content: space-between; margin-top: -45px;">
-                        <div style="width: 48%; text-align: center; padding: 10px;">
-                            <div style="border-top: 1px solid #000; width: 100%; margin: 0 auto;"></div>
-                            <p style="margin-top: 5px; margin-bottom: 0;">ลงชื่อนักศึกษา</p>
-                        </div>
-                        <div style="width: 48%; text-align: center; padding: 10px;">
-                            <div style="border-top: 1px solid #000; width: 100%; margin: 0 auto;"></div>
-                            <p style="margin-top: 5px; margin-bottom: 0;">ลงชื่อผู้อำนวยการฯ</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <!-- Print and Download Buttons -->
-            <div style="text-align: center; margin-top: 20px; width: 8.6cm;">
-                <button onclick="window.print()" style="background-color: green; color: white; padding: 5px 10px; border: none; border-radius: 5px; cursor: pointer; margin-right: 10px;">
-                    กดพิมพ์บัตร
-                </button>
-            </div>
-            <link href="https://fonts.googleapis.com/css2?family=Prompt&display=swap" rel="stylesheet">
-        `;
+        table {
+            width: 100% !important;
+            border-collapse: collapse !important;
+        }
 
-        // เปิดหน้าต่างใหม่และแสดงบัตร
-        const newWindow = window.open('', '', 'width=800,height=600');
-        newWindow.document.write(printContent);
+        th, td {
+            border: 1px solid #ddd !important; /* เพิ่มเส้นขอบเวลาพิมพ์ */
+            padding: 8px !important;
+        }
 
-        // สร้าง QR Code
-        const qrCanvas = newWindow.document.getElementById('qr-code');
-        QRCode.toCanvas(qrCanvas, JSON.stringify(studentData), {
-            width: 80,
-            margin: 2,
-        })
-        .then(() => {
-            newWindow.document.close();
-        })
-        .catch((error) => {
-            console.error('Error generating QR code:', error);
-            newWindow.document.close();
-        });
+        th {
+            background-color: #1e293b !important; /* สี Slate-800 ให้ติดมาด้วย */
+            color: white !important;
+            -webkit-print-color-adjust: exact;
+        }
+
+        /* บังคับให้สีพื้นหลังแถวติดมาด้วย */
+        tr {
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
     }
 
+    /* ปรับแต่ง Scrollbar สำหรับมือถือให้ดูดี */
+    .scrollbar-thin::-webkit-scrollbar { height: 6px; }
+    .scrollbar-thin::-webkit-scrollbar-track { background: #f1f1f1; }
+    .scrollbar-thin::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+</style>
 
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.css">
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.js"></script>
 
-// ***********************************
-function printAllCards(students) {
-    if (!students || students.length === 0) {
-        alert('ไม่มีข้อมูลนักศึกษา');
-        return;
-    }
-
-    // สร้าง HTML สำหรับบัตรทั้งหมด
-    let allCardsContent = `
-        <style>
-            @media print {
-                /* บังคับให้พิมพ์ background image และ background color */
-                .print-background {
-                    -webkit-print-color-adjust: exact; /* สำหรับ Chrome/Safari */
-                    color-adjust: exact; /* สำหรับ Firefox */
-                    print-color-adjust: exact; /* มาตรฐานใหม่ */
-                }
-                .student-card {
-                    page-break-inside: avoid; /* ป้องกันบัตรถูกตัดระหว่างหน้า */
-                    margin-bottom: 20px; /* ระยะห่างระหว่างบัตร */
-                }
-                .print-button {
-                    display: none; /* ซ่อนปุ่มพิมพ์เมื่อพิมพ์ */
-                }
-            }
-            /* จัดรูปแบบบัตรใน 2 คอลัมน์ */
-            .card-container {
-                display: grid;
-                grid-template-columns: repeat(2, 1fr);
-                gap: 20px;
-                padding: 20px;
-            }
-            /* ปุ่มพิมพ์ที่มุมบนขวา */
-            .print-button {
-                position: fixed;
-                top: 20px;
-                right: 20px;
-                background-color: green;
-                color: white;
-                padding: 10px 20px;
-                border: none;
-                border-radius: 5px;
-                cursor: pointer;
-                z-index: 1000;
-            }
-        </style>
-        <!-- ปุ่มพิมพ์ -->
-        <button class="print-button" onclick="window.print()">พิมพ์</button>
-        <!-- บัตรทั้งหมด -->
-        <div class="card-container">
-    `;
-
-    // เพิ่มบัตรแต่ละใบเข้าไปใน HTML
-    students.forEach((student) => {
-        const cardContent = generateCardContent(student);
-        allCardsContent += `<div class="student-card">${cardContent}</div>`;
+<script>
+$(document).ready(function() {
+    var table = $('#studentTable').DataTable({
+        "dom": 'rtp',
+        "pageLength": -1, // แสดงทุกคนในหน้าเดียวเพื่อให้พิมพ์ได้ครบ
+        "language": {
+            "url": "//cdn.datatables.net/plug-ins/1.11.5/i18n/Thai.json"
+        },
+        "columnDefs": [
+            { "targets": 'no-sort', "orderable": false }
+        ]
     });
 
-    allCardsContent += `</div>`; // ปิดแท็ก div หลัก
+    $('#tableSearch').on('keyup', function() {
+        table.search(this.value).draw();
+    });
+});
 
-    // เปิดหน้าต่างใหม่และแสดงบัตรทั้งหมด
-    const newWindow = window.open('', '', 'width=800,height=600');
-    newWindow.document.write(allCardsContent);
-    newWindow.document.close();
-}
-
-// สร้าง HTML สำหรับบัตรแต่ละใบ
-function generateCardContent(student_data) {
-    const currentDate = new Date();
-    const expiryDate = calculateExpiryDate(currentDate, 5); // หมดอายุใน 5 ปี
-    let level;
-
-    // กำหนดระดับชั้น
-    if (student_data['lavel'] == 3) {
-        level = 'มัธยมปลาย';
-    } else if (student_data['lavel'] == 2) {
-        level = 'มัธยมต้น';
-    } else {
-        level = 'ประถมศึกษา';
-    }
-
-    // ข้อมูลนักศึกษา
-    const studentData = {
-        prename: student_data['prename'], // คำนำหน้า (ถ้ามี)
-        name: student_data['name'] || 'ไม่ระบุ',
-        surname: student_data['surname'] || 'ไม่ระบุ',
-        id: student_data['id'] || '000000000', // รหัสนักศึกษา
-        cardid: student_data['cardid'],
-        level: level, // ระดับชั้น
-        department: 'สกร.ระดับอำเภอโพธิ์ทอง', // สถานศึกษา
-        issueDate: formatDate(currentDate), // วันที่ออกบัตร
-        expiryDate: formatDate(expiryDate), // วันที่หมดอายุ
-    };
-
-    // URL รูปภาพโปรไฟล์
-    const avatarUrl = `https://phothongdlec.ac.th/storage/images/avatar/${studentData.id}.png` || 'https://phothongdlec.ac.th/storage/images/avatar/unkhonw.png';
-
-    // HTML สำหรับบัตร
-    return `
-            <div id="student-card" style="width: 8.6cm; height: 5.4cm; border: 1px solid #000; padding: 0px; font-family: 'Prompt', sans-serif; font-size: 12px; font-weight: bold; position: relative; box-sizing: border-box; color: black;">
-                <!-- Background Logo with Reduced Opacity -->
-                <div class="print-background" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-image: url('https://phothongdlec.ac.th/storage/logo.png'); background-size: contain; background-repeat: no-repeat; background-position: center; opacity: 0.05; z-index: 1;"></div>
-                <!-- Card Content -->
-                <div style="position: relative; z-index: 2;">
-                    <canvas id="qr-code" style="position: absolute; top: 10px; right: 10px;">
-                    QR CODE
-                    </canvas>
-                    <h1 style="text-align: center; font-size: 16px; margin-bottom: 5px; color: black;">บัตรประจำตัวนักศึกษา</h1>
-                    <div style="display: flex; height: calc(100% - 30px); justify-content: space-between; align-items: flex-start;">
-                        <!-- Profile Image Section -->
-                        <div style="width: 40%; display: flex; justify-content: center; align-items: center;">
-                            <div style="width: 70%; aspect-ratio: 7 / 8; border: 1px solid #000; overflow: hidden; display: flex; align-items: center; justify-content: center;">
-                                <img id="preview" src="${avatarUrl}" alt="Student Image" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='https://phothongdlec.ac.th/storage/images/avatar/unkhonw.png'">
-                            </div>
-                        </div>
-                        <!-- Information Section -->
-                        <div style="width: calc(100% - 3cm); display: flex; flex-direction: column; justify-content: space-between; padding-left: 3px; box-sizing: border-box;">
-                            <p style="margin: 0; color: black;"><strong>ชื่อ:</strong> ${studentData.prename}${studentData.name} ${studentData.surname}</p>
-                            <p style="margin: 0; color: black;"><strong>รหัสนักศึกษา:</strong> ${studentData.id}</p>
-                            <p style="margin: 0; color: black;"><strong>รหัสบัตรประชาชน:</strong> ${studentData.cardid}</p>
-                            <p style="margin: 0; color: black;"><strong>ระดับชั้น:</strong> ${studentData.level}</p>
-                            <p style="margin: 0; color: black;"><strong>สถานศึกษา:</strong> ${studentData.department}</p>
-                            <p style="margin: 0; display: none; color: black;"><strong>ออกบัตร:</strong> ${studentData.issueDate}</p>
-                            <p style="margin: 0; display: none; color: black;"><strong>หมดอายุ:</strong> ${studentData.expiryDate}</p>
-                        </div>
-                    </div>
-                    <!-- Signature Section -->
-                    <div style="width: 100%; display: flex; justify-content: space-between; margin-top: -45px;">
-                        <div style="width: 48%; text-align: center; padding: 10px;">
-                            <div style="border-top: 1px solid #000; width: 100%; margin: 0 auto;"></div>
-                            <p style="margin-top: 5px; margin-bottom: 0; color: black;">ลงชื่อนักศึกษา</p>
-                        </div>
-                        <div style="width: 48%; text-align: center; padding: 10px;">
-                            <div style="border-top: 1px solid #000; width: 100%; margin: 0 auto;"></div>
-                            <p style="margin-top: 5px; margin-bottom: 0; color: black;">ลงชื่อผู้อำนวยการฯ</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-    `;
+// ฟังก์ชันสั่งพิมพ์เฉพาะส่วน
+function printTable() {
+    window.print();
 }
 </script>
 
-
+</x-teachers-layout>

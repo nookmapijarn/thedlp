@@ -1,5 +1,5 @@
 <x-app-layout>
-  <div class="sm:ml-64">
+  <div class="">
     <div class="container">
       <div class="course-title">รายวิชา : เทคโนโลยีสารสนเทศ</div>
 

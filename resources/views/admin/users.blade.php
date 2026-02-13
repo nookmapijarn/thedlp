@@ -1,175 +1,204 @@
+<link rel="stylesheet" href="https://cdn.datatables.net/2.0.0/css/dataTables.tailwindcss.css">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <x-admin-layout>
-
-    <div class="p-4 sm:ml-64">
-        <div class="grid grid-cols-1 md:grid-cols-1 gap-4 border-2 border-gray-200 border-dashed rounded-lg dark:border-gray-700 mt-14">
-            <form method="POST" class="p-4" action="{{ route('adminregister') }}">
-                <h1 class="pt-4">เพิ่มผู้ใช้งาน สำหรับครู/ผู้ดูแลระบบ</h1>
-                @csrf
-                <!-- role -->
+    <div class="p-4 sm:ml-64 bg-gray-50 min-h-screen font-sans mb-20">
+        <div class="mt-16 container mx-auto max-w-7xl">
+            
+            <div class="flex justify-between items-center mb-6">
                 <div>
-                    <x-input-label for="role" :value="__('กำหนดสิทธิ ครู : 2 | ผู้บริหาร : 3 | ผู้ดูแล : 4')" />
-                    <x-text-input id="role" class="block mt-1 w-full" type="Number" min="2" max="4" name="role" :value="2" required autofocus autocomplete="role" />
-                    <x-input-error :messages="$errors->get('student_id')" class="mt-2" />
+                    <h1 class="text-2xl font-bold text-gray-800 dark:text-white">ระบบจัดการผู้ใช้งาน</h1>
+                    <p class="text-sm text-gray-500">จัดการข้อมูล ครู ผู้บริหาร และผู้ดูแลระบบ</p>
                 </div>
+            </div>
 
-                <!-- Name -->
-                <div class="mt-4">
-                    <x-input-label for="name" :value="__('ชื่อผู้ใช้งาน')" />
-                    <x-text-input id="name" class="block mt-1 w-full" type="text" name="name" :value="old('name')" required autofocus autocomplete="name" />
-                    <x-input-error :messages="$errors->get('name')" class="mt-2" />
-                </div>
-        
-                <!-- Email Address -->
-                <div class="mt-4">
-                    <x-input-label for="email" :value="__('Email')" />
-                    <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autocomplete="username" />
-                    <x-input-error :messages="$errors->get('email')" class="mt-2" />
-                </div>
-        
-                <!-- Password -->
-                <div class="mt-4">
-                    <x-input-label for="password" :value="__('Password')" />
-        
-                    <x-text-input id="password" class="block mt-1 w-full"
-                                    type="password"
-                                    name="password"
-                                    required autocomplete="new-password" />
-        
-                    <x-input-error :messages="$errors->get('password')" class="mt-2" />
-                </div>
-        
-                <!-- Confirm Password -->
-                <div class="mt-4">
-                    <x-input-label for="password_confirmation" :value="__('Confirm Password')" />
-        
-                    <x-text-input id="password_confirmation" class="block mt-1 w-full"
-                                    type="password"
-                                    name="password_confirmation" required autocomplete="new-password" />
-        
-                    <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
-                </div>
-        
-                <!-- PDPA -->
-                <div class="mt-4">
-                    <p class="mb-3 text-xs font-bold text-gray-900 dark:text-gray-400 " style="width: 100%; max-height:400px;">
-                    <span>แบบขอความยินยอมให้ เก็บ รวบรวม ใช้ และ/หรือ เปิดเผยข้อมูลส่วนบุคคล ตามพระราชบัญญัติคุ้มครองข้อมูลส่วนบุคคล พ.ศ.2562 วัตถุประสงค์ของการเก็บ รวบรวม ใช้ และ/หรือ เปิดเผยข้อมูลส่วนบุคคล ดังต่อไปนี้</span>
-                        <ul class="text-xs list-decimal p-2">
-                            <li>รายละเอียดเกี่ยวกับตัวสมาชิก เช่น ชื่อ นามสกุล วัน เดือน ปีเกิด สถานภาพ เป็นต้น</li>
-                            <li>รายละเอียดเกี่ยวกับการระบุและยืนยันตัวตน เช่น หมายเลขประจําตัวประชาชน หมายเลขโทรศัพท์ ภาพถ่าย เป็นต้น</li>
-                            <li>รายละเอียดสําหรับการติดต่อ เช่น ที่อยู่ หมายเลขโทรศัพท์ E-mail เป็นต้น</li>
-                            <li>รายละเอียดเกี่ยวกับการเรียน เช่น เกรดเฉลี่ย ประวัติการเรียน เวลาเรียน อื่นๆ เป็นต้น</li>
-                            <li>ข้อมูลอื่น ๆ ที่สมาชิกได้ให้ไว้กับสถานศึกษาที่สังกัด</li>
-                            <li>ผู้ใช้งานสามารถยกเลิกการเปิดเผยข้อมูลได้หากต้องการข้าพเจ้าได้อ่านข้อความข้านต้นทั้งหมดแล้ว และยินยอมให้เก็บ รวบรวม ใช้ และ/หรือ เปิดเผยข้อมูลส่วนบุคคล ตามวัถุประสงค์ที่ข้างต้นทั้งหมด</li>
-                        </ul>
-                    </p>
-                    <br>
-                    <input type="checkbox" class="custom-control-input" name="pdpa_check">
-                    <label class="mt-4" for="pdpa_check"> ยอมรับแบบขอความยินยอมฯ  </label>
-                    <x-input-error :messages="$errors->get('pdpa_check')" class="mt-2" />
-                </div>
-        
-                <div class="flex items-center justify-end mt-4">
-                    {{-- <a class="underline text-sm text-gray-900 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800" href="{{ route('login') }}">
-                        {{ __('ไปหน้า login') }}
-                    </a> --}}
-        
-                    <x-primary-button class="ml-4">
-                        {{ __('สมัครสมาชิก') }}
-                    </x-primary-button>
-                </div>
-            </form>    
-        </div>
-
-
-        <div class="p-4 rounded-lg dark:border-gray-700 mt-2">
-            <!-- แสดงข้อความ error -->
-            @if(session('error'))
-                <div class="bg-red-500 text-white p-2 rounded-lg mb-4">
-                    {{ session('error') }}
-                </div>
-            @endif
-    
-            <!-- แสดงข้อความ success -->
-            @if(session('success'))
-                <div class="bg-green-500 text-white p-2 rounded-lg mb-4">
-                    {{ session('success') }}
-                </div>
-            @endif
-        </div>   
-
-        {{-- USER TABLE --}}
-        <div class="p-4 border-2 border-gray-200 border-dashed rounded-lg dark:border-gray-700 mt-2">
-            <div class="relative overflow-x-auto w-full max-h-[950px]">
-                <h1 class="text-2xl mb-2">ตารางผู้ใช้งาน</h1>
-                <table id="AdminTable" class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
-                    <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-                        <tr>
-                            <th scope="col" class="px-6 py-3 text-center">No.</th>
-                            <th scope="col" class="px-6 py-3 text-center">ROLE</th>
-                            <th scope="col" class="px-6 py-3">NAME</th>
-                            <th scope="col" class="px-6 py-3">E-MAIL</th>
-                            <th scope="col" class="px-6 py-3">Update</th>
-                            <th scope="col" class="px-6 py-3">Remove</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($users as $user_ad)
-                        <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
-                            <th scope="row" class="text-center font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                {{ $loop->iteration }}
-                            </th>
-                            <td class="px-6 py-4 text-center">
-                                @if($user_ad->role === 1) ผู้เรียน @endif
-                                @if($user_ad->role === 2) ครู @endif
-                                @if($user_ad->role === 3) ผู้บริหาร @endif
-                                @if($user_ad->role === 4) ผู้ดูแลระบบ @endif
-                            </td>
-                            <input id="id" name="id" type="hidden" class="block mt-1 w-full" value="{{ $user_ad->id }}" />
-                            <td class="px-6 py-4">
-                                {{-- <input id="name" name="name" type="text" class="block w-full p-4 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" value="{{ $user_ad->name }}" /> --}}
-                                {{ $user_ad->name }}
-                            </td>
-                            <td class="px-6 py-4">
-                                <input id="email" class="block w-full p-4 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" type="email" name="email" value="{{ $user_ad->email }}" required />
-                                <x-input-error :messages="$errors->get('email')" class="mt-2" />
-                            </td>
-                            <td class="px-6 py-4">
-                                <button type="button" class="btn-update text-yellow-400 hover:text-yellow-800">Update</button>
-                            </td>
-                            <td class="px-6 py-4">
-                                <button type="button" class="btn-remove text-red-400 hover:text-red-800">Remove</button>
-                            </td>
-                        </tr>
-                        @endforeach
-                    </tbody>
-                </table>
+            <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
                 
-            </div>   
+                <div class="xl:col-span-1">
+                    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 sticky top-20">
+                        <div class="p-5 border-b border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 rounded-t-xl">
+                            <h2 class="font-semibold text-gray-800 dark:text-white flex items-center gap-2">
+                                <i class="fa-solid fa-user-plus text-blue-500"></i> เพิ่มผู้ใช้งานใหม่
+                            </h2>
+                        </div>
+                        
+                        <form method="POST" action="{{ route('adminregister') }}" class="p-5 space-y-4">
+                            @csrf
+                            
+                            <div>
+                                <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">ระดับสิทธิ์</label>
+                                <select name="role" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 transition-all">
+                                    <option value="2">👨‍🏫 ครู (Teacher)</option>
+                                    <option value="3">👔 ผู้บริหาร (Executive)</option>
+                                    <option value="4">⚙️ ผู้ดูแลระบบ (Admin)</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">ชื่อ-นามสกุล</label>
+                                <input type="text" name="name" value="{{ old('name') }}" required class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" placeholder="กรอกชื่อผู้ใช้งาน">
+                                <x-input-error :messages="$errors->get('name')" class="mt-1" />
+                            </div>
+
+                            <div>
+                                <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">อีเมล</label>
+                                <input type="email" name="email" value="{{ old('email') }}" required class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" placeholder="example@email.com">
+                                <x-input-error :messages="$errors->get('email')" class="mt-1" />
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">รหัสผ่าน</label>
+                                    <input type="password" name="password" required class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+                                </div>
+                                <div>
+                                    <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">ยืนยันรหัสผ่าน</label>
+                                    <input type="password" name="password_confirmation" required class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+                                </div>
+                                <x-input-error :messages="$errors->get('password')" class="col-span-2 mt-1" />
+                            </div>
+
+                            <div class="pt-2">
+                                <div class="bg-blue-50 p-3 rounded-lg text-xs text-blue-800 mb-2 h-24 overflow-y-auto border border-blue-100">
+                                    <strong>PDPA Consent:</strong> ข้าพเจ้ายินยอมให้เก็บรวบรวมข้อมูลส่วนบุคคล... (ตามรายละเอียดพ.ร.บ.คุ้มครองข้อมูลส่วนบุคคล)
+                                </div>
+                                <div class="flex items-center">
+                                    <input type="checkbox" name="pdpa_check" id="pdpa" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500">
+                                    <label for="pdpa" class="ml-2 text-sm text-gray-600">ยอมรับเงื่อนไข PDPA</label>
+                                </div>
+                                <x-input-error :messages="$errors->get('pdpa_check')" class="mt-1" />
+                            </div>
+
+                            <button type="submit" class="w-full text-white bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-3 text-center shadow-md transition-all transform hover:scale-[1.02]">
+                                <i class="fa-solid fa-circle-check mr-2"></i> ลงทะเบียนสมาชิก
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="xl:col-span-2">
+                    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
+                        <div class="p-5 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center bg-gray-50 dark:bg-gray-900">
+                            <h2 class="font-semibold text-gray-800 dark:text-white flex items-center gap-2">
+                                <i class="fa-solid fa-users-gear text-indigo-500"></i> รายชื่อผู้ใช้งาน
+                            </h2>
+                            <span class="bg-indigo-100 text-indigo-800 text-xs font-medium px-2.5 py-0.5 rounded border border-indigo-200">Total: {{ count($users) }}</span>
+                        </div>
+                        
+                        <div class="p-5">
+                            @if(session('success'))
+                                <script>
+                                    document.addEventListener('DOMContentLoaded', function() {
+                                        Swal.fire({ icon: 'success', title: 'สำเร็จ', text: "{{ session('success') }}", timer: 3000, showConfirmButton: false });
+                                    });
+                                </script>
+                            @endif
+                            @if(session('error'))
+                                <script>
+                                    document.addEventListener('DOMContentLoaded', function() {
+                                        Swal.fire({ icon: 'error', title: 'ผิดพลาด', text: "{{ session('error') }}" });
+                                    });
+                                </script>
+                            @endif
+
+                            <div class="relative overflow-x-auto">
+                                <table id="AdminTable" class="w-full text-sm text-left text-gray-500">
+                                    <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                                        <tr>
+                                            <th class="px-4 py-3 rounded-l-lg">No.</th>
+                                            <th class="px-4 py-3">Role</th>
+                                            <th class="px-4 py-3">Name (Edit)</th>
+                                            <th class="px-4 py-3">Email (Edit)</th>
+                                            <th class="px-4 py-3 text-center rounded-r-lg">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-gray-100">
+                                        @foreach($users as $user_ad)
+                                        <tr class="hover:bg-gray-50 transition-colors" data-id="{{ $user_ad->id }}">
+                                            <td class="px-4 py-3 font-medium text-gray-900">{{ $loop->iteration }}</td>
+                                            <td class="px-4 py-3">
+                                                @php
+                                                    $badges = [
+                                                        1 => ['bg' => 'bg-gray-100', 'text' => 'text-gray-800', 'label' => 'ผู้เรียน'],
+                                                        2 => ['bg' => 'bg-green-100', 'text' => 'text-green-800', 'label' => 'ครู'],
+                                                        3 => ['bg' => 'bg-purple-100', 'text' => 'text-purple-800', 'label' => 'ผู้บริหาร'],
+                                                        4 => ['bg' => 'bg-red-100', 'text' => 'text-red-800', 'label' => 'Admin'],
+                                                    ];
+                                                    $role = $badges[$user_ad->role] ?? $badges[1];
+                                                @endphp
+                                                <span class="{{ $role['bg'] }} {{ $role['text'] }} text-xs font-medium px-2.5 py-0.5 rounded border border-opacity-20">
+                                                    {{ $role['label'] }}
+                                                </span>
+                                            </td>
+                                            <td class="px-4 py-3">
+                                                <input type="text" name="name" value="{{ $user_ad->name }}" class="edit-input border-0 bg-transparent hover:bg-white hover:border hover:border-gray-300 rounded focus:ring-2 focus:ring-blue-500 w-full text-sm py-1 px-2 transition-all">
+                                            </td>
+                                            <td class="px-4 py-3">
+                                                <input type="email" name="email" value="{{ $user_ad->email }}" class="edit-input border-0 bg-transparent hover:bg-white hover:border hover:border-gray-300 rounded focus:ring-2 focus:ring-blue-500 w-full text-sm py-1 px-2 transition-all">
+                                            </td>
+                                            <td class="px-4 py-3 text-center">
+                                                <div class="flex items-center justify-center gap-2">
+                                                    <button type="button" class="btn-update text-white bg-amber-500 hover:bg-amber-600 focus:ring-4 focus:ring-amber-300 font-medium rounded-lg text-xs px-3 py-2 transition-all shadow-sm">
+                                                        <i class="fa-solid fa-save"></i>
+                                                    </button>
+                                                    <button type="button" class="btn-remove text-white bg-red-500 hover:bg-red-600 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-xs px-3 py-2 transition-all shadow-sm">
+                                                        <i class="fa-solid fa-trash"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
         </div>
     </div>
 </x-admin-layout>
 
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-<script src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
-<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.21/css/jquery.dataTables.min.css" />
-
-<script>
-    $(document).ready(function () {
-       $("#StudentTable").DataTable();
-    });
- </script>
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.datatables.net/2.0.0/js/dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/2.0.0/js/dataTables.tailwindcss.js"></script>
 
 <script>
     $(document).ready(function () {
-        $("#AdminTable").DataTable();
+        // 1. Initialize DataTables with Clean Config
+        const table = $('#AdminTable').DataTable({
+            responsive: true,
+            language: {
+                search: "🔍 ค้นหา:",
+                lengthMenu: "แสดง _MENU_ รายการ",
+                info: "แสดง _START_ ถึง _END_ จาก _TOTAL_ รายการ",
+                paginate: {
+                    first: "หน้าแรก",
+                    last: "หน้าสุดท้าย",
+                    next: "ถัดไป",
+                    previous: "ก่อนหน้า"
+                },
+                zeroRecords: "ไม่พบข้อมูลที่ค้นหา"
+            },
+            columnDefs: [
+                { orderable: false, targets: 4 } // ห้าม sort คอลัมน์ Action
+            ]
+        });
 
-        // Event listener for update button
+        // 2. SweetAlert2 + AJAX Update Logic
         $('#AdminTable').on('click', '.btn-update', function () {
             var row = $(this).closest('tr');
-            var id = row.find('input[name="id"]').val();
+            var id = row.data('id');
+            // ดึงค่าจาก input ที่อยู่ใน row นั้นๆ
             var name = row.find('input[name="name"]').val();
             var email = row.find('input[name="email"]').val();
+
+            // แสดง Loading
+            Swal.fire({
+                title: 'กำลังบันทึก...',
+                didOpen: () => { Swal.showLoading() }
+            });
 
             $.ajax({
                 url: '{{ route("adminuserupdate") }}',
@@ -181,38 +210,72 @@
                     email: email
                 },
                 success: function(response) {
-                    console.log(response);
-                    alert('User updated successfully!');
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'บันทึกสำเร็จ!',
+                        text: 'ข้อมูลได้รับการแก้ไขเรียบร้อยแล้ว',
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
                 },
                 error: function(xhr) {
-                    console.log(xhr.responseText);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'เกิดข้อผิดพลาด',
+                        text: 'ไม่สามารถบันทึกข้อมูลได้: ' + xhr.responseText
+                    });
                 }
             });
         });
 
-        // Event listener for remove button
+        // 3. SweetAlert2 + AJAX Remove Logic
         $('#AdminTable').on('click', '.btn-remove', function () {
             var row = $(this).closest('tr');
-            var id = row.find('input[name="id"]').val();
+            // กรณีใช้ DataTables ต้องลบผ่าน API เพื่อให้หน้า table ไม่งง
+            var dataTableRow = table.row(row); 
+            var id = row.data('id');
 
-            if (confirm('Are you sure you want to remove this user?')) {
-                $.ajax({
-                    url: '{{ route("adminuserremove") }}',
-                    type: 'POST',
-                    data: {
-                        _token: '{{ csrf_token() }}',
-                        id: id
-                    },
-                    success: function(response) {
-                        console.log(response);
-                        alert('User removed successfully!');
-                        row.remove();
-                    },
-                    error: function(xhr) {
-                        console.log(xhr.responseText);
-                    }
-                });
-            }
+            Swal.fire({
+                title: 'ยืนยันการลบ?',
+                text: "คุณจะไม่สามารถกู้คืนข้อมูลนี้ได้!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ef4444',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: 'ใช่, ลบเลย!',
+                cancelButtonText: 'ยกเลิก'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    
+                    Swal.fire({ title: 'กำลังลบ...', didOpen: () => { Swal.showLoading() } });
+
+                    $.ajax({
+                        url: '{{ route("adminuserremove") }}',
+                        type: 'POST',
+                        data: {
+                            _token: '{{ csrf_token() }}',
+                            id: id
+                        },
+                        success: function(response) {
+                            // ลบแถวออกจาก DataTable และ DOM
+                            dataTableRow.remove().draw();
+                            
+                            Swal.fire(
+                                'ลบสำเร็จ!',
+                                'ข้อมูลผู้ใช้งานถูกลบแล้ว',
+                                'success'
+                            );
+                        },
+                        error: function(xhr) {
+                            Swal.fire(
+                                'เกิดข้อผิดพลาด!',
+                                'ไม่สามารถลบข้อมูลได้',
+                                'error'
+                            );
+                        }
+                    });
+                }
+            });
         });
     });
 </script>

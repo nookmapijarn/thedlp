@@ -1,6 +1,6 @@
 <x-app-layout>
 
-<section class="blog-section sm:ml-64">
+<section class="blog-section">
         <div class="blog-header">
             <h2 class="blog-title">รายวิชา</h2>
             <p class="blog-subtitle">Discover our latest insights, stories, and updates to help you stay informed and inspired.</p>

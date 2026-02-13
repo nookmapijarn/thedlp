@@ -1,275 +1,418 @@
 <x-app-layout>
-    <div class="sm:ml-64 p-4 min-h-screen bg-gray-100">
-        <div class="container mx-auto px-4 py-8">
-            <h1 class="text-3xl font-bold mb-4 text-gray-800">{{ $quiz->title }}</h1>
-            <p class="text-gray-600 mb-6">{{ $quiz->description ?? 'ไม่มีคำอธิบายสำหรับแบบทดสอบนี้' }}</p>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@100;400;700;800&display=swap" rel="stylesheet">
 
-            <div class="bg-white rounded-lg shadow-md p-6 mb-8">
-                <div class="flex justify-between items-center mb-4">
-                    <h2 class="text-xl font-semibold text-gray-700">เวลาที่เหลือ:</h2>
-                    <div id="countdown-timer" class="text-2xl font-bold text-blue-600">
-                        {{ $quiz->time_limit > 0 ? sprintf('%02d:%02d:%02d', floor($quiz->time_limit), $quiz->time_limit * 60 % 60, 0) : 'ไม่จำกัด' }}
-                    </div>
+    <style>
+        /* --- เพิ่ม: ป้องกันการคลุมดำ (Select Text) --- */
+        body {
+            -webkit-user-select: none; /* Safari */
+            -ms-user-select: none; /* IE 10 and IE 11 */
+            user-select: none; /* Standard syntax */
+        }
+
+        /* --- 1. ระบบ Navigation (ตัวเลขข้อ) --- */
+        .question-step {
+            width: 32px; height: 32px; border-radius: 7px;
+            border: 3px solid #0f172a; background-color: #ffffff;
+            color: #0f172a; font-weight: 900; display: flex;
+            align-items: center; justify-content: center;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer; flex-shrink: 0;
+        }
+        .question-step.completed {
+            background-color: #10b981 !important; border-color: #064e3b !important; color: #ffffff !important;
+            box-shadow: 4px 4px 0px #064e3b;
+        }
+        .question-step.active {
+            border-color: #4f46e5 !important; background-color: #e0e7ff !important;
+            color: #4f46e5 !important; transform: translateY(-4px);
+            box-shadow: 0px 8px 15px rgba(79, 70, 229, 0.3);
+        }
+
+        /* คุม Element หลัก */
+        #main-quiz-container { font-family: 'Sarabun', sans-serif !important; }
+        #main-quiz-container button, #main-quiz-container input, #main-quiz-container select, #main-quiz-container textarea {
+            font-family: 'Sarabun', sans-serif !important;
+        }
+
+        /* --- 2. การจัดการ Slide ระบบใหม่ --- */
+        #questions-viewport { width: 100%; overflow: hidden; position: relative; }
+        #questions-container { display: flex; transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1); width: 100%; }
+        .question-block { flex: 0 0 100%; width: 100%; opacity: 0.2; transition: opacity 0.4s ease; padding: 0 10px; }
+        .question-block.active-slide { opacity: 1; }
+
+        /* Modal & Helpers */
+        #init-auth-modal { 
+            display: none; position: fixed; inset: 0; z-index: 1000;
+            background-color: #020617; align-items: center; justify-content: center; padding: 1rem;
+        }
+        .swal2-popup { border: 5px solid #0f172a !important; border-radius: 2.5rem !important; }
+        .swal2-confirm {background-color: #4f46e5;}
+        .swal2-cancel {background-color: red;}
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+
+    {{-- 1. Initial Auth Modal --}}
+    <div id="init-auth-modal">
+        <div class="bg-white max-w-md w-full rounded-[3rem] shadow-[0_30px_60px_rgba(0,0,0,0.7)] p-5 text-center border-[6px] border-slate-900">
+            <div class="mb-4">
+                <div class="w-12 h-12 bg-indigo-600 text-white rounded-[2rem] flex items-center justify-center mx-auto mb-6 text-4xl shadow-[8px_8px_0px_#312e81]">
+                    <i class="fa-solid fa-shield-halved"></i>
                 </div>
-                @if ($quiz->time_limit > 0)
-                    <p class="text-sm text-gray-500">แบบทดสอบนี้มีเวลาจำกัด {{ $quiz->time_limit }} นาที</p>
-                @endif
+                <h2 class="text-xl font-black text-slate-950 uppercase tracking-tighter">เข้าสู่ระบบการสอบ</h2>
+                <p class="text-slate-600 mt-2 font-bold">กรุณาตรวจสอบกล้องและพิกัดก่อนเริ่ม</p>
             </div>
 
-            <form id="quizForm" action="{{ route('quizzes.submit', $quiz->id) }}" method="POST">
-                @csrf
+            <div id="camera-section" class="hidden relative w-full aspect-square max-w-[240px] bg-black rounded-[2.5rem] mx-auto mb-8 overflow-hidden border-[6px] border-slate-900 shadow-inner">
+                <video id="webcam" autoplay playsinline class="w-full h-full object-cover scale-x-[-1]"></video>
+                <canvas id="photo-canvas" class="hidden"></canvas>
+            </div>
 
-                <div id="questions-container">
-                    @foreach ($questions as $index => $question)
-                        <div id="question-{{ $question->id }}" class="question-block bg-white rounded-lg shadow-md p-6 mb-6 {{ $index === 0 ? '' : 'hidden' }}" data-question-index="{{ $index }}" data-question-type="{{ $question->question_type }}">
-                            <h3 class="text-lg font-semibold text-gray-800 mb-4">
-                                คำถามที่ {{ $index + 1 }} จาก {{ count($questions) }}:
-                            </h3>
-                            <p class="text-gray-700 text-lg mb-4">{{ $question->question_text }}</p>
+            <div class="bg-slate-100 p-6 rounded-[2rem] mb-8 border-4 border-slate-200 text-left">
+                <label class="flex items-start gap-4 cursor-pointer group">
+                    <input type="checkbox" id="consent-check" class="mt-1 w-9 h-9 rounded-xl border-4 border-slate-400 text-indigo-600 focus:ring-indigo-900 transition-all cursor-pointer">
+                    <span class="text-base text-slate-950 font-black leading-tight group-hover:text-indigo-700">
+                        ฉันยืนยันตัวตน และยินยอมให้ระบบบันทึกภาพ/พิกัดตลอดการสอบ
+                    </span>
+                </label>
+            </div>
 
-                            <input type="hidden" name="questions[{{ $index }}][question_id]" value="{{ $question->id }}">
-                            <input type="hidden" name="questions[{{ $index }}][question_type]" value="{{ $question->question_type }}">
+            <button type="button" id="start-init-btn" disabled onclick="processInitialize()"
+                class="w-full py-6 bg-slate-300 text-slate-500 font-black rounded-[1.5rem] transition-all text-xl uppercase border-b-[10px] border-slate-400">
+                เริ่มทำข้อสอบ
+            </button>
+            
+            <p id="gps-status" class="mt-6 text-sm font-black text-slate-500 flex items-center justify-center gap-2">
+                <i class="fa-solid fa-circle-notch fa-spin"></i> {{ $quiz->require_location == 1 ? 'WAITING FOR GPS...' : 'GPS BYPASSED' }}
+            </p>
+        </div>
+    </div>
 
-                            <div class="options-container mb-4">
-                                @if ($question->question_type === 'multiple_choice')
-                                    @foreach ($question->choices as $choice)
-                                        <label class="flex items-center text-gray-700 cursor-pointer mb-2 p-3 border border-gray-200 rounded-md hover:bg-gray-50 transition-colors duration-150 ease-in-out">
-                                            <input type="radio" name="questions[{{ $index }}][answer]" value="{{ $choice->id }}" class="form-radio h-5 w-5 text-blue-600 mr-3" {{ old("questions.$index.answer") == $choice->id ? 'checked' : '' }}>
-                                            <span>{{ $choice->choice_text }}</span>
-                                        </label>
-                                    @endforeach
-                                @elseif ($question->question_type === 'true_false')
-                                    <label class="flex items-center text-gray-700 cursor-pointer mb-2 p-3 border border-gray-200 rounded-md hover:bg-gray-50 transition-colors duration-150 ease-in-out">
-                                        <input type="radio" name="questions[{{ $index }}][answer]" value="1" class="form-radio h-5 w-5 text-blue-600 mr-3" {{ old("questions.$index.answer") == '1' ? 'checked' : '' }}>
-                                        <span>ถูก</span>
-                                    </label>
-                                    <label class="flex items-center text-gray-700 cursor-pointer mb-2 p-3 border border-gray-200 rounded-md hover:bg-gray-50 transition-colors duration-150 ease-in-out">
-                                        <input type="radio" name="questions[{{ $index }}][answer]" value="0" class="form-radio h-5 w-5 text-blue-600 mr-3" {{ old("questions.$index.answer") == '0' ? 'checked' : '' }}>
-                                        <span>ผิด</span>
-                                    </label>
-                                @elseif ($question->question_type === 'short_answer')
-                                    <textarea name="questions[{{ $index }}][answer]" rows="4" class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 resize-y" placeholder="พิมพ์คำตอบของคุณที่นี่">{{ old("questions.$index.answer") }}</textarea>
-                                @endif
-                            </div>
+    {{-- 2. Quiz Content --}}
+    <div id="main-quiz-container" class="min-h-screen bg-slate-100 hidden overflow-x-hidden mb-20">
+        <div class="sticky top-0 z-[0] bg-blue-50 border-b-[4px] border-slate-950 shadow-md">
+            <div class="max-w-full mx-auto px-3 py-2 md:px-4 md:py-3">
+                <div class="flex justify-between items-center gap-2 mb-2">
+                    <div class="flex items-center gap-2 overflow-hidden">
+                        <img src="https://phothongdlec.ac.th/storage/logo.png" class="h-8 w-auto md:h-10 object-contain shrink-0">
+                        <div class="flex flex-col truncate">
+                            <span class="text-sm md:text-base font-black text-slate-950 truncate leading-tight">{{ config('app.name_th') }}</span>
+                            <span class="text-[10px] md:text-xs font-bold text-slate-600 truncate">สำนักงานส่งเสริมการเรียนรู้ประจำจังหวัด</span>
                         </div>
-                    @endforeach
+                    </div>
+                    <div class="flex items-center gap-1.5 bg-slate-950 px-2 py-1 md:px-3 md:py-1.5 rounded-lg shadow-[2px_2px_0px_#4f46e5] shrink-0">
+                        <i class="fa-solid fa-clock text-indigo-400 text-xs md:text-sm"></i>
+                        <div class="text-white font-mono font-black text-sm md:text-lg min-w-[45px] md:w-[60px] text-center" id="countdown-timer">00:00</div>
+                    </div>
                 </div>
 
-                <div class="flex justify-between mt-8">
-                    <button type="button" id="prev-btn" class="bg-gray-300 text-gray-800 font-bold py-2 px-6 rounded-md hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-opacity-50 transition-colors duration-200" style="display: none;">
-                        &larr; ก่อนหน้า
-                    </button>
-                    <button type="button" id="next-btn" class="bg-blue-600 text-white font-bold py-2 px-6 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition-colors duration-200">
-                        ถัดไป &rarr;
-                    </button>
-                    {{-- เปลี่ยน type="submit" เป็น type="button" --}}
-                    <button type="button" id="submit-btn" class="bg-green-600 text-white font-bold py-2 px-6 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 transition-colors duration-200" style="display: none;">
-                        ส่งคำตอบ
-                    </button>
+                <div class="border-t border-slate-300/50 pt-2 mb-2">
+                    <h1 class="text-sm md:text-lg font-black text-slate-950 leading-tight mb-2 line-clamp-1">
+                        <span class="text-slate-500 font-medium text-xs md:text-sm">แบบทดสอบ:</span> {{ $quiz->title }}
+                    </h1>
+                    <div class="flex flex-wrap gap-1.5">
+                        <div class="inline-flex items-center px-2 py-0.5 rounded bg-white border border-slate-300 text-[10px] md:text-xs font-bold text-slate-700">
+                            <i class="fa-solid fa-book text-indigo-500 mr-1"></i> {{ $quiz->subject_code }}
+                        </div>
+                        <div class="inline-flex items-center px-2 py-0.5 rounded bg-white border border-slate-300 text-[10px] md:text-xs font-bold text-slate-700">
+                            <i class="fa-solid fa-star text-yellow-500 mr-1"></i> {{ $quiz->total_score }} คะแนน
+                        </div>
+                        <div class="inline-flex items-center px-2 py-0.5 rounded bg-white border border-slate-300 text-[10px] md:text-xs font-bold text-slate-700">
+                            <i class="fa-regular fa-clock text-red-500 mr-1"></i> {{ $quiz->time_limit }}น.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex gap-1.5 overflow-x-auto pb-1 no-scrollbar border-t border-slate-200 pt-2" id="nav-container">
+                    @foreach($questions as $index => $q)
+                        <button type="button" onclick="showQuestion({{ $index }})" id="step-dot-{{ $index }}" 
+                                class="question-step shrink-0 w-5 h-5 md:w-5 md:h-5 flex items-center justify-center rounded-md border-[1.5px] border-slate-950 bg-white text-xs md:text-sm font-bold text-slate-950 hover:bg-slate-100 transition-colors shadow-[2px_2px_0px_rgba(0,0,0,1)] active:translate-y-0.5 active:shadow-none">
+                            {{ $index + 1 }}
+                        </button>
+                    @endforeach
+                </div>
+            </div>
+        </div>
+
+        <div class="max-w-full mx-auto pt-6 pb-0"> 
+            <form id="quizForm" action="{{ route('quizzes.submit', $quiz->id) }}" method="POST">
+                @csrf
+                <input type="hidden" id="lat_input" name="latitude" value="0">
+                <input type="hidden" id="lng_input" name="longitude" value="0">
+                <input type="hidden" id="violation_count" name="violation_count" value="0"> <div id="questions-viewport">
+                    <div id="questions-container">
+                        @foreach ($questions as $index => $question)
+                            <div id="q-block-{{ $index }}" class="question-block">
+                                <input type="hidden" name="questions[{{ $index }}][question_id]" value="{{ $question->id }}">
+                                <div class="mb-2 mt-2">
+                                    <span class="bg-indigo-600 text-white px-6 py-2 rounded-full text-sm font-black uppercase tracking-widest shadow-[4px_4px_0px_#1e1b4b]">
+                                        ข้อที่ {{ $index + 1 }} จาก {{ count($questions) }}
+                                    </span>
+                                </div>
+                                <h3 class="p-4 text-sm md:text-2xl font-black text-slate-950 leading-[1.2]">
+                                    {{ $question->question_text }}
+                                </h3>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-2 px-2">
+                                    @if ($question->question_type === 'multiple_choice')
+                                        @foreach ($question->choices as $choice)
+                                            <label class="group relative flex items-center p-4 rounded-[1rem] border-[3px] border-slate-300 cursor-pointer transition-all hover:border-indigo-500 has-[:checked]:border-indigo-600 has-[:checked]:bg-indigo-50 has-[:checked]:shadow-[8px_8px_0px_#4f46e5]">
+                                                <input type="radio" name="questions[{{ $index }}][answer]" value="{{ $choice->id }}" 
+                                                    onchange="markAsAnswered({{ $index }})" 
+                                                    class="w-6 h-6 text-indigo-600 border-slate-400 focus:ring-indigo-900 mr-4">
+                                                <span class="font-black text-slate-950 text-sm">{{ $choice->choice_text }}</span>
+                                            </label>
+                                        @endforeach
+                                    @endif
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+
+                {{-- Floating Buttons --}}
+                <div class="fixed sm:block bottom-0 left-0 right-0 bg-white/80 backdrop-blur-xl border-t-[5px] border-slate-950 p-6 z-[55]">
+                    <div class="max-w-xl mx-auto flex gap-6">
+                        <button type="button" id="prev-btn" class="w-24 h-12 bg-white border-[4px] border-slate-950 rounded-[1.5rem] flex items-center justify-center text-slate-950 text-xl shadow-[6px_6px_0px_#000] active:translate-y-1 active:shadow-none transition-all">
+                            <i class="fa-solid fa-arrow-left"></i>
+                        </button>
+                        
+                        <button type="button" id="next-btn" class="flex-1 h-12 bg-slate-950 text-white rounded-[1.5rem] font-black text-xl flex items-center justify-center shadow-[8px_8px_0px_#4f46e5] active:translate-y-1 active:shadow-none transition-all">
+                            ถัดไป <i class="fa-solid fa-chevron-right ml-4"></i>
+                        </button>
+
+                        <button type="button" id="submit-btn" class="hidden flex-1 h-12 bg-emerald-500 text-white rounded-[1.5rem] font-black text-xl flex items-center justify-center shadow-[8px_8px_0px_#064e3b] active:translate-y-1 active:shadow-none transition-all">
+                            ส่งข้อสอบ <i class="fa-solid fa-check-double ml-4"></i>
+                        </button>
+                    </div>
                 </div>
             </form>
         </div>
     </div>
 
-    {{-- Modal สำหรับแจ้งเตือนข้อผิดพลาด --}}
-    <div id="error-modal" class="fixed inset-0 bg-gray-600 bg-opacity-75 flex items-center justify-center z-50 hidden">
-        <div class="bg-white rounded-lg shadow-xl p-6 m-4 max-w-sm w-full">
-            <div class="flex justify-between items-center border-b pb-3 mb-3">
-                <h3 class="text-xl font-semibold text-gray-800" id="modal-title">เกิดข้อผิดพลาด!</h3>
-                <button type="button" class="text-gray-400 hover:text-gray-600" onclick="hideModal()">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                </button>
-            </div>
-            <div id="modal-content" class="text-gray-700 mb-4">
-                {{-- ข้อความข้อผิดพลาดจะถูกแทรกที่นี่ --}}
-            </div>
-            <div class="flex justify-end">
-                <button type="button" class="bg-blue-600 text-white font-bold py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50" onclick="hideModal()">
-                    ตกลง
-                </button>
-            </div>
-        </div>
-    </div>
-
     <script>
-        const quizDurationMinutes = {{ $quiz->time_limit }};
-        let timeRemainingSeconds;
-        let timerInterval;
+        const reqSnap = {{ $quiz->require_snapshot ?? 0 }};
+        const reqLoc = {{ $quiz->require_location ?? 0 }};
+        const timeLimit = {{ $quiz->time_limit }} * 60;
+        const totalQuestions = {{ count($questions) }};
+
         let currentQuestionIndex = 0;
-        const questionBlocks = document.querySelectorAll('.question-block');
-        const prevBtn = document.getElementById('prev-btn');
-        const nextBtn = document.getElementById('next-btn');
-        const submitBtn = document.getElementById('submit-btn');
-        const countdownTimerDisplay = document.getElementById('countdown-timer');
-        const quizForm = document.getElementById('quizForm');
+        let timeRemainingSeconds = timeLimit;
         let isSubmitting = false;
+        let violationCount = 0; // นับจำนวนการสลับหน้าจอ
+        const answeredQuestions = new Array(totalQuestions).fill(false);
 
-        const errorModal = document.getElementById('error-modal');
-        const modalTitle = document.getElementById('modal-title');
-        const modalContent = document.getElementById('modal-content');
+        // --- เพิ่ม: ป้องกันการคลิกขวา (Right Click) ---
+        document.addEventListener('contextmenu', event => event.preventDefault());
+        document.addEventListener('keydown', event => {
+            // ป้องกัน Ctrl+U, Ctrl+S, Ctrl+C (Optional)
+            if(event.ctrlKey && (event.key === 'u' || event.key === 's' || event.key === 'c')) {
+                event.preventDefault();
+            }
+        });
 
-        // Initialize timer
-        if (quizDurationMinutes > 0) {
-            timeRemainingSeconds = quizDurationMinutes * 60;
-            startTimer();
-        } else {
-            countdownTimerDisplay.textContent = 'ไม่จำกัด';
+        // --- เพิ่ม: ตรวจจับการสลับหน้าจอ (Tab Switch) ---
+        document.addEventListener("visibilitychange", () => {
+            if (document.hidden) {
+                violationCount++;
+                document.getElementById('violation_count').value = violationCount;
+                document.title = "⚠️ กลับมาทำข้อสอบเดี๋ยวนี้!";
+                
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'ตรวจพบการสลับหน้าจอ!',
+                    text: `คุณได้สลับหน้าจอเป็นครั้งที่ ${violationCount} ระบบได้บันทึกพฤติกรรมนี้ไว้แล้ว`,
+                    confirmButtonText: 'รับทราบ',
+                    confirmButtonColor: '#f59e0b',
+                    allowOutsideClick: false
+                });
+            } else {
+                document.title = "{{ $quiz->title }}";
+            }
+        });
+
+        window.onload = function() {
+            if (reqSnap === 0 && reqLoc === 0) {
+                processInitialize();
+            } else {
+                document.getElementById('init-auth-modal').style.display = 'flex';
+                initSecurityDevices();
+            }
+        };
+
+        async function initSecurityDevices() {
+            if (reqSnap === 1) {
+                document.getElementById('camera-section').classList.remove('hidden');
+                try {
+                    const video = document.getElementById('webcam');
+                    video.srcObject = await navigator.mediaDevices.getUserMedia({ video: true });
+                } catch (err) {
+                    Swal.fire({ icon: 'error', title: 'CAMERA ERROR', text: 'กรุณาเปิดกล้องเพื่อทำข้อสอบ' });
+                }
+            }
+            if (reqLoc === 1 && navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(pos => {
+                    document.getElementById('lat_input').value = pos.coords.latitude;
+                    document.getElementById('lng_input').value = pos.coords.longitude;
+                    const status = document.getElementById('gps-status');
+                    status.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-500 text-xl"></i> GPS SIGNAL READY`;
+                    status.classList.replace('text-slate-500', 'text-emerald-600');
+                });
+            }
         }
 
-        function formatTime(seconds) {
-            const h = Math.floor(seconds / 3600);
-            const m = Math.floor((seconds % 3600) / 60);
-            const s = seconds % 60;
-            return `${h > 0 ? `${String(h).padStart(2, '0')}:` : ''}${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+        async function processInitialize() {
+            const btn = document.getElementById('start-init-btn');
+            btn.disabled = true;
+            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-2"></i> LOADING...`;
+
+            let photoData = "";
+            if (reqSnap === 1) {
+                const video = document.getElementById('webcam');
+                const canvas = document.getElementById('photo-canvas');
+                if (video.srcObject) {
+                    canvas.width = video.videoWidth; canvas.height = video.videoHeight;
+                    canvas.getContext('2d').drawImage(video, 0, 0);
+                    photoData = canvas.toDataURL('image/png');
+                }
+            }
+
+            try {
+                const response = await fetch("{{ route('quizzes.initialize', $quiz->id) }}", {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+                    body: JSON.stringify({ 
+                        start_photo: photoData, 
+                        latitude: document.getElementById('lat_input').value || 0,
+                        longitude: document.getElementById('lng_input').value || 0
+                    })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    document.getElementById('init-auth-modal').style.display = 'none';
+                    document.getElementById('main-quiz-container').classList.remove('hidden');
+                    if (document.getElementById('webcam').srcObject) {
+                        document.getElementById('webcam').srcObject.getTracks().forEach(t => t.stop());
+                    }
+                    showQuestion(0);
+                    startTimer();
+                } else { throw new Error(data.message); }
+            } catch (e) {
+                Swal.fire({ icon: 'error', title: 'ERROR', text: e.message });
+                btn.disabled = false;
+                btn.innerText = "TRY AGAIN";
+            }
+        }
+
+        function showQuestion(index) {
+            currentQuestionIndex = index;
+            const container = document.getElementById('questions-container');
+            container.style.transform = `translateX(-${index * 100}%)`;
+
+            document.querySelectorAll('.question-block').forEach((b, i) => {
+                b.classList.toggle('active-slide', i === index);
+            });
+
+            document.querySelectorAll('.question-step').forEach((b, i) => {
+                b.classList.toggle('active', i === index);
+            });
+            
+            document.getElementById('prev-btn').style.opacity = index === 0 ? '0.2' : '1';
+            document.getElementById('prev-btn').disabled = index === 0;
+
+            const isLast = index === totalQuestions - 1;
+            document.getElementById('next-btn').classList.toggle('hidden', isLast);
+            document.getElementById('submit-btn').classList.toggle('hidden', !isLast);
+
+            document.getElementById(`step-dot-${index}`).scrollIntoView({ 
+                behavior: 'smooth', inline: 'center', block: 'nearest' 
+            });
+        }
+
+        function markAsAnswered(index) {
+            answeredQuestions[index] = true;
+            document.querySelectorAll('.question-step')[index].classList.add('completed');
         }
 
         function startTimer() {
-            timerInterval = setInterval(() => {
-                timeRemainingSeconds--;
-                countdownTimerDisplay.textContent = formatTime(timeRemainingSeconds);
-
-                if (timeRemainingSeconds <= 0) {
-                    clearInterval(timerInterval);
-                    countdownTimerDisplay.textContent = 'หมดเวลา!';
-                    alert('หมดเวลาทำแบบทดสอบแล้ว ระบบจะส่งคำตอบของคุณโดยอัตโนมัติ');
-                    isSubmitting = true;
-                    quizForm.submit();
+            const timerEl = document.getElementById('countdown-timer');
+            const timerInt = setInterval(() => {
+                if (timeRemainingSeconds > 0) {
+                    timeRemainingSeconds--;
+                    const m = Math.floor(timeRemainingSeconds / 60);
+                    const s = timeRemainingSeconds % 60;
+                    timerEl.innerText = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+                    if(timeRemainingSeconds < 60) {
+                        timerEl.parentElement.classList.replace('bg-slate-950', 'bg-rose-600');
+                    }
+                } else {
+                    clearInterval(timerInt);
+                    submitFinal(true); // Force submit if time is up
                 }
             }, 1000);
         }
 
-        // Modal Functions
-        function showModal(title, message) {
-            modalTitle.textContent = title;
-            modalContent.innerHTML = message;
-            errorModal.classList.remove('hidden');
-        }
-
-        function hideModal() {
-            errorModal.classList.add('hidden');
-        }
-
-        // Client-side Validation Function
-        function validateQuiz() {
-            const unansweredQuestions = [];
-
-            questionBlocks.forEach(questionBlock => {
-                const questionIndex = parseInt(questionBlock.dataset.questionIndex) + 1; // +1 เพื่อให้เป็นเลขข้อ
-                const questionType = questionBlock.dataset.questionType;
-                let isAnswered = false;
-
-                if (questionType === 'multiple_choice' || questionType === 'true_false') {
-                    // ตรวจสอบ radio button
-                    const radios = questionBlock.querySelectorAll('input[type="radio"]');
-                    for (const radio of radios) {
-                        if (radio.checked) {
-                            isAnswered = true;
-                            break;
-                        }
-                    }
-                } else if (questionType === 'short_answer') {
-                    // ตรวจสอบ textarea
-                    const textarea = questionBlock.querySelector('textarea');
-                    if (textarea && textarea.value.trim() !== '') {
-                        isAnswered = true;
-                    }
+        function submitFinal(force = false) {
+            if (isSubmitting) return;
+            
+            // --- แก้ไข: ตรวจสอบว่าทำครบทุกข้อหรือยัง ---
+            if (!force) {
+                const unansweredIndex = answeredQuestions.findIndex(answered => answered === false);
+                if (unansweredIndex !== -1) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'ยังทำข้อสอบไม่ครบ!',
+                        text: `คุณยังไม่ได้ทำข้อที่ ${unansweredIndex + 1}`,
+                        confirmButtonText: 'ไปทำข้อนั้นเดี๋ยวนี้',
+                        confirmButtonColor: '#4f46e5'
+                    }).then(() => {
+                        showQuestion(unansweredIndex);
+                    });
+                    return; // หยุดการทำงาน ไม่ส่งฟอร์ม
                 }
+            }
 
-                if (!isAnswered) {
-                    unansweredQuestions.push(questionIndex);
-                }
+            isSubmitting = true;
+            Swal.fire({ 
+                title: 'SENDING...', 
+                html: '<p class="font-bold">ระบบกำลังบันทึกคำตอบ ห้ามปิดหน้าต่างนี้!</p>',
+                allowOutsideClick: false, 
+                didOpen: () => Swal.showLoading() 
             });
-
-            if (unansweredQuestions.length > 0) {
-                let message = 'คุณยังไม่ได้ตอบคำถามต่อไปนี้:';
-                message += '<ul class="mt-2 list-disc list-inside">';
-                unansweredQuestions.forEach(qNum => {
-                    message += `<li>ข้อที่ ${qNum}</li>`;
-                });
-                message += '</ul>';
-                message += '<p class="mt-3">โปรดตอบให้ครบถ้วนก่อนส่งแบบทดสอบ</p>';
-
-                showModal('กรุณาตอบคำถามให้ครบถ้วน', message);
-                return false; // Validation failed
-            }
-            return true; // All questions answered
+            document.getElementById('quizForm').submit();
         }
 
-        // Check for server-side errors on page load
-        document.addEventListener('DOMContentLoaded', () => {
-            @if (session('error'))
-                showModal('เกิดข้อผิดพลาด!', '{{ session('error') }}');
-            @endif
-
-            @if ($errors->any())
-                let errorMessage = '<strong class="font-bold">ข้อมูลไม่ถูกต้อง:</strong><ul class="mt-3 list-disc list-inside">';
-                @foreach ($errors->all() as $error)
-                    errorMessage += '<li>{{ $error }}</li>';
-                @endforeach
-                errorMessage += '</ul>';
-                showModal('ข้อผิดพลาดในการตรวจสอบ!', errorMessage);
-            @endif
-
-            // Initial question display
-            showQuestion(currentQuestionIndex);
-        });
-
-        // Question Navigation
-        function showQuestion(index) {
-            questionBlocks.forEach((block, i) => {
-                block.classList.add('hidden');
-                if (i === index) {
-                    block.classList.remove('hidden');
-                }
-            });
-            updateNavigationButtons();
-        }
-
-        function updateNavigationButtons() {
-            prevBtn.style.display = (currentQuestionIndex > 0) ? 'block' : 'none';
-            nextBtn.style.display = (currentQuestionIndex < questionBlocks.length - 1) ? 'block' : 'none';
-            submitBtn.style.display = (currentQuestionIndex === questionBlocks.length - 1) ? 'block' : 'none';
-
-            if (questionBlocks.length === 1) {
-                nextBtn.style.display = 'none';
-                submitBtn.style.display = 'block';
+        document.getElementById('consent-check').onchange = (e) => {
+            const btn = document.getElementById('start-init-btn');
+            btn.disabled = !e.target.checked;
+            if(e.target.checked) {
+                btn.className = "w-full py-6 bg-indigo-600 text-white font-black rounded-[1.5rem] transition-all text-2xl uppercase border-b-[10px] border-indigo-900 shadow-xl cursor-pointer active:translate-y-1 active:border-b-0";
+            } else {
+                btn.className = "w-full py-6 bg-slate-300 text-slate-500 font-black rounded-[1.5rem] transition-all text-2xl uppercase border-b-[10px] border-slate-400";
             }
-        }
+        };
 
-        prevBtn.addEventListener('click', () => {
-            if (currentQuestionIndex > 0) {
-                currentQuestionIndex--;
-                showQuestion(currentQuestionIndex);
+        document.getElementById('prev-btn').onclick = () => showQuestion(currentQuestionIndex - 1);
+        document.getElementById('next-btn').onclick = () => showQuestion(currentQuestionIndex + 1);
+        
+        document.getElementById('submit-btn').onclick = () => {
+            // เช็คก่อนว่าทำครบไหมในฟังก์ชัน submitFinal
+            const unansweredCount = answeredQuestions.filter(a => !a).length;
+            if (unansweredCount > 0) {
+                 submitFinal(); // เรียกใช้ฟังก์ชันนี้เพื่อให้มันแจ้งเตือนและพาไปข้อที่ขาด
+            } else {
+                Swal.fire({
+                    title: 'ยืนยันการส่งข้อสอบ?',
+                    text: "คุณทำครบทุกข้อแล้ว ต้องการส่งเลยหรือไม่?",
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonText: 'ยืนยัน ส่งเลย!',
+                    cancelButtonText: 'ยกเลิก',
+                    confirmButtonColor: '#2563eb',
+                    cancelButtonColor: '#e11d48',
+                }).then(r => r.isConfirmed && submitFinal());
             }
-        });
-
-        nextBtn.addEventListener('click', () => {
-            if (currentQuestionIndex < questionBlocks.length - 1) {
-                currentQuestionIndex++;
-                showQuestion(currentQuestionIndex);
-            }
-        });
-
-        // Event Listener for the Submit Button
-        submitBtn.addEventListener('click', () => {
-            if (validateQuiz()) { // ตรวจสอบความถูกต้องก่อนส่ง
-                isSubmitting = true; // ตั้งค่าสถานะว่ากำลังส่ง
-                quizForm.submit();    // ส่งฟอร์มจริง
-            }
-        });
-
-        // Optional: Warn user before leaving page
-        window.addEventListener('beforeunload', (event) => {
-            if (quizDurationMinutes > 0 && timeRemainingSeconds > 0 && !isSubmitting) {
-                event.returnValue = 'คุณแน่ใจหรือไม่ที่ต้องการออกจากหน้านี้? คำตอบของคุณอาจไม่ถูกบันทึก';
-            }
-        });
-
-        // Prevent accidental form submission on enter key
-        quizForm.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter' && e.target.tagName !== 'TEXTAREA') {
-                e.preventDefault();
-            }
-        });
+        };
     </script>
 </x-app-layout>

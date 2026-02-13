@@ -1,32 +1,35 @@
-<!-- Foooter -->
-<section  class="bg-white mt-14">
-    <div class="max-w-screen-full px-4 py-12 mx-auto space-y-8 overflow-hidden sm:px-6 lg:px-8 border-2">
-        <div class="flex justify-center mt-8 space-x-6">
-            <a href="https://www.facebook.com/nanthchir.mapijarn" class="text-gray-400 hover:text-gray-500">
+<footer class="bg-white border-t border-gray-200 mt-14">
+    <div class="max-w-7xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-center space-x-8 mb-8">
+            <a href="https://www.facebook.com/nanthchir.mapijarn" target="_blank" class="text-gray-400 hover:text-blue-600 transition-colors duration-300" title="Facebook">
                 <span class="sr-only">Facebook</span>
-                <svg class="w-6 h-6" aria-hidden="true" fill="currentColor" viewBox="0 0 24 24">
+                <svg class="w-7 h-7" aria-hidden="true" fill="currentColor" viewBox="0 0 24 24">
                     <path fill-rule="evenodd" d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z" clip-rule="evenodd"></path>
                 </svg>
             </a>
-            <a href="https://www.facebook.com/nanthchir.mapijarn" class="text-gray-400 hover:text-gray-500">
+            <a href="#" class="text-gray-400 hover:text-emerald-500 transition-colors duration-300" title="Website">
                 <span class="sr-only">Website</span>
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-7 h-7">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 017.843 4.582M12 3a8.997 8.997 0 00-7.843 4.582m15.686 0A11.953 11.953 0 0112 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0121 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0112 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 013 12c0-1.605.42-3.113 1.157-4.418" />
-                </svg>                  
+                </svg>
             </a>
-            <a href="https://www.google.com/maps/search/%E0%B8%81%E0%B8%A8%E0%B8%99.%E0%B8%AD%E0%B9%8D%E0%B8%B2%E0%B9%80%E0%B8%A0%E0%B8%AD%E0%B9%82%E0%B8%9E%E0%B8%98%E0%B8%B4%E0%B9%8C%E0%B8%97%E0%B8%AD%E0%B8%87/@14.6346761,100.4102135,17z/data=!3m1!4b1?entry=ttu" class="text-gray-400 hover:text-gray-500">
-                <span class="sr-only">map</span>
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+            <a href="https://www.google.com/maps/search/%E0%B8%81%E0%B8%A8%E0%B8%99.%E0%B8%AD%E0%B9%8D%E0%B8%B2%E0%B9%80%E0%B8%A0%E0%B8%AD%E0%B9%82%E0%B8%9E%E0%B8%98%E0%B8%B4%E0%B9%8C%E0%B8%97%E0%B8%AD%E0%B8%87/@14.6346761,100.4102135,17z/data=!3m1!4b1?entry=ttu" target="_blank" class="text-gray-400 hover:text-red-500 transition-colors duration-300" title="Map">
+                <span class="sr-only">Map</span>
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-7 h-7">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
                     <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
-                </svg>                                  
+                </svg>
             </a>
         </div>
-        <div class="text-sm text-center text-gray-400">
-            Online Learner Information System (OLIS) Version 3.1 <br>
-            © ออกแบบและพัฒนาระบบโดย  นายนนทชัย  มาพิจารณ์  ตำแหน่ง  ครู <br>
-            ศูนย์ส่งเสริมการเรียนรู้ระดับอำเภอโพธิ์ทอง จังหวัดอ่างทอง
-        </div>
 
+        <div class="text-center">
+            <p class="text-base font-medium text-slate-600 mb-1">
+                Online Learner Information System (OLIS) <span class="text-blue-500">Version 3.1</span>
+            </p>
+            <p class="text-sm text-gray-500 leading-relaxed">
+                © ออกแบบและพัฒนาระบบโดย <span class="font-semibold text-slate-700">นายนนทชัย มาพิจารณ์</span> ตำแหน่ง ครู <br>
+                ศูนย์ส่งเสริมการเรียนรู้ระดับอำเภอโพธิ์ทอง จังหวัดอ่างทอง
+            </p>
+        </div>
     </div>
-</section >
+</footer>

@@ -26,9 +26,9 @@
     </head>
     
     <body class="font-sans antialiased min-h-screen">
-        <div class="min-h-screen">
-            @include('layouts.teacherssidebar')
+                    @include('layouts.teacherssidebar')
             @include('layouts.teachersnavigation')
+        <div class="min-h-screen sm:ml-72">
             <main class="h-full">
                 {{ $slot }}
             </main>

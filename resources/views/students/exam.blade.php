@@ -1,194 +1,655 @@
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <x-app-layout>
-    <div class="sm:ml-64 p-4 min-h-screen bg-gray-100">
-        <div class="container mx-auto px-4 py-8">
+    <div class="min-h-screen bg-[#F8FAFC] font-sans antialiased text-slate-900">
+        
+        {{-- Header Section: Premium Look --}}
+        <div class="bg-white/80 backdrop-blur-md border-b border-slate-200 sticky top-0 z-30 shadow-sm">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex flex-col md:flex-row justify-between items-center py-5 gap-4">
+                    <div class="flex items-center gap-3">
+                        <div class="p-2 bg-indigo-600 rounded-xl shadow-lg shadow-indigo-200">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                            </svg>
+                        </div>
+                        <h1 class="text-2xl font-extrabold tracking-tight text-slate-800">
+                            คลังข้อสอบ<span class="text-indigo-600">ออนไลน์</span>
+                        </h1>
+                    </div>
+                    
+                    <div class="flex items-center gap-6">
+                        <div class="hidden sm:flex items-center gap-2 px-4 py-2 bg-emerald-50 text-emerald-700 rounded-full border border-emerald-100 text-sm font-semibold">
+                            <span class="relative flex h-2 w-2">
+                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                                <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                            </span>
+                            Active: {{ $quizzes->where('is_active', 1)->count() }}
+                        </div>
+                    </div>
+                </div>
 
-            {{-- Tabs --}}
-            <div class="mb-6 border-b border-gray-200">
-                <nav class="flex space-x-4">
-                    <button
-                        id="tab-quizzes"
-                        class="tab-btn border-b-2 border-blue-600 text-blue-600 px-4 py-2 font-semibold"
-                        onclick="switchTab('quizzes')">
-                        แบบทดสอบ
+                {{-- Premium Tab Navigation --}}
+                <nav class="flex space-x-1" aria-label="Tabs">
+                    <button onclick="switchTab('assigned')" id="tab-btn-assigned"
+                        class="tab-link relative py-4 px-6 font-semibold text-sm transition-all duration-300">
+                        📋 ข้อสอบที่ครูมอบหมาย
+                        @if(isset($assignedCount) && $assignedCount > 0)
+                            <span class="ml-2 py-0.5 px-2 rounded-full text-[10px] bg-red-500 text-white">{{ $assignedCount }}</span>
+                        @endif
                     </button>
 
-                    <button
-                        id="tab-history"
-                        class="tab-btn border-b-2 border-transparent text-gray-500 hover:text-gray-700 px-4 py-2 font-semibold"
-                        onclick="switchTab('history')">
-                        ประวัติการทำแบบทดสอบ
+                    <button onclick="switchTab('all')" id="tab-btn-all"
+                        class="tab-link relative py-4 px-6 font-semibold text-sm transition-all duration-300">
+                        📚 คลังข้อสอบทั้งหมด
+                    </button>
+
+                    <button onclick="switchTab('history')" id="tab-btn-history"
+                        class="tab-link relative py-4 px-6 font-semibold text-sm transition-all duration-300">
+                        🕒 ประวัติการสอบ
                     </button>
                 </nav>
             </div>
+        </div>
 
-            {{-- ================= TAB : QUIZZES ================= --}}
-            <div id="tab-content-quizzes">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
 
-                <h1 class="text-3xl font-bold mb-8 text-gray-800">แบบทดสอบทั้งหมด</h1>
-
-                @if ($errors->any())
-                    <div id="validation-errors-message" class="hidden">
-                        <strong class="font-bold">ข้อมูลไม่ถูกต้อง:</strong>
-                        <ul class="mt-3 list-disc list-inside">
+            {{-- Alerts --}}
+            @if ($errors->any())
+                <div class="mb-8 bg-white border-l-4 border-rose-500 p-5 rounded-xl shadow-xl shadow-rose-100 flex items-start gap-4">
+                    <div class="bg-rose-100 p-2 rounded-lg">
+                        <svg class="h-5 w-5 text-rose-600" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-bold text-rose-800">พบข้อผิดพลาดบางประการ</h3>
+                        <ul class="mt-1 text-xs text-rose-600/80 list-disc list-inside">
                             @foreach ($errors->all() as $error)
                                 <li>{{ $error }}</li>
                             @endforeach
                         </ul>
                     </div>
-                @endif
+                </div>
+            @endif
 
-                @if (count($quizzes) > 0)
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-                        @foreach ($quizzes as $quiz)
-                            <div class="bg-white rounded-lg shadow-md overflow-hidden flex flex-col">
-                                <div class="p-6 flex-grow">
-                                    <h2 class="text-xl font-semibold text-gray-800 mb-2">
-                                        {{ $quiz->title }}
-                                    </h2>
+            {{-- ================= TAB: ASSIGNED ================= --}}
+            <div id="tab-assigned" class="tab-content hidden animate-in fade-in slide-in-from-bottom-4">
+                {{-- Header Banner --}}
+                <div class="bg-gradient-to-r from-indigo-600 to-violet-700 rounded-3xl p-10 mb-10 text-white shadow-2xl shadow-indigo-200 relative overflow-hidden">
+                    <div class="relative z-10">
+                        <h3 class="text-2xl font-bold">ข้อสอบที่ครูมอบหมาย</h3>
+                        <p class="opacity-80 mt-2 font-light">รายการข้อสอบสำคัญที่คุณต้องทำให้เสร็จตามกำหนดการ</p>
+                    </div>
+                    <div class="absolute right-[-20px] top-[-20px] opacity-10">
+                        <svg class="w-64 h-64" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                    </div>
+                </div>
 
-                                    <p class="text-gray-600 text-sm mb-4 line-clamp-3">
-                                        {{ $quiz->description ?? 'ไม่มีคำอธิบาย' }}
-                                    </p>
-
-                                    <div class="flex items-center text-gray-500 text-sm mb-2">
-                                        <span>⏱ เวลาจำกัด:
-                                            {{ $quiz->time_limit > 0 ? $quiz->time_limit . ' นาที' : 'ไม่จำกัด' }}
+                @if (count($assignedQuizzes) > 0)
+                    {{-- Quiz Grid สำหรับงานที่ได้รับมอบหมาย --}}
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                        @foreach ($assignedQuizzes as $quiz)
+                            <div class="group bg-white rounded-[2rem] shadow-sm hover:shadow-2xl hover:shadow-indigo-100 transition-all duration-500 border border-slate-100 overflow-hidden flex flex-col h-full relative">
+                                
+                                {{-- Status Badge (มุมขวาบน) --}}
+                                <div class="absolute top-4 right-4 z-20">
+                                    @if($quiz->is_completed)
+                                        <span class="px-3 py-1 bg-emerald-500 text-white text-[10px] font-bold rounded-full shadow-lg">
+                                            <i class="fas fa-check mr-1"></i> ทำเสร็จแล้ว
                                         </span>
-                                    </div>
+                                    @else
+                                        <span class="px-3 py-1 bg-orange-500 text-white text-[10px] font-bold rounded-full shadow-lg animate-pulse">
+                                            รอดำเนินการ
+                                        </span>
+                                    @endif
+                                </div>
 
-                                    <div class="flex items-center text-gray-500 text-sm">
-                                        <span>📊 คะแนนรวม: {{ $quiz->total_score }}</span>
+                                {{-- Quiz Cover --}}
+                                <div class="relative h-44 overflow-hidden bg-indigo-100">
+                                    <div class="w-full h-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center transition-transform duration-700 group-hover:scale-110">
+                                        <svg class="w-16 h-16 text-white/20" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
                                     </div>
                                 </div>
 
-                                <div class="px-6 py-4 bg-gray-50 border-t">
-                                    <a href="{{ route('quizzes.start', $quiz->id) }}"
-                                       class="block bg-blue-600 text-white font-bold py-2 px-4 rounded-md hover:bg-blue-700 text-center">
-                                        เริ่มทำแบบทดสอบ
+                                {{-- Card Body --}}
+                                <div class="p-8 flex-grow">
+                                    <div class="flex flex-wrap gap-2 mb-4">
+                                        @php
+                                            $gradeConfig = [
+                                                1 => ['l' => 'ประถม', 'c' => 'bg-rose-50 text-rose-600 border-rose-100'],
+                                                2 => ['l' => 'มัธยมต้น', 'c' => 'bg-emerald-50 text-emerald-600 border-emerald-100'],
+                                                3 => ['l' => 'มัธยมปลาย', 'c' => 'bg-amber-50 text-amber-600 border-amber-100']
+                                            ];
+                                            $curr = $gradeConfig[$quiz->grade_level] ?? ['l' => 'ทั่วไป', 'c' => 'bg-slate-50 text-slate-600 border-slate-100'];
+                                        @endphp
+                                        <span class="px-3 py-1 {{ $curr['c'] }} text-[10px] font-bold rounded-lg uppercase tracking-widest border">
+                                            {{ $curr['l'] }}
+                                        </span>
+                                        <span class="px-3 py-1 bg-indigo-50 text-indigo-600 text-[10px] font-bold rounded-lg border border-indigo-100">
+                                            {{ $quiz->subject_table_type }}
+                                        </span>
+                                    </div>
+
+                                    <h2 class="text-xl font-bold text-slate-800 mb-2 group-hover:text-indigo-600 transition-colors">
+                                        {{ $quiz->title }}
+                                    </h2>
+
+                                    <div class="flex items-center gap-2 mb-4 text-slate-400">
+                                        <span class="text-xs">โดย {{ $quiz->created_by_name ?? 'ไม่ระบุชื่อครู' }}</span>
+                                    </div>
+
+                                    @if($quiz->due_date)
+                                    <p class="text-rose-500 text-xs mb-4 font-medium">
+                                        <i class="far fa-calendar-alt mr-1"></i> กำหนดส่ง: {{ date('d/m/Y', strtotime($quiz->due_date)) }}
+                                    </p>
+                                    @endif
+
+                                    <div class="grid grid-cols-2 gap-4 pt-4 border-t border-slate-50">
+                                        <div class="flex items-center gap-2 text-slate-500">
+                                            <span class="text-xs font-medium">{{ $quiz->total_score }} คะแนน</span>
+                                        </div>
+                                        <div class="flex items-center gap-2 text-slate-500 text-right justify-end">
+                                            <span class="text-xs font-medium">{{ $quiz->time_limit }} นาที</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {{-- Action Footer --}}
+                                <div class="px-8 pb-8">
+                                    @if(!$quiz->is_completed)
+                                        <a href="{{ route('quizzes.start', $quiz->id) }}" 
+                                        class="w-full flex items-center justify-center gap-2 py-4 px-6 rounded-2xl text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 shadow-xl shadow-indigo-100 hover:-translate-y-1 transition-all duration-300">
+                                            เริ่มทำข้อสอบ
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
+                                        </a>
+                                    @else
+                                        <button disabled class="w-full flex items-center justify-center gap-2 py-4 px-6 rounded-2xl text-sm font-bold text-slate-400 bg-slate-100 cursor-not-allowed">
+                                            ส่งงานเรียบร้อยแล้ว
+                                        </button>
+                                    @endif
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                @else
+                    {{-- Empty State เมื่อไม่มีงานที่ได้รับมอบหมาย --}}
+                    <div class="flex flex-col items-center justify-center py-20 text-slate-400 bg-white rounded-[3rem] border border-dashed border-slate-200">
+                        <div class="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mb-4">
+                            <svg class="w-10 h-10 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+                            </svg>
+                        </div>
+                        <p class="font-medium text-lg text-slate-500">ไม่มีข้อสอบที่ได้รับมอบหมายในขณะนี้</p>
+                        <p class="text-sm">คุณทำหน้าที่ได้ยอดเยี่ยมมาก! พักผ่อนได้เลย</p>
+                    </div>
+                @endif
+            </div>
+
+            {{-- ================= TAB: ALL QUIZZES ================= --}}
+            <div id="tab-all" class="tab-content hidden animate-in fade-in">
+                
+                {{-- Search Toolbar --}}
+                <form method="GET" action="{{ route('ทดสอบออนไลน์') }}" class="bg-white/70 backdrop-blur-sm p-6 rounded-3xl shadow-xl shadow-slate-200/50 border border-white mb-10">
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-5">
+                        <div class="md:col-span-4 relative group">
+                            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                <svg class="h-5 w-5 text-slate-400 group-focus-within:text-indigo-500 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                </svg>
+                            </div>
+                            <input type="text" name="search" placeholder="ค้นหาวิชาหรือชื่อข้อสอบ..." 
+                                class="pl-11 block w-full rounded-2xl border-slate-100 bg-slate-50/50 text-slate-900 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all sm:text-sm h-12"
+                                value="{{ request('search') }}">
+                        </div>
+
+                        <div class="md:col-span-2">
+                            <select name="subject" class="block w-full rounded-2xl border-slate-100 bg-slate-50/50 text-slate-700 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 h-12 sm:text-sm">
+                                <option value="">ทุกวิชา</option>
+                                @foreach($subjects as $subject)
+                                    <option value="{{ $subject }}" {{ request('subject') == $subject ? 'selected' : '' }}>{{ $subject }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div class="md:col-span-2">
+                            <select name="grade" class="block w-full rounded-2xl border-slate-100 bg-slate-50/50 text-slate-700 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 h-12 sm:text-sm">
+                                <option value="">ทุกระดับชั้น</option>
+                                @foreach($grades as $grade)
+                                    <option value="{{ $grade }}" {{ request('grade') == $grade ? 'selected' : '' }}>ระดับ {{ $grade }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div class="md:col-span-2">
+                            <select name="creator" class="block w-full rounded-2xl border-slate-100 bg-slate-50/50 text-slate-700 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 h-12 sm:text-sm">
+                                <option value="">ผู้สร้างทั้งหมด</option>
+                                @foreach($creators as $creator)
+                                    <option value="{{ $creator->id }}" {{ request('creator') == $creator->id ? 'selected' : '' }}>{{ $creator->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div class="md:col-span-2">
+                            <button type="submit" class="w-full h-12 inline-flex items-center justify-center rounded-2xl shadow-lg shadow-indigo-200 text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 hover:-translate-y-0.5 transition-all">
+                                ค้นหา
+                            </button>
+                        </div>
+                    </div>
+                </form>
+
+                {{-- Quiz Grid --}}
+                @if (count($quizzes) > 0)
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                        @foreach ($quizzes as $quiz)
+                            <div class="group bg-white rounded-[2rem] shadow-sm hover:shadow-2xl hover:shadow-indigo-100 transition-all duration-500 border border-slate-100 overflow-hidden flex flex-col h-full relative">
+                                
+                                {{-- Quiz Cover Image --}}
+                                <div class="relative h-44 overflow-hidden bg-indigo-100">
+                                    @if($quiz->is_attempted > 0)
+                                        <div class="absolute top-4 left-4 z-20">
+                                            <span class="px-3 py-1 bg-emerald-500/90 backdrop-blur-sm text-white text-[10px] font-bold rounded-lg shadow-lg flex items-center gap-1">
+                                                <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg>
+                                                ทำแล้ว
+                                            </span>
+                                        </div>
+                                    @endif
+                                    @if($quiz->cover_image)
+                                        <img src="{{ $quiz->cover_image }}" alt="{{ $quiz->title }}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+                                    @else
+                                        <div class="w-full h-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center transition-transform duration-700 group-hover:scale-110">
+                                            <svg class="w-16 h-16 text-white/20" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                                        </div>
+                                    @endif
+                                    <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                </div>
+
+                                {{-- Card Body --}}
+                                <div class="p-8 flex-grow">
+                                    <div class="flex justify-between items-start mb-4">
+                                        <div class="flex flex-wrap gap-2">
+                                            <span class="px-3 py-1 bg-indigo-50 text-indigo-600 text-[10px] font-bold rounded-lg uppercase tracking-widest border border-indigo-100">
+                                                {{ $quiz->subject_code ?? 'CODE' }}
+                                            </span>
+                                            @php
+                                                $gradeConfig = [
+                                                    1 => ['l' => 'ประถม', 'c' => 'bg-rose-50 text-rose-600 border-rose-100'],
+                                                    2 => ['l' => 'มัธยมต้น', 'c' => 'bg-emerald-50 text-emerald-600 border-emerald-100'],
+                                                    3 => ['l' => 'มัธยมปลาย', 'c' => 'bg-amber-50 text-amber-600 border-amber-100']
+                                                ];
+                                                $curr = $gradeConfig[$quiz->grade_level] ?? ['l' => 'ทั่วไป', 'c' => 'bg-slate-50 text-slate-600 border-slate-100'];
+                                            @endphp
+                                            <span class="px-3 py-1 {{ $curr['c'] }} text-[10px] font-bold rounded-lg uppercase tracking-widest border">
+                                                {{ $curr['l'] }}
+                                            </span>
+                                        </div>
+                                        @if($quiz->is_active)
+                                            <span class="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)]"></span>
+                                        @endif
+                                    </div>
+
+                                    <h2 class="text-xl font-bold text-slate-800 mb-2 group-hover:text-indigo-600 transition-colors">
+                                        {{ $quiz->title }}
+                                    </h2>
+
+                                    {{-- Creator Info --}}
+                                    <div class="flex items-center gap-2 mb-4 text-slate-400">
+                                        <div class="w-5 h-5 rounded-full bg-slate-100 flex items-center justify-center">
+                                            <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path></svg>
+                                        </div>
+                                        <span class="text-xs">โดย {{ $quiz->user->name ?? 'ไม่ระบุชื่อครู' }}</span>
+                                    </div>
+
+                                    <p class="text-slate-500 text-sm mb-6 line-clamp-2 leading-relaxed">
+                                        {{ $quiz->description ?? 'ไม่มีคำอธิบายเพิ่มเติมสำหรับแบบทดสอบนี้' }}
+                                    </p>
+
+                                    <div class="grid grid-cols-2 gap-4 pt-4 border-t border-slate-50">
+                                        <div class="flex items-center gap-2 text-slate-500">
+                                            <div class="p-1.5 bg-slate-50 rounded-lg text-slate-400">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                            </div>
+                                            <span class="text-xs font-medium">{{ $quiz->time_limit > 0 ? $quiz->time_limit . ' m' : 'No limit' }}</span>
+                                        </div>
+                                        <div class="flex items-center gap-2 text-slate-500">
+                                            <div class="p-1.5 bg-slate-50 rounded-lg text-slate-400">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                            </div>
+                                            <span class="text-xs font-medium">{{ $quiz->total_score }} คะแนน</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {{-- Action Footer --}}
+                                <div class="px-8 pb-8">
+                                    <a href="{{ route('quizzes.start', $quiz->id) }}" 
+                                       class="w-full flex items-center justify-center gap-2 py-4 px-6 rounded-2xl text-sm font-bold text-white bg-slate-900 group-hover:bg-indigo-600 group-hover:shadow-xl group-hover:shadow-indigo-200 transition-all duration-300">
+                                        เริ่มทำข้อสอบ
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
                                     </a>
                                 </div>
                             </div>
                         @endforeach
                     </div>
                 @else
-                    <div class="bg-white rounded-lg shadow-md p-6 text-center text-gray-600">
-                        <p class="text-lg">ยังไม่มีแบบทดสอบ</p>
+                    <div class="bg-white rounded-[3rem] p-20 border border-dashed border-slate-200 text-center">
+                        <h3 class="text-xl font-bold text-slate-800">ไม่พบสิ่งที่คุณกำลังค้นหา</h3>
+                        <p class="text-slate-400 mt-2">ลองเปลี่ยนคำค้นหาหรือตัวกรองใหม่อีกครั้ง</p>
                     </div>
                 @endif
             </div>
 
-            {{-- ================= TAB : HISTORY ================= --}}
-            <div id="tab-content-history" class="hidden">
-
-                <h1 class="text-3xl font-bold mb-8 text-gray-800">ประวัติการทำแบบทดสอบ</h1>
-
-                @if (count($quizAttemptsHistory) > 0)
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        @foreach ($quizAttemptsHistory as $attempt)
-                            <div class="bg-white rounded-lg shadow-md p-6 flex flex-col">
-                                <h2 class="text-xl font-semibold mb-2">
-                                    {{ $attempt->quiz_title }}
-                                </h2>
-
-                                <p class="text-sm text-gray-600">
-                                    คะแนน: <span class="font-bold text-blue-600">
-                                        {{ $attempt->user_score }}
-                                    </span> / {{ $attempt->quiz_total_score }}
-                                </p>
-
-                                <p class="text-sm text-gray-600">
-                                    วันที่ทำ:
-                                    {{ \Carbon\Carbon::parse($attempt->finished_at)->translatedFormat('j F Y H:i') }}
-                                </p>
-
-                                @php
-                                    $percent = ($attempt->user_score / $attempt->quiz_total_score) * 100;
-                                @endphp
-
-                                @if ($percent >= 80)
-                                    <button
-                                        class="mt-4 bg-green-500 text-white py-2 rounded hover:bg-green-600"
-                                        onclick="showCertificateModal(
-                                            '{{ $attempt->quiz_title }}',
-                                            '{{ $attempt->user_score }}',
-                                            '{{ $attempt->quiz_total_score }}'
-                                        )">
-                                        แสดงเกียรติบัตร
-                                    </button>
-                                @endif
-                            </div>
-                        @endforeach
+            {{-- ================= TAB: HISTORY with FULL SORT ================= --}}
+            <div id="tab-history" class="tab-content hidden animate-in fade-in">
+                <div class="bg-white rounded-[2rem] shadow-xl shadow-slate-200/50 border border-slate-100 overflow-hidden">
+                    <div class="px-8 py-6 border-b border-slate-50 bg-white flex justify-between items-center">
+                        <div>
+                            <h2 class="text-xl font-bold text-slate-800">ประวัติการสอบ</h2>
+                            <p class="text-xs text-slate-400 mt-1">* คลิกที่หัวตารางเพื่อเรียงลำดับข้อมูล</p>
+                        </div>
                     </div>
-                @else
-                    <div class="bg-white rounded-lg shadow-md p-6 text-center text-gray-600">
-                        ยังไม่มีประวัติการทำแบบทดสอบ
+
+                    @if (count($quizAttemptsHistory) > 0)
+                        <div class="overflow-x-auto">
+                            <table id="historyTable" class="min-w-full">
+                                <thead>
+                                    <tr class="bg-slate-50/50 border-b border-slate-100">
+                                        <th onclick="sortTable(0)" class="cursor-pointer px-8 py-5 text-left text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] hover:text-indigo-600 transition-colors group">
+                                            ชื่อข้อสอบ <span class="opacity-0 group-hover:opacity-100 ml-1">↕</span>
+                                        </th>
+                                        <th onclick="sortTable(1)" class="cursor-pointer px-8 py-5 text-left text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] hover:text-indigo-600 transition-colors group">
+                                            วันที่สอบ <span class="opacity-0 group-hover:opacity-100 ml-1">↕</span>
+                                        </th>
+                                        <th onclick="sortTable(2)" class="cursor-pointer px-8 py-5 text-center text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] hover:text-indigo-600 transition-colors group">
+                                            คะแนน <span class="opacity-0 group-hover:opacity-100 ml-1">↕</span>
+                                        </th>
+                                        <th onclick="sortTable(3)" class="cursor-pointer px-8 py-5 text-center text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] hover:text-indigo-600 transition-colors group">
+                                            สถานะ <span class="opacity-0 group-hover:opacity-100 ml-1">↕</span>
+                                        </th>
+                                        <th class="px-8 py-5 text-right text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">จัดการ</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-50">
+                                    @foreach ($quizAttemptsHistory as $attempt)
+                                    @php
+                                        $percent = ($attempt->user_score / $attempt->quiz_total_score) * 100;
+                                        $passed = $percent >= 50;
+                                    @endphp
+                                    <tr class="hover:bg-slate-50/80 transition-all group">
+                                        <td class="px-8 py-6 whitespace-nowrap">
+                                            <div class="text-sm font-bold text-slate-700 group-hover:text-indigo-600 transition-colors">{{ $attempt->quiz_title }}</div>
+                                            <div class="text-[10px] text-slate-400 uppercase mt-1">Total: {{ $attempt->quiz_total_score }} pts</div>
+                                        </td>
+                                        <td class="px-8 py-6 whitespace-nowrap">
+                                            <div class="text-sm text-slate-500 font-medium">
+                                                {{ \Carbon\Carbon::parse($attempt->finished_at)->translatedFormat('j M Y') }}
+                                            </div>
+                                            <div class="text-[10px] text-slate-400 mt-1">{{ \Carbon\Carbon::parse($attempt->finished_at)->format('H:i') }} น.</div>
+                                            {{-- Hidden raw timestamp for sorting --}}
+                                            <span class="hidden">{{ $attempt->finished_at }}</span>
+                                        </td>
+                                        <td class="px-8 py-6 whitespace-nowrap text-center">
+                                            <div class="inline-flex flex-col">
+                                                <span class="text-base font-black {{ $passed ? 'text-emerald-500' : 'text-rose-500' }}">
+                                                    {{ $attempt->user_score }}
+                                                </span>
+                                                <div class="w-16 bg-slate-100 h-1 rounded-full mt-1 overflow-hidden mx-auto">
+                                                    <div class="{{ $passed ? 'bg-emerald-400' : 'bg-rose-400' }} h-full" style="width: {{ $percent }}%"></div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="px-8 py-6 whitespace-nowrap text-center">
+                                            <span class="px-4 py-1.5 rounded-full text-[10px] font-bold {{ $passed ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : 'bg-rose-50 text-rose-600 border border-rose-100' }}">
+                                                {{ $passed ? 'PASSED' : 'FAILED' }}
+                                            </span>
+                                        </td>
+                                        <td class="px-8 py-6 whitespace-nowrap text-right">
+                                            @if ($percent >= 80)
+                                                <button onclick="showCertificateModal('{{ $attempt->quiz_title }}', '{{ $attempt->user_score }}', '{{ $attempt->quiz_total_score }}', '{{ $attempt->certificate_image }}')"
+                                                    class="inline-flex items-center gap-2 text-indigo-600 hover:text-indigo-800 font-bold text-xs bg-indigo-50 px-4 py-2 rounded-xl transition-all">
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                                    เกียรติบัตร
+                                                </button>
+                                            @else
+                                                <span class="text-slate-300 text-[10px] italic">ไม่ถึงเกณฑ์</span>
+                                            @endif
+                                        </td>
+                                    </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    @else
+                        <div class="p-20 text-center">
+                            <p class="text-slate-400 font-medium">ยังไม่มีประวัติการสอบของคุณ</p>
+                        </div>
+                    @endif
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    {{-- Certificate Modal & Other parts remains same as previous --}}
+<div id="certificate-modal" class="fixed inset-0 z-50 hidden overflow-y-auto">
+    <div class="flex min-h-screen items-center justify-center p-4">
+        <div class="fixed inset-0 bg-slate-900/80 backdrop-blur-md" onclick="hideCertificateModal()"></div>
+        
+        <div class="relative w-full max-w-6xl overflow-hidden rounded-[2rem] bg-white shadow-2xl transition-all">
+            <div class="flex items-center justify-between border-b border-slate-100 bg-slate-50/50 px-8 py-5">
+                <h3 class="text-xl font-bold text-slate-800">ตัวอย่างเกียรติบัตร</h3>
+                <div class="flex gap-3">
+                    <button onclick="downloadPDF()" class="pdf-btn-main flex items-center gap-2 rounded-xl bg-rose-600 px-6 py-2.5 text-sm font-bold text-white transition hover:bg-rose-700 shadow-lg shadow-rose-200">
+                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                        ดาวน์โหลดเป็น PDF
+                    </button>
+                    <button onclick="hideCertificateModal()" class="rounded-xl bg-white border border-slate-200 px-6 py-2.5 text-sm font-bold text-slate-600 transition hover:bg-slate-50">ปิดหน้าต่าง</button>
+                </div>
+            </div>
+
+            <div class="cert-scale-container p-10" style="min-height: 500px;">
+                <div id="certificate-content" class="shadow-2xl">
                     </div>
-                @endif
             </div>
         </div>
     </div>
 
-    {{-- ================= CERTIFICATE MODAL ================= --}}
-    <div id="certificate-modal"
-         class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 hidden">
-        <div class="bg-white p-6 rounded-lg w-full md:max-w-4xl max-h-[90vh] overflow-auto">
-            <div class="flex justify-between mb-3">
-                <h3 class="text-xl font-bold">เกียรติบัตร</h3>
-                <button onclick="hideCertificateModal()">✖</button>
-            </div>
-
-            <div id="certificate-content"></div>
-
-            <div class="text-center mt-4">
-                <a id="download-certificate-link"
-                   class="bg-blue-600 text-white px-4 py-2 rounded">
-                    ดาวน์โหลดเกียรติบัตร
-                </a>
-            </div>
-        </div>
-    </div>
-
-    {{-- ================= SCRIPTS ================= --}}
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
     <script>
-        function switchTab(tab) {
-            const q = document.getElementById('tab-content-quizzes');
-            const h = document.getElementById('tab-content-history');
-            const tq = document.getElementById('tab-quizzes');
-            const th = document.getElementById('tab-history');
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.tab-link').forEach(el => {
+                el.classList.remove('text-indigo-600');
+                el.classList.add('text-slate-400');
+                const underline = el.querySelector('.tab-underline');
+                if (underline) underline.remove();
+            });
 
-            if (tab === 'quizzes') {
-                q.classList.remove('hidden');
-                h.classList.add('hidden');
-                tq.classList.add('border-blue-600','text-blue-600');
-                th.classList.remove('border-blue-600','text-blue-600');
-            } else {
-                h.classList.remove('hidden');
-                q.classList.add('hidden');
-                th.classList.add('border-blue-600','text-blue-600');
-                tq.classList.remove('border-blue-600','text-blue-600');
+            document.getElementById(`tab-${tabName}`).classList.remove('hidden');
+            const activeBtn = document.getElementById(`tab-btn-${tabName}`);
+            activeBtn.classList.remove('text-slate-400');
+            activeBtn.classList.add('text-indigo-600');
+            activeBtn.insertAdjacentHTML('beforeend', '<span class="tab-underline absolute bottom-0 left-0 w-full h-1 bg-indigo-600 rounded-t-full"></span>');
+        }
+
+        // --- Improved Table Sorting ---
+        function sortTable(n) {
+            let table = document.getElementById("historyTable");
+            let rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+            switching = true;
+            dir = "asc";
+            while (switching) {
+                switching = false;
+                rows = table.rows;
+                for (i = 1; i < (rows.length - 1); i++) {
+                    shouldSwitch = false;
+                    x = rows[i].getElementsByTagName("TD")[n];
+                    y = rows[i + 1].getElementsByTagName("TD")[n];
+                    
+                    let xVal = x.innerText.toLowerCase().trim();
+                    let yVal = y.innerText.toLowerCase().trim();
+
+                    // Check if numeric
+                    let xNum = parseFloat(xVal.replace(/[^\d.-]/g, ''));
+                    let yNum = parseFloat(yVal.replace(/[^\d.-]/g, ''));
+
+                    if (!isNaN(xNum) && !isNaN(yNum) && n === 2) { // Score column
+                        if (dir == "asc" ? xNum > yNum : xNum < yNum) {
+                            shouldSwitch = true; break;
+                        }
+                    } else {
+                        if (dir == "asc" ? xVal > yVal : xVal < yVal) {
+                            shouldSwitch = true; break;
+                        }
+                    }
+                }
+                if (shouldSwitch) {
+                    rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                    switching = true;
+                    switchcount++;
+                } else if (switchcount == 0 && dir == "asc") {
+                    dir = "desc";
+                    switching = true;
+                }
             }
         }
 
-        const certificateModal = document.getElementById('certificate-modal');
-        const certificateContent = document.getElementById('certificate-content');
-        const downloadLink = document.getElementById('download-certificate-link');
+async function downloadPDF() {
+    const element = document.getElementById('certificate-content');
+    const studentName = "{{ auth()->user()->name }}";
+    const btn = document.querySelector('.pdf-btn-main');
 
-        function showCertificateModal(title, score, total) {
-            certificateContent.innerHTML = `
-                <div class="text-center p-10 border">
-                    <h2 class="text-2xl font-bold">${title}</h2>
-                    <p class="mt-4">คะแนน ${score} / ${total}</p>
-                    <p class="mt-2">{{ auth()->user()->name }}</p>
+    btn.innerText = 'กำลังสร้างไฟล์...';
+    btn.disabled = true;
+
+    // ตั้งค่าสำหรับ PDF
+    const opt = {
+        margin: 0,
+        filename: `Certificate-${studentName}.pdf`,
+        image: { type: 'jpeg', quality: 1.0 },
+        html2canvas: { 
+            scale: 2, 
+            useCORS: true,
+            logging: false,
+            letterRendering: true
+        },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
+    };
+
+    // ปิดการ Transform ชั่วคราวเพื่อให้ขนาดกลับมาเป็น 297mm x 210mm (A4)
+    const originalStyle = element.style.cssText;
+    element.style.transform = 'none';
+    element.style.position = 'relative';
+    element.style.margin = '0';
+
+    try {
+        await html2pdf().set(opt).from(element).save();
+    } finally {
+        // คืนค่าการแสดงผลในหน้าจอปกติ
+        element.style.cssText = originalStyle;
+        btn.innerText = 'ดาวน์โหลดเป็น PDF';
+        btn.disabled = false;
+    }
+}
+
+async function showCertificateModal(title, score, total, bgUrl) {
+    const certificateContent = document.getElementById('certificate-content');
+    const modal = document.getElementById('certificate-modal');
+    
+    // แสดง Loading ระหว่างรอแปลงรูป
+    certificateContent.innerHTML = '<div class="flex h-full items-center justify-center text-2xl">กำลังโหลดเกียรติบัตร...</div>';
+    modal.classList.remove('hidden');
+
+    try {
+        // ดึงรูป Base64 ผ่าน Route ที่เราสร้างไว้
+        const response = await fetch(`/get-cert-base64?url=${encodeURIComponent(bgUrl)}`);
+        const data = await response.json();
+        const base64Image = data.base64;
+
+        // ใส่เนื้อหาเกียรติบัตร (ใช้ img tag ที่เป็น base64)
+        certificateContent.innerHTML = `
+            <img src="${base64Image}" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; object-fit: fill;">
+            <div class="flex flex-col items-center justify-between h-full text-center py-20 px-32 text-[#1e293b] relative z-10">
+                <div class="mt-12">
+                    <h1 class="text-6xl font-bold text-indigo-900 mb-4">ประกาศนียบัตร</h1>
+                    <h1 class="text-2xl font-bold text-indigo-900 mb-4">{{ config('app.name_th') }}</h1>
+                    <p class="text-3xl text-indigo-700 font-medium">ให้ไว้เพื่อแสดงว่า</p>
                 </div>
-            `;
-            certificateModal.classList.remove('hidden');
-        }
+
+                <div class="my-4">
+                    <h2 class="text-7xl font-bold text-slate-800 border-b-4 border-slate-200 pb-4 px-16 inline-block">
+                        {{ auth()->user()->name }}
+                    </h2>
+                </div>
+
+                <div class="max-w-4xl">
+                    <p class="text-3xl text-slate-700 mb-4 font-medium">ได้ผ่านการทำแบบทดสอบ</p>
+                    <p class="text-5xl font-black text-indigo-800 leading-tight">“ ${title} ”</p>
+                    <p class="text-2xl text-slate-500 mt-10">ให้ไว้ ณ วันที่ ${new Date().toLocaleDateString('th-TH', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+                </div>
+
+                <div class="w-full flex justify-between items-end mt-10 px-10">
+                    <div class="text-left bg-white/70 p-5 rounded-2xl border border-white/50 backdrop-blur-sm">
+                        <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">ผลคะแนนที่ได้</p>
+                        <p class="text-4xl font-black text-indigo-600">${score} <span class="text-xl text-slate-400 font-normal">/ ${total}</span></p>
+                    </div>
+                    <div class="text-center">
+                        <div class="w-72 border-b-2 border-slate-400 mb-3 mx-auto"><div class="h-16"></div></div>
+                        <p class="text-xl font-bold text-slate-700">ผุ้บริหารสถานศึกษา</p>
+                    </div>
+                </div>
+            </div>
+        `;
+    } catch (error) {
+        certificateContent.innerHTML = '<div class="text-red-500 p-10 text-center">โหลดรูปภาพพื้นหลังไม่สำเร็จ กรุณาตรวจสอบการเชื่อมต่อ</div>';
+    }
+}
 
         function hideCertificateModal() {
-            certificateModal.classList.add('hidden');
+            document.getElementById('certificate-modal').classList.add('hidden');
+            document.body.style.overflow = 'auto';
         }
-    </script>
+                
+                document.addEventListener('DOMContentLoaded', () => {
+                switchTab('all');
+                });
+</script>
+
+<style>
+    /* ส่วนของ Modal และการย่อโชว์ */
+    .cert-scale-container {
+        width: 100%;
+        overflow: hidden;
+        display: flex;
+        justify-content: center;
+        background: #f8fafc;
+        border-radius: 1rem;
+    }
+
+    /* ขนาดจริงของ A4 แนวนอน */
+    #certificate-content {
+        width: 297mm;
+        height: 210mm;
+        min-width: 297mm;
+        min-height: 210mm;
+        background-color: white;
+        background-size: 100% 100% !important; /* บังคับพื้นหลังเต็ม */
+        background-repeat: no-repeat;
+        background-position: center;
+        position: relative;
+        /* ย่อหน้าจอ Preview */
+        transform: scale(0.35); 
+        transform-origin: top center;
+    }
+
+    /* ปรับขนาดตามหน้าจอผู้ใช้ */
+    @media (min-width: 768px) { #certificate-content { transform: scale(0.5); } }
+    @media (min-width: 1280px) { #certificate-content { transform: scale(0.65); } }
+
+    /* ป้องกันการแตกของตัวอักษร */
+    #certificate-content * {
+        -webkit-font-smoothing: antialiased;
+    }
+</style>
 </x-app-layout>

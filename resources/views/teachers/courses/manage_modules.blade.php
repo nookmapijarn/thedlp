@@ -1,5 +1,5 @@
 <x-teachers-layout>
-    <div class="p-4 sm:ml-64 mt-20">
+    <div class="p-4 mt-20">
         <div class="container mx-auto px-4 py-8">
             <h1 class="text-3xl font-bold text-gray-800 mb-6">จัดการโมดูลและบทเรียน: <br class="md:hidden">{{ $course->title }}</h1>
             

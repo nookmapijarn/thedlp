@@ -4,7 +4,7 @@
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.6/dist/purify.min.js"></script>
     
-    <div class="sm:ml-64">
+    <div class="">
         {{-- ปรับ h-full เป็น h-screen เพื่อให้กล่องแชทเต็มความสูงของหน้าจอ --}}
         <div class="container mx-auto max-w-4xl p-4 flex flex-col h-full">
 

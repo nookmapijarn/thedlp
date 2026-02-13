@@ -1,212 +1,258 @@
 <x-teachers-layout>
-  <div class="p-4 sm:ml-64">
+  <div class="p-4">
     <div class="p-4 border-2 border-gray-200 border-dashed rounded-lg dark:border-gray-700 mt-14">
         <div class="text-2xl font-bold w-full text-center">ผลการพัฒนาคุณภาพผู้เรียน (กศน.4)</div>
-        <form method="GET" action="{{ route('tscore') }}" class="text-sm max-w-6xl mx-auto">
-        <div class="grid grid-cols-1 gap-2 md:grid md:grid-cols-5 justify-items-center">
-            <div class="min-w-full" >
-              <label>ศกร.ตำบล</label>
-                <select required id="tumbon" name="tumbon" class="bg-gray-50 border border-gray-300 text-gray-900 text-xl rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 ">
-                  <option value="">เลือก</option>
-                  @foreach($all_tumbon as $tm)
-                      <option value="{{ $tm->GRP_CODE }}"
-                        @if($tumbon == $tm->GRP_CODE) selected @endif
-                        >
-                          {{ $tm->GRP_CODE }} {{ $tm->GRP_NAME }}
-                      </option>
-                  @endforeach    
-                </select>
+        <form method="GET" action="{{ route('tscore') }}" class="max-w-6xl mx-auto">
+            <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700">
+                
+                <div class="grid grid-cols-1 gap-6 md:grid-cols-5">
+                    
+                    <div class="space-y-2">
+                        <label for="tumbon" class="block text-sm font-semibold text-gray-700 dark:text-gray-300">
+                            <span class="flex items-center gap-1">📍 ศกร.ตำบล</span>
+                        </label>
+                        <select required id="tumbon" name="tumbon" 
+                            class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 block p-3 transition-all dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                            <option value="">เลือกตำบล</option>
+                            @foreach($all_tumbon as $tm)
+                                <option value="{{ $tm->GRP_CODE }}" @if($tumbon == $tm->GRP_CODE) selected @endif>
+                                    {{ $tm->GRP_NAME }}
+                                </option>
+                            @endforeach    
+                        </select>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label for="semestry" class="block text-sm font-semibold text-gray-700 dark:text-gray-300">
+                            🗓️ ภาคเรียน
+                        </label>
+                        <select required id="semestry" name="semestry" 
+                            class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 block p-3 transition-all dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                            <option value="">เลือกภาคเรียน</option>
+                            @foreach($all_semestry as $sem)
+                                <option value="{{ $sem->SEMESTRY }}" @if($semestry === $sem->SEMESTRY) selected @endif>
+                                    {{ $sem->SEMESTRY }}
+                                </option>
+                            @endforeach    
+                        </select>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label for="lavel" class="block text-sm font-semibold text-gray-700 dark:text-gray-300">
+                            🎓 ระดับชั้น
+                        </label>
+                        <select required onchange="if(this.value != '') { this.form.submit(); }" id="lavel" name="lavel" 
+                            class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 block p-3 transition-all dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                            <option value="">เลือกระดับชั้น</option>
+                            <option @if($lavel == 1) selected @endif value="1">ประถมศึกษา</option>
+                            <option @if($lavel == 2) selected @endif value="2">มัธยมต้น</option>
+                            <option @if($lavel == 3) selected @endif value="3">มัธยมปลาย</option>
+                        </select>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label for="subject" class="block text-sm font-semibold text-gray-700 dark:text-gray-300">
+                            📚 รายวิชา
+                        </label>
+                        <select required id="subject" name="subject" 
+                            class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 block p-3 transition-all dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                            <option value="">เลือกวิชา</option>
+                            @foreach($all_subject as $sub)
+                                <option value="{{ $sub->SUB_CODE }}" @if($subject === $sub->SUB_CODE) selected @endif>
+                                    {{ $sub->SUB_CODE }} {{ $sub->SUB_NAME }}
+                                </option>
+                            @endforeach    
+                        </select>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label for="type" class="block text-sm font-semibold text-gray-700 dark:text-gray-300">
+                            📝 ประเภทการสอบ
+                        </label>
+                        <select required id="type" name="type" 
+                            class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 block p-3 transition-all dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                            <option value="">เลือกประเภท</option>
+                            <option @if($type == 0) selected @endif value="0">สอบปลายภาค</option>
+                            <option @if($type == 7) selected @endif value="7">สอบซ่อม</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="mt-6 flex justify-center">
+                    <button type="submit" 
+                        class="flex items-center justify-center gap-2 w-full md:w-1/3 py-3 px-6 text-white font-bold bg-gradient-to-r from-indigo-600 to-blue-500 rounded-xl shadow-md hover:from-indigo-700 hover:to-blue-600 focus:outline-none focus:ring-4 focus:ring-indigo-300 transition-all duration-300 transform hover:-translate-y-0.5 active:scale-95">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                        ดูรายงานผลคะแนน
+                    </button>
+                </div>
             </div>
-            <div class="min-w-full" >
-              <label>ภาคเรียน</label>
-                <select required id="semestry" name="semestry" class="bg-gray-50 border border-gray-300 text-gray-900 text-xl rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 ">
-                  <option value="">เลือก</option>
-                  @foreach($all_semestry as $sem)
-                      <option value="{{ $sem->SEMESTRY }}"
-                        @if($semestry === $sem->SEMESTRY) selected @endif
-                        >
-                          {{ $sem->SEMESTRY }}
-                      </option>
-                  @endforeach    
-                </select>
-            </div>
-            <div class="min-w-full">
-              <label>ระดับชั้น</label>
-                <select required onchange="if(this.value != '') { this.form.submit(); }" id="lavel" name="lavel" class="bg-gray-50 border border-gray-300 text-gray-900 text-xl rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-                  <option value="">เลือก</option>
-                  <option @if($lavel == 1) selected @endif value="1">ประถมศึกษา</option>
-                  <option @if($lavel == 2) selected @endif value="2">มัธยมต้น</option>
-                  <option @if($lavel == 3) selected @endif value="3">มัธยมปลาย</option>
-                </select>
-            </div>
-            <div class="min-w-full" >
-              <label>รายวิชา</label>
-                <select required id="subject" name="subject" class="bg-gray-50 border border-gray-300 text-gray-900 text-xl rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 ">
-                  <option value="">เลือก</option>
-                  @foreach($all_subject as $sub)
-                      <option value="{{ $sub->SUB_CODE }}"
-                        @if($subject === $sub->SUB_CODE) selected @endif
-                        >
-                          {{ $sub->SUB_CODE }} {{ $sub->SUB_NAME }}
-                      </option>
-                  @endforeach    
-                </select>
-            </div>
-            <div class="min-w-full" >
-              <label>สอบปกติ/ซ่อม</label>
-                <select required  id="type" name="type" class="bg-gray-50 border border-gray-300 text-gray-900 text-xl rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 ">
-                  <option value="">เลือก</option>
-                  <option @if($type == 0) selected @endif value="0">สอบปลายภาค</option>
-                  <option @if($type == 7) selected @endif value="7">สอบซ่อม</option>
-                  {{-- <option @if($type == 1) selected @endif value="1">เทียบโอน</option> --}}
-                </select>
-            </div>
-          </div>
-          <button type="submit" class="rounded-full  mt-4 p-2 min-w-full bg-indigo-500 hover:border-blue-500 text-white">ดูรายงาน</button> 
         </form>
 
-        {{-- Table --}}
-
-        <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 overflow-scroll">
-          <div class="flex flex-col max-w-srceen-lg ">
-              <div class="overflow-x-auto sm:-mx-6 lg:-mx-8">
-                <div class="inline-block min-w-full  py-2 sm:px-6 lg:px-8">
-                  <div class="overflow-hidden">
-                    <div
-                    @if($lavel == 1) 
-                      class="text-center text-xl p-4 bg-pink-100 border border-slate-300 mb-2" 
-                    @elseif($lavel == 2) 
-                      class="text-center text-xl p-4 bg-green-100 border border-slate-300 mb-2"
-                    @elseif($lavel == 3) 
-                      class="text-center text-xl p-4 bg-yellow-100 border border-slate-300 mb-2" 
-                    @else 
-                      class="text-center text-xl p-4 bg-blue-100 border border-slate-300 mb-2" 
-                    @endif
-                    >
-                      <p>
-                        <strong> ศกร.ตำบล : </strong> {{$tumbon}}
-                        <strong> ระดับ : </strong> 
-                        @if($lavel==1) ประถมศึกษา 
-                        @elseif($lavel==2) มัธยมต้น 
-                        @elseif($lavel==3) มัธยมปลาย 
-                        @endif
-                        <strong> รายวิชา : </strong> {{$subject}}
-                        @if($type == 0) (สอบปลายภาค) 
-                        @elseif ($type == 7) (สอบซ่อม) 
-                        @endif
-                        {{-- Print --}}
-                        <button onclick="printCover({{ json_encode([
-                          'all_grade' => $all_grade,
-                          'pass_grade' => $all_grade - ($grade_0 + $grade_not + $grade_null),
-                          'notpass_grade' => $grade_0 + $grade_not + $grade_null,
-                          'tumbon' => $tumbon, 
-                          'lavel' => $lavel, 
-                          'subject' => $subject, 
-                          'data' => $data]) 
-                        }})" type="button" class="px-3 py-2 text-xs font-medium text-center inline-flex items-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
-                          <svg class="w-6 h-6 text-gray-100 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
-                            <path fill-rule="evenodd" d="M8 3a2 2 0 0 0-2 2v3h12V5a2 2 0 0 0-2-2H8Zm-3 7a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h1v-4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v4h1a2 2 0 0 0 2-2v-5a2 2 0 0 0-2-2H5Zm4 11a1 1 0 0 1-1-1v-4h8v4a1 1 0 0 1-1 1H9Z" clip-rule="evenodd"/>
-                          </svg>  
-                          พิมพ์ กศน.4
-                        </button>
-                      </p>
-                      <div class="flex flex-col-4 gap-4 mt-2">
-                        {{-- <strong> ทั้งหมด = <span class="text-blue-600 underline"> {{$all_grade}} </span></strong>
-                        <strong> ผ่าน = <span class="text-green-600 underline">{{$all_grade-($grade_0+$grade_not)}}</span></strong>
-                        <strong> ไม่ผ่าน = <span class="text-red-600 underline">{{$grade_0+$grade_not}}</span></strong>
-                        <strong> เกรด 2 ขึ้นไป = <span class="text-yellow-600 underline">{{$grade_2_up-$grade_not}}</span></strong>  --}}
-                        {{-- ขาดสอบ : {{$grade_not}} --}}
-                        <div id="toast-simple" class="flex items-center w-full font-size-32 max-w-xs p-4 space-x-4 rtl:space-x-reverse text-blue-500 bg-white divide-x rtl:divide-x-reverse divide-gray-200 rounded-lg shadow dark:text-gray-400 dark:divide-gray-700 space-x dark:bg-gray-800" role="alert">
-                          <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
-                            <path fill-rule="evenodd" d="M12 6a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7Zm-1.5 8a4 4 0 0 0-4 4 2 2 0 0 0 2 2h7a2 2 0 0 0 2-2 4 4 0 0 0-4-4h-3Zm6.82-3.096a5.51 5.51 0 0 0-2.797-6.293 3.5 3.5 0 1 1 2.796 6.292ZM19.5 18h.5a2 2 0 0 0 2-2 4 4 0 0 0-4-4h-1.1a5.503 5.503 0 0 1-.471.762A5.998 5.998 0 0 1 19.5 18ZM4 7.5a3.5 3.5 0 0 1 5.477-2.889 5.5 5.5 0 0 0-2.796 6.293A3.501 3.501 0 0 1 4 7.5ZM7.1 12H6a4 4 0 0 0-4 4 2 2 0 0 0 2 2h.5a5.998 5.998 0 0 1 3.071-5.238A5.505 5.505 0 0 1 7.1 12Z" clip-rule="evenodd"/>
-                          </svg>
-                            <div class="ps-4 text-sm font-normal">ทั้งหมด <span class="underline text-lg">{{$all_grade}}</span> ราย</div>
-                        </div>     
-                        <div id="toast-simple" class="flex items-center w-full max-w-xs p-4 space-x-4 rtl:space-x-reverse text-green-500 bg-white divide-x rtl:divide-x-reverse divide-gray-200 rounded-lg shadow dark:text-gray-400 dark:divide-gray-700 space-x dark:bg-gray-800" role="alert">
-                            <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
-                                <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 8.207-4 4a1 1 0 0 1-1.414 0l-2-2a1 1 0 0 1 1.414-1.414L9 10.586l3.293-3.293a1 1 0 0 1 1.414 1.414Z"/>
-                            </svg>
-                            <div class="ps-4 text-sm font-normal">ผ่าน <span class="underline text-lg">{{$all_grade-($grade_0+$grade_not+$grade_null)}} </span>ราย</div>
-                        </div> 
-                        <div id="toast-simple" class="flex items-center w-full max-w-xs p-4 space-x-4 rtl:space-x-reverse text-red-500 bg-white divide-x rtl:divide-x-reverse divide-gray-200 rounded-lg shadow dark:text-gray-400 dark:divide-gray-700 space-x dark:bg-gray-800" role="alert">
-                            <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
-                                <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 11.793a1 1 0 1 1-1.414 1.414L10 11.414l-2.293 2.293a1 1 0 0 1-1.414-1.414L8.586 10 6.293 7.707a1 1 0 0 1 1.414-1.414L10 8.586l2.293-2.293a1 1 0 0 1 1.414 1.414L11.414 10l2.293 2.293Z"/>
-                            </svg>
-                            <div class="ps-4 text-sm font-normal">ไม่ผ่าน <span class="underline text-lg">{{$grade_0+$grade_not+$grade_null}} </span>ราย</div>
-                        </div> 
-                        <div id="toast-simple" class="flex items-center w-full max-w-xs p-4 space-x-4 rtl:space-x-reverse text-yellow-500 bg-white divide-x rtl:divide-x-reverse divide-gray-200 rounded-lg shadow dark:text-gray-400 dark:divide-gray-700 space-x dark:bg-gray-800" role="alert">
-                            <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
-                              <path d="M13.849 4.22c-.684-1.626-3.014-1.626-3.698 0L8.397 8.387l-4.552.361c-1.775.14-2.495 2.331-1.142 3.477l3.468 2.937-1.06 4.392c-.413 1.713 1.472 3.067 2.992 2.149L12 19.35l3.897 2.354c1.52.918 3.405-.436 2.992-2.15l-1.06-4.39 3.468-2.938c1.353-1.146.633-3.336-1.142-3.477l-4.552-.36-1.754-4.17Z"/>
-                            </svg>                    
-                            <div class="ps-4 text-sm font-normal">เกรด 2 ขึ้นไป <span class="underline text-lg"> {{$grade_2_up-$grade_not}} </span> ราย</div>
-                        </div>            
-                      </div>
-                    </div>
-                    @if($data!=null)
-                    <table class="max-w-full table-fixed bg-blue-100">
-                      <thead class="h-32 text-xs text-gray-900 uppercase dark:bg-gray-700 dark:text-gray-400">  
-                          <tr class="">
-                            <th scope="col" class="border border-slate-300 ... w-12 text-center">ลำดับ</th>
-                            <th scope="col" class="border border-slate-300 ... w-32">รหัส</th>
-                            <th scope="col" class="border border-slate-300 ... w-56">ชื่อ-สกุล</th>
-                            <th scope="col" class="border border-slate-300 ... w-12"><div class="textAlignVer h-0 w-12">บันทึกการเรียนรู้</div></th>
-                            <th scope="col" class="border border-slate-300 ... w-12"><div class="textAlignVer h-0 w-12">บันทึกการฝึกทักษะ</div></th>
-                            <th scope="col" class="border border-slate-300 ... w-12"><div class="textAlignVer h-0 w-12">รายงาน</div></th>
-                            <th scope="col" class="border border-slate-300 ... w-12"><div class="textAlignVer h-0 w-12">แบบฝึกหัด</div></th>
-                            <th scope="col" class="border border-slate-300 ... w-12"><div class="textAlignVer h-0 w-12">แฟ้มสะสมงาน</div></th>
-                            <th scope="col" class="border border-slate-300 ... w-12"><div class="textAlignVer h-0 w-12">ผลงานชิ้นงาน</div></th>
-                            <th scope="col" class="border border-slate-300 ... w-12"><div class="textAlignVer h-0 w-12">โครงงาน</div></th>
-                            <th scope="col" class="border border-slate-300 ... w-12"><div class="textAlignVer h-0 w-12">ทดสอบย่อย</div></th>
-                            <th scope="col" class="border border-slate-300 ... w-12"><div class="textAlignVer h-0 w-12">อื่นๆ</div></th>
-                            <th scope="col" class="border border-slate-300 ... w-12"><div class="textAlignVer h-0 w-12">รวมระหว่างภาค</div></th>
-                            <th scope="col" class="border border-slate-300 ... w-12"><div class="textAlignVer h-0 w-12">คะแนนปลายภาค</div></th>
-                            <th scope="col" class="border border-slate-300 ... w-12"><div class="textAlignVer h-0 w-12">รวมคะแนนทั้งสิ้น</div></th>
-                            <th scope="col" class="border border-slate-300 ... w-12"><div class="textAlignVer h-0 w-12">เกรด</div></th>
-                            <th scope="col" class="border border-slate-300 ... w-12"><div class="textAlignVer h-0 w-24 md:w-24">หมายเหตุ</div></th>
-                          </tr>
-                        </thead>
-                        <tbody class="max-h-48">
-                          @foreach($data as $s)
-                          <tr  class="bg-white hover:bg-blue-200 border-b dark:bg-gray-800 dark:border-gray-700">
-                              <td class="border border-slate-300 ... text-center">{{$loop->iteration}}</td>
-                              <td class="border border-slate-300 ... pr-2">{{$s->ID}}</td>
-                              <td class="border border-slate-300 ... truncate">{{$s->PRENAME}}{{$s->NAME}} {{$s->SURNAME}}</td>
-                              <td class="border border-slate-300 ... text-center">{{$s->MIDTERM1}}</td>
-                              <td class="border border-slate-300 ... text-center">{{$s->MIDTERM2}}</td>
-                              <td class="border border-slate-300 ... text-center">{{$s->MIDTERM3}}</td>
-                              <td class="border border-slate-300 ... text-center">{{$s->MIDTERM4}}</td>
-                              <td class="border border-slate-300 ... text-center">{{$s->MIDTERM5}}</td>
-                              <td class="border border-slate-300 ... text-center">{{$s->MIDTERM6}}</td>
-                              <td class="border border-slate-300 ... text-center">{{$s->MIDTERM7}}</td>
-                              <td class="border border-slate-300 ... text-center">{{$s->MIDTERM8}}</td>
-                              <td class="border border-slate-300 ... text-center">{{$s->MIDTERM9}}</td>
-                              <td class="border border-slate-300 ... text-center">{{$s->MIDTERM}}</td>
-                              <td class="border border-slate-300 ... text-center">{{$s->FINAL}}</td>
-                              <td class="border border-slate-300 ... text-center">{{$s->TOTAL}}</td>
-                              <td class="border border-slate-300 ... text-center">
-                                <span
-                                @if($s->GRADE == 0)class="text-red-300"@endif
-                                @if($s->GRADE > 0 && !is_numeric($s->GRADE))class="text-red-600"@endif
-                                @if($s->GRADE == '' || $s->GRADE == null)class="text-red-600"@endif  
-                                >
-                                {{$s->GRADE}}
-                                </span>
-                              </td>
-                              <td class="border border-slate-300 ... text-center">
-                                @if($s->TYP_CODE == 1) ทอ* @endif
-                              </td>
-                          </tr>
-                          @endforeach
-                        </tbody>
-                      </table>
-                    @endif
-                    @if($data==null) <section class="p-10 text-center text-xl text-red-500">-ไม่พบข้อมูล กรุณาเลือกรายการใหม่-</section> @endif
-                  {{-- </div>
+{{-- Table Section --}}
+<div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+    
+    {{-- Header & Summary Section --}}
+    <div class="mb-6 rounded-2xl overflow-hidden border border-slate-200 shadow-sm bg-white dark:bg-gray-800">
+        <div @class([
+            'p-6 text-center border-b border-slate-200 transition-colors',
+            'bg-pink-50' => $lavel == 1,
+            'bg-green-50' => $lavel == 2,
+            'bg-yellow-50' => $lavel == 3,
+            'bg-blue-50' => !in_array($lavel, [1,2,3])
+        ])>
+            <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+                <div class="text-left">
+                    <h2 class="text-xl font-bold text-gray-800">
+                        ศกร.ตำบล: <span class="text-indigo-600">{{$tumbon}}</span>
+                    </h2>
+                    <p class="text-gray-600">
+                        <strong>ระดับ:</strong> 
+                        @if($lavel==1) ประถมศึกษา @elseif($lavel==2) มัธยมต้น @elseif($lavel==3) มัธยมปลาย @endif
+                        | <strong>วิชา:</strong> {{$subject}} 
+                        <span class="text-sm font-medium">
+                            @if($type == 0) (สอบปลายภาค) @elseif ($type == 7) (สอบซ่อม) @endif
+                        </span>
+                    </p>
                 </div>
-              </div>
-            </div> --}}
-          </div>
+                
+                {{-- Print Button --}}
+                <button onclick="printCover({{ json_encode(['all_grade' => $all_grade, 'pass_grade' => $all_grade - ($grade_0 + $grade_not + $grade_null), 'notpass_grade' => $grade_0 + $grade_not + $grade_null, 'tumbon' => $tumbon, 'lavel' => $lavel, 'subject' => $subject, 'data' => $data]) }})" 
+                        class="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-xl shadow-md transition-all active:scale-95">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+                    พิมพ์ กศน.4
+                </button>
+            </div>
+
+            {{-- Summary Cards --}}
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mt-6">
+                <div class="bg-white p-3 rounded-xl shadow-sm border border-blue-100 flex items-center gap-3">
+                    <div class="p-2 bg-blue-100 rounded-lg text-blue-600">👥</div>
+                    <div class="text-left">
+                        <p class="text-xs text-gray-500">ทั้งหมด</p>
+                        <p class="text-lg font-bold text-blue-600">{{$all_grade}} <span class="text-sm font-normal">ราย</span></p>
+                    </div>
+                </div>
+                <div class="bg-white p-3 rounded-xl shadow-sm border border-green-100 flex items-center gap-3">
+                    <div class="p-2 bg-green-100 rounded-lg text-green-600">✅</div>
+                    <div class="text-left">
+                        <p class="text-xs text-gray-500">ผ่าน</p>
+                        <p class="text-lg font-bold text-green-600">{{$all_grade-($grade_0+$grade_not+$grade_null)}} <span class="text-sm font-normal">ราย</span></p>
+                    </div>
+                </div>
+                <div class="bg-white p-3 rounded-xl shadow-sm border border-red-100 flex items-center gap-3">
+                    <div class="p-2 bg-red-100 rounded-lg text-red-600">❌</div>
+                    <div class="text-left">
+                        <p class="text-xs text-gray-500">ไม่ผ่าน</p>
+                        <p class="text-lg font-bold text-red-600">{{$grade_0+$grade_not+$grade_null}} <span class="text-sm font-normal">ราย</span></p>
+                    </div>
+                </div>
+                <div class="bg-white p-3 rounded-xl shadow-sm border border-yellow-100 flex items-center gap-3">
+                    <div class="p-2 bg-yellow-100 rounded-lg text-yellow-600">⭐</div>
+                    <div class="text-left">
+                        <p class="text-xs text-gray-500">เกรด 2 ขึ้นไป</p>
+                        <p class="text-lg font-bold text-yellow-600">{{$grade_2_up-$grade_not}} <span class="text-sm font-normal">ราย</span></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{-- Filter Input --}}
+        <div class="p-4 bg-gray-50 border-b border-slate-200">
+            <div class="relative max-w-sm">
+                <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                    <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                </span>
+                <input type="text" id="searchInput" onkeyup="filterTable()" 
+                    class="block w-full pl-10 p-2.5 text-sm text-gray-900 border border-gray-300 rounded-lg bg-white focus:ring-indigo-500 focus:border-indigo-500 shadow-sm" 
+                    placeholder="ค้นหาชื่อ หรือ รหัสนักศึกษา...">
+            </div>
+        </div>
+
+        {{-- Table Container --}}
+        @if($data != null)
+        <div class="overflow-x-auto max-h-[600px] overflow-y-auto">
+            <table id="gradeTable" class="w-full text-sm text-left text-gray-500">
+                <thead class="sticky top-0 text-xs text-gray-700 uppercase bg-gray-100 z-10">
+                    <tr>
+                        <th class="border p-3 text-center w-12">ที่</th>
+                        <th class="border p-3 w-32">รหัส</th>
+                        <th class="border p-3 w-64">ชื่อ-นามสกุล</th>
+                        {{-- คะแนนย่อย --}}
+                        @foreach(['บันทึกเรียน','ฝึกทักษะ','รายงาน','แบบฝึก','แฟ้มงาน','ชิ้นงาน','โครงงาน','ทดสอบ','อื่นๆ','รวมรป.','ปลายภาค','รวมสุทธิ','เกรด'] as $head)
+                        <th class="border p-2 text-center text-[10px] whitespace-nowrap">{{$head}}</th>
+                        @endforeach
+                        <th class="border p-3 text-center">หมายเหตุ</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    @foreach($data as $s)
+                    <tr class="hover:bg-indigo-50 transition-colors">
+                        <td class="border p-2 text-center">{{$loop->iteration}}</td>
+                        <td class="border p-2 font-mono text-xs">{{$s->ID}}</td>
+                        <td class="border p-2 font-medium text-gray-900">{{$s->PRENAME}}{{$s->NAME}} {{$s->SURNAME}}</td>
+                        <td class="border p-2 text-center">{{$s->MIDTERM1}}</td>
+                        <td class="border p-2 text-center">{{$s->MIDTERM2}}</td>
+                        <td class="border p-2 text-center">{{$s->MIDTERM3}}</td>
+                        <td class="border p-2 text-center">{{$s->MIDTERM4}}</td>
+                        <td class="border p-2 text-center">{{$s->MIDTERM5}}</td>
+                        <td class="border p-2 text-center">{{$s->MIDTERM6}}</td>
+                        <td class="border p-2 text-center">{{$s->MIDTERM7}}</td>
+                        <td class="border p-2 text-center">{{$s->MIDTERM8}}</td>
+                        <td class="border p-2 text-center">{{$s->MIDTERM9}}</td>
+                        <td class="border p-2 text-center bg-gray-50 font-bold">{{$s->MIDTERM}}</td>
+                        <td class="border p-2 text-center bg-gray-50 font-bold">{{$s->FINAL}}</td>
+                        <td class="border p-2 text-center bg-indigo-50 font-bold text-indigo-700">{{$s->TOTAL}}</td>
+                        <td class="border p-2 text-center font-bold">
+                            <span @class([
+                                'text-red-500' => $s->GRADE == '0' || $s->GRADE == '' || $s->GRADE == null || !is_numeric($s->GRADE),
+                                'text-green-600' => is_numeric($s->GRADE) && $s->GRADE > 0
+                            ])>
+                                {{$s->GRADE ?? 'N/A'}}
+                            </span>
+                        </td>
+                        <td class="border p-2 text-center text-xs">
+                            @if($s->TYP_CODE == 1) <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded">ทอ*</span> @endif
+                        </td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+        @else
+        <div class="p-20 text-center">
+            <div class="text-5xl mb-4">🔍</div>
+            <p class="text-xl text-red-500 font-medium">- ไม่พบข้อมูล กรุณาเลือกรายการใหม่ -</p>
+        </div>
+        @endif
     </div>
+</div>
+
+{{-- Search Script --}}
+<script>
+function filterTable() {
+    const input = document.getElementById("searchInput");
+    const filter = input.value.toUpperCase();
+    const table = document.getElementById("gradeTable");
+    const tr = table.getElementsByTagName("tr");
+
+    for (let i = 1; i < tr.length; i++) {
+        const tdName = tr[i].getElementsByTagName("td")[2]; // Column ชื่อ-สกุล
+        const tdID = tr[i].getElementsByTagName("td")[1];   // Column รหัส
+        if (tdName || tdID) {
+            const txtValueName = tdName.textContent || tdName.innerText;
+            const txtValueID = tdID.textContent || tdID.innerText;
+            if (txtValueName.toUpperCase().indexOf(filter) > -1 || txtValueID.toUpperCase().indexOf(filter) > -1) {
+                tr[i].style.display = "";
+            } else {
+                tr[i].style.display = "none";
+            }
+        }
+    }
+}
+</script>
+
   </div>
 </x-teachers-layout>
 @include('layouts.footer')

@@ -11,7 +11,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 
-
 class AuthenticatedSessionController extends Controller
 {
     /**
@@ -28,50 +27,46 @@ class AuthenticatedSessionController extends Controller
     public function store(LoginRequest $request): RedirectResponse
     {
         $request->authenticate();
-    
         $request->session()->regenerate();
-    
-        $u_role = Auth::user()->role;
 
-        if($u_role == 1){
-            return redirect()->route('ประวัติการเรียน');
-        } 
-        if ($u_role == 2) {
-            return redirect()->route('tdashboard');  
-        } 
-        if ($u_role == 3) {
-            return redirect()->route('boss');  
-        } 
-        if ($u_role == 4) {
-            return redirect()->route('admin'); 
-        } 
-        
-        return redirect('welcome/?roletype=' . $u_role);
+        return $this->handleRoleRedirect();
     }
 
-    public function storeWithEmail (EmailLoginRequest $request): RedirectResponse
+    public function storeWithEmail(EmailLoginRequest $request): RedirectResponse
     {
         $request->authenticate();
-    
         $request->session()->regenerate();
-    
-        $u_role = Auth::user()->role;
 
-        if($u_role == 1){
-            return redirect()->route('ประวัติการเรียน');
-        } 
-        if ($u_role == 2) {
-            return redirect()->route('tdashboard');  
-        } 
-        if ($u_role == 3) {
-            return redirect()->route('boss');  
-        } 
-        if ($u_role == 4) {
-            return redirect()->route('admin'); 
-        } 
-        
-        return redirect('welcome/?roletype=' . $u_role);
+        return $this->handleRoleRedirect();
     }
+
+    /**
+     * ฟังก์ชันจัดการการเปลี่ยนเส้นทางตามสิทธิ์ (Role) 
+     * และรองรับ Redirect ไปหน้าเดิมที่ผู้ใช้กดมา (Intended)
+     */
+    protected function handleRoleRedirect(): RedirectResponse
+    {
+        $user = Auth::user();
+        $u_role = $user->role;
+
+        // กำหนดหน้า Default ตาม Role ในกรณีที่ไม่ได้กดมาจากหน้าอื่น
+        $defaultRoute = url('welcome/?roletype=' . $u_role);
+
+        if ($u_role == 1) {
+            $defaultRoute = route('ประวัติการเรียน');
+        } elseif ($u_role == 2) {
+            $defaultRoute = route('tdashboard');
+        } elseif ($u_role == 3) {
+            $defaultRoute = route('boss');
+        } elseif ($u_role == 4) {
+            $defaultRoute = route('admin');
+        }
+
+        // redirect()->intended() จะส่งกลับหน้าเดิมที่ตั้งใจจะเข้า
+        // ถ้าไม่มีหน้าเดิม จะส่งไปที่ $defaultRoute
+        return redirect()->intended($defaultRoute);
+    }
+
     /**
      * Destroy an authenticated session.
      */
@@ -80,7 +75,6 @@ class AuthenticatedSessionController extends Controller
         Auth::guard('web')->logout();
 
         $request->session()->invalidate();
-
         $request->session()->regenerateToken();
 
         return redirect('/login');

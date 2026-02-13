@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 // Base
 use App\Http\Controllers\ProfileController;
 
+// Welcome
+use App\Http\Controllers\WelcomeController;
+
 // Admin
 use App\Http\Controllers\Admin\ZipUploadController;
 use App\Http\Controllers\Admin\AdminUserController;
@@ -55,27 +58,11 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-
-
-Route::get('/welcome/{roletype}', function () {
-    return view('welcome');
-})->name('/welcome');
-
-Route::get('/welcome', function () {
-    return view('welcome');
-})->name('/welcome');
-
-Route::get('/regis', function () {
-    return view('welcome');
-})->name('regis');
-
-Route::get('/olis', function () {
-    return view('welcome');
-})->name('olis');
-
-Route::get('/', function () {
-    return view('welcome');
-})->name('/');
+//Welcome
+Route::get('/', [WelcomeController::class, 'index']);
+Route::get('/welcome', [WelcomeController::class, 'index']);
+Route::get('/olis', [WelcomeController::class, 'index']);
+Route::get('/regis', [WelcomeController::class, 'index']);
 
 // Admin
 Route::middleware(['auth', 'verified'])->group(function () {
@@ -129,16 +116,24 @@ Route::middleware('auth', 'verified')->group(function () {
         Route::post('/tstudentprofile', [TeachersStudentProfile::class, 'index'])->name('tstudentprofile');
         Route::get('/tscore', [TeachersScoreController::class, 'index'])->name('tscore');
         Route::post('/tscore', [TeachersScoreController::class, 'index'])->name('tscore');
-        // แสดงรายการแบบทดสอบและฟอร์มสร้างแบบทดสอบ
+        // กลุ่มจัดการแบบทดสอบ
         Route::get('/ttest', [TeachersTestController::class, 'index'])->name('ttest.index');
-        // จัดการการบันทึกแบบทดสอบใหม่
+        Route::get('/ttest/create', [TeachersTestController::class, 'create'])->name('ttest.create');
         Route::post('/ttest', [TeachersTestController::class, 'store'])->name('ttest.store');
-        // แสดงฟอร์มแก้ไขแบบทดสอบ
-        Route::get('/teachers/tests/{id}/edit', [TeachersTestController::class, 'edit'])->name('ttest.edit');
-        // จัดการการอัปเดตแบบทดสอบ
-        Route::put('/teachers/tests/{id}', [TeachersTestController::class, 'update'])->name('ttest.update');
-        // จัดการการลบแบบทดสอบ
-        Route::delete('/teachers/tests/{id}', [TeachersTestController::class, 'destroy'])->name('ttest.destroy');
+        Route::get('/ttest/{id}/edit', [TeachersTestController::class, 'edit'])->name('ttest.edit');
+        Route::put('/ttest/{id}', [TeachersTestController::class, 'update'])->name('ttest.update');
+        Route::delete('/ttest/{id}', [TeachersTestController::class, 'destroy'])->name('ttest.destroy');
+        Route::get('/api/subjects', [TeachersTestController::class, 'getSubjects'])->name('api.subjects');
+        Route::get('/subjects/search', [TeachersTestController::class, 'getSubjects'])->name('ttest.get_subjects');
+        Route::patch('/ttest/{quiz}/toggle', [TeachersTestController::class, 'toggle'])->name('ttest.toggle');
+        Route::get('/quizzes/{id}/assign', [TeachersTestController::class, 'assignView'])->name('ttest.assign');
+        Route::post('/quizzes/{id}/assign', [TeachersTestController::class, 'assignStore'])->name('ttest.assign.store');
+        Route::get('/get-cert-base64', [TeachersTestController::class, 'getCertificateBase64'])->name('cert.base64');
+        // หน้าภาพรวมของแบบทดสอบ (ที่คุณต้องการล่าสุด)
+        Route::get('/quiz/{id}', [TeachersTestController::class, 'quizReport'])->name('ttest.report.summary');
+        // หน้ารายงานรายคน (ถ้าต้องการเจาะลึก)
+        Route::get('/attempt/{id}', [TeachersTestController::class, 'showIndividualReport'])->name('ttest.report.individual');
+        // กลุ่มจัดการหนังสือ
         Route::get('/tbooks', [TeachersBookController::class, 'index'])->name('books.index');
         Route::get('/tbooks/create', [TeachersBookController::class, 'create'])->name('books.create');
         Route::post('/tbooks', [TeachersBookController::class, 'store'])->name('books.store');
@@ -166,12 +161,13 @@ Route::middleware('auth', 'verified')->group(function () {
         Route::get('/การลงทะเบียน', [StudentRegisController::class, 'index'])->name('การลงทะเบียน');
         Route::get('/กพช', [ActivityController::class, 'index'])->name('กพช');
         Route::get('/คำร้องออนไลน์', [PetitionController::class, 'index'])->name('คำร้องออนไลน์');
+        // ระบบทดสอบ
         Route::get('/ทดสอบออนไลน์', [ExamController::class, 'index'])->name('ทดสอบออนไลน์');
-        // Route สำหรับแสดงหน้าทำแบบทดสอบ (เมื่อคลิกปุ่ม "เริ่มทำแบบทดสอบ")
+        Route::post('/quizzes/{id}/initialize', [ExamController::class, 'initializeAttempt'])->name('quizzes.initialize');
         Route::get('/quizzes/{id}/start', [ExamController::class, 'startQuiz'])->name('quizzes.start');
-        // Route สำหรับส่งคำตอบแบบทดสอบ (เมื่อคลิกปุ่ม "ส่งคำตอบ")
-        // จะเป็น POST request ไปยังเมธอดที่ใช้บันทึกคำตอบ (เช่น submitQuiz)
         Route::post('/quizzes/{id}/submit', [ExamController::class, 'submitQuiz'])->name('quizzes.submit');
+        Route::get('/get-cert-base64', [ExamController::class, 'getCertificateBase64'])->name('cert.base64');
+        // สื่อ
         Route::get('/สื่อการเรียนรู้', [MediaController::class, 'index'])->name('สื่อการเรียนรู้');
         // Routes for students to view and enroll in courses
         Route::get('/เรียนออนไลน์', [ClassroomController::class, 'index'])->name('เรียนออนไลน์');
