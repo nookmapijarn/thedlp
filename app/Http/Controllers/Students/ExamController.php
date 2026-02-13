@@ -25,7 +25,7 @@ class ExamController extends Controller
         $all_semestry = DB::table("grade{$this->lavel}")->select('SEMESTRY')->groupBy('SEMESTRY')->orderBy('SEMESTRY', 'DESC')->get();
         $semestry = $all_semestry->first() ? $all_semestry->first()->SEMESTRY : null;
 
-        // 2. ดึงข้อมูล "งานที่ได้รับมอบหมาย" (Assigned Quizzes)
+        // 2. ดึงข้อมูล "ข้อสอบที่ได้รับมอบหมาย" (Assigned Quizzes)
         // ดึงเฉพาะที่ครูสั่งให้ User นี้ทำผ่านตาราง quiz_assignments
         $assignedQuizzes = DB::table('quiz_assignments')
             ->join('quizzes', 'quiz_assignments.quiz_id', '=', 'quizzes.id')
@@ -44,21 +44,24 @@ class ExamController extends Controller
 
         // 3. สร้าง Query สำหรับ "คลังข้อสอบทั้งหมด" (All Quizzes)
         $query = DB::table('quizzes')
+            // 1. เชื่อมตาราง users โดยใช้ created_by เชื่อมกับ id ของ users
             ->leftJoin('users', 'quizzes.created_by', '=', 'users.id')
             ->select(
-                'quizzes.*',
-                'users.name as created_by_name'
+                'quizzes.*', 
+                'users.name as creator_name' // ดึงชื่อมาในชื่อตัวแปร creator_name
             )
-            // เพิ่มการเช็คว่า user นี้เคยทำข้อสอบนี้หรือยัง
+            // 2. ส่วนของ Subquery เช็คการทำข้อสอบ (เหมือนเดิม)
             ->addSelect([
                 'is_attempted' => DB::table('quiz_attempts')
                     ->selectRaw('count(*)')
                     ->whereColumn('quiz_id', 'quizzes.id')
                     ->where('user_id', $userId)
-                    ->whereNotNull('finished_at') // ต้องทำเสร็จแล้วเท่านั้น
+                    ->whereNotNull('finished_at')
                     ->limit(1)
             ])
             ->where('quizzes.is_active', 1);
+
+        $quizzes = $query->get();
 
         // --- ระบบค้นหาและกรอง (Search & Filters) ---
         if ($request->filled('search')) {

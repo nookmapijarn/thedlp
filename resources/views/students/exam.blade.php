@@ -32,7 +32,7 @@
                 <nav class="flex space-x-1" aria-label="Tabs">
                     <button onclick="switchTab('assigned')" id="tab-btn-assigned"
                         class="tab-link relative py-4 px-6 font-semibold text-sm transition-all duration-300">
-                        📋 ข้อสอบที่ครูมอบหมาย
+                        📋 ที่ครูมอบหมาย
                         @if(isset($assignedCount) && $assignedCount > 0)
                             <span class="ml-2 py-0.5 px-2 rounded-full text-[10px] bg-red-500 text-white">{{ $assignedCount }}</span>
                         @endif
@@ -40,12 +40,12 @@
 
                     <button onclick="switchTab('all')" id="tab-btn-all"
                         class="tab-link relative py-4 px-6 font-semibold text-sm transition-all duration-300">
-                        📚 คลังข้อสอบทั้งหมด
+                        📚 ทั้งหมด
                     </button>
 
                     <button onclick="switchTab('history')" id="tab-btn-history"
                         class="tab-link relative py-4 px-6 font-semibold text-sm transition-all duration-300">
-                        🕒 ประวัติการสอบ
+                        🕒 ประวัติ
                     </button>
                 </nav>
             </div>
@@ -214,8 +214,20 @@
                         <div class="md:col-span-2">
                             <select name="grade" class="block w-full rounded-2xl border-slate-100 bg-slate-50/50 text-slate-700 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 h-12 sm:text-sm">
                                 <option value="">ทุกระดับชั้น</option>
+                                
+                                @php
+                                    // กำหนดชื่อระดับชั้นตามตัวเลข ID
+                                    $gradeNames = [
+                                        1 => 'ประถม',
+                                        2 => 'มัธยมต้น',
+                                        3 => 'มัธยมปลาย'
+                                    ];
+                                @endphp
+
                                 @foreach($grades as $grade)
-                                    <option value="{{ $grade }}" {{ request('grade') == $grade ? 'selected' : '' }}>ระดับ {{ $grade }}</option>
+                                    <option value="{{ $grade }}" {{ request('grade') == $grade ? 'selected' : '' }}>
+                                        {{ $gradeNames[$grade] ?? 'ระดับ ' . $grade }}
+                                    </option>
                                 @endforeach
                             </select>
                         </div>
@@ -244,7 +256,7 @@
                             <div class="group bg-white rounded-[2rem] shadow-sm hover:shadow-2xl hover:shadow-indigo-100 transition-all duration-500 border border-slate-100 overflow-hidden flex flex-col h-full relative">
                                 
                                 {{-- Quiz Cover Image --}}
-                                <div class="relative h-44 overflow-hidden bg-indigo-100">
+                                <div class="relative h-22 sm:h-44 overflow-hidden bg-indigo-100">
                                     @if($quiz->is_attempted > 0)
                                         <div class="absolute top-4 left-4 z-20">
                                             <span class="px-3 py-1 bg-emerald-500/90 backdrop-blur-sm text-white text-[10px] font-bold rounded-lg shadow-lg flex items-center gap-1">
@@ -296,10 +308,10 @@
                                         <div class="w-5 h-5 rounded-full bg-slate-100 flex items-center justify-center">
                                             <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path></svg>
                                         </div>
-                                        <span class="text-xs">โดย {{ $quiz->user->name ?? 'ไม่ระบุชื่อครู' }}</span>
+                                        <span class="text-xs">โดย {{ $quiz->creator_name ?? 'ไม่ระบุชื่อครู' }}</span>
                                     </div>
 
-                                    <p class="text-slate-500 text-sm mb-6 line-clamp-2 leading-relaxed">
+                                    <p class="้etext-slate-500 text-sm mb-6 line-clamp-2 leading-relaxed">
                                         {{ $quiz->description ?? 'ไม่มีคำอธิบายเพิ่มเติมสำหรับแบบทดสอบนี้' }}
                                     </p>
 
@@ -338,99 +350,141 @@
                 @endif
             </div>
 
-            {{-- ================= TAB: HISTORY with FULL SORT ================= --}}
-            <div id="tab-history" class="tab-content hidden animate-in fade-in">
-                <div class="bg-white rounded-[2rem] shadow-xl shadow-slate-200/50 border border-slate-100 overflow-hidden">
-                    <div class="px-8 py-6 border-b border-slate-50 bg-white flex justify-between items-center">
-                        <div>
-                            <h2 class="text-xl font-bold text-slate-800">ประวัติการสอบ</h2>
-                            <p class="text-xs text-slate-400 mt-1">* คลิกที่หัวตารางเพื่อเรียงลำดับข้อมูล</p>
-                        </div>
+        {{-- ================= TAB: HISTORY with FULL SORT & SEARCH ================= --}}
+        <div id="tab-history" class="tab-content hidden animate-in fade-in">
+            <div class="bg-white rounded-[2rem] shadow-xl shadow-slate-200/50 border border-slate-100 overflow-hidden">
+                
+                {{-- Header Section with Search --}}
+                <div class="px-8 py-6 border-b border-slate-50 bg-white flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                    <div>
+                        <h2 class="text-xl font-bold text-slate-800">ประวัติการสอบ</h2>
+                        <p class="text-xs text-slate-400 mt-1">* คลิกที่หัวตารางเพื่อเรียงลำดับ หรือค้นหาจากชื่อวิชา</p>
                     </div>
 
-                    @if (count($quizAttemptsHistory) > 0)
-                        <div class="overflow-x-auto">
-                            <table id="historyTable" class="min-w-full">
-                                <thead>
-                                    <tr class="bg-slate-50/50 border-b border-slate-100">
-                                        <th onclick="sortTable(0)" class="cursor-pointer px-8 py-5 text-left text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] hover:text-indigo-600 transition-colors group">
-                                            ชื่อข้อสอบ <span class="opacity-0 group-hover:opacity-100 ml-1">↕</span>
-                                        </th>
-                                        <th onclick="sortTable(1)" class="cursor-pointer px-8 py-5 text-left text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] hover:text-indigo-600 transition-colors group">
-                                            วันที่สอบ <span class="opacity-0 group-hover:opacity-100 ml-1">↕</span>
-                                        </th>
-                                        <th onclick="sortTable(2)" class="cursor-pointer px-8 py-5 text-center text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] hover:text-indigo-600 transition-colors group">
-                                            คะแนน <span class="opacity-0 group-hover:opacity-100 ml-1">↕</span>
-                                        </th>
-                                        <th onclick="sortTable(3)" class="cursor-pointer px-8 py-5 text-center text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] hover:text-indigo-600 transition-colors group">
-                                            สถานะ <span class="opacity-0 group-hover:opacity-100 ml-1">↕</span>
-                                        </th>
-                                        <th class="px-8 py-5 text-right text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">จัดการ</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="divide-y divide-slate-50">
-                                    @foreach ($quizAttemptsHistory as $attempt)
+                    {{-- Search Input --}}
+                    <div class="relative w-full md:w-72">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <svg class="h-4 w-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                            </svg>
+                        </div>
+                        <input type="text" id="historySearchInput" onkeyup="filterHistoryTable()" 
+                            class="block w-full pl-10 pr-3 py-2.5 border border-slate-100 rounded-2xl leading-5 bg-slate-50/50 placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 sm:text-sm transition-all" 
+                            placeholder="ค้นหาชื่อข้อสอบ...">
+                    </div>
+                </div>
+
+                @if (count($quizAttemptsHistory) > 0)
+                    <div class="w-full">
+                        <table id="historyTable" class="w-full text-left border-collapse">
+                            {{-- Header: Hidden on Mobile --}}
+                            <thead class="hidden md:table-header-group">
+                                <tr class="bg-slate-50/50 border-b border-slate-100">
+                                    <th onclick="sortHistoryTable(0)" class="cursor-pointer px-8 py-5 text-left text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] hover:text-indigo-600 transition-colors group">
+                                        ชื่อข้อสอบ <span class="sort-icon opacity-0 group-hover:opacity-100 ml-1">↕</span>
+                                    </th>
+                                    <th onclick="sortHistoryTable(1)" class="cursor-pointer px-8 py-5 text-left text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] hover:text-indigo-600 transition-colors group">
+                                        วันที่สอบ <span class="sort-icon opacity-0 group-hover:opacity-100 ml-1">↕</span>
+                                    </th>
+                                    <th onclick="sortHistoryTable(2)" class="cursor-pointer px-8 py-5 text-center text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] hover:text-indigo-600 transition-colors group">
+                                        คะแนน <span class="sort-icon opacity-0 group-hover:opacity-100 ml-1">↕</span>
+                                    </th>
+                                    <th onclick="sortHistoryTable(3)" class="cursor-pointer px-8 py-5 text-center text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] hover:text-indigo-600 transition-colors group">
+                                        สถานะ <span class="sort-icon opacity-0 group-hover:opacity-100 ml-1">↕</span>
+                                    </th>
+                                    <th class="px-8 py-5 text-right text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">จัดการ</th>
+                                </tr>
+                            </thead>
+                            
+                            <tbody class="block md:table-row-group divide-y divide-slate-50">
+                                @foreach ($quizAttemptsHistory as $attempt)
                                     @php
                                         $percent = ($attempt->user_score / $attempt->quiz_total_score) * 100;
                                         $passed = $percent >= 50;
                                     @endphp
-                                    <tr class="hover:bg-slate-50/80 transition-all group">
-                                        <td class="px-8 py-6 whitespace-nowrap">
+                                    {{-- Row: Becomes a Card on Mobile --}}
+                                    <tr class="block md:table-row hover:bg-slate-50/80 transition-all group overflow-hidden">
+                                        
+                                        {{-- ชื่อข้อสอบ --}}
+                                        <td class="block md:table-cell px-8 py-4 md:py-6">
+                                            <span class="md:hidden text-[10px] text-slate-400 font-bold uppercase block mb-1">วิชา</span>
                                             <div class="text-sm font-bold text-slate-700 group-hover:text-indigo-600 transition-colors">{{ $attempt->quiz_title }}</div>
                                             <div class="text-[10px] text-slate-400 uppercase mt-1">Total: {{ $attempt->quiz_total_score }} pts</div>
                                         </td>
-                                        <td class="px-8 py-6 whitespace-nowrap">
-                                            <div class="text-sm text-slate-500 font-medium">
-                                                {{ \Carbon\Carbon::parse($attempt->finished_at)->translatedFormat('j M Y') }}
-                                            </div>
-                                            <div class="text-[10px] text-slate-400 mt-1">{{ \Carbon\Carbon::parse($attempt->finished_at)->format('H:i') }} น.</div>
-                                            {{-- Hidden raw timestamp for sorting --}}
-                                            <span class="hidden">{{ $attempt->finished_at }}</span>
-                                        </td>
-                                        <td class="px-8 py-6 whitespace-nowrap text-center">
-                                            <div class="inline-flex flex-col">
-                                                <span class="text-base font-black {{ $passed ? 'text-emerald-500' : 'text-rose-500' }}">
-                                                    {{ $attempt->user_score }}
-                                                </span>
-                                                <div class="w-16 bg-slate-100 h-1 rounded-full mt-1 overflow-hidden mx-auto">
-                                                    <div class="{{ $passed ? 'bg-emerald-400' : 'bg-rose-400' }} h-full" style="width: {{ $percent }}%"></div>
+
+                                        {{-- วันที่สอบ --}}
+                                        <td class="block md:table-cell px-8 py-3 md:py-6">
+                                            <div class="flex justify-between md:block">
+                                                <span class="md:hidden text-[10px] text-slate-400 font-bold uppercase">วันที่สอบ</span>
+                                                <div>
+                                                    <div class="text-sm text-slate-500 font-medium">
+                                                        {{ \Carbon\Carbon::parse($attempt->finished_at)->translatedFormat('j M Y') }}
+                                                    </div>
+                                                    <div class="text-[10px] text-slate-400">{{ \Carbon\Carbon::parse($attempt->finished_at)->format('H:i') }} น.</div>
+                                                    {{-- Hidden timestamp for sorting --}}
+                                                    <span class="hidden sort-data">{{ $attempt->finished_at }}</span>
                                                 </div>
                                             </div>
                                         </td>
-                                        <td class="px-8 py-6 whitespace-nowrap text-center">
-                                            <span class="px-4 py-1.5 rounded-full text-[10px] font-bold {{ $passed ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : 'bg-rose-50 text-rose-600 border border-rose-100' }}">
-                                                {{ $passed ? 'PASSED' : 'FAILED' }}
-                                            </span>
+
+                                        {{-- คะแนน --}}
+                                        <td class="block md:table-cell px-8 py-3 md:py-6 text-center">
+                                            <div class="flex justify-between md:flex-col items-center">
+                                                <span class="md:hidden text-[10px] text-slate-400 font-bold uppercase">คะแนน</span>
+                                                <div class="inline-flex flex-col items-end md:items-center">
+                                                    <span class="text-base font-black {{ $passed ? 'text-emerald-500' : 'text-rose-500' }}">
+                                                        {{ $attempt->user_score }}
+                                                    </span>
+                                                    <div class="w-16 bg-slate-100 h-1 rounded-full mt-1 overflow-hidden mx-auto">
+                                                        <div class="{{ $passed ? 'bg-emerald-400' : 'bg-rose-400' }} h-full" style="width: {{ $percent }}%"></div>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </td>
-                                        <td class="px-8 py-6 whitespace-nowrap text-right">
+
+                                        {{-- สถานะ --}}
+                                        <td class="block md:table-cell px-8 py-3 md:py-6 text-center">
+                                            <div class="flex justify-between md:block items-center">
+                                                <span class="md:hidden text-[10px] text-slate-400 font-bold uppercase">สถานะ</span>
+                                                <span class="px-4 py-1.5 rounded-full text-[10px] font-bold {{ $passed ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : 'bg-rose-50 text-rose-600 border border-rose-100' }}">
+                                                    {{ $passed ? 'PASSED' : 'FAILED' }}
+                                                </span>
+                                            </div>
+                                        </td>
+
+                                        {{-- จัดการ --}}
+                                        <td class="block md:table-cell px-8 py-5 md:py-6 text-right">
                                             @if ($percent >= 80)
                                                 <button onclick="showCertificateModal('{{ $attempt->quiz_title }}', '{{ $attempt->user_score }}', '{{ $attempt->quiz_total_score }}', '{{ $attempt->certificate_image }}')"
-                                                    class="inline-flex items-center gap-2 text-indigo-600 hover:text-indigo-800 font-bold text-xs bg-indigo-50 px-4 py-2 rounded-xl transition-all">
+                                                    class="w-full md:w-auto inline-flex items-center justify-center gap-2 text-indigo-600 hover:text-indigo-800 font-bold text-xs bg-indigo-50 px-4 py-2 rounded-xl transition-all border border-indigo-100 md:border-none">
                                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                                                     เกียรติบัตร
                                                 </button>
                                             @else
-                                                <span class="text-slate-300 text-[10px] italic">ไม่ถึงเกณฑ์</span>
+                                                <div class="flex justify-between md:block items-center">
+                                                    <span class="md:hidden text-[10px] text-slate-400 font-bold uppercase tracking-wider">เกียรติบัตร</span>
+                                                    <span class="text-slate-300 text-[10px] italic">ไม่ถึงเกณฑ์ (80%)</span>
+                                                </div>
                                             @endif
                                         </td>
                                     </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-                    @else
-                        <div class="p-20 text-center">
-                            <p class="text-slate-400 font-medium">ยังไม่มีประวัติการสอบของคุณ</p>
-                        </div>
-                    @endif
-                </div>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                @else
+                    <div class="p-20 text-center">
+                        <p class="text-slate-400 font-medium">ยังไม่มีประวัติการสอบของคุณ</p>
+                    </div>
+                @endif
             </div>
+        </div>
 
         </div>
     </div>
 
     {{-- Certificate Modal & Other parts remains same as previous --}}
-<div id="certificate-modal" class="fixed inset-0 z-50 hidden overflow-y-auto">
+    <div id="certificate-modal" class="fixed inset-0 z-50 hidden overflow-y-auto">
     <div class="flex min-h-screen items-center justify-center p-4">
         <div class="fixed inset-0 bg-slate-900/80 backdrop-blur-md" onclick="hideCertificateModal()"></div>
         
@@ -614,6 +668,83 @@ async function showCertificateModal(title, score, total, bgUrl) {
                 document.addEventListener('DOMContentLoaded', () => {
                 switchTab('all');
                 });
+
+
+// --- High-Performance Sorting (Fixed Freeze) ---
+    let currentSortDir = {}; // เก็บสถานะการ Sort ของแต่ละคอลัมน์
+
+    function sortHistoryTable(n) {
+        const table = document.getElementById("historyTable");
+        const tbody = table.querySelector("tbody");
+        const rows = Array.from(tbody.rows);
+        
+        // กำหนดทิศทาง (Toggle asc/desc)
+        let dir = currentSortDir[n] === 'asc' ? 'desc' : 'asc';
+        currentSortDir = { [n]: dir }; // Reset คอลัมน์อื่น และเก็บค่าปัจจุบัน
+
+        // ฟังก์ชันเปรียบเทียบ
+        const sortedRows = rows.sort((a, b) => {
+            let x = a.getElementsByTagName("td")[n];
+            let y = b.getElementsByTagName("td")[n];
+            let xVal, yVal;
+
+            if (n === 1) { // วันที่
+                const xDate = x.querySelector('.sort-data');
+                const yDate = y.querySelector('.sort-data');
+                xVal = xDate ? xDate.innerText : '';
+                yVal = yDate ? yDate.innerText : '';
+            } else if (n === 2) { // คะแนน
+                xVal = parseFloat(x.innerText.replace(/[^\d.-]/g, '')) || 0;
+                yVal = parseFloat(y.innerText.replace(/[^\d.-]/g, '')) || 0;
+            } else { // ข้อความทั่วไป
+                xVal = x.innerText.toLowerCase().trim();
+                yVal = y.innerText.toLowerCase().trim();
+            }
+
+            if (dir === 'asc') {
+                return xVal > yVal ? 1 : (xVal < yVal ? -1 : 0);
+            } else {
+                return xVal < yVal ? 1 : (xVal > yVal ? -1 : 0);
+            }
+        });
+
+        // ลบแถวเก่าและใส่แถวที่เรียงแล้วลงไป (ทำทีเดียวเพื่อประสิทธิภาพ)
+        while (tbody.firstChild) tbody.removeChild(tbody.firstChild);
+        tbody.append(...sortedRows);
+
+        // Update Icons UI
+        updateSortIcons(table, n, dir);
+    }
+
+    function updateSortIcons(table, n, dir) {
+        const icons = table.querySelectorAll('.sort-icon');
+        icons.forEach(icon => {
+            icon.innerText = '↕';
+            icon.style.opacity = '0.3';
+        });
+        const currentIcon = table.querySelectorAll('th')[n].querySelector('.sort-icon');
+        if (currentIcon) {
+            currentIcon.innerText = dir === "asc" ? "↑" : "↓";
+            currentIcon.style.opacity = '1';
+        }
+    }
+
+    // --- Search Filter ---
+    function filterHistoryTable() {
+        const input = document.getElementById("historySearchInput");
+        const filter = input.value.toUpperCase();
+        const table = document.getElementById("historyTable");
+        const tr = table.querySelector("tbody").getElementsByTagName("tr");
+
+        for (let i = 0; i < tr.length; i++) {
+            // ค้นจากชื่อวิชา (คอลัมน์ 0)
+            const td = tr[i].getElementsByTagName("td")[0];
+            if (td) {
+                const txtValue = td.textContent || td.innerText;
+                tr[i].style.display = txtValue.toUpperCase().indexOf(filter) > -1 ? "" : "none";
+            }
+        }
+    }
 </script>
 
 <style>
