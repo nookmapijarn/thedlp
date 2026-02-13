@@ -5,7 +5,7 @@
 @endphp
 
 <aside id="logo-sidebar" 
-       class="fixed top-0 left-0 z-40 w-72 h-screen pt-24 transition-transform -translate-x-full bg-slate-50/40 backdrop-blur-xl border-r border-white/50 sm:translate-x-0 hidden sm:block shadow-sm" 
+       class="fixed top-0 left-0 z-40 w-72 h-screen pt-24 transition-transform -translate-x-full bg-slate-50/40 backdrop-blur-xl border-r border-white/50 sm:translate-x-0 shadow-sm" 
        aria-label="Sidebar">
     
     <div class="h-full px-4 pb-4 overflow-y-auto bg-transparent scrollbar-hide">
@@ -126,7 +126,7 @@
         <div class="mt-8 mx-2 p-5 bg-gradient-to-br from-white/80 to-white/40 rounded-[2rem] border border-white shadow-sm group hover:shadow-md transition-all duration-300">
             <div class="flex items-center space-x-2 mb-2">
                 <div class="w-2 h-2 rounded-full bg-purple-400"></div>
-                <p class="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">OLIS SYSTEM V3.1</p>
+                <p class="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">OLIS SYSTEM V 5.0</p>
             </div>
             <p class="text-[12px] font-bold text-slate-600 tracking-tight">โหมดจัดการข้อมูล (Teacher)</p>
             <div class="mt-3 flex justify-end">

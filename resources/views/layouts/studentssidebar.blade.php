@@ -74,7 +74,7 @@
             </li>
 
             {{-- 6. OLIS AI --}}
-            <li>
+            {{-- <li>
                 <a href="{{ url('olisai') }}"
                    class="group flex items-center p-3 text-[16px] font-bold uppercase tracking-wider transition-all duration-200 rounded-2xl
                    {{ Request::is('olisai') ? 'bg-white text-blue-600 shadow-md translate-x-1' : 'text-slate-500 hover:bg-white/60 hover:text-blue-500 hover:translate-x-1' }}">
@@ -83,7 +83,7 @@
                     </div>
                     <span class="ms-3 tracking-widest">OLIS AI</span>
                 </a>
-            </li>
+            </li> --}}
 
             {{-- 7. สื่อการเรียนรู้ --}}
             <li>
@@ -113,7 +113,7 @@
 
         {{-- Footer Card --}}
         <div class="mt-8 mx-2 p-5 bg-white/50 rounded-[2rem] border border-white shadow-sm">
-            <p class="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">Online Learner Information System (OLIS) Version 3.1</p>
+            <p class="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">Online Learner Information System (OLIS) Version 5.0</p>
             <p class="text-[11px] font-bold text-slate-600 tracking-wider italic">นายนนทชัย มาพิจารณ์</p>
         </div>
     </div>

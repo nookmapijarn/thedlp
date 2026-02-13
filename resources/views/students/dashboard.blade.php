@@ -86,9 +86,9 @@
                                 id="profile-avatar">
 
                             <a href="{{ url("profile") }}" 
-                            class="absolute bottom-3 right-3 bg-white/90 hover:bg-white text-slate-700 p-2 rounded-full shadow-md transition-all duration-200 hover:scale-110 flex items-center justify-center border border-slate-200"
+                            class="absolute bottom-1 right-1 sm:bottom-3 sm:right-3 bg-white/90 hover:bg-white text-slate-700 sm:p-2 rounded-full shadow-md transition-all duration-200 hover:scale-110 flex items-center justify-center border border-slate-200"
                             title="แก้ไขรูปภาพ">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                     <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
                                     <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
                                 </svg>
@@ -166,24 +166,24 @@
                                 </div>
 
                                 {{-- ===== FOOTER (ยึดติดขอบล่างของ Body) ===== --}}
-                                <div class="flex items-end justify-between mt-auto pt-2 border-t border-slate-50">
+                                <div class="flex items-end justify-between mt-auto border-t border-slate-50">
                                     <div class="flex items-center gap-2">
-                                        <div class="w-10 h-10 lg:w-12 lg:h-12 bg-white p-0.5 border border-slate-200 rounded shrink-0">
+                                        <div class="w-8 h-8 lg:w-12 lg:h-12 bg-white p-0.5 border border-slate-200 rounded shrink-0">
                                             <img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data={{ $std->ID }}"
                                                 class="w-full h-full object-contain">
                                         </div>
                                         <div class="hidden lg:flex flex-col">
-                                            <span class="text-[12px] lg:text-sm text-slate-400 font-bold">SCAN TO ID</span>
-                                            <span class="text-[12px] lg:text-sm font-mono text-slate-500 font-bold">{{ $std->ID }}</span>
+                                            <span class="text-[8px] lg:text-sm text-slate-400 font-bold">SCAN TO ID</span>
+                                            <span class="text-[8px] lg:text-sm font-mono text-slate-500 font-bold">{{ $std->ID }}</span>
                                         </div>
                                     </div>
 
                                     <div class="text-center shrink-0">
                                         <div class="h-5 flex items-end justify-center">
-                                            <p class="text-[12px] lg:text-sm text-indigo-900 font-serif italic opacity-40 leading-none">Authorized Signature</p>
+                                            <p class="text-[8px] lg:text-sm text-indigo-900 font-serif italic opacity-40 leading-none">Authorized Signature</p>
                                         </div>
                                         <div class="h-[1px] w-20 lg:w-28 bg-slate-300 my-0.5"></div>
-                                        <p class="text-[12px] lg:text-sm text-slate-400 font-bold uppercase">ผู้บริหารสถานศึกษา</p>
+                                        <p class="text-[8px] lg:text-sm text-slate-400 font-bold uppercase">ผู้บริหารสถานศึกษา</p>
                                     </div>
                                 </div>
                             </div>
