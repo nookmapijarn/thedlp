@@ -166,50 +166,18 @@
         <main class="relative z-10 min-h-screen flex flex-col items-center justify-center py-16 px-4 sm:px-6">
             
             <div class="mb-10 animate-float relative group">
-                <div class="absolute inset-0 bg-yellow-400 blur-3xl opacity-20 group-hover:opacity-40 transition-opacity duration-500 rounded-full"></div>
+                <div class="absolute inset-0 bg-yellow-900 blur-3xl opacity-50 group-hover:opacity-40 transition-opacity duration-500 rounded-full"></div>
                 <img class="relative w-36 md:w-48 drop-shadow-2xl transition-all duration-700 transform group-hover:rotate-3" src="https://phothongdlec.ac.th/storage/olislogo.png" alt="Logo">
             </div>
 
             <div class="text-center mb-16 relative">
                 <h1 class="text-3xl md:text-5xl font-bold tracking-widest uppercase mb-4 text-white drop-shadow-lg">
-                    Digital <span class="text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 to-yellow-500">Learning</span> Center
+                    OL<span class="text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 to-yellow-500">I</span>S
+                    <br><span class="text-sm">"Digital Learning Center"</span>
                 </h1>
                 <p class="text-sm md:text-base font-light text-blue-200 tracking-[0.5em] uppercase border-t border-blue-500/30 pt-4 inline-block">
                     {{ config('app.name_th') }}
                 </p>
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-20 w-full max-w-6xl mx-auto px-2">
-                @php
-                    $stats = [
-                        ['label' => 'จำนวนผู้เรียน', 'value' => $allusers, 'unit' => 'คน', 'icon_color' => 'text-blue-400', 'bar_color' => 'bg-blue-500'],
-                        ['label' => 'ผู้ใช้งานวันนี้', 'value' => $todayUsers, 'unit' => 'คน', 'icon_color' => 'text-green-400', 'bar_color' => 'bg-emerald-500'],
-                        ['label' => 'ออนไลน์ขณะนี้', 'value' => $onlineCount, 'unit' => 'คน', 'icon_color' => 'text-rose-400', 'bar_color' => 'bg-rose-500'],
-                        ['label' => 'สมาชิกทั้งหมด', 'value' => $totalMembers, 'unit' => 'คน', 'icon_color' => 'text-yellow-400', 'bar_color' => 'bg-yellow-500'],
-                    ];
-                @endphp
-
-                @foreach($stats as $stat)
-                <div class="glass-stat rounded-3xl p-6 relative group overflow-hidden">
-                    <div class="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-white/10 to-transparent rounded-bl-full -mr-4 -mt-4 transition-transform group-hover:scale-110"></div>
-                    
-                    <div class="flex flex-col h-full justify-between relative z-10">
-                        <p class="text-blue-200 text-xs font-bold uppercase tracking-wider mb-2">
-                            {{ $stat['label'] }}
-                        </p>
-                        <div class="flex items-end gap-2 mb-4">
-                            <h2 class="text-4xl md:text-5xl font-black text-white tracking-tight group-hover:text-yellow-300 transition-colors">
-                                {{ number_format($stat['value']) }}
-                            </h2>
-                            <span class="text-sm text-slate-400 mb-2 font-medium">{{ $stat['unit'] }}</span>
-                        </div>
-                        
-                        <div class="w-full h-1.5 bg-slate-700/50 rounded-full overflow-hidden">
-                            <div class="h-full {{ $stat['bar_color'] }} w-2/3 rounded-full shadow-[0_0_10px_currentColor] opacity-80 group-hover:w-full transition-all duration-700 ease-out"></div>
-                        </div>
-                    </div>
-                </div>
-                @endforeach
             </div>
 
             <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6 w-full max-w-5xl mx-auto">
@@ -248,6 +216,39 @@
 
                     <div class="absolute bottom-0 w-full h-1 bg-gradient-to-r from-purple-500 via-blue-500 to-purple-500 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></div>
                 </a>
+                @endforeach
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-20 w-full max-w-5xl mx-auto px-2">
+                @php
+                    $stats = [
+                        ['label' => 'จำนวนผู้เรียน', 'value' => $allusers, 'unit' => 'คน', 'icon_color' => 'text-blue-400', 'bar_color' => 'bg-blue-500'],
+                        ['label' => 'ผู้ใช้งานวันนี้', 'value' => $todayUsers, 'unit' => 'คน', 'icon_color' => 'text-green-400', 'bar_color' => 'bg-emerald-500'],
+                        ['label' => 'ออนไลน์ขณะนี้', 'value' => $onlineCount, 'unit' => 'คน', 'icon_color' => 'text-rose-400', 'bar_color' => 'bg-rose-500'],
+                        ['label' => 'สมาชิกทั้งหมด', 'value' => $totalMembers, 'unit' => 'คน', 'icon_color' => 'text-yellow-400', 'bar_color' => 'bg-yellow-500'],
+                    ];
+                @endphp
+
+                @foreach($stats as $stat)
+                <div class="glass-stat rounded-3xl p-6 relative group overflow-hidden">
+                    <div class="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-white/10 to-transparent rounded-bl-full -mr-4 -mt-4 transition-transform group-hover:scale-110"></div>
+                    
+                    <div class="flex flex-col h-full justify-between relative z-10">
+                        <p class="text-blue-200 text-xs font-bold uppercase tracking-wider mb-2">
+                            {{ $stat['label'] }}
+                        </p>
+                        <div class="flex items-end gap-2 mb-4">
+                            <h2 class="text-4xl md:text-5xl font-black text-white tracking-tight group-hover:text-yellow-300 transition-colors">
+                                {{ number_format($stat['value']) }}
+                            </h2>
+                            <span class="text-sm text-slate-400 mb-2 font-medium">{{ $stat['unit'] }}</span>
+                        </div>
+                        
+                        <div class="w-full h-1.5 bg-slate-700/50 rounded-full overflow-hidden">
+                            <div class="h-full {{ $stat['bar_color'] }} w-2/3 rounded-full shadow-[0_0_10px_currentColor] opacity-80 group-hover:w-full transition-all duration-700 ease-out"></div>
+                        </div>
+                    </div>
+                </div>
                 @endforeach
             </div>
 
