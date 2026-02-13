@@ -202,14 +202,14 @@
                                 value="{{ request('search') }}">
                         </div>
 
-                        <div class="md:col-span-2">
+                        {{-- <div class="md:col-span-2">
                             <select name="subject" class="block w-full rounded-2xl border-slate-100 bg-slate-50/50 text-slate-700 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 h-12 sm:text-sm">
                                 <option value="">ทุกวิชา</option>
                                 @foreach($subjects as $subject)
                                     <option value="{{ $subject }}" {{ request('subject') == $subject ? 'selected' : '' }}>{{ $subject }}</option>
                                 @endforeach
                             </select>
-                        </div>
+                        </div> --}}
 
                         <div class="md:col-span-2">
                             <select name="grade" class="block w-full rounded-2xl border-slate-100 bg-slate-50/50 text-slate-700 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 h-12 sm:text-sm">
@@ -578,14 +578,14 @@ async function showCertificateModal(title, score, total, bgUrl) {
                 </div>
 
                 <div class="my-4">
-                    <h2 class="text-7xl font-bold text-slate-800 border-b-4 border-slate-200 pb-4 px-16 inline-block">
+                    <h2 class="text-5xl font-bold text-slate-800 border-b-4 border-slate-200 pb-4 px-16 inline-block">
                         {{ auth()->user()->name }}
                     </h2>
                 </div>
 
                 <div class="max-w-4xl">
                     <p class="text-3xl text-slate-700 mb-4 font-medium">ได้ผ่านการทำแบบทดสอบ</p>
-                    <p class="text-5xl font-black text-indigo-800 leading-tight">“ ${title} ”</p>
+                    <p class="text-2xl font-black text-indigo-800 leading-tight">“ ${title} ”</p>
                     <p class="text-2xl text-slate-500 mt-10">ให้ไว้ ณ วันที่ ${new Date().toLocaleDateString('th-TH', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
                 </div>
 

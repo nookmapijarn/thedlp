@@ -64,7 +64,7 @@ class ExamController extends Controller
         if ($request->filled('search')) {
             $query->where(function($q) use ($request) {
                 $q->where('quizzes.title', 'like', '%' . $request->search . '%')
-                ->orWhere('quizzes.descriptio', 'like', '%' . $request->search . '%');
+                ->orWhere('quizzes.description', 'like', '%' . $request->search . '%');
             });
         }
 
@@ -151,7 +151,7 @@ class ExamController extends Controller
                 if (!file_exists($directory)) { mkdir($directory, 0777, true); }
 
                 file_put_contents($directory . '/' . $imageName, $imageData);
-                $publicUrl = asset('storage/images/exams/start_photo' . $imageName);
+                $publicUrl = asset('storage/images/exams/start_photo/' . $imageName);
             }
 
             // --- บันทึก Attempt ลง Database ---
