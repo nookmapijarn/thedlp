@@ -485,8 +485,8 @@ function printCover(data) {
 
                     <!-- Content -->
                     <div class="content">
-                        <p><strong>สถานศึกษา:</strong> ศูนย์ส่งเสริมการเรียนรู้ระดับอำเภอโพธิ์ทอง </p>
-                        <p><strong>อำเภอเขต:</strong> โพธิ์ทอง <strong>จังหวัด:</strong> อ่างทอง </p>
+                        <p><strong>สถานศึกษา:</strong> {{ config('app.name_th') }} </p>
+                        <p><strong>อำเภอเขต:</strong>  {{ config('app.name_district') }}  <strong>จังหวัด:</strong>  {{ config('app.name_province') }}  </p>
                         <p><strong>ชื่อกลุ่ม:</strong> ${studentData.tumbon ?? ""} <strong>รายวิชา:</strong> ${studentData.subject ?? ""} ${studentData.type == 7 ? "(ประเมินสอบซ่อม)" : ""}</p>
                         <h4>สรุปผลการเรียน</h4>
                         <p style="padding-left: 25px;">จำนวนนักศึกษาทั้งหมด:         ${studentData.totalStudents ?? ""}  คน</p>
@@ -503,8 +503,8 @@ function printCover(data) {
                         <br>
                         <div class="signature">
                             <p>(ลงชื่อ) .................................................. ผู้อนุมัติ</p>
-                            <p>(นางสาวกุหลาบ  อ่อนระทวย)</p>
-                            <p>ผู้อำนวยการศูนย์ส่งเสริมการเรียนรู้ระดับอำเภอโพธิ์ทอง</p>
+                            <p>(..................................)</p>
+                            <p>ผู้อำนวยการ{{ config('app.name_th') }}</p>
                         </div>
                     </div>
                 </div>

@@ -19,6 +19,8 @@ return [
     'name' => env('APP_NAME', 'Laravel'),
     'name_th' => env('APP_NAME_THAI', 'Laravel'),
     'name_system' => env('APP_NAME_SYSTEM', 'Laravel'),
+    'name_district' => env('NAME_DISTRICT', 'Laravel'),
+    'name_province' => env('NAME_PROVINCE', 'Laravel'),
 
     /*
     |--------------------------------------------------------------------------
