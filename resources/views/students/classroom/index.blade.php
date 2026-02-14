@@ -41,7 +41,7 @@
                                     <img src="https://ui-avatars.com/api/?name={{ urlencode($course->teacher->name) }}&color=7F9CF5&background=EBF4FF" 
                                          alt="{{ $course->teacher->name }}" 
                                          class="author-avatar">
-                                    {{ $course->teacher->name }}
+                                    <p>ผู้สอน: {{ $course->teacher?->name ?? 'ไม่ระบุชื่อผู้สอน' }}</p>
                                 </span>
                             </div>
                         </div>

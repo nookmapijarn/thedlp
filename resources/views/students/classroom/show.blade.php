@@ -28,7 +28,7 @@
                         <h1 class="text-3xl font-extrabold text-gray-800 mb-2">{{ $course->title }}</h1>
                         <p class="text-lg text-gray-600 mb-4">{{ $course->description }}</p>
                         <div class="flex items-center text-gray-500 mb-4">
-                            <span class="font-semibold text-gray-700">สอนโดย: {{ $course->teacher->name }}</span>
+                            <span class="font-semibold text-gray-700">สอนโดย: <p>ผู้สอน: {{ $course->teacher?->name ?? 'ไม่ระบุชื่อผู้สอน' }}</p></span>
                         </div>
                     </div>
                 </div>
