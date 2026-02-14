@@ -38,9 +38,9 @@
                                 </span>
                                 <span class="blog-card-author">
                                     {{-- แสดงรูปภาพโปรไฟล์ครู --}}
-                                    <img src="https://ui-avatars.com/api/?name={{ urlencode($course->teacher->name) }}&color=7F9CF5&background=EBF4FF" 
-                                         alt="{{ $course->teacher->name }}" 
-                                         class="author-avatar">
+                                    <img src="https://ui-avatars.com/api/?name={{ urlencode($course->teacher?->name ?? 'No Teacher') }}&color=7F9CF5&background=EBF4FF" 
+                                        alt="{{ $course->teacher?->name ?? 'No Teacher' }}" 
+                                        class="author-avatar">
                                     <p>ผู้สอน: {{ $course->teacher?->name ?? 'ไม่ระบุชื่อผู้สอน' }}</p>
                                 </span>
                             </div>
