@@ -155,11 +155,25 @@
 
                                     <div class="flex flex-col min-w-0">
                                         <span class="text-slate-400 text-[7px] lg:text-[16px] font-bold uppercase">วันเกิด</span>
+                                        {{-- ใช้ parse แทน createFromFormat เพื่อความยืดหยุ่น --}}
+                                        @php
+                                            $birthdayDisplay = '-';
+                                            if (!empty($std->BIRDAY)) {
+                                                try {
+                                                    // พยายามแปลงวันที่ ถ้า format d/m/Y พัง มันจะลองพยายามเดาจากรูปแบบอื่น
+                                                    $birthdayDisplay = \Carbon\Carbon::parse(str_replace('/', '-', $std->BIRDAY))
+                                                        ->addYears(543)
+                                                        ->locale('th')
+                                                        ->isoFormat('D MMM YY');
+                                                } catch (\Exception $e) {
+                                                    // ถ้าแปลงไม่สำเร็จจริงๆ ให้โชว์ข้อมูลดิบไปก่อน หน้าเว็บจะได้ไม่ล่ม
+                                                    $birthdayDisplay = $std->BIRDAY; 
+                                                }
+                                            }
+                                        @endphp
+
                                         <span class="text-slate-700 font-bold text-[12px] lg:text-sm truncate">
-                                            {{ !empty($std->BIRDAY) 
-                                                ? \Carbon\Carbon::createFromFormat('d/m/Y', $std->BIRDAY)->addYears(543)->locale('th')->isoFormat('D MMM YY') 
-                                                : '-' 
-                                            }}
+                                            {{ $birthdayDisplay }}
                                         </span>
                                     </div>
 

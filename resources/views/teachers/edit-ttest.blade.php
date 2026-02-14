@@ -53,7 +53,11 @@
                         </div>
                         <div class="bg-black/10 backdrop-blur-md px-6 py-3 rounded-2xl border border-white/10 text-left md:text-right">
                             <p class="text-[10px] font-black text-amber-200 uppercase tracking-[0.2em] mb-1">แก้ไขล่าสุดเมื่อ</p>
-                            <p class="text-sm font-black text-white">{{ \Carbon\Carbon::parse($quiz->updated_at)->format('d/m/Y H:i') }} น.</p>
+                            <p class="text-sm font-black text-white">
+                                {{ $quiz->updated_at 
+                                    ? \Carbon\Carbon::parse($quiz->updated_at)->format('d/m/Y H:i') 
+                                    : 'ไม่มีข้อมูลวันที่' }} น.
+                            </p>
                         </div>
                     </div>
                 </div>

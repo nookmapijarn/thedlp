@@ -418,9 +418,19 @@
                                                 <span class="md:hidden text-[10px] text-slate-400 font-bold uppercase">วันที่สอบ</span>
                                                 <div>
                                                     <div class="text-sm text-slate-500 font-medium">
-                                                        {{ \Carbon\Carbon::parse($attempt->finished_at)->translatedFormat('j M Y') }}
+                                                        {{-- ตรวจสอบก่อนว่ามีข้อมูลไหม ถ้าไม่มีให้แสดง '-' --}}
+                                                        {{ $attempt->finished_at 
+                                                            ? \Carbon\Carbon::parse($attempt->finished_at)->translatedFormat('j M Y') 
+                                                            : 'ยังไม่ระบุ' }}
                                                     </div>
-                                                    <div class="text-[10px] text-slate-400">{{ \Carbon\Carbon::parse($attempt->finished_at)->format('H:i') }} น.</div>
+                                                    <div class="text-[10px] text-slate-400">
+                                                        {{-- ทำเช่นเดียวกันกับส่วนของเวลา --}}
+                                                        @if($attempt->finished_at)
+                                                            {{ \Carbon\Carbon::parse($attempt->finished_at)->format('H:i') }} น.
+                                                        @else
+                                                            --:-- น.
+                                                        @endif
+                                                    </div>
                                                     {{-- Hidden timestamp for sorting --}}
                                                     <span class="hidden sort-data">{{ $attempt->finished_at }}</span>
                                                 </div>
