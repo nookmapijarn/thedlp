@@ -24,7 +24,7 @@
 
         <div class="text-center">
             <p class="text-base font-medium text-slate-600 mb-1">
-                Online Learner Information System (OLIS) <span class="text-blue-500">Version 3.1</span>
+                Online Learner Information System (OLIS) <span class="text-blue-500">Version 5.0</span>
             </p>
             <p class="text-sm text-gray-500 leading-relaxed">
                 © ออกแบบและพัฒนาระบบโดย <span class="font-semibold text-slate-700">นายนนทชัย มาพิจารณ์</span> ตำแหน่ง ครู <br>

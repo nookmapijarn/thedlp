@@ -67,7 +67,7 @@
                                 </h1>
                                 <p class="text-purple-300 text-[8px] lg:text-[11px]
                                         font-medium tracking-[0.15em] uppercase opacity-90">
-                                    ศูนย์ส่งเสริมการเรียนรู้ระดับอำเภอโพธิ์ทอง
+                                    ศูนย์ส่งเสริมการเรียนรู้ระดับอำเภอ{{ config('app.name_district') }}
                                 </p>
                             </div>
                         </div>
@@ -455,7 +455,7 @@
                 <div class="card-content-print">
                     <div class="card-header-print">
                         <p style="font-size: 8pt; font-weight: bold;">บัตรประจำตัวนักศึกษาระดับ @if($lavel==1)ประถมศึกษา @elseif($lavel==2)มัธยมศึกษาตอนต้น @elseif($lavel==3)มัธยมศึกษาตอนปลาย @endif</p>
-                        <p style="font-size: 7pt;">ศูนย์ส่งเสริมการเรียนรู้ระดับอำเภอโพธิ์ทอง (กลุ่ม {{$std->GRP_CODE}})</p>
+                        <p style="font-size: 7pt;">ศูนย์ส่งเสริมการเรียนรู้ระดับอำเภอ{{ config('app.name_district') }} (กลุ่ม {{$std->GRP_CODE}})</p>
                     </div>
                     <div class="card-body-print">
                         <div class="photo-box-print"><img src="{{ auth()->user()->avatar }}"></div>

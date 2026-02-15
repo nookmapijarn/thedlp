@@ -49,12 +49,6 @@ class WelcomeController extends Controller
         $totalStudents = User::where('role', 1)->count();
         $totalTeachers = User::where('role', 2)->count();
 
-        // 6. Logic สุ่มเลข (ถ้าวันนี้ยังไม่มีคนเข้าใช้งานเลย)
-        if ($todayUsers == 0) { 
-            $todayUsers = rand(5, 12); 
-            $todayStudents = $todayUsers; // สมมติให้เป็นนักเรียนทั้งหมดถ้าเป็นการสุ่ม
-        }
-
         return view('welcome', compact(
             'allusers', 
             'todayUsers', 

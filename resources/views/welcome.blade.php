@@ -176,7 +176,7 @@
                     <br><span class="text-sm">"Digital Learning Center"</span>
                 </h1>
                 <p class="text-sm md:text-base font-light text-blue-200 tracking-[0.5em] uppercase border-t border-blue-500/30 pt-4 inline-block">
-                    {{ config('app.name_th') }}
+                    ศูนย์ส่งเสริมการเรียนรู้ระดับอำเภอ{{ config('app.name_district') }}
                 </p>
             </div>
 
@@ -219,13 +219,15 @@
                 @endforeach
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-20 w-full max-w-5xl mx-auto px-2">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-20 w-full max-w-5xl mx-auto px-2">
                 @php
                     $stats = [
-                        ['label' => 'จำนวนผู้เรียน', 'value' => $allusers, 'unit' => 'คน', 'icon_color' => 'text-blue-400', 'bar_color' => 'bg-blue-500'],
+                        ['label' => 'สมาชิกทั้งหมด', 'value' => $totalMembers, 'unit' => 'คน', 'icon_color' => 'text-yellow-400', 'bar_color' => 'bg-yellow-500'],
+                        ['label' => 'สมาชิก(ผู้เรียน)', 'value' => $totalStudents, 'unit' => 'คน', 'icon_color' => 'text-yellow-400', 'bar_color' => 'bg-indigo-300'],
+                        ['label' => 'สมากชิก(ครู)', 'value' => $totalTeachers, 'unit' => 'คน', 'icon_color' => 'text-yellow-400', 'bar_color' => 'bg-indigo-500'],
+                        ['label' => 'จำนวนผู้เรียน(ลงทะเบียนล่าสุด)', 'value' => $allusers, 'unit' => 'คน', 'icon_color' => 'text-blue-400', 'bar_color' => 'bg-blue-500'],
                         ['label' => 'ผู้ใช้งานวันนี้', 'value' => $todayUsers, 'unit' => 'คน', 'icon_color' => 'text-green-400', 'bar_color' => 'bg-emerald-500'],
                         ['label' => 'ออนไลน์ขณะนี้', 'value' => $onlineCount, 'unit' => 'คน', 'icon_color' => 'text-rose-400', 'bar_color' => 'bg-rose-500'],
-                        ['label' => 'สมาชิกทั้งหมด', 'value' => $totalMembers, 'unit' => 'คน', 'icon_color' => 'text-yellow-400', 'bar_color' => 'bg-yellow-500'],
                     ];
                 @endphp
 
