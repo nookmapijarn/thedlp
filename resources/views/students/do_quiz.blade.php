@@ -97,8 +97,8 @@
                     <div class="flex items-center gap-2 overflow-hidden">
                         <img src="https://phothongdlec.ac.th/storage/logo.png" class="h-8 w-auto md:h-10 object-contain shrink-0">
                         <div class="flex flex-col truncate">
-                            <span class="text-sm md:text-base font-black text-slate-950 truncate leading-tight">{{ config('app.name_th') }}</span>
-                            <span class="text-[10px] md:text-xs font-bold text-slate-600 truncate">สำนักงานส่งเสริมการเรียนรู้ประจำจังหวัด</span>
+                            <span class="text-sm md:text-base font-black text-slate-950 truncate leading-tight">ศูนย์ส่งเสริมการเรียนรู้ระดับอำเภอ{{ config('app.name_district') }}</span>
+                            <span class="text-[10px] md:text-xs font-bold text-slate-600 truncate">สำนักงานส่งเสริมการเรียนรู้ประจำจังหวัด{{ config('app.name_province') }}</span>
                         </div>
                     </div>
                     <div class="flex items-center gap-1.5 bg-slate-950 px-2 py-1 md:px-3 md:py-1.5 rounded-lg shadow-[2px_2px_0px_#4f46e5] shrink-0">

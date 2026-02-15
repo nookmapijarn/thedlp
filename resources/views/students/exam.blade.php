@@ -494,28 +494,29 @@
     </div>
 
     {{-- Certificate Modal & Other parts remains same as previous --}}
-    <div id="certificate-modal" class="fixed inset-0 z-50 hidden overflow-y-auto">
+<div id="certificate-modal" class="fixed inset-0 z-50 hidden overflow-y-auto">
     <div class="flex min-h-screen items-center justify-center p-4">
-        <div class="fixed inset-0 bg-slate-900/80 backdrop-blur-md" onclick="hideCertificateModal()"></div>
+        <div class="fixed inset-0 bg-slate-900/90 backdrop-blur-md" onclick="hideCertificateModal()"></div>
         
-        <div class="relative w-full max-w-6xl overflow-hidden rounded-[2rem] bg-white shadow-2xl transition-all">
-            <div class="flex items-center justify-between border-b border-slate-100 bg-slate-50/50 px-8 py-5">
+        <div class="relative w-full max-w-5xl overflow-hidden rounded-[2rem] bg-white shadow-2xl transition-all">
+            <div class="flex items-center justify-between border-b border-slate-100 bg-white px-8 py-5">
                 <h3 class="text-xl font-bold text-slate-800">ตัวอย่างเกียรติบัตร</h3>
                 <div class="flex gap-3">
                     <button onclick="downloadPDF()" class="pdf-btn-main flex items-center gap-2 rounded-xl bg-rose-600 px-6 py-2.5 text-sm font-bold text-white transition hover:bg-rose-700 shadow-lg shadow-rose-200">
-                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                        ดาวน์โหลดเป็น PDF
+                        โหลด PDF (HQ)
                     </button>
-                    <button onclick="hideCertificateModal()" class="rounded-xl bg-white border border-slate-200 px-6 py-2.5 text-sm font-bold text-slate-600 transition hover:bg-slate-50">ปิดหน้าต่าง</button>
+                    <button onclick="hideCertificateModal()" class="rounded-xl bg-white border border-slate-200 px-6 py-2.5 text-sm font-bold text-slate-600">ปิด</button>
                 </div>
             </div>
 
-            <div class="cert-scale-container p-10" style="min-height: 500px;">
-                <div id="certificate-content" class="shadow-2xl">
-                    </div>
+            <div class="bg-slate-100 p-4 md:p-8 flex justify-center items-center">
+                <div id="cert-render-holder" class="w-full shadow-2xl border bg-white rounded-lg overflow-hidden">
+                    <canvas id="cert-canvas" style="width: 100%; height: auto; display: block;"></canvas>
+                </div>
             </div>
         </div>
     </div>
+</div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -579,101 +580,197 @@
             }
         }
 
-async function downloadPDF() {
-    const element = document.getElementById('certificate-content');
-    const studentName = "{{ auth()->user()->name }}";
-    const btn = document.querySelector('.pdf-btn-main');
 
-    btn.innerText = 'กำลังสร้างไฟล์...';
-    btn.disabled = true;
+let currentCertData = null;
 
-    // ตั้งค่าสำหรับ PDF
-    const opt = {
-        margin: 0,
-        filename: `Certificate-${studentName}.pdf`,
-        image: { type: 'jpeg', quality: 1.0 },
-        html2canvas: { 
-            scale: 2, 
-            useCORS: true,
-            logging: false,
-            letterRendering: true
-        },
-        jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
-    };
+async function renderCertificate(canvasId, data) {
+    const canvas = document.getElementById(canvasId);
+    const ctx = canvas.getContext('2d');
+    
+    // 1. ตั้งขนาด A4 แนวนอน (Pixels @ 96-300 DPI scale)
+    canvas.width = 1123;
+    canvas.height = 794;
 
-    // ปิดการ Transform ชั่วคราวเพื่อให้ขนาดกลับมาเป็น 297mm x 210mm (A4)
-    const originalStyle = element.style.cssText;
-    element.style.transform = 'none';
-    element.style.position = 'relative';
-    element.style.margin = '0';
+    // 2. เตรียมรูปภาพ
+    const imgBg = new Image();
+    const imgLogo = new Image();
+    
+    // ตั้งค่า CORS เพื่อให้สามารถดึงรูปจาก URL อื่นมาวาดลง PDF ได้โดยไม่ติด Security Error
+    imgBg.crossOrigin = "anonymous";
+    imgLogo.crossOrigin = "anonymous";
+
+    // แหล่งที่มารูปภาพ
+    imgBg.src = data.base64;
+    imgLogo.src = '{{ asset("storage/logo.png") ?? asset("storage/olislogo.png") }}';
+
+    return new Promise((resolve) => {
+        let loadedCount = 0;
+        const checkLoaded = () => {
+            loadedCount++;
+            if (loadedCount === 2) draw();
+        };
+
+        imgBg.onload = checkLoaded;
+        imgLogo.onload = checkLoaded;
+        
+        // กรณีโหลดโลโก้ไม่สำเร็จ ให้ทำงานต่อโดยไม่ค้าง
+        imgLogo.onerror = () => {
+            console.warn("Logo failed to load, proceeding with layout only.");
+            checkLoaded();
+        };
+        imgBg.onerror = () => {
+            console.error("Background image failed to load.");
+            resolve();
+        };
+
+        function draw() {
+            // --- เริ่มการวาด ---
+            // 1. วาดพื้นหลัง
+            ctx.drawImage(imgBg, 0, 0, canvas.width, canvas.height);
+
+            const centerX = canvas.width / 2;
+            const fontFamily = "'Prompt', sans-serif";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+
+            // 2. วาด Logo (กึ่งกลางบรรทัดแรกสุด)
+            const logoSize = 100; // ขนาดโลโก้
+            const logoY = 85;    // ตำแหน่งความสูงของโลโก้
+            if (imgLogo.complete && imgLogo.naturalWidth > 0) {
+                ctx.drawImage(imgLogo, centerX - (logoSize / 2), logoY - (logoSize / 2), logoSize, logoSize);
+            }
+
+            // 3. ส่วนหัวข้อ (ขยับระยะลงมาเพื่อหลบโลโก้)
+            ctx.font = `bold 60px ${fontFamily}`;
+            ctx.fillStyle = "#1e3a8a"; 
+            ctx.fillText("ประกาศนียบัตร", centerX, 210);
+
+            ctx.font = `bold 24px ${fontFamily}`;
+            ctx.fillText("ศูนย์ส่งเสริมการเรียนรู้ระดับอำเภอ{{ config('app.name_district') }}", centerX, 265);
+
+            // 4. ส่วนชื่อผู้รับ
+            ctx.font = `24px ${fontFamily}`;
+            ctx.fillStyle = "#4338ca";
+            ctx.fillText("ให้ไว้เพื่อแสดงว่า", centerX, 310);
+
+            ctx.font = `bold 44px ${fontFamily}`;
+            ctx.fillStyle = "#1e293b";
+            ctx.fillText(data.name, centerX, 400);
+            
+            // เส้นใต้ชื่อ
+            // ctx.beginPath();
+            // ctx.strokeStyle = "#cbd5e1";
+            // ctx.lineWidth = 2;
+            // ctx.moveTo(centerX - 250, 480);
+            // ctx.lineTo(centerX + 250, 480);
+            // ctx.stroke();
+
+            // 5. รายละเอียดแบบทดสอบ
+            ctx.font = `30px ${fontFamily}`;
+            ctx.fillStyle = "#334155";
+            ctx.fillText("ได้ผ่านการทำแบบทดสอบ", centerX, 500);
+
+            ctx.font = `900 34px ${fontFamily}`;
+            ctx.fillStyle = "#1e3a8a";
+            ctx.fillText(`“ ${data.title} ”`, centerX, 570);
+
+            // 6. ส่วนวันที่ (เว้นระยะบรรทัดให้โปร่งขึ้น)
+            ctx.font = `24px ${fontFamily}`;
+            ctx.fillStyle = "#64748b";
+            ctx.fillText(`ให้ไว้ ณ วันที่ ${data.date}`, centerX, 630);
+
+            // 7. พื้นที่ลงนามและคะแนน (ชิดขอบล่าง พร้อมเว้นที่ลงนาม)
+            const marginSide = 140; 
+            const footerY = 750; // บรรทัดล่างสุด
+
+            // ฝั่งซ้าย: คะแนน
+            ctx.textAlign = "left";
+            ctx.font = `bold 14px ${fontFamily}`;
+            ctx.fillStyle = "#94a3b8";
+            ctx.fillText("ผลคะแนนที่ได้", marginSide, footerY - 35);
+            
+            ctx.font = `900 48px ${fontFamily}`;
+            ctx.fillStyle = "#ffffff";
+            ctx.fillText(data.score, marginSide, footerY);
+            
+            ctx.font = `24px ${fontFamily}`;
+            ctx.fillText(` / ${data.total}`, marginSide + ctx.measureText(data.score).width + 5, footerY);
+
+            // ฝั่งขวา: พื้นที่ลงนาม (เว้นช่องว่างระหว่าง "วันที่" กับ "ผู้บริหาร" ไว้ให้เซ็น)
+            ctx.textAlign = "center";
+            ctx.beginPath(); 
+            ctx.strokeStyle = "#94a3b8";
+            ctx.lineWidth = 2;
+            ctx.moveTo(canvas.width - marginSide - 280, footerY - 10);
+            ctx.lineTo(canvas.width - marginSide, footerY - 10);
+            ctx.stroke();
+
+            ctx.font = `bold 22px ${fontFamily}`;
+            ctx.fillStyle = "#334155";
+            ctx.fillText("ผู้บริหารสถานศึกษา", canvas.width - marginSide - 140, footerY + 15);
+
+            // สิ้นสุดการวาด
+            resolve();
+        }
+    });
+}
+
+async function showCertificateModal(title, score, total, bgUrl) {
+    const modal = document.getElementById('certificate-modal');
+    modal.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
 
     try {
-        await html2pdf().set(opt).from(element).save();
+        const response = await fetch(`/get-cert-base64?url=${encodeURIComponent(bgUrl)}`);
+        const result = await response.json();
+        
+        currentCertData = {
+            base64: result.base64,
+            name: "{{ auth()->user()->name }}",
+            title: title,
+            score: score,
+            total: total,
+            date: new Date().toLocaleDateString('th-TH', { day: 'numeric', month: 'long', year: 'numeric' })
+        };
+
+        // วาดลง Canvas ทันทีที่ข้อมูลพร้อม
+        await renderCertificate('cert-canvas', currentCertData);
+
+    } catch (e) {
+        console.error("Render Error:", e);
+    }
+}
+
+async function downloadPDF() {
+    if (!currentCertData) return;
+    
+    const btn = document.querySelector('.pdf-btn-main');
+    btn.innerText = 'กำลังส่งออก...';
+    btn.disabled = true;
+
+    try {
+        const canvas = document.getElementById('cert-canvas');
+        const imgData = canvas.toDataURL('image/jpeg', 1.0);
+        
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF({
+            orientation: 'landscape',
+            unit: 'px',
+            format: [1123, 794]
+        });
+
+        pdf.addImage(imgData, 'JPEG', 0, 0, 1123, 794);
+        pdf.save(`Certificate-${currentCertData.name}.pdf`);
     } finally {
-        // คืนค่าการแสดงผลในหน้าจอปกติ
-        element.style.cssText = originalStyle;
-        btn.innerText = 'ดาวน์โหลดเป็น PDF';
+        btn.innerText = 'โหลด PDF (HQ)';
         btn.disabled = false;
     }
 }
 
-async function showCertificateModal(title, score, total, bgUrl) {
-    const certificateContent = document.getElementById('certificate-content');
-    const modal = document.getElementById('certificate-modal');
-    
-    // แสดง Loading ระหว่างรอแปลงรูป
-    certificateContent.innerHTML = '<div class="flex h-full items-center justify-center text-2xl">กำลังโหลดเกียรติบัตร...</div>';
-    modal.classList.remove('hidden');
-
-    try {
-        // ดึงรูป Base64 ผ่าน Route ที่เราสร้างไว้
-        const response = await fetch(`/get-cert-base64?url=${encodeURIComponent(bgUrl)}`);
-        const data = await response.json();
-        const base64Image = data.base64;
-
-        // ใส่เนื้อหาเกียรติบัตร (ใช้ img tag ที่เป็น base64)
-        certificateContent.innerHTML = `
-            <img src="${base64Image}" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; object-fit: fill;">
-            <div class="flex flex-col items-center justify-between h-full text-center py-20 px-32 text-[#1e293b] relative z-10">
-                <div class="mt-12">
-                    <h1 class="text-6xl font-bold text-indigo-900 mb-4">ประกาศนียบัตร</h1>
-                    <h1 class="text-2xl font-bold text-indigo-900 mb-4">{{ config('app.name_th') }}</h1>
-                    <p class="text-3xl text-indigo-700 font-medium">ให้ไว้เพื่อแสดงว่า</p>
-                </div>
-
-                <div class="my-4">
-                    <h2 class="text-5xl font-bold text-slate-800 border-b-4 border-slate-200 pb-4 px-16 inline-block">
-                        {{ auth()->user()->name }}
-                    </h2>
-                </div>
-
-                <div class="max-w-4xl">
-                    <p class="text-3xl text-slate-700 mb-4 font-medium">ได้ผ่านการทำแบบทดสอบ</p>
-                    <p class="text-2xl font-black text-indigo-800 leading-tight">“ ${title} ”</p>
-                    <p class="text-2xl text-slate-500 mt-10">ให้ไว้ ณ วันที่ ${new Date().toLocaleDateString('th-TH', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
-                </div>
-
-                <div class="w-full flex justify-between items-end mt-10 px-10">
-                    <div class="text-left bg-white/70 p-5 rounded-2xl border border-white/50 backdrop-blur-sm">
-                        <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">ผลคะแนนที่ได้</p>
-                        <p class="text-4xl font-black text-indigo-600">${score} <span class="text-xl text-slate-400 font-normal">/ ${total}</span></p>
-                    </div>
-                    <div class="text-center">
-                        <div class="w-72 border-b-2 border-slate-400 mb-3 mx-auto"><div class="h-16"></div></div>
-                        <p class="text-xl font-bold text-slate-700">ผุ้บริหารสถานศึกษา</p>
-                    </div>
-                </div>
-            </div>
-        `;
-    } catch (error) {
-        certificateContent.innerHTML = '<div class="text-red-500 p-10 text-center">โหลดรูปภาพพื้นหลังไม่สำเร็จ กรุณาตรวจสอบการเชื่อมต่อ</div>';
-    }
+function hideCertificateModal() {
+    document.getElementById('certificate-modal').classList.add('hidden');
+    document.body.style.overflow = 'auto';
 }
-
-        function hideCertificateModal() {
-            document.getElementById('certificate-modal').classList.add('hidden');
-            document.body.style.overflow = 'auto';
-        }
                 
                 document.addEventListener('DOMContentLoaded', () => {
                 switchTab('all');

@@ -1,6 +1,10 @@
 <link rel="stylesheet" href="https://cdn.datatables.net/2.0.0/css/dataTables.tailwindcss.css">
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+        .swal2-confirm {background-color: #4f46e5 !important;}
+        .swal2-cancel {background-color: red !important;}
+</style>
 <x-admin-layout>
     <div class="p-4 sm:ml-64 bg-gray-50 min-h-screen font-sans mb-20">
         <div class="mt-16 container mx-auto max-w-7xl">
@@ -241,7 +245,7 @@
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#ef4444',
-                cancelButtonColor: '#6b7280',
+                cancelButtonColor: '#D72230',
                 confirmButtonText: 'ใช่, ลบเลย!',
                 cancelButtonText: 'ยกเลิก'
             }).then((result) => {

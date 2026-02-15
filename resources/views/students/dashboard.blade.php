@@ -80,18 +80,11 @@
                         <div class="w-[20%] flex flex-col items-center gap-2 shrink-0">
                         <div class="relative group w-full aspect-[3/4] bg-slate-100 rounded-lg overflow-hidden border-[3px] border-white shadow-[0_8px_20px_rgba(0,0,0,0.1)]">
                             
+                            <a href="{{ url("profile") }}" class="" title="แก้ไขรูปภาพ">
                             <img src="{{ auth()->user()->avatar ?? 'https://phothongdlec.ac.th/storage/images/avatar/unkhonw.png' }}"
                                 onerror="this.onerror=null;this.src='https://phothongdlec.ac.th/storage/images/avatar/unkhonw.png';"
                                 class="w-full h-full object-cover"
                                 id="profile-avatar">
-
-                            <a href="{{ url("profile") }}" 
-                            class="absolute bottom-1 right-1 sm:bottom-3 sm:right-3 bg-white/90 hover:bg-white text-slate-700 sm:p-2 rounded-full shadow-md transition-all duration-200 hover:scale-110 flex items-center justify-center border border-slate-200"
-                            title="แก้ไขรูปภาพ">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-                                </svg>
                             </a>
 
                             <div class="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
