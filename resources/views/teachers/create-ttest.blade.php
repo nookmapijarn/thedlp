@@ -98,6 +98,7 @@
                                     <select id="grade_level" name="grade_level" required 
                                         class="w-full rounded-2xl border-slate-200 bg-slate-50/50 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all py-4 px-5 text-slate-600 font-bold cursor-pointer">
                                         <option value="">เลือกระดับชั้น</option>
+                                        <option value="0">ทุกระดับ</option>
                                         <option value="1">ประถมศึกษา</option>
                                         <option value="2">มัธยมศึกษาตอนต้น</option>
                                         <option value="3">มัธยมศึกษาตอนปลาย</option>
@@ -265,7 +266,7 @@
 
     tsSubject.disable();
 
-    // 2. ปรับปรุง Logic การเปลี่ยนระดับชั้น
+// 2. ปรับปรุง Logic การเปลี่ยนระดับชั้น
     gradeSelect.addEventListener('change', function() {
         const grade = this.value;
         
@@ -273,34 +274,54 @@
         tsSubject.clearOptions();
         tsSubject.disable();
         
-        // วิธีเปลี่ยน Placeholder ที่ถูกต้องสำหรับ Tom Select
-        tsSubject.settings.placeholder = grade ? "กำลังโหลดข้อมูล..." : "-- กรุณาเลือกระดับชั้นก่อน --";
-        tsSubject.inputState(); // สั่งให้ input อัปเดตสถานะ
-
-        if (grade) {
-            fetch("{{ route('api.subjects') }}?grade=" + grade)
-                .then(res => res.json())
-                .then(data => {
-                    if (data && data.length > 0) {
-                        const options = data.map(item => ({
-                            value: item.SUB_CODE,
-                            text: item.SUB_CODE + " " + item.SUB_NAME
-                        }));
-                        
-                        tsSubject.addOptions(options);
-                        tsSubject.enable();
-                        tsSubject.settings.placeholder = "ค้นหาชื่อวิชาหรือรหัสวิชา...";
-                    } else {
-                        tsSubject.settings.placeholder = "ไม่พบรายวิชาในระดับนี้";
-                    }
-                    tsSubject.inputState(); 
-                })
-                .catch(err => {
-                    console.error("Fetch Error:", err);
-                    tsSubject.settings.placeholder = "โหลดข้อมูลล้มเหลว";
-                    tsSubject.inputState();
-                });
+        // หากไม่เลือกอะไรเลย
+        if (!grade && grade !== "0") {
+            tsSubject.settings.placeholder = "-- กรุณาเลือกระดับชั้นก่อน --";
+            tsSubject.inputState();
+            return;
         }
+
+        // --- เพิ่มเงื่อนไขสำหรับ grade 0 (ทุกระดับ) ---
+        if (grade === "0") {
+            const defaultOption = {
+                value: 'กก00000',
+                text: 'กก00000 รายวิชาทั่วไป/ไม่ระบุ'
+            };
+            tsSubject.addOptions([defaultOption]);
+            tsSubject.setValue('กก00000');
+            tsSubject.enable(); // เปิดให้เลือกได้ หรือจะทิ้งไว้แบบนี้ก็ได้
+            tsSubject.settings.placeholder = "รหัสวิชาถูกกำหนดอัตโนมัติ";
+            tsSubject.inputState();
+            return; // จบการทำงาน ไม่ต้องไป fetch API
+        }
+        // -------------------------------------------
+
+        // กรณีเลือกเกรดอื่นๆ ให้ไป Fetch ข้อมูลตามปกติ
+        tsSubject.settings.placeholder = "กำลังโหลดข้อมูล...";
+        tsSubject.inputState();
+
+        fetch("{{ route('api.subjects') }}?grade=" + grade)
+            .then(res => res.json())
+            .then(data => {
+                if (data && data.length > 0) {
+                    const options = data.map(item => ({
+                        value: item.SUB_CODE,
+                        text: item.SUB_CODE + " " + item.SUB_NAME
+                    }));
+                    
+                    tsSubject.addOptions(options);
+                    tsSubject.enable();
+                    tsSubject.settings.placeholder = "ค้นหาชื่อวิชาหรือรหัสวิชา...";
+                } else {
+                    tsSubject.settings.placeholder = "ไม่พบรายวิชาในระดับนี้";
+                }
+                tsSubject.inputState(); 
+            })
+            .catch(err => {
+                console.error("Fetch Error:", err);
+                tsSubject.settings.placeholder = "โหลดข้อมูลล้มเหลว";
+                tsSubject.inputState();
+            });
     });
 </script>
 

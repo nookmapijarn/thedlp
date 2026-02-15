@@ -99,6 +99,7 @@
                                     <select id="grade_level" name="grade_level" required 
                                         class="w-full rounded-2xl border-slate-200 bg-slate-50/50 focus:bg-white focus:ring-4 focus:ring-amber-500/10 focus:border-amber-500 transition-all py-4 px-5 text-slate-600 font-bold">
                                         <option value="">เลือกระดับชั้น</option>
+                                        <option value="0" @selected($quiz->grade_level == 0)>ทุกระดับ</option>
                                         <option value="1" @selected($quiz->grade_level == 1)>ประถมศึกษา</option>
                                         <option value="2" @selected($quiz->grade_level == 2)>มัธยมศึกษาตอนต้น</option>
                                         <option value="3" @selected($quiz->grade_level == 3)>มัธยมศึกษาตอนปลาย</option>
@@ -235,7 +236,26 @@
                 reader.readAsDataURL(input.files[0]);
             }
         }
-
+// ฟังก์ชันล็อกแบบ "ห้ามแก้แต่ส่งค่าได้"
+function toggleSubjectLock(isLocked) {
+    const control = tsSubject.control; // ดึงตัว Element หน้าจอของ TomSelect
+    
+    if (isLocked) {
+        // 1. ทำให้คลิกไม่ได้ (CSS)
+        control.style.pointerEvents = 'none'; 
+        // 2. ปรับสีให้ดูว่าแก้ไขไม่ได้ (เทาอ่อน)
+        control.style.backgroundColor = '#e9ecef';
+        control.style.opacity = '0.8';
+        // 3. ป้องกันการกดลบ (Backspace/Delete)
+        tsSubject.settings.readonly = true;
+    } else {
+        // ปลดล็อกกลับมาเป็นปกติ
+        control.style.pointerEvents = 'auto';
+        control.style.backgroundColor = '';
+        control.style.opacity = '1';
+        tsSubject.settings.readonly = false;
+    }
+}
         const initialQuestions = @json($questions);
         const gradeSelect = document.getElementById('grade_level');
         const subjectSelectEl = document.getElementById('subject_select');
@@ -247,6 +267,7 @@
             valueField: 'value',
             labelField: 'text',
             searchField: ['text'],
+            dropdownParent: 'body',
             onChange: function(value) {
                 if (value) {
                     const prefix = value.substring(0, 2);
@@ -256,27 +277,48 @@
             }
         });
 
-        async function loadSubjects(grade, defaultValue = null) {
-            if (!grade) return;
-            tsSubject.clearOptions();
-            try {
-                const response = await fetch("{{ route('api.subjects') }}?grade=" + grade);
-                const data = await response.json();
-                const options = data.map(item => ({ value: item.SUB_CODE, text: `${item.SUB_CODE} ${item.SUB_NAME}` }));
-                tsSubject.addOptions(options);
-                if (defaultValue) tsSubject.setValue(defaultValue);
-            } catch (err) { console.error(err); }
-        }
+async function loadSubjects(grade, defaultValue = null) {
+    // กรณีเกรด 0 หรือไม่ระบุ
+    if (grade === "" || grade === "0") {
+        const specialValue = 'กก00000';
+        tsSubject.clearOptions();
+        tsSubject.addOptions([{ value: specialValue, text: 'กก00000 วิชาแกน/พื้นฐาน (อัตโนมัติ)' }]);
+        tsSubject.setValue(specialValue);
+        
+        // ล็อกการคลิก แต่สถานะ Object ยังเป็น Enable (ส่งค่าได้ปกติ)
+        toggleSubjectLock(true); 
+        return;
+    }
 
-        gradeSelect.addEventListener('change', function() {
-            tsSubject.clear();
-            loadSubjects(this.value);
-        });
+    // กรณีเกรดปกติ ให้ปลดล็อก
+    toggleSubjectLock(false);
+    
+    if (!grade) return;
+    tsSubject.clearOptions();
+    try {
+        const response = await fetch("{{ route('api.subjects') }}?grade=" + grade);
+        const data = await response.json();
+        const options = data.map(item => ({ value: item.SUB_CODE, text: `${item.SUB_CODE} ${item.SUB_NAME}` }));
+        tsSubject.addOptions(options);
+        
+        if (defaultValue) tsSubject.setValue(defaultValue);
+    } catch (err) { console.error(err); }
+}
+
+// ส่วนของ Event Listener
+gradeSelect.addEventListener('change', function() {
+    tsSubject.clear();
+    loadSubjects(this.value);
+});
 
         window.onload = () => {
             const initialGrade = gradeSelect.value;
             const initialSubject = subjectSelectEl.getAttribute('data-selected');
-            if (initialGrade) loadSubjects(initialGrade, initialSubject);
+            
+            // เรียกใช้ loadSubjects เพื่อเช็คเงื่อนไขตั้งแต่วันแรกที่โหลดหน้า
+            if (initialGrade !== undefined) {
+                loadSubjects(initialGrade, initialSubject);
+            }
 
             if (initialQuestions && initialQuestions.length > 0) {
                 initialQuestions.forEach((q, index) => {

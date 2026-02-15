@@ -16,17 +16,27 @@ class ExamController extends Controller
 
     public function index(Request $request)
     {
-        // 1. ดึงข้อมูลพื้นฐานของนักเรียน (ส่วนเดิม)
+        // 1. ดึงข้อมูลพื้นฐานของนักเรียน
         $id = auth()->user()->student_id;
-        $userId = auth()->id(); // ID จากตาราง users
-        $this->lavel = str_split($id, 1)[3];
-        $this->std_code = DB::table("student{$this->lavel}")->where('ID', $id)->select('STD_CODE')->groupBy('STD_CODE')->value('STD_CODE');
+        $userId = auth()->id(); 
+        
+        // ดึงเลขระดับชั้นจาก student_id ตัวที่ 4 (เช่น '3' สำหรับ ม.ปลาย)
+        $this->lavel = str_split($id, 1)[3]; 
+        
+        $this->std_code = DB::table("student{$this->lavel}")
+            ->where('ID', $id)
+            ->select('STD_CODE')
+            ->groupBy('STD_CODE')
+            ->value('STD_CODE');
 
-        $all_semestry = DB::table("grade{$this->lavel}")->select('SEMESTRY')->groupBy('SEMESTRY')->orderBy('SEMESTRY', 'DESC')->get();
+        $all_semestry = DB::table("grade{$this->lavel}")
+            ->select('SEMESTRY')
+            ->groupBy('SEMESTRY')
+            ->orderBy('SEMESTRY', 'DESC')
+            ->get();
         $semestry = $all_semestry->first() ? $all_semestry->first()->SEMESTRY : null;
 
-        // 2. ดึงข้อมูล "ข้อสอบที่ได้รับมอบหมาย" (Assigned Quizzes)
-        // ดึงเฉพาะที่ครูสั่งให้ User นี้ทำผ่านตาราง quiz_assignments
+        // 2. ดึงข้อมูล "ข้อสอบที่ได้รับมอบหมาย" (คงเดิม)
         $assignedQuizzes = DB::table('quiz_assignments')
             ->join('quizzes', 'quiz_assignments.quiz_id', '=', 'quizzes.id')
             ->leftJoin('users', 'quizzes.created_by', '=', 'users.id')
@@ -38,19 +48,17 @@ class ExamController extends Controller
                 'quiz_assignments.due_date',
                 'quiz_assignments.is_completed'
             )
-            ->orderBy('quiz_assignments.is_completed', 'asc') // เอาที่ยังไม่ทำขึ้นก่อน
+            ->orderBy('quiz_assignments.is_completed', 'asc')
             ->orderBy('quiz_assignments.assigned_at', 'desc')
             ->get();
 
-        // 3. สร้าง Query สำหรับ "คลังข้อสอบทั้งหมด" (All Quizzes)
+        // 3. สร้าง Query สำหรับ "คลังข้อสอบทั้งหมด" (เพิ่มเงื่อนไขการกรอง Level ที่นี่)
         $query = DB::table('quizzes')
-            // 1. เชื่อมตาราง users โดยใช้ created_by เชื่อมกับ id ของ users
             ->leftJoin('users', 'quizzes.created_by', '=', 'users.id')
             ->select(
                 'quizzes.*', 
-                'users.name as creator_name' // ดึงชื่อมาในชื่อตัวแปร creator_name
+                'users.name as creator_name'
             )
-            // 2. ส่วนของ Subquery เช็คการทำข้อสอบ (เหมือนเดิม)
             ->addSelect([
                 'is_attempted' => DB::table('quiz_attempts')
                     ->selectRaw('count(*)')
@@ -59,9 +67,13 @@ class ExamController extends Controller
                     ->whereNotNull('finished_at')
                     ->limit(1)
             ])
-            ->where('quizzes.is_active', 1);
-
-        $quizzes = $query->get();
+            ->where('quizzes.is_active', 1)
+            // --- ส่วนที่เพิ่ม/แก้ไขใหม่: กรองระดับชั้น ---
+            ->where(function($q) {
+                $q->where('quizzes.grade_level', 0)              // ดึงข้อสอบระดับ 0 (วิชาพื้นฐาน/ไม่ระบุ)
+                ->orWhere('quizzes.grade_level', $this->lavel); // และดึงข้อสอบที่ตรงกับระดับชั้นนักเรียน (1, 2, 3)
+            });
+            // ---------------------------------------
 
         // --- ระบบค้นหาและกรอง (Search & Filters) ---
         if ($request->filled('search')) {
@@ -75,6 +87,7 @@ class ExamController extends Controller
             $query->where('quizzes.subject_table_type', $request->subject);
         }
 
+        // แก้ไข Filter Grade: ให้เลือกได้เฉพาะในขอบเขตที่สิทธิ์ถึง
         if ($request->filled('grade')) {
             $query->where('quizzes.grade_level', $request->grade);
         }
@@ -83,22 +96,33 @@ class ExamController extends Controller
             $query->where('quizzes.created_by', $request->creator);
         }
 
-        // เรียงลำดับ
+        // เรียงลำดับและดึงข้อมูล
         $sortField = $request->get('sort', 'id'); 
         $sortOrder = $request->get('order', 'desc');
         $quizzes = $query->orderBy("quizzes.{$sortField}", $sortOrder)->get();
 
-        // 4. ดึงข้อมูลสำหรับ Dropdown Filter
-        $subjects = DB::table('quizzes')->where('subject_table_type', '!=', '')->distinct()->pluck('subject_table_type');
-        $grades = DB::table('quizzes')->distinct()->pluck('grade_level')->sort();
+        // 4. ดึงข้อมูลสำหรับ Dropdown Filter (กรองให้แสดงเฉพาะเกรดที่นักเรียนเห็นได้ด้วย)
+        $subjects = DB::table('quizzes')
+            ->where('subject_table_type', '!=', '')
+            ->whereIn('grade_level', [0, $this->lavel]) // กรองตัวเลือก Dropdown
+            ->distinct()
+            ->pluck('subject_table_type');
+
+        $grades = DB::table('quizzes')
+            ->whereIn('grade_level', [0, $this->lavel]) // กรองตัวเลือกเกรดให้เห็นแค่ 0 กับ เลเวลตัวเอง
+            ->distinct()
+            ->pluck('grade_level')
+            ->sort();
+
         $creators = DB::table('users')
             ->whereIn('id', function($q) {
-                $q->select('created_by')->from('quizzes');
+                $q->select('created_by')->from('quizzes')
+                ->whereIn('grade_level', [0, $this->lavel]);
             })
             ->select('id', 'name')
             ->get();
 
-        // 5. ดึงประวัติการทำข้อสอบ (History)
+        // 5. ดึงประวัติการทำข้อสอบ (คงเดิม)
         $quizAttemptsHistory = DB::table('quiz_attempts')
             ->where('quiz_attempts.user_id', $userId)
             ->join('quizzes', 'quiz_attempts.quiz_id', '=', 'quizzes.id')
@@ -114,16 +138,9 @@ class ExamController extends Controller
             ->orderBy('quiz_attempts.finished_at', 'desc')
             ->get();
 
-        // 6. ส่งข้อมูลไปยัง View
         return view('students.exam', compact(
-            'assignedQuizzes', // งานที่ครูสั่ง
-            'quizzes',         // ข้อสอบทั้งหมด
-            'quizAttemptsHistory', 
-            'all_semestry', 
-            'semestry',
-            'subjects',
-            'grades',
-            'creators'
+            'assignedQuizzes', 'quizzes', 'quizAttemptsHistory', 
+            'all_semestry', 'semestry', 'subjects', 'grades', 'creators'
         ));
     }
 
