@@ -292,7 +292,7 @@ class ExamController extends Controller
                 'finished_at' => Carbon::now(),
                 'total_score'  => $totalScoreEarned,
                 'is_passed'   => $isPassed,
-                'tab_switch_count'  => $request->input('tab_switches', 0),
+                'tab_switch_count'  => $request->input('violation_count', 0),
             ]);
 
             DB::commit();

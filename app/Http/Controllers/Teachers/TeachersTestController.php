@@ -18,23 +18,23 @@ class TeachersTestController extends Controller
             ->where('created_by', auth()->id())
             ->select('quizzes.*')
             ->addSelect([
-                // 1. นับจำนวนข้อสอบ (เหมือนเดิม)
+                // 1. นับจำนวนข้อสอบ
                 'questions_count' => DB::table('questions')
                     ->selectRaw('count(*)')
                     ->whereColumn('quiz_id', 'quizzes.id'),
                 
-                // 2. นับจำนวน "คน" ที่เข้าสอบทั้งหมด (นับรายคน ไม่นับครั้งซ้ำ)
+                // 2. นับจำนวน "คน" ที่เข้าสอบทั้งหมด
                 'unique_students_count' => DB::table('quiz_attempts')
                     ->selectRaw('count(distinct user_id)') 
                     ->whereColumn('quiz_id', 'quizzes.id'),
                     
-                // 3. นับจำนวน "คน" ที่สอบผ่าน (นับเฉพาะคนที่เคยผ่านอย่างน้อย 1 ครั้ง)
+                // 3. นับจำนวน "คน" ที่สอบผ่าน
                 'unique_passed_count' => DB::table('quiz_attempts')
                     ->selectRaw('count(distinct user_id)')
                     ->whereColumn('quiz_id', 'quizzes.id')
                     ->where('is_passed', 1),
                     
-                // 4. คำนวณร้อยละจาก "จำนวนคน" (Passed People / Total People * 100)
+                // 4. คำนวณร้อยละ
                 'pass_rate' => DB::table('quiz_attempts')
                     ->selectRaw('
                         IF(count(distinct user_id) > 0, 
@@ -65,28 +65,22 @@ class TeachersTestController extends Controller
 
         DB::beginTransaction();
         try {
-            // --- 1. Logic การจัดการภาพ Cover (ใช้แนวทางเดียวกับ initializeAttempt) ---
+            // --- 1. Logic การจัดการภาพ Cover ---
             $coverPublicUrl = null;
             if ($request->input('quiz_cover_base64')) {
                 $imageData = $request->input('quiz_cover_base64');
                 
-                // ลบ prefix data:image/... ออกด้วย regex
                 $imageData = preg_replace('#^data:image/\w+;base64,#i', '', $imageData);
                 $imageData = base64_decode($imageData);
 
-                // ตั้งชื่อไฟล์ (ใช้ชื่อวิชาและเวลา)
                 $imageName = 'cover_' . $request->subject_code . '_' . time() . '.png';
                 $directory = public_path('storage/images/exams/cover');
                 
-                // สร้าง Folder ถ้ายังไม่มี
                 if (!file_exists($directory)) { 
                     mkdir($directory, 0777, true); 
                 }
 
-                // บันทึกไฟล์ลงใน path
                 file_put_contents($directory . '/' . $imageName, $imageData);
-                
-                // สร้าง URL สำหรับเก็บลง Database (ใช้ asset() เพื่อให้ดึงรูปมาแสดงผลได้ง่าย)
                 $coverPublicUrl = asset('storage/images/exams/cover/' . $imageName);
             }
 
@@ -94,7 +88,7 @@ class TeachersTestController extends Controller
             $requireLocation = $request->has('require_location') ? 1 : 0;
             $requireSnapshot = $request->has('require_snapshot') ? 1 : 0;
 
-            // --- 2. บันทึก Attempt ลง Database (Quizzes Table) ---
+            // --- 2. บันทึก Attempt ลง Database ---
             $quizId = DB::table('quizzes')->insertGetId([
                 'title' => $request->quiz_title,
                 'description' => $request->quiz_description,
@@ -106,13 +100,13 @@ class TeachersTestController extends Controller
                 'require_snapshot' => $requireSnapshot,
                 'total_score' => 0,
                 'time_limit' => $request->time_limit ?? 0,
-                'cover_image' => $coverPublicUrl, // บันทึก URL รูปภาพปก
+                'cover_image' => $coverPublicUrl,
                 'created_by' => Auth::id(),
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
 
-            // --- 3. บันทึกข้อสอบ (Logic เดิมของคุณ) ---
+            // --- 3. บันทึกข้อสอบ (แก้ไข Logic การบันทึก Choice) ---
             foreach ($request->questions as $qData) {
                 $questionId = DB::table('questions')->insertGetId([
                     'quiz_id' => $quizId,
@@ -130,12 +124,18 @@ class TeachersTestController extends Controller
                 $totalQuizScore += $qData['score'];
 
                 if (isset($qData['choices'])) {
-                    foreach ($qData['choices'] as $cData) {
+                    // *** แก้ไขจุดที่ 1: เพิ่ม $cIdx เพื่อดึง index ของลูป ***
+                    foreach ($qData['choices'] as $cIdx => $cData) {
                         if(!empty($cData['choice_text'])) {
+                            
+                            // *** แก้ไขจุดที่ 2: เช็คกับ correct_index ที่ส่งมาจาก Radio Button ***
+                            // ถ้า index ของลูปนี้ ตรงกับ correct_index ที่เลือกมา ให้เป็น 1
+                            $isCorrect = (isset($qData['correct_index']) && $qData['correct_index'] == $cIdx) ? 1 : 0;
+
                             DB::table('choices')->insert([
                                 'question_id' => $questionId,
                                 'choice_text' => $cData['choice_text'],
-                                'is_correct' => isset($cData['is_correct']) ? 1 : 0,
+                                'is_correct' => $isCorrect,
                                 'created_at' => now(),
                             ]);
                         }
@@ -172,8 +172,13 @@ class TeachersTestController extends Controller
                     ->get()
                     ->map(function($question) {
                         $question->choices = DB::table('choices')
-                                                ->where('question_id', $question->id)
-                                                ->get();
+                                        ->where('question_id', $question->id)
+                                        ->get()
+                                        ->map(function($choice) {
+                                            // *** แก้ไขจุดที่ 3: แปลงเป็น Boolean เพื่อให้ JS ทำงานได้ถูกต้อง ***
+                                            $choice->is_correct = (bool)$choice->is_correct; 
+                                            return $choice;
+                                        });
                         return $question;
                     });
 
@@ -193,7 +198,7 @@ class TeachersTestController extends Controller
 
         DB::beginTransaction();
         try {
-            // --- 1. จัดการรูปภาพปก (Logic เดียวกับ initializeAttempt) ---
+            // --- 1. จัดการรูปภาพปก ---
             $updateData = [
                 'title' => $request->quiz_title,
                 'subject_code' => $request->subject_code,
@@ -208,12 +213,9 @@ class TeachersTestController extends Controller
 
             if ($request->input('quiz_cover_base64')) {
                 $imageData = $request->input('quiz_cover_base64');
-                
-                // ลบ prefix data:image/... ออกด้วย regex
                 $imageData = preg_replace('#^data:image/\w+;base64,#i', '', $imageData);
                 $imageData = base64_decode($imageData);
 
-                // ตั้งชื่อไฟล์ (ใช้ ID และเวลาเพื่อความแม่นยำ)
                 $imageName = 'cover_' . $id . '_' . time() . '.png';
                 $directory = public_path('storage/images/quizzes/covers');
                 
@@ -222,15 +224,13 @@ class TeachersTestController extends Controller
                 }
 
                 file_put_contents($directory . '/' . $imageName, $imageData);
-                
-                // เพิ่ม Path รูปภาพใหม่ลงใน array ที่จะ update
                 $updateData['cover_image'] = asset('storage/images/quizzes/covers/' . $imageName);
             }
 
             // --- 2. อัปเดตข้อมูล Quiz ---
             DB::table('quizzes')->where('id', $id)->update($updateData);
 
-            // --- 3. จัดการคำถามและตัวเลือก (Logic เดิม) ---
+            // --- 3. จัดการคำถามและตัวเลือก ---
             $oldQuestionIds = DB::table('questions')->where('quiz_id', $id)->pluck('id');
             DB::table('choices')->whereIn('question_id', $oldQuestionIds)->delete();
             DB::table('questions')->where('quiz_id', $id)->delete();
@@ -253,12 +253,17 @@ class TeachersTestController extends Controller
                 $totalScore += $qData['score'];
 
                 if (isset($qData['choices'])) {
-                    foreach ($qData['choices'] as $cData) {
+                    // *** แก้ไขจุดที่ 4: ใช้ Logic แบบเดียวกับ Store (เทียบ Index) ***
+                    foreach ($qData['choices'] as $cIdx => $cData) {
                         if (!empty($cData['choice_text'])) {
+                            
+                            // ตรวจสอบ Index ว่าตรงกับข้อที่เลือก (correct_index) ไหม
+                            $isCorrect = (isset($qData['correct_index']) && $qData['correct_index'] == $cIdx) ? 1 : 0;
+
                             DB::table('choices')->insert([
                                 'question_id' => $questionId,
                                 'choice_text' => $cData['choice_text'],
-                                'is_correct' => isset($cData['is_correct']) ? 1 : 0,
+                                'is_correct' => $isCorrect,
                                 'created_at' => now(),
                             ]);
                         }
@@ -298,104 +303,128 @@ class TeachersTestController extends Controller
 
     public function toggle($id) 
     {
-        // ดึงค่าปัจจุบันออกมาก่อนเพื่อทำการสลับ (Toggle)
         $quiz = DB::table('quizzes')->where('id', $id)->first();
 
         if (!$quiz) {
             return back()->with('error', 'ไม่พบข้อมูลแบบทดสอบ');
         }
 
-        // อัปเดตผ่าน DB Facade
         DB::table('quizzes')
             ->where('id', $id)
             ->update([
                 'is_active' => !$quiz->is_active,
-                'updated_at' => now() // อย่าลืมอัปเดตเวลาด้วยนะครับถ้าใช้ DB::
+                'updated_at' => now()
             ]);
 
         return back()->with('success', 'อัปเดตสถานะแบบทดสอบเรียบร้อยแล้ว');
     }
 
+    /**
+     * แก้ไขฟังก์ชัน destroy เดิม: ลบ "ทั้งแบบทดสอบ"
+     * เพิ่มการลบไฟล์รูปภาพปกเพื่อไม่ให้หนักเครื่อง
+     */
     public function destroy($id)
     {
         try {
             DB::transaction(function () use ($id) {
-                // 1. ลบคำตอบของผู้เข้าสอบก่อน (ถ้ามี)
-                // สมมติว่าตารางชื่อ quiz_attempts
+                $quiz = DB::table('quizzes')->where('id', $id)->first();
+                
+                // ลบไฟล์ภาพปกจาก Folder (ถ้ามี)
+                if ($quiz && $quiz->cover_image) {
+                    $imagePath = str_replace(asset(''), public_path(''), $quiz->cover_image);
+                    if (file_exists($imagePath)) { @unlink($imagePath); }
+                }
+
+                // ลบข้อมูลที่เกี่ยวข้องตามลำดับ (Foreign Key)
                 DB::table('quiz_attempts')->where('quiz_id', $id)->delete();
-
-                // 2. ลบข้อสอบในแบบทดสอบนั้น
+                
+                $questionIds = DB::table('questions')->where('quiz_id', $id)->pluck('id');
+                DB::table('choices')->whereIn('question_id', $questionIds)->delete();
+                
                 DB::table('questions')->where('quiz_id', $id)->delete();
-
-                // 3. ลบตัวแบบทดสอบเอง
+                DB::table('quiz_assignments')->where('quiz_id', $id)->delete();
+                
                 DB::table('quizzes')
                     ->where('id', $id)
-                    ->where('created_by', auth()->id()) // เช็คสิทธิ์ว่าเป็นเจ้าของไหม
+                    ->where('created_by', auth()->id())
                     ->delete();
             });
 
-            return back()->with('success', 'ลบแบบทดสอบและข้อมูลที่เกี่ยวข้องเรียบร้อยแล้ว');
+            return redirect()->route('ttest.index')->with('success', 'ลบแบบทดสอบและข้อมูลที่เกี่ยวข้องทั้งหมดเรียบร้อยแล้ว');
 
         } catch (\Exception $e) {
+            Log::error('Destroy Quiz Error: ' . $e->getMessage());
             return back()->with('error', 'ไม่สามารถลบได้: ' . $e->getMessage());
         }
     }
 
-    // --- เพิ่มใหม่: แสดงหน้าจอมอบหมายข้อสอบ ---
     public function assignView($id)
     {
-        // 1. ดึงข้อมูลข้อสอบ
         $quiz = DB::table('quizzes')->where('id', $id)->first();
         if (!$quiz) return back()->with('error', 'ไม่พบข้อสอบ');
 
-        $lavel = $quiz->grade_level; // 1, 2, or 3
-        $tgrade = "grade{$lavel}";
-        $tstudent = "student{$lavel}";
+        $level = $quiz->grade_level;
+        $levelsToFetch = ($level == 0) ? [1, 2, 3] : [$level];
+        
+        $allGroups = collect();
+        $allStudents = collect();
+        $latestSemestry = null;
 
-        // 2. หาภาคเรียนล่าสุดจากตาราง grade (อิงตามระดับชั้นนั้น)
-        $latestSemestry = DB::table($tgrade)->max('SEMESTRY');
+        foreach ($levelsToFetch as $lvl) {
+            $tgrade = "grade{$lvl}";
+            $tstudent = "student{$lvl}";
 
-        if (!$latestSemestry) {
-            return back()->with('error', 'ไม่พบข้อมูลการลงทะเบียนในระดับชั้นนี้');
+            $currentLatestSem = DB::table($tgrade)->max('SEMESTRY');
+            if (!$currentLatestSem) continue;
+            
+            $latestSemestry = $currentLatestSem;
+
+            $groups = DB::table($tgrade)
+                ->join('group', 'group.GRP_CODE', '=', "$tgrade.GRP_CODE")
+                ->where("$tgrade.SEMESTRY", $currentLatestSem)
+                ->select('group.GRP_CODE', 'group.GRP_NAME')
+                ->distinct()
+                ->get();
+            $allGroups = $allGroups->merge($groups);
+
+            $students = DB::table($tgrade)
+                ->where("$tgrade.SEMESTRY", $currentLatestSem)
+                ->join($tstudent, "$tgrade.STD_CODE", '=', "$tstudent.STD_CODE")
+                ->join('users', "$tstudent.ID", '=', 'users.student_id')
+                ->select(
+                    'users.id as user_id', 
+                    "$tstudent.ID as student_id",
+                    "$tstudent.NAME", 
+                    "$tstudent.SURNAME",
+                    "$tstudent.GRP_CODE",
+                )
+                ->distinct()
+                ->get();
+            $allStudents = $allStudents->merge($students);
         }
 
-        // 3. ดึงกลุ่มเรียน (ดึงจากตาราง group โดย Join กับ grade ของเทอมนั้น)
-        $groups = DB::table($tgrade)
-            ->join('group', 'group.GRP_CODE', '=', "$tgrade.GRP_CODE")
-            ->where("$tgrade.SEMESTRY", $latestSemestry)
-            ->select('group.GRP_CODE', 'group.GRP_NAME')
-            ->distinct()
-            ->orderBy('group.GRP_CODE', 'ASC')
-            ->get();
+        if ($allStudents->isEmpty()) {
+            return back()->with('error', 'ไม่พบข้อมูลนักเรียนในระดับชั้นที่เลือก');
+        }
 
-        // 4. ดึงรายชื่อนักเรียน (Logic เดียวกับ current_student ของคุณ)
-        // เพิ่มการ Join ตาราง users เพื่อเอา user_id ไปใช้บันทึกการมอบหมาย
-        $students = DB::table($tgrade)
-            ->where("$tgrade.SEMESTRY", $latestSemestry)
-            ->join($tstudent, "$tgrade.STD_CODE", '=', "$tstudent.STD_CODE")
-            ->join('users', "$tstudent.ID", '=', 'users.student_id') // เชื่อมเพื่อหา ID ในระบบ App
-            ->select(
-                'users.id as user_id', 
-                "$tstudent.STD_CODE as student_code",
-                "$tstudent.NAME", 
-                "$tstudent.SURNAME",
-                "$tstudent.GRP_CODE"
-            )
-            ->distinct()
-            ->orderBy("$tstudent.STD_CODE", 'ASC')
-            ->get();
+        $groups = $allGroups->unique('GRP_CODE')->sortBy('GRP_CODE');
+        $students = $allStudents->sortBy('student_code');
 
-        $gradeNames = [1 => 'ประถมศึกษา', 2 => 'มัธยมศึกษาตอนต้น', 3 => 'มัธยมศึกษาตอนปลาย'];
-        $gradeLabel = $gradeNames[$lavel] ?? 'ไม่ระบุ';
+        $gradeNames = [
+            0 => 'ทุกระดับชั้น',
+            1 => 'ประถมศึกษา', 
+            2 => 'มัธยมศึกษาตอนต้น', 
+            3 => 'มัธยมศึกษาตอนปลาย'
+        ];
+        $gradeLabel = $gradeNames[$level] ?? 'ไม่ระบุ';
 
         return view('teachers.assign-quiz', compact('quiz', 'students', 'groups', 'latestSemestry', 'gradeLabel'));
     }
 
-    // --- เพิ่มใหม่: บันทึกการมอบหมายข้อสอบ ---
     public function assignStore(Request $request, $id)
     {
         $request->validate([
-            'user_ids' => 'required|array', // รายชื่อนักเรียนที่ถูกเลือก
+            'user_ids' => 'required|array',
             'due_date' => 'nullable|date',
         ]);
 
@@ -403,7 +432,6 @@ class TeachersTestController extends Controller
             DB::beginTransaction();
             
             foreach ($request->user_ids as $studentId) {
-                // ใช้ updateOrInsert เพื่อป้องกันการมอบหมายซ้ำ
                 DB::table('quiz_assignments')->updateOrInsert(
                     ['quiz_id' => $id, 'user_id' => $studentId],
                     [
@@ -425,10 +453,8 @@ class TeachersTestController extends Controller
 
     public function quizReport($id)
     {
-        // 1. ดึงข้อมูลข้อสอบ (ตรวจสอบว่ามีฟิลด์ certification_image ในตาราง quizzes)
         $quiz = DB::table('quizzes')->where('id', $id)->first();
 
-        // 2. ดึงข้อมูลดิบทั้งหมดมาก่อน
         $rawAttempts = DB::table('quiz_attempts')
             ->join('users', 'quiz_attempts.user_id', '=', 'users.id')
             ->select(
@@ -440,7 +466,6 @@ class TeachersTestController extends Controller
             ->whereNotNull('quiz_attempts.finished_at')
             ->get();
 
-        // 3. Group ตามรหัสนักเรียน แล้วเลือกเฉพาะครั้งที่คะแนนเยอะที่สุด
         $attempts = $rawAttempts->groupBy('student_id')->map(function ($group) {
             $bestAttempt = $group->sortByDesc(function ($attempt) {
                 return sprintf('%09d%s', $attempt->total_score, $attempt->finished_at);
@@ -455,7 +480,6 @@ class TeachersTestController extends Controller
             return $bestAttempt;
         })->values();
 
-        // 4. ดึงชื่อจริงจากตาราง student1, 2, 3
         $studentGroups = ['1' => [], '2' => [], '3' => []];
         foreach ($attempts as $attempt) {
             $sid = trim($attempt->student_id);
@@ -476,7 +500,6 @@ class TeachersTestController extends Controller
             }
         }
 
-        // 5. Map ชื่อจริงกลับเข้าไป
         foreach ($attempts as $attempt) {
             $attempt->full_name = $studentInfoMap[trim($attempt->student_id)] ?? $attempt->user_name_backup;
         }
@@ -486,40 +509,93 @@ class TeachersTestController extends Controller
         return view('teachers.quiz_summary', compact('quiz', 'attempts'));
     }
 
+    public function getCertificateBase64(Request $request) {
+        $url = $request->query('url');
 
-public function getCertificateBase64(Request $request) {
-    $url = $request->query('url');
-
-    if (!$url) {
-        return response()->json(['error' => 'URL is required'], 400);
-    }
-
-    try {
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // ข้ามการเช็ค SSL ถ้าใบเซอร์มีปัญหา
-        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);  // ติดตามถ้ามีการ Redirect
-        curl_setopt($ch, CURLOPT_TIMEOUT, 20);           // รอได้นานขึ้น
-        curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36');
-
-        $data = curl_exec($ch);
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        $contentType = curl_getinfo($ch, CURLINFO_CONTENT_TYPE);
-        curl_close($ch);
-
-        if ($httpCode !== 200 || !$data) {
-            return response()->json([
-                'error' => "ดึงรูปไม่สำเร็จ (HTTP $httpCode)",
-                'url_attempted' => $url
-            ], 500);
+        if (!$url) {
+            return response()->json(['error' => 'URL is required'], 400);
         }
 
-        $base64 = 'data:' . $contentType . ';base64,' . base64_encode($data);
-        return response()->json(['base64' => $base64]);
+        try {
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, $url);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+            curl_setopt($ch, CURLOPT_TIMEOUT, 20);
+            curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36');
 
-    } catch (\Exception $e) {
-        return response()->json(['error' => $e->getMessage()], 500);
+            $data = curl_exec($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            $contentType = curl_getinfo($ch, CURLINFO_CONTENT_TYPE);
+            curl_close($ch);
+
+            if ($httpCode !== 200 || !$data) {
+                return response()->json([
+                    'error' => "ดึงรูปไม่สำเร็จ (HTTP $httpCode)",
+                    'url_attempted' => $url
+                ], 500);
+            }
+
+            $base64 = 'data:' . $contentType . ';base64,' . base64_encode($data);
+            return response()->json(['base64' => $base64]);
+
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
     }
-}
+
+/**
+     * ฟังก์ชันลบคำตอบทั้งหมดของนักเรียน 1 คน ในแบบทดสอบที่กำหนด
+     */
+    public function deleteStudentAttempts(Request $request)
+    {
+        $quizId = $request->quiz_id;
+        $userId = $request->user_id;
+
+        try {
+            DB::beginTransaction();
+
+            // 1. ค้นหาข้อมูลการสอบทั้งหมดของคนนี้ใน Quiz นี้
+            $attempts = DB::table('quiz_attempts')
+                ->where('quiz_id', $quizId)
+                ->where('user_id', $userId)
+                ->get();
+
+            if ($attempts->isEmpty()) {
+                return back()->with('error', 'ไม่พบข้อมูลที่ต้องการลบ');
+            }
+
+            // 2. ลบรูปถ่ายหลักฐาน (ถ้ามีการเก็บไฟล์ใน Server)
+            foreach ($attempts as $attempt) {
+                if ($attempt->start_photo) {
+                    // ปรับตามโครงสร้างการเก็บไฟล์ของคุณ เช่น storage_path หรือ public_path
+                    $path = str_replace(asset('storage'), public_path('storage'), $attempt->start_photo);
+                    if (file_exists($path)) { @unlink($path); }
+                }
+            }
+
+            // 3. ลบประวัติการสอบทั้งหมดของคนนี้ใน Quiz นี้
+            DB::table('quiz_attempts')
+                ->where('quiz_id', $quizId)
+                ->where('user_id', $userId)
+                ->delete();
+
+            // 4. รีเซ็ตสถานะการมอบหมายงานเพื่อให้เด็กกลับมาสอบใหม่ได้ (ถ้ามีระบบ Assignment)
+            DB::table('quiz_assignments')
+                ->where('quiz_id', $quizId)
+                ->where('user_id', $userId)
+                ->update([
+                    'is_completed' => 0
+                ]);
+
+            DB::commit();
+            return back()->with('success', 'ล้างประวัติการสอบทั้งหมดของนักเรียนเรียบร้อยแล้ว');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Delete Student Attempts Error: ' . $e->getMessage());
+            return back()->with('error', 'เกิดข้อผิดพลาด: ' . $e->getMessage());
+        }
+    }
 }

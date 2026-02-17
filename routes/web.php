@@ -131,7 +131,7 @@ Route::middleware('auth', 'verified')->group(function () {
         Route::get('/get-cert-base64', [TeachersTestController::class, 'getCertificateBase64'])->name('cert.base64');
         // หน้าภาพรวมของแบบทดสอบ (ที่คุณต้องการล่าสุด)
         Route::get('/quiz/{id}', [TeachersTestController::class, 'quizReport'])->name('ttest.report.summary');
-        // หน้ารายงานรายคน (ถ้าต้องการเจาะลึก)
+        Route::post('/teachers/delete-student-attempts', [TeachersTestController::class, 'deleteStudentAttempts'])->name('attempts.delete_all');        // หน้ารายงานรายคน (ถ้าต้องการเจาะลึก)
         Route::get('/attempt/{id}', [TeachersTestController::class, 'showIndividualReport'])->name('ttest.report.individual');
         // กลุ่มจัดการหนังสือ
         Route::get('/tbooks', [TeachersBookController::class, 'index'])->name('books.index');

@@ -212,27 +212,27 @@
                         </div> --}}
 
                         <div class="md:col-span-2">
-<select name="grade" class="block w-full rounded-2xl border-slate-100 bg-slate-50/50 text-slate-700 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 h-12 sm:text-sm">
-    {{-- ตรวจสอบว่าถ้าไม่มีการส่งค่า request('grade') มา หรือค่าเป็นว่าง ให้เลือก "ทั้งหมด" --}}
-    <option value="" {{ request('grade') === null || request('grade') === '' ? 'selected' : '' }}>ทั้งหมด</option>
-    
-    @php
-        // กำหนดชื่อระดับชั้นตามตัวเลข ID
-        $gradeNames = [
-            0 => 'ข้อสอบทั่วไป',
-            1 => 'เฉพาะประถม',
-            2 => 'เฉพาะมัธยมต้น',
-            3 => 'เฉพาะมัธยมปลาย'
-        ];
-    @endphp
+                            <select name="grade" class="block w-full rounded-2xl border-slate-100 bg-slate-50/50 text-slate-700 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 h-12 sm:text-sm">
+                                {{-- ตรวจสอบว่าถ้าไม่มีการส่งค่า request('grade') มา หรือค่าเป็นว่าง ให้เลือก "ทั้งหมด" --}}
+                                <option value="" {{ request('grade') === null || request('grade') === '' ? 'selected' : '' }}>ทั้งหมด</option>
+                                
+                                @php
+                                    // กำหนดชื่อระดับชั้นตามตัวเลข ID
+                                    $gradeNames = [
+                                        0 => 'ข้อสอบทั่วไป',
+                                        1 => 'เฉพาะประถม',
+                                        2 => 'เฉพาะมัธยมต้น',
+                                        3 => 'เฉพาะมัธยมปลาย'
+                                    ];
+                                @endphp
 
-    @foreach($grades as $grade)
-        {{-- ตรวจสอบค่าที่ส่งมาจาก Request เพื่อรักษาค่าที่เลือกไว้หลังกดค้นหา --}}
-        <option value="{{ $grade }}" {{ request('grade') !== null && request('grade') != '' && request('grade') == $grade ? 'selected' : '' }}>
-            {{ $gradeNames[$grade] ?? 'ระดับ ' . $grade }}
-        </option>
-    @endforeach
-</select>
+                                @foreach($grades as $grade)
+                                    {{-- ตรวจสอบค่าที่ส่งมาจาก Request เพื่อรักษาค่าที่เลือกไว้หลังกดค้นหา --}}
+                                    <option value="{{ $grade }}" {{ request('grade') !== null && request('grade') != '' && request('grade') == $grade ? 'selected' : '' }}>
+                                        {{ $gradeNames[$grade] ?? 'ระดับ ' . $grade }}
+                                    </option>
+                                @endforeach
+                            </select>
                         </div>
 
                         <div class="md:col-span-2">

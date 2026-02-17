@@ -49,81 +49,113 @@
             </div>
 
             <div class="bg-white rounded-[2rem] shadow-xl shadow-slate-200/50 overflow-hidden border border-slate-100">
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left" id="reportTable">
+                <div class="overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm">
+                    <table class="w-full text-left border-collapse" id="reportTable">
                         <thead>
-                            <tr class="bg-slate-50 text-slate-500 font-bold text-xs uppercase tracking-wider border-b border-slate-100">
-                                <th class="px-6 py-4">อันดับ</th>
+                            <tr class="bg-slate-50/80 text-slate-600 font-semibold text-[11px] uppercase tracking-widest border-b border-slate-200">
+                                <th class="px-6 py-4 text-center w-16">อันดับ</th>
+                                <th class="px-6 py-4 w-32">ภาพถ่ายขณะสอบ</th>
                                 <th class="px-6 py-4">ข้อมูลนักเรียน</th>
-                                <th class="px-6 py-4 text-center">จำนวนครั้ง</th>
-                                <th class="px-6 py-4 text-center">เวลาที่ใช้</th>
+                                <th class="px-6 py-4 text-center">พิกัด (Location)</th>
+                                <th class="px-6 py-4 text-center">ทำครั้ง</th>
+                                <th class="px-6 py-4 text-center">พฤติกรรม</th>
+                                <th class="px-6 py-4 text-center text-nowrap">เวลาที่ใช้</th>
                                 <th class="px-6 py-4 text-center">คะแนนสูงสุด</th>
-                                <th class="px-6 py-4 text-center">สถานะ</th>
-                                {{-- <th class="px-6 py-4 text-right">ใบรับรอง</th> --}}
+                                <th class="px-6 py-4 text-center w-28">สถานะ</th>
+                                <th class="px-6 py-4 text-center w-20">จัดการ</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-slate-50">
+                        <tbody class="divide-y divide-slate-100">
                             @foreach($attempts as $index => $attempt)
                                 @php 
                                     $scorePercent = ($attempt->total_score / ($quiz->total_score ?: 1)) * 100;
                                     $isPassed = $scorePercent >= $quiz->pass_percentage;
                                     $statusStr = $isPassed ? 'passed' : 'failed';
+                                    $hasCheatingRisk = $attempt->tab_switch_count > 0;
                                 @endphp
-                                <tr class="student-row hover:bg-slate-50/50 transition-colors" 
+                                <tr class="student-row hover:bg-slate-50 transition-all duration-200 group" 
                                     data-name="{{ strtolower($attempt->full_name) }}" 
                                     data-id="{{ strtolower($attempt->student_id) }}"
                                     data-status="{{ $statusStr }}">
                                     
-                                    <td class="px-6 py-4 text-slate-400 font-bold text-xs">#{{ $loop->iteration }}</td>
+                                    <td class="px-6 py-4 text-center">
+                                        <span class="text-slate-400 font-bold text-sm">#{{ $loop->iteration }}</span>
+                                    </td>
+
+                                    <td class="px-6 py-4">
+                                        <div class="relative group/photo cursor-pointer">
+                                            <img src="{{ $attempt->start_photo }}" 
+                                                class="w-24 h-16 rounded shadow-sm object-cover border border-slate-200 group-hover/photo:border-indigo-400 transition-all">
+                                        </div>
+                                    </td>
+
                                     <td class="px-6 py-4">
                                         <div>
-                                            <p class="font-bold text-slate-700">{{ $attempt->full_name }}</p>
-                                            <p class="text-xs text-slate-400 font-mono">{{ $attempt->student_id }}</p>
+                                            <p class="font-bold text-slate-800 leading-none mb-1">{{ $attempt->full_name }}</p>
+                                            <p class="text-[10px] text-slate-500 font-mono">ID: {{ $attempt->student_id }}</p>
                                         </div>
                                     </td>
-                                    <td class="px-6 py-4 text-center">
-                                        <span class="px-2 py-1 bg-slate-100 rounded-md text-xs font-bold text-slate-600">{{ $attempt->attempt_count }} ครั้ง</span>
-                                    </td>
-                                    <td class="px-6 py-4 text-center text-xs font-mono text-slate-500">
-                                        {{ $attempt->duration_text }}
-                                    </td>
+
                                     <td class="px-6 py-4 text-center">
                                         <div class="flex flex-col items-center">
-                                            <span class="font-black text-lg {{ $isPassed ? 'text-indigo-600' : 'text-slate-400' }}">
-                                                {{ $attempt->total_score }}
-                                            </span>
-                                            <span class="text-[10px] text-slate-300">เต็ม {{ $quiz->total_score }}</span>
+                                            <a href="https://www.google.com/maps?q={{ $attempt->latitude }},{{ $attempt->longitude }}" 
+                                            target="_blank"
+                                            class="flex items-center gap-1 text-[10px] font-mono text-indigo-600 hover:text-indigo-800 bg-indigo-50 px-2 py-0.5 rounded transition-colors">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                                </svg>
+                                                Map
+                                            </a>
+                                            <span class="text-[9px] text-slate-400 font-mono mt-1">{{ number_format($attempt->latitude, 4) }}, {{ number_format($attempt->longitude, 4) }}</span>
                                         </div>
                                     </td>
+
                                     <td class="px-6 py-4 text-center">
-                                        <span class="px-3 py-1 rounded-full text-[10px] font-bold {{ $isPassed ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : 'bg-rose-50 text-rose-600 border border-rose-100' }}">
-                                            {{ $isPassed ? 'ผ่านเกณฑ์' : 'ไม่ผ่าน' }}
+                                         {{ $attempt->attempt_count }}
+                                    </td>
+
+                                    <td class="px-6 py-4 text-center">
+                                        <span class="text-xs {{ $hasCheatingRisk ? 'text-rose-600 font-bold' : 'text-slate-600' }}">
+                                            สลับจอ: {{ $attempt->tab_switch_count }}
                                         </span>
                                     </td>
-                                    {{-- <td class="px-6 py-4 text-right">
-                                        @if($isPassed)
-                                            <button onclick="prepareAndDownloadPDF(
-                                                '{{ $attempt->full_name }}', 
-                                                '{{ $attempt->total_score }}', 
-                                                '{{ $quiz->total_score }}', 
-                                                '{{ $quiz->title }}',
-                                                '{{ $quiz->certificate_image }}'
-                                            )" class="text-indigo-600 bg-indigo-50 p-2 rounded-lg hover:bg-indigo-600 hover:text-white transition-all shadow-sm">
-                                                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                                                </svg>
-                                            </button>
-                                        @else
-                                            <span class="text-slate-200">-</span>
-                                        @endif
-                                    </td> --}}
+
+                                    <td class="px-6 py-4 text-center">
+                                        <span class="text-xs font-mono text-slate-500">{{ $attempt->duration_text }}</span>
+                                    </td>
+
+                                    <td class="px-6 py-4 text-center">
+                                        <div class="flex flex-col items-center leading-none">
+                                            <span class="text-lg font-black {{ $isPassed ? 'text-indigo-600' : 'text-slate-400' }}">
+                                                {{ $attempt->total_score }}
+                                            </span>
+                                            <span class="text-[9px] text-slate-400 uppercase">Score</span>
+                                        </div>
+                                    </td>
+
+                                    <td class="px-6 py-4 text-center">
+                                        <span class="inline-block px-2.5 py-1 rounded-full text-[10px] font-bold {{ $isPassed ? 'bg-emerald-500 text-white' : 'bg-slate-200 text-slate-500' }}">
+                                            {{ $isPassed ? 'PASSED' : 'FAILED' }}
+                                        </span>
+                                    </td>
+
+                                    <td class="px-6 py-4 text-center">
+                                        <button type="button" 
+                                                onclick="confirmDeleteAll('{{ $attempt->user_id }}', '{{ $quiz->id }}', '{{ $attempt->full_name }}')" 
+                                                class="p-2 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-all">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                            </svg>
+                                        </button>
+
+                                        <form id="delete_all_form" action="{{ route('attempts.delete_all') }}" method="POST" class="hidden">
+                                            @csrf
+                                            <input type="hidden" name="user_id" id="delete_user_id">
+                                            <input type="hidden" name="quiz_id" id="delete_quiz_id">
+                                        </form>
+                                    </td>
                                 </tr>
                             @endforeach
-                            <tr id="noDataRow" class="hidden">
-                                <td colspan="7" class="px-6 py-10 text-center text-slate-400">
-                                    <p>ไม่พบข้อมูลที่ค้นหา</p>
-                                </td>
-                            </tr>
                         </tbody>
                     </table>
                 </div>
@@ -249,4 +281,30 @@
             link.click();
         }
     </script>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+function confirmDeleteAll(userId, quizId, name) {
+    Swal.fire({
+        title: 'ยืนยันลบข้อมูลทั้งหมด?',
+        text: `ประวัติการสอบทั้งหมด (${name}) ในวิชานี้จะถูกลบออกทั้งหมดและไม่สามารถกู้คืนได้`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#e11d48',
+        confirmButtonText: 'ยืนยันลบประวัติการสอบ',
+        cancelButtonText: 'ยกเลิก'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            document.getElementById('delete_user_id').value = userId;
+            document.getElementById('delete_quiz_id').value = quizId;
+            document.getElementById('delete_all_form').submit();
+        }
+    })
+}
+</script>
+<style>
+        .swal2-confirm {background-color: red !important;}
+        .swal2-cancel {background-color: rgb(196, 196, 196) !important;}
+</style>
 </x-teachers-layout>

@@ -77,7 +77,8 @@
                     </span>
                 </label>
             </div>
-
+            <input type="hidden" id="lat_input" value="0">
+            <input type="hidden" id="lng_input" value="0">
             <button type="button" id="start-init-btn" disabled onclick="processInitialize()"
                 class="w-full py-6 bg-slate-300 text-slate-500 font-black rounded-[1.5rem] transition-all text-xl uppercase border-b-[10px] border-slate-400">
                 เริ่มทำข้อสอบ
@@ -240,26 +241,74 @@
             }
         };
 
-        async function initSecurityDevices() {
-            if (reqSnap === 1) {
-                document.getElementById('camera-section').classList.remove('hidden');
-                try {
-                    const video = document.getElementById('webcam');
-                    video.srcObject = await navigator.mediaDevices.getUserMedia({ video: true });
-                } catch (err) {
-                    Swal.fire({ icon: 'error', title: 'CAMERA ERROR', text: 'กรุณาเปิดกล้องเพื่อทำข้อสอบ' });
-                }
-            }
-            if (reqLoc === 1 && navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(pos => {
-                    document.getElementById('lat_input').value = pos.coords.latitude;
-                    document.getElementById('lng_input').value = pos.coords.longitude;
-                    const status = document.getElementById('gps-status');
-                    status.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-500 text-xl"></i> GPS SIGNAL READY`;
-                    status.classList.replace('text-slate-500', 'text-emerald-600');
-                });
-            }
+// เพิ่มตัวแปร global เพื่อเช็คสถานะ GPS
+let isGpsReady = (reqLoc === 0); // ถ้าไม่เอา GPS ให้ค่าเป็น true เลย
+
+async function initSecurityDevices() {
+    // 1. จัดการเรื่องกล้อง
+    if (reqSnap === 1) {
+        document.getElementById('camera-section').classList.remove('hidden');
+        try {
+            const video = document.getElementById('webcam');
+            const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+            video.srcObject = stream;
+        } catch (err) {
+            Swal.fire({ icon: 'error', title: 'CAMERA ERROR', text: 'กรุณาเปิดกล้องเพื่อทำข้อสอบ' });
         }
+    }
+
+    // 2. จัดการเรื่อง GPS
+    if (reqLoc === 1) {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(pos => {
+                document.getElementById('lat_input').value = pos.coords.latitude;
+                document.getElementById('lng_input').value = pos.coords.longitude;
+                
+                const status = document.getElementById('gps-status');
+                status.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-500 text-xl"></i> GPS SIGNAL READY`;
+                status.classList.replace('text-slate-500', 'text-emerald-600');
+                
+                isGpsReady = true; // ยืนยันว่าได้พิกัดแล้ว
+                checkButtonStatus(); // เช็คปุ่มทันทีที่ได้พิกัด
+            }, err => {
+                console.error("GPS Error:", err);
+                let msg = "กรุณาอนุญาตการเข้าถึงพิกัด (Location Access)";
+                if(err.code === 1) msg = "คุณปฏิเสธการเข้าถึงพิกัด กรุณาตั้งค่าเบราว์เซอร์ให้ยินยอม";
+                
+                Swal.fire({ icon: 'warning', title: 'GPS REQUIRED', text: msg });
+            });
+        }
+    } else {
+        checkButtonStatus(); // ถ้าไม่ใช้ GPS ให้เช็คปุ่มเลย (เผื่อติ๊ก checkbox ไว้ก่อน)
+    }
+}
+
+// ฟังก์ชันใหม่สำหรับคุมการเปิด-ปิดปุ่ม "เริ่มทำข้อสอบ"
+function checkButtonStatus() {
+    const consentCheck = document.getElementById('consent-check');
+    const startBtn = document.getElementById('start-init-btn');
+    
+    // เงื่อนไข: ต้องติ๊ก checkbox และ GPS ต้องพร้อม (ถ้าบังคับ)
+    if (consentCheck.checked && isGpsReady) {
+        startBtn.disabled = false;
+        // ปรับ UI ให้ดูว่ากดได้แล้ว
+        startBtn.classList.remove('bg-slate-300', 'text-slate-500', 'border-slate-400');
+        startBtn.classList.add('bg-indigo-600', 'text-white', 'border-indigo-800');
+    } else {
+        startBtn.disabled = true;
+        // ปรับ UI กลับเป็นสีเทา
+        startBtn.classList.add('bg-slate-300', 'text-slate-500', 'border-slate-400');
+        startBtn.classList.remove('bg-indigo-600', 'text-white', 'border-indigo-800');
+    }
+}
+
+// เพิ่ม Event ให้ Checkbox เมื่อมีการคลิก
+document.getElementById('consent-check').addEventListener('change', checkButtonStatus);
+
+// เรียกใช้งานตอนโหลดหน้าครั้งแรก
+document.addEventListener('DOMContentLoaded', () => {
+    initSecurityDevices();
+});
 
         async function processInitialize() {
             const btn = document.getElementById('start-init-btn');

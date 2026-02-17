@@ -30,7 +30,9 @@
     </style>
 
     <div class="p-4 mt-20 animate-fade-in">
-        <form action="{{ route('ttest.update', $quiz->id) }}" method="POST" class="max-w-7xl mx-auto pb-20 px-4 space-y-8">
+        <form action="{{ route('ttest.update', $quiz->id) }}" 
+            onsubmit="return validateForm(event)"
+            method="POST" class="max-w-7xl mx-auto pb-20 px-4 space-y-8">
             @csrf
             @method('PUT')
             
@@ -321,15 +323,19 @@ gradeSelect.addEventListener('change', function() {
             }
 
             if (initialQuestions && initialQuestions.length > 0) {
-                initialQuestions.forEach((q, index) => {
-                    setTimeout(() => addQuestion({
-                        ...q,
-                        choices: q.choices.map(c => ({ ...c, is_correct: c.is_correct == 1 }))
-                    }), index * 50);
-                });
-            } else {
-                addQuestion();
-            }
+                    initialQuestions.forEach((q, index) => {
+                        // แปลงค่า is_correct ให้เป็น boolean ที่ชัดเจน
+                        setTimeout(() => addQuestion({
+                            ...q,
+                            choices: q.choices.map(c => ({ 
+                                ...c, 
+                                is_correct: (c.is_correct == 1 || c.is_correct === true) 
+                            }))
+                        }), index * 30); // ใช้ delay นิดหน่อยเพื่อให้ animation สวย
+                    });
+                } else {
+                    addQuestion();
+                }
         };
     </script>
 </x-teachers-layout>

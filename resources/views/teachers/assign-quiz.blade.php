@@ -45,7 +45,7 @@
                                 <select id="filter_group" class="rounded-xl border-slate-200 text-sm font-bold text-slate-600 focus:ring-indigo-500">
                                     <option value="">ทั้งหมด</option>
                                     @foreach($groups as $grp)
-                                        <option value="{{ $grp->GRP_CODE }}">{{ $grp->GRP_CODE }}</option>
+                                        <option value="{{ $grp->GRP_CODE }}">{{ $grp->GRP_CODE }} {{ $grp->GRP_NAME }}</option>
                                     @endforeach
                                 </select>
                             </div>
@@ -82,7 +82,7 @@
                                             class="student-checkbox checkbox-indigo">
                                     </td>
                                     <td class="px-4 py-4 font-mono font-bold text-slate-600">
-                                        {{ $student->student_code }} </td>
+                                        {{ $student->student_id }} </td>
                                     <td class="px-4 py-4 font-bold text-slate-700">
                                         {{ $student->NAME }} {{ $student->SURNAME }} </td>
                                     <td class="px-4 py-4 text-center">
