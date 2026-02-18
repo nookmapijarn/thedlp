@@ -259,7 +259,8 @@
                             <div class="group bg-white rounded-[2rem] shadow-sm hover:shadow-2xl hover:shadow-indigo-100 transition-all duration-500 border border-slate-100 overflow-hidden flex flex-col h-full relative">
                                 
                                 {{-- Quiz Cover Image --}}
-                                <div class="relative h-22 sm:h-44 overflow-hidden bg-indigo-100">
+                                {{-- แก้ไข: เปลี่ยนจาก h-xx คงที่ เป็น aspect-video (16:9) --}}
+                                <div class="relative w-full aspect-video overflow-hidden bg-indigo-100">
                                     @if($quiz->is_attempted > 0)
                                         <div class="absolute top-4 left-4 z-20">
                                             <span class="px-3 py-1 bg-emerald-500/90 backdrop-blur-sm text-white text-[10px] font-bold rounded-lg shadow-lg flex items-center gap-1">
