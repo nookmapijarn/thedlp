@@ -24,7 +24,7 @@
                                 <option value="student2" {{ request('table') == 'student2' ? 'selected' : '' }}>🎓 มัธยมศึกษาตอนต้น</option>
                                 <option value="student3" {{ request('table') == 'student3' ? 'selected' : '' }}>🎓 มัธยมศึกษาตอนปลาย</option>
                             </optgroup>
-                            </select>
+                        </select>
                     </div>
                     <div class="w-full md:w-auto">
                         <button type="submit" class="w-full md:w-auto text-white bg-purple-600 hover:bg-purple-700 focus:ring-4 focus:ring-purple-300 font-medium rounded-lg text-sm px-6 py-2.5 transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2">
@@ -41,18 +41,9 @@
                     </h2>
                 </div>
                 
-                <div class="p-5">
-                    <table id="ReviewTable" class="w-full text-sm text-left text-gray-500">
-                        <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-                            <tr>
-                                @foreach($columns as $col)
-                                <th scope="col" class="px-6 py-3 whitespace-nowrap bg-gray-100 border-b border-gray-200">{{ ucfirst(str_replace('_', ' ', $col)) }}</th>
-                                @endforeach
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-gray-100">
-                            </tbody>
-                    </table>
+                <div class="p-5 overflow-x-auto">
+                    <table id="ReviewTable" class="w-full text-sm text-left text-gray-500 border-collapse">
+                        </table>
                 </div>
             </div>
         </div>
@@ -66,48 +57,91 @@
 
 <script>
 $(document).ready(function () {
-    // ฟังก์ชันสำหรับสั่งวาดตาราง
     function initializeDataTable() {
-        // ถ้ามีตารางเดิมอยู่แล้ว ให้ทำลายทิ้งก่อน
+        // 1. ตรวจสอบและทำลายตารางเก่า (ถ้ามี)
         if ($.fn.DataTable.isDataTable('#ReviewTable')) {
             $('#ReviewTable').DataTable().destroy();
-            $('#ReviewTable').empty(); // ล้างเนื้อหาในตารางทิ้งด้วย (รวมถึง <thead>)
         }
+        
+        // 2. ล้าง HTML ทั้งหมดในตารางทิ้ง (สะอาดที่สุด)
+        $('#ReviewTable').empty(); 
 
-        // สร้าง <thead> ใหม่ตามคอลัมน์ที่ได้รับมาจาก PHP (เพื่อความแม่นยำ)
-        let headerRow = '<tr>';
+        // 3. เตรียมโครงสร้าง Header และการตั้งค่า Column
+        let theadHtml = '<thead class="text-xs text-gray-700 uppercase bg-gray-100 dark:bg-gray-700 dark:text-gray-400"><tr>';
         const columnsConfig = [];
 
+        // วนลูปสร้าง Header จาก PHP Variable ($columns)
         @foreach($columns as $col)
-            headerRow += '<th class="px-6 py-3 whitespace-nowrap bg-gray-100 border-b border-gray-200">{{ ucfirst(str_replace("_", " ", $col)) }}</th>';
-            columnsConfig.push({ data: '{{ $col }}', name: '{{ $col }}', defaultContent: "-" });
+            theadHtml += '<th scope="col" class="px-6 py-3 whitespace-nowrap border-b border-gray-200 dark:border-gray-600">{{ ucfirst(str_replace("_", " ", $col)) }}</th>';
+            columnsConfig.push({ 
+                data: '{{ $col }}', 
+                name: '{{ $col }}', 
+                defaultContent: "-",
+                render: function(data, type, row) {
+                    if (data === null) return '-';
+                    // ป้องกันข้อความยาวเกินไปในแต่ละช่อง
+                    return data.length > 50 ? '<span title="'+data+'">'+data.substr(0, 50)+'...</span>' : data;
+                }
+            });
         @endforeach
         
-        headerRow += '</tr>';
-        $('#ReviewTable').append('<thead class="text-xs text-gray-700 uppercase bg-gray-50">' + headerRow + '</thead>');
-        $('#ReviewTable').append('<tbody class="divide-y divide-gray-100"></tbody>');
+        theadHtml += '</tr></thead>';
+        
+        // 4. ใส่ thead กลับเข้าไปในตาราง
+        $('#ReviewTable').append(theadHtml);
+        $('#ReviewTable').append('<tbody class="divide-y divide-gray-100 dark:divide-gray-700"></tbody>');
 
-        // เริ่มต้น DataTables
+        // 5. เริ่มต้น DataTables แบบ Server-side ด้วย POST Method
         $('#ReviewTable').DataTable({
             processing: true,
             serverSide: true,
-            destroy: true, // บังคับสร้างใหม่
-            responsive: false, // ปิดไว้ก่อนถ้าคอลัมน์เยอะเกินไปจะทำให้พังง่าย
-            scrollX: true,
+            destroy: true,
+            scrollX: true, // รองรับ 117 คอลัมน์
+            pageLength: 10,
             ajax: {
                 url: "{{ route('datareview') }}",
-                data: { table: "{{ $tableName }}" }
+                type: "POST", // แก้ปัญหา ERR_CONNECTION_CLOSED เพราะ URL ยาวเกินไป
+                data: function(d) {
+                    d._token = "{{ csrf_token() }}"; // จำเป็นสำหรับ POST ใน Laravel
+                    d.table = "{{ request('table', 'users') }}";
+                },
+                error: function(xhr, error, thrown) {
+                    console.error("AJAX Error:", xhr.responseText);
+                    alert("ไม่สามารถโหลดข้อมูลได้ (อาจเกิดจากข้อมูลมีขนาดใหญ่เกินไป หรือ Session หมดอายุ)");
+                }
             },
             columns: columnsConfig,
             language: {
-                processing: "กำลังประมวลผล...",
-                search: "ค้นหา:",
-                // ... ภาษาไทยอื่นๆ ที่คุณใส่ไว้ ...
+                processing: '<div class="flex items-center justify-center"><i class="fa-solid fa-circle-notch fa-spin text-purple-600 text-2xl"></i> <span class="ml-2">กำลังประมวลผล...</span></div>',
+                search: "ค้นหาเจาะจง:",
+                lengthMenu: "แสดง _MENU_ แถว",
+                info: "แสดง _START_ ถึง _END_ จากทั้งหมด _TOTAL_ แถว",
+                infoEmpty: "ไม่มีข้อมูล",
+                infoFiltered: "(กรองจากทั้งหมด _MAX_ แถว)",
+                paginate: {
+                    first: "หน้าแรก",
+                    last: "หน้าสุดท้าย",
+                    next: "ถัดไป",
+                    previous: "ก่อนหน้า"
+                },
+                emptyTable: "ไม่พบข้อมูลในตาราง"
             }
         });
     }
 
-    // เรียกทำงานทันทีที่โหลดหน้า
+    // เรียกทำงาน
     initializeDataTable();
 });
 </script>
+
+<style>
+    /* ปรับแต่ง DataTables Tailwind เพิ่มเติม */
+    .dt-container .dt-scroll-body {
+        border-color: #f3f4f6;
+    }
+    .dark .dt-container .dt-scroll-body {
+        border-color: #374151;
+    }
+    /* บังคับให้หัวตารางตรงกับข้อมูล */
+    th { text-align: left !important; }
+</style>

@@ -82,8 +82,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/adminuserupdate', [AdminUserController::class, 'update'])->name('adminuserupdate');
         Route::get('/adminuserremove', [AdminUserController::class, 'remove'])->name('adminuserremove');
         Route::post('/adminuserremove', [AdminUserController::class, 'remove'])->name('adminuserremove');
-        Route::get('/datareview', [DatareviweController::class, 'index'])->name('datareview');
-        Route::post('/datareview', [DatareviweController::class, 'index'])->name('datareview');
+        Route::match(['get', 'post'], '/admin/datareview', [DatareviweController::class, 'index'])->name('datareview');
     });
 });
 
