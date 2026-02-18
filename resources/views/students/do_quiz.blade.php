@@ -191,277 +191,246 @@
         </div>
     </div>
 
-    <script>
-        const reqSnap = {{ $quiz->require_snapshot ?? 0 }};
-        const reqLoc = {{ $quiz->require_location ?? 0 }};
-        const timeLimit = {{ $quiz->time_limit }} * 60;
-        const totalQuestions = {{ count($questions) }};
+<script>
+    const reqSnap = {{ $quiz->require_snapshot ?? 0 }};
+    const reqLoc = {{ $quiz->require_location ?? 0 }};
+    const timeLimit = {{ $quiz->time_limit }} * 60;
+    const totalQuestions = {{ count($questions) }};
 
-        let currentQuestionIndex = 0;
-        let timeRemainingSeconds = timeLimit;
-        let isSubmitting = false;
-        let violationCount = 0; // นับจำนวนการสลับหน้าจอ
-        const answeredQuestions = new Array(totalQuestions).fill(false);
+    let currentQuestionIndex = 0;
+    let timeRemainingSeconds = timeLimit;
+    let isSubmitting = false;
+    let violationCount = 0;
+    const answeredQuestions = new Array(totalQuestions).fill(false);
 
-        // --- เพิ่ม: ป้องกันการคลิกขวา (Right Click) ---
-        document.addEventListener('contextmenu', event => event.preventDefault());
-        document.addEventListener('keydown', event => {
-            // ป้องกัน Ctrl+U, Ctrl+S, Ctrl+C (Optional)
-            if(event.ctrlKey && (event.key === 'u' || event.key === 's' || event.key === 'c')) {
-                event.preventDefault();
+    // --- สถานะความพร้อม ---
+    let isGpsReady = (reqLoc === 0); // ถ้าไม่เอา GPS ให้ true ทันที
+
+    // --- ป้องกันการคัดลอก/คลิกขวา ---
+    document.addEventListener('contextmenu', event => event.preventDefault());
+    document.addEventListener('keydown', event => {
+        if(event.ctrlKey && (event.key === 'u' || event.key === 's' || event.key === 'c')) {
+            event.preventDefault();
+        }
+    });
+
+    // --- ตรวจจับการสลับหน้าจอ ---
+    document.addEventListener("visibilitychange", () => {
+        if (document.hidden) {
+            violationCount++;
+            document.getElementById('violation_count').value = violationCount;
+            Swal.fire({
+                icon: 'warning',
+                title: 'ตรวจพบการสลับหน้าจอ!',
+                text: `คุณได้สลับหน้าจอเป็นครั้งที่ ${violationCount}`,
+                confirmButtonText: 'รับทราบ',
+                confirmButtonColor: '#f59e0b',
+                allowOutsideClick: false
+            });
+        }
+    });
+
+    window.onload = function() {
+        if (reqSnap === 0 && reqLoc === 0) {
+            processInitialize();
+        } else {
+            document.getElementById('init-auth-modal').style.display = 'flex';
+            initSecurityDevices();
+        }
+    };
+
+    async function initSecurityDevices() {
+        // 1. กล้อง
+        if (reqSnap === 1) {
+            document.getElementById('camera-section').classList.remove('hidden');
+            try {
+                const video = document.getElementById('webcam');
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                video.srcObject = stream;
+            } catch (err) {
+                Swal.fire({ icon: 'error', title: 'CAMERA ERROR', text: 'กรุณาเปิดกล้องเพื่อทำข้อสอบ' });
             }
+        }
+
+        // 2. GPS
+        if (reqLoc === 1) {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(pos => {
+                    document.getElementById('lat_input').value = pos.coords.latitude;
+                    document.getElementById('lng_input').value = pos.coords.longitude;
+                    
+                    const status = document.getElementById('gps-status');
+                    status.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-500 text-xl"></i> GPS SIGNAL READY`;
+                    status.classList.replace('text-slate-500', 'text-emerald-600');
+                    
+                    isGpsReady = true; 
+                    checkButtonStatus(); // ตรวจสอบสถานะปุ่มทันทีที่ได้พิกัด
+                }, err => {
+                    let msg = "กรุณาอนุญาตการเข้าถึงพิกัด (Location Access)";
+                    if(err.code === 1) msg = "คุณปฏิเสธการเข้าถึงพิกัด กรุณาตั้งค่าเบราว์เซอร์ให้ยินยอม";
+                    Swal.fire({ icon: 'warning', title: 'GPS REQUIRED', text: msg });
+                });
+            }
+        }
+    }
+
+    // --- ฟังก์ชันควบคุมการเปิด-ปิดปุ่มเริ่มสอบ ---
+    function checkButtonStatus() {
+        const consentCheck = document.getElementById('consent-check');
+        const startBtn = document.getElementById('start-init-btn');
+        
+        // เงื่อนไข: ต้องติ๊ก และ (ไม่ต้องใช้ GPS หรือ GPS พร้อมแล้ว)
+        if (consentCheck.checked && isGpsReady) {
+            startBtn.disabled = false;
+            // ปรับ Style เป็นปุ่มสี Indigo (กดได้)
+            startBtn.className = "w-full py-6 bg-indigo-600 text-white font-black rounded-[1.5rem] transition-all text-2xl uppercase border-b-[10px] border-indigo-900 shadow-xl cursor-pointer active:translate-y-1 active:border-b-0";
+        } else {
+            startBtn.disabled = true;
+            // ปรับ Style เป็นปุ่มสีเทา (กดไม่ได้)
+            startBtn.className = "w-full py-6 bg-slate-300 text-slate-500 font-black rounded-[1.5rem] transition-all text-2xl uppercase border-b-[10px] border-slate-400";
+        }
+    }
+
+    // ผูก Event กับ Checkbox
+    document.getElementById('consent-check').addEventListener('change', checkButtonStatus);
+
+    async function processInitialize() {
+        const btn = document.getElementById('start-init-btn');
+        btn.disabled = true;
+        btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-2"></i> LOADING...`;
+
+        let photoData = "";
+        if (reqSnap === 1) {
+            const video = document.getElementById('webcam');
+            const canvas = document.getElementById('photo-canvas');
+            if (video.srcObject) {
+                canvas.width = video.videoWidth; 
+                canvas.height = video.videoHeight;
+                canvas.getContext('2d').drawImage(video, 0, 0);
+                photoData = canvas.toDataURL('image/png');
+            }
+        }
+
+        try {
+            const response = await fetch("{{ route('quizzes.initialize', $quiz->id) }}", {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+                body: JSON.stringify({ 
+                    start_photo: photoData, 
+                    latitude: document.getElementById('lat_input').value,
+                    longitude: document.getElementById('lng_input').value
+                })
+            });
+
+            const data = await response.json();
+            if (data.success) {
+                document.getElementById('init-auth-modal').style.display = 'none';
+                document.getElementById('main-quiz-container').classList.remove('hidden');
+                if (document.getElementById('webcam').srcObject) {
+                    document.getElementById('webcam').srcObject.getTracks().forEach(t => t.stop());
+                }
+                showQuestion(0);
+                startTimer();
+            } else { throw new Error(data.message); }
+        } catch (e) {
+            Swal.fire({ icon: 'error', title: 'ERROR', text: e.message });
+            btn.disabled = false;
+            checkButtonStatus(); // Reset สถานะปุ่ม
+        }
+    }
+
+    // --- ส่วนการทำงานของ Quiz (แสดงผล/ถัดไป/ย้อนกลับ) ---
+    function showQuestion(index) {
+        currentQuestionIndex = index;
+        const container = document.getElementById('questions-container');
+        container.style.transform = `translateX(-${index * 100}%)`;
+
+        document.querySelectorAll('.question-block').forEach((b, i) => {
+            b.classList.toggle('active-slide', i === index);
         });
 
-        // --- เพิ่ม: ตรวจจับการสลับหน้าจอ (Tab Switch) ---
-        document.addEventListener("visibilitychange", () => {
-            if (document.hidden) {
-                violationCount++;
-                document.getElementById('violation_count').value = violationCount;
-                document.title = "⚠️ กลับมาทำข้อสอบเดี๋ยวนี้!";
-                
+        document.querySelectorAll('.question-step').forEach((b, i) => {
+            b.classList.toggle('active', i === index);
+        });
+        
+        document.getElementById('prev-btn').style.opacity = index === 0 ? '0.2' : '1';
+        document.getElementById('prev-btn').disabled = index === 0;
+
+        const isLast = index === totalQuestions - 1;
+        document.getElementById('next-btn').classList.toggle('hidden', isLast);
+        document.getElementById('submit-btn').classList.toggle('hidden', !isLast);
+
+        document.getElementById(`step-dot-${index}`).scrollIntoView({ 
+            behavior: 'smooth', inline: 'center', block: 'nearest' 
+        });
+    }
+
+    function markAsAnswered(index) {
+        answeredQuestions[index] = true;
+        document.querySelectorAll('.question-step')[index].classList.add('completed');
+    }
+
+    function startTimer() {
+        const timerEl = document.getElementById('countdown-timer');
+        const timerInt = setInterval(() => {
+            if (timeRemainingSeconds > 0) {
+                timeRemainingSeconds--;
+                const m = Math.floor(timeRemainingSeconds / 60);
+                const s = timeRemainingSeconds % 60;
+                timerEl.innerText = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+                if(timeRemainingSeconds < 60) {
+                    timerEl.parentElement.classList.replace('bg-slate-950', 'bg-rose-600');
+                }
+            } else {
+                clearInterval(timerInt);
+                submitFinal(true);
+            }
+        }, 1000);
+    }
+
+    function submitFinal(force = false) {
+        if (isSubmitting) return;
+        
+        if (!force) {
+            const unansweredIndex = answeredQuestions.findIndex(answered => answered === false);
+            if (unansweredIndex !== -1) {
                 Swal.fire({
                     icon: 'warning',
-                    title: 'ตรวจพบการสลับหน้าจอ!',
-                    text: `คุณได้สลับหน้าจอเป็นครั้งที่ ${violationCount} ระบบได้บันทึกพฤติกรรมนี้ไว้แล้ว`,
-                    confirmButtonText: 'รับทราบ',
-                    confirmButtonColor: '#f59e0b',
-                    allowOutsideClick: false
+                    title: 'ยังทำข้อสอบไม่ครบ!',
+                    text: `คุณยังไม่ได้ทำข้อที่ ${unansweredIndex + 1}`,
+                    confirmButtonText: 'ไปทำข้อนั้นเดี๋ยวนี้',
+                    confirmButtonColor: '#4f46e5'
+                }).then(() => {
+                    showQuestion(unansweredIndex);
                 });
-            } else {
-                document.title = "{{ $quiz->title }}";
+                return;
             }
+        }
+
+        isSubmitting = true;
+        Swal.fire({ 
+            title: 'SENDING...', 
+            html: '<p class="font-bold">ระบบกำลังบันทึกคำตอบ ห้ามปิดหน้าต่างนี้!</p>',
+            allowOutsideClick: false, 
+            didOpen: () => Swal.showLoading() 
         });
-
-        window.onload = function() {
-            if (reqSnap === 0 && reqLoc === 0) {
-                processInitialize();
-            } else {
-                document.getElementById('init-auth-modal').style.display = 'flex';
-                initSecurityDevices();
-            }
-        };
-
-// เพิ่มตัวแปร global เพื่อเช็คสถานะ GPS
-let isGpsReady = (reqLoc === 0); // ถ้าไม่เอา GPS ให้ค่าเป็น true เลย
-
-async function initSecurityDevices() {
-    // 1. จัดการเรื่องกล้อง
-    if (reqSnap === 1) {
-        document.getElementById('camera-section').classList.remove('hidden');
-        try {
-            const video = document.getElementById('webcam');
-            const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-            video.srcObject = stream;
-        } catch (err) {
-            Swal.fire({ icon: 'error', title: 'CAMERA ERROR', text: 'กรุณาเปิดกล้องเพื่อทำข้อสอบ' });
-        }
+        document.getElementById('quizForm').submit();
     }
 
-    // 2. จัดการเรื่อง GPS
-    if (reqLoc === 1) {
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(pos => {
-                document.getElementById('lat_input').value = pos.coords.latitude;
-                document.getElementById('lng_input').value = pos.coords.longitude;
-                
-                const status = document.getElementById('gps-status');
-                status.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-500 text-xl"></i> GPS SIGNAL READY`;
-                status.classList.replace('text-slate-500', 'text-emerald-600');
-                
-                isGpsReady = true; // ยืนยันว่าได้พิกัดแล้ว
-                checkButtonStatus(); // เช็คปุ่มทันทีที่ได้พิกัด
-            }, err => {
-                console.error("GPS Error:", err);
-                let msg = "กรุณาอนุญาตการเข้าถึงพิกัด (Location Access)";
-                if(err.code === 1) msg = "คุณปฏิเสธการเข้าถึงพิกัด กรุณาตั้งค่าเบราว์เซอร์ให้ยินยอม";
-                
-                Swal.fire({ icon: 'warning', title: 'GPS REQUIRED', text: msg });
-            });
-        }
-    } else {
-        checkButtonStatus(); // ถ้าไม่ใช้ GPS ให้เช็คปุ่มเลย (เผื่อติ๊ก checkbox ไว้ก่อน)
-    }
-}
-
-// ฟังก์ชันใหม่สำหรับคุมการเปิด-ปิดปุ่ม "เริ่มทำข้อสอบ"
-function checkButtonStatus() {
-    const consentCheck = document.getElementById('consent-check');
-    const startBtn = document.getElementById('start-init-btn');
-    
-    // เงื่อนไข: ต้องติ๊ก checkbox และ GPS ต้องพร้อม (ถ้าบังคับ)
-    if (consentCheck.checked && isGpsReady) {
-        startBtn.disabled = false;
-        // ปรับ UI ให้ดูว่ากดได้แล้ว
-        startBtn.classList.remove('bg-slate-300', 'text-slate-500', 'border-slate-400');
-        startBtn.classList.add('bg-indigo-600', 'text-white', 'border-indigo-800');
-    } else {
-        startBtn.disabled = true;
-        // ปรับ UI กลับเป็นสีเทา
-        startBtn.classList.add('bg-slate-300', 'text-slate-500', 'border-slate-400');
-        startBtn.classList.remove('bg-indigo-600', 'text-white', 'border-indigo-800');
-    }
-}
-
-// เพิ่ม Event ให้ Checkbox เมื่อมีการคลิก
-document.getElementById('consent-check').addEventListener('change', checkButtonStatus);
-
-// เรียกใช้งานตอนโหลดหน้าครั้งแรก
-document.addEventListener('DOMContentLoaded', () => {
-    initSecurityDevices();
-});
-
-        async function processInitialize() {
-            const btn = document.getElementById('start-init-btn');
-            btn.disabled = true;
-            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-2"></i> LOADING...`;
-
-            let photoData = "";
-            if (reqSnap === 1) {
-                const video = document.getElementById('webcam');
-                const canvas = document.getElementById('photo-canvas');
-                if (video.srcObject) {
-                    canvas.width = video.videoWidth; canvas.height = video.videoHeight;
-                    canvas.getContext('2d').drawImage(video, 0, 0);
-                    photoData = canvas.toDataURL('image/png');
-                }
-            }
-
-            try {
-                const response = await fetch("{{ route('quizzes.initialize', $quiz->id) }}", {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
-                    body: JSON.stringify({ 
-                        start_photo: photoData, 
-                        latitude: document.getElementById('lat_input').value || 0,
-                        longitude: document.getElementById('lng_input').value || 0
-                    })
-                });
-
-                const data = await response.json();
-                if (data.success) {
-                    document.getElementById('init-auth-modal').style.display = 'none';
-                    document.getElementById('main-quiz-container').classList.remove('hidden');
-                    if (document.getElementById('webcam').srcObject) {
-                        document.getElementById('webcam').srcObject.getTracks().forEach(t => t.stop());
-                    }
-                    showQuestion(0);
-                    startTimer();
-                } else { throw new Error(data.message); }
-            } catch (e) {
-                Swal.fire({ icon: 'error', title: 'ERROR', text: e.message });
-                btn.disabled = false;
-                btn.innerText = "TRY AGAIN";
-            }
-        }
-
-        function showQuestion(index) {
-            currentQuestionIndex = index;
-            const container = document.getElementById('questions-container');
-            container.style.transform = `translateX(-${index * 100}%)`;
-
-            document.querySelectorAll('.question-block').forEach((b, i) => {
-                b.classList.toggle('active-slide', i === index);
-            });
-
-            document.querySelectorAll('.question-step').forEach((b, i) => {
-                b.classList.toggle('active', i === index);
-            });
-            
-            document.getElementById('prev-btn').style.opacity = index === 0 ? '0.2' : '1';
-            document.getElementById('prev-btn').disabled = index === 0;
-
-            const isLast = index === totalQuestions - 1;
-            document.getElementById('next-btn').classList.toggle('hidden', isLast);
-            document.getElementById('submit-btn').classList.toggle('hidden', !isLast);
-
-            document.getElementById(`step-dot-${index}`).scrollIntoView({ 
-                behavior: 'smooth', inline: 'center', block: 'nearest' 
-            });
-        }
-
-        function markAsAnswered(index) {
-            answeredQuestions[index] = true;
-            document.querySelectorAll('.question-step')[index].classList.add('completed');
-        }
-
-        function startTimer() {
-            const timerEl = document.getElementById('countdown-timer');
-            const timerInt = setInterval(() => {
-                if (timeRemainingSeconds > 0) {
-                    timeRemainingSeconds--;
-                    const m = Math.floor(timeRemainingSeconds / 60);
-                    const s = timeRemainingSeconds % 60;
-                    timerEl.innerText = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
-                    if(timeRemainingSeconds < 60) {
-                        timerEl.parentElement.classList.replace('bg-slate-950', 'bg-rose-600');
-                    }
-                } else {
-                    clearInterval(timerInt);
-                    submitFinal(true); // Force submit if time is up
-                }
-            }, 1000);
-        }
-
-        function submitFinal(force = false) {
-            if (isSubmitting) return;
-            
-            // --- แก้ไข: ตรวจสอบว่าทำครบทุกข้อหรือยัง ---
-            if (!force) {
-                const unansweredIndex = answeredQuestions.findIndex(answered => answered === false);
-                if (unansweredIndex !== -1) {
-                    Swal.fire({
-                        icon: 'warning',
-                        title: 'ยังทำข้อสอบไม่ครบ!',
-                        text: `คุณยังไม่ได้ทำข้อที่ ${unansweredIndex + 1}`,
-                        confirmButtonText: 'ไปทำข้อนั้นเดี๋ยวนี้',
-                        confirmButtonColor: '#4f46e5'
-                    }).then(() => {
-                        showQuestion(unansweredIndex);
-                    });
-                    return; // หยุดการทำงาน ไม่ส่งฟอร์ม
-                }
-            }
-
-            isSubmitting = true;
-            Swal.fire({ 
-                title: 'SENDING...', 
-                html: '<p class="font-bold">ระบบกำลังบันทึกคำตอบ ห้ามปิดหน้าต่างนี้!</p>',
-                allowOutsideClick: false, 
-                didOpen: () => Swal.showLoading() 
-            });
-            document.getElementById('quizForm').submit();
-        }
-
-        document.getElementById('consent-check').onchange = (e) => {
-            const btn = document.getElementById('start-init-btn');
-            btn.disabled = !e.target.checked;
-            if(e.target.checked) {
-                btn.className = "w-full py-6 bg-indigo-600 text-white font-black rounded-[1.5rem] transition-all text-2xl uppercase border-b-[10px] border-indigo-900 shadow-xl cursor-pointer active:translate-y-1 active:border-b-0";
-            } else {
-                btn.className = "w-full py-6 bg-slate-300 text-slate-500 font-black rounded-[1.5rem] transition-all text-2xl uppercase border-b-[10px] border-slate-400";
-            }
-        };
-
-        document.getElementById('prev-btn').onclick = () => showQuestion(currentQuestionIndex - 1);
-        document.getElementById('next-btn').onclick = () => showQuestion(currentQuestionIndex + 1);
-        
-        document.getElementById('submit-btn').onclick = () => {
-            // เช็คก่อนว่าทำครบไหมในฟังก์ชัน submitFinal
-            const unansweredCount = answeredQuestions.filter(a => !a).length;
-            if (unansweredCount > 0) {
-                 submitFinal(); // เรียกใช้ฟังก์ชันนี้เพื่อให้มันแจ้งเตือนและพาไปข้อที่ขาด
-            } else {
-                Swal.fire({
-                    title: 'ยืนยันการส่งข้อสอบ?',
-                    text: "คุณทำครบทุกข้อแล้ว ต้องการส่งเลยหรือไม่?",
-                    icon: 'question',
-                    showCancelButton: true,
-                    confirmButtonText: 'ยืนยัน ส่งเลย!',
-                    cancelButtonText: 'ยกเลิก',
-                    confirmButtonColor: '#2563eb',
-                    cancelButtonColor: '#e11d48',
-                }).then(r => r.isConfirmed && submitFinal());
-            }
-        };
-    </script>
+    // ปุ่ม Navigation
+    document.getElementById('prev-btn').onclick = () => showQuestion(currentQuestionIndex - 1);
+    document.getElementById('next-btn').onclick = () => showQuestion(currentQuestionIndex + 1);
+    document.getElementById('submit-btn').onclick = () => {
+        Swal.fire({
+            title: 'ยืนยันการส่งข้อสอบ?',
+            text: "ต้องการส่งเลยหรือไม่?",
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'ยืนยัน ส่งเลย!',
+            cancelButtonText: 'ยกเลิก',
+            confirmButtonColor: '#2563eb',
+            cancelButtonColor: '#e11d48',
+        }).then(r => r.isConfirmed && submitFinal());
+    };
+</script>
 </x-app-layout>
