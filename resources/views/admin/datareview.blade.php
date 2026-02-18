@@ -65,44 +65,49 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
 
 <script>
-    $(document).ready(function () {
-        // เตรียมโครงสร้างคอลัมน์จาก PHP เพื่อบอก DataTables ว่าแต่ละช่องเอาข้อมูลมาจาก Key ไหนใน JSON
-        const columnsConfig = [
-            @foreach($columns as $col)
-                { data: '{{ $col }}', name: '{{ $col }}', defaultContent: "-" },
-            @endforeach
-        ];
-
-        if ($('#ReviewTable').length) {
-            $('#ReviewTable').DataTable({
-                processing: true,      // แสดงตัวโหลดข้อมูล
-                serverSide: true,      // เปิดใช้งานการโหลดแบบฝั่ง Server
-                responsive: true,
-                scrollX: true,
-                pageLength: 25,
-                ajax: {
-                    url: "{{ route('datareview') }}",
-                    type: "GET",       // ใช้ GET ตาม Controller ใหม่
-                    data: function(d) {
-                        d.table = $('#table').val(); // ส่งชื่อตารางไปด้วยเสมอ
-                    }
-                },
-                columns: columnsConfig, // ใช้ Config คอลัมน์ที่เตรียมไว้ข้างบน
-                language: {
-                    search: "🔍 ค้นหา (จากทุกคอลัมน์):",
-                    lengthMenu: "แสดง _MENU_ รายการ",
-                    info: "แสดง _START_ ถึง _END_ จากทั้งหมด _TOTAL_ รายการ",
-                    infoFiltered: "(กรองจากทั้งหมด _MAX_ รายการ)", // บอกให้รู้ว่าค้นหาเจอจากกี่รายการใน DB
-                    paginate: {
-                        first: "หน้าแรก",
-                        last: "หน้าสุดท้าย",
-                        next: "ถัดไป",
-                        previous: "ก่อนหน้า"
-                    },
-                    zeroRecords: "ไม่พบข้อมูลที่ตรงกับคำค้นหา",
-                    processing: "กำลังดึงข้อมูลจากฐานข้อมูล..."
-                }
-            });
+$(document).ready(function () {
+    // ฟังก์ชันสำหรับสั่งวาดตาราง
+    function initializeDataTable() {
+        // ถ้ามีตารางเดิมอยู่แล้ว ให้ทำลายทิ้งก่อน
+        if ($.fn.DataTable.isDataTable('#ReviewTable')) {
+            $('#ReviewTable').DataTable().destroy();
+            $('#ReviewTable').empty(); // ล้างเนื้อหาในตารางทิ้งด้วย (รวมถึง <thead>)
         }
-    });
+
+        // สร้าง <thead> ใหม่ตามคอลัมน์ที่ได้รับมาจาก PHP (เพื่อความแม่นยำ)
+        let headerRow = '<tr>';
+        const columnsConfig = [];
+
+        @foreach($columns as $col)
+            headerRow += '<th class="px-6 py-3 whitespace-nowrap bg-gray-100 border-b border-gray-200">{{ ucfirst(str_replace("_", " ", $col)) }}</th>';
+            columnsConfig.push({ data: '{{ $col }}', name: '{{ $col }}', defaultContent: "-" });
+        @endforeach
+        
+        headerRow += '</tr>';
+        $('#ReviewTable').append('<thead class="text-xs text-gray-700 uppercase bg-gray-50">' + headerRow + '</thead>');
+        $('#ReviewTable').append('<tbody class="divide-y divide-gray-100"></tbody>');
+
+        // เริ่มต้น DataTables
+        $('#ReviewTable').DataTable({
+            processing: true,
+            serverSide: true,
+            destroy: true, // บังคับสร้างใหม่
+            responsive: false, // ปิดไว้ก่อนถ้าคอลัมน์เยอะเกินไปจะทำให้พังง่าย
+            scrollX: true,
+            ajax: {
+                url: "{{ route('datareview') }}",
+                data: { table: "{{ $tableName }}" }
+            },
+            columns: columnsConfig,
+            language: {
+                processing: "กำลังประมวลผล...",
+                search: "ค้นหา:",
+                // ... ภาษาไทยอื่นๆ ที่คุณใส่ไว้ ...
+            }
+        });
+    }
+
+    // เรียกทำงานทันทีที่โหลดหน้า
+    initializeDataTable();
+});
 </script>
