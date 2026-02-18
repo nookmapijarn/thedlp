@@ -119,7 +119,12 @@
                                     <tbody class="divide-y divide-gray-100">
                                         @foreach($users as $user_ad)
                                         <tr class="hover:bg-gray-50 transition-colors" data-id="{{ $user_ad->id }}">
-                                            <td class="px-4 py-3 font-medium text-gray-900">{{ $loop->iteration }}</td>
+                                            
+                                            {{-- 1. เพิ่ม data-search="{{ $user_ad->id }}" เพื่อให้ค้นหาด้วย ID สมาชิกได้ --}}
+                                            <td class="px-4 py-3 font-medium text-gray-900" data-search="{{ $user_ad->id }}">
+                                                {{ $loop->iteration }}
+                                            </td>
+
                                             <td class="px-4 py-3">
                                                 @php
                                                     $badges = [
@@ -130,16 +135,22 @@
                                                     ];
                                                     $role = $badges[$user_ad->role] ?? $badges[1];
                                                 @endphp
+                                                {{-- ส่วน Role ค้นหาจาก text ปกติได้อยู่แล้ว --}}
                                                 <span class="{{ $role['bg'] }} {{ $role['text'] }} text-xs font-medium px-2.5 py-0.5 rounded border border-opacity-20">
                                                     {{ $role['label'] }}
                                                 </span>
                                             </td>
-                                            <td class="px-4 py-3">
+
+                                            {{-- 2. เพิ่ม data-search="{{ $user_ad->name }}" เพื่อให้ค้นหาชื่อที่อยู่ใน input ได้ --}}
+                                            <td class="px-4 py-3" data-search="{{ $user_ad->name }}">
                                                 <input type="text" name="name" value="{{ $user_ad->name }}" class="edit-input border-0 bg-transparent hover:bg-white hover:border hover:border-gray-300 rounded focus:ring-2 focus:ring-blue-500 w-full text-sm py-1 px-2 transition-all">
                                             </td>
-                                            <td class="px-4 py-3">
+
+                                            {{-- 3. เพิ่ม data-search="{{ $user_ad->email }}" เพื่อให้ค้นหาอีเมลที่อยู่ใน input ได้ --}}
+                                            <td class="px-4 py-3" data-search="{{ $user_ad->email }}">
                                                 <input type="email" name="email" value="{{ $user_ad->email }}" class="edit-input border-0 bg-transparent hover:bg-white hover:border hover:border-gray-300 rounded focus:ring-2 focus:ring-blue-500 w-full text-sm py-1 px-2 transition-all">
                                             </td>
+
                                             <td class="px-4 py-3 text-center">
                                                 <div class="flex items-center justify-center gap-2">
                                                     <button type="button" class="btn-update text-white bg-amber-500 hover:bg-amber-600 focus:ring-4 focus:ring-amber-300 font-medium rounded-lg text-xs px-3 py-2 transition-all shadow-sm">

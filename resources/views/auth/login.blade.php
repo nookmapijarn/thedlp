@@ -33,7 +33,7 @@
                         {{ config('app.name_system') }}
                     </h1>
                     <h2 class="text-xs sm:text-md font-light text-gray-500 text-center  tracking-wide">
-                        {{ config('app.name_th') }}
+                        ศูนย์ส่งเสริมการเรียนรู้ระดับอำเภอ{{ config('app.name_district') }}
                     </h2>
                 </div>
 
