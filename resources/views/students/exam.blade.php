@@ -591,44 +591,46 @@ async function renderCertificate(canvasId, data) {
     const canvas = document.getElementById(canvasId);
     const ctx = canvas.getContext('2d');
     
-    // 1. ตั้งขนาด A4 แนวนอน (Pixels @ 96-300 DPI scale)
+    // 1. ตั้งขนาด A4 แนวนอน
     canvas.width = 1123;
     canvas.height = 794;
 
     // 2. เตรียมรูปภาพ
     const imgBg = new Image();
     const imgLogo = new Image();
+    const imgSignature = new Image(); // เพิ่มตัวแปรรูปลายเซ็น
     
-    // ตั้งค่า CORS เพื่อให้สามารถดึงรูปจาก URL อื่นมาวาดลง PDF ได้โดยไม่ติด Security Error
     imgBg.crossOrigin = "anonymous";
     imgLogo.crossOrigin = "anonymous";
+    imgSignature.crossOrigin = "anonymous";
 
     // แหล่งที่มารูปภาพ
     imgBg.src = data.base64;
     imgLogo.src = '{{ asset("storage/logo.png") ?? asset("storage/olislogo.png") }}';
+    imgSignature.src = '{{ asset("storage/signature.png") ?? asset("storage/nonesignature.png") }}';
 
     return new Promise((resolve) => {
         let loadedCount = 0;
+        const totalImages = 3; // ต้องรอโหลด 3 รูป (พื้นหลัง, โลโก้, ลายเซ็น)
+
         const checkLoaded = () => {
             loadedCount++;
-            if (loadedCount === 2) draw();
+            if (loadedCount === totalImages) draw();
         };
 
         imgBg.onload = checkLoaded;
         imgLogo.onload = checkLoaded;
+        imgSignature.onload = checkLoaded; // รอโหลดลายเซ็น
         
-        // กรณีโหลดโลโก้ไม่สำเร็จ ให้ทำงานต่อโดยไม่ค้าง
-        imgLogo.onerror = () => {
-            console.warn("Logo failed to load, proceeding with layout only.");
-            checkLoaded();
-        };
-        imgBg.onerror = () => {
-            console.error("Background image failed to load.");
-            resolve();
-        };
+        // Error handling เพื่อไม่ให้โปรแกรมค้าง
+        imgLogo.onerror = () => { console.warn("Logo failed"); checkLoaded(); };
+        imgSignature.onerror = () => { console.warn("Signature failed"); checkLoaded(); };
+        imgBg.onerror = () => { console.error("BG failed"); resolve(); };
 
         function draw() {
             // --- เริ่มการวาด ---
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
             // 1. วาดพื้นหลัง
             ctx.drawImage(imgBg, 0, 0, canvas.width, canvas.height);
 
@@ -637,14 +639,14 @@ async function renderCertificate(canvasId, data) {
             ctx.textAlign = "center";
             ctx.textBaseline = "middle";
 
-            // 2. วาด Logo (กึ่งกลางบรรทัดแรกสุด)
-            const logoSize = 100; // ขนาดโลโก้
-            const logoY = 85;    // ตำแหน่งความสูงของโลโก้
+            // 2. วาด Logo
+            const logoSize = 100;
+            const logoY = 85;
             if (imgLogo.complete && imgLogo.naturalWidth > 0) {
                 ctx.drawImage(imgLogo, centerX - (logoSize / 2), logoY - (logoSize / 2), logoSize, logoSize);
             }
 
-            // 3. ส่วนหัวข้อ (ขยับระยะลงมาเพื่อหลบโลโก้)
+            // 3. ข้อความเนื้อหา
             ctx.font = `bold 60px ${fontFamily}`;
             ctx.fillStyle = "#1e3a8a"; 
             ctx.fillText("ประกาศนียบัตร", centerX, 210);
@@ -652,68 +654,65 @@ async function renderCertificate(canvasId, data) {
             ctx.font = `bold 24px ${fontFamily}`;
             ctx.fillText("ศูนย์ส่งเสริมการเรียนรู้ระดับอำเภอ{{ config('app.name_district') }}", centerX, 265);
 
-            // 4. ส่วนชื่อผู้รับ
-            ctx.font = `24px ${fontFamily}`;
+            ctx.font = `bold  24px ${fontFamily}`;
             ctx.fillStyle = "#4338ca";
             ctx.fillText("ให้ไว้เพื่อแสดงว่า", centerX, 310);
 
             ctx.font = `bold 44px ${fontFamily}`;
             ctx.fillStyle = "#1e293b";
-            ctx.fillText(data.name, centerX, 400);
-            
-            // เส้นใต้ชื่อ
-            // ctx.beginPath();
-            // ctx.strokeStyle = "#cbd5e1";
-            // ctx.lineWidth = 2;
-            // ctx.moveTo(centerX - 250, 480);
-            // ctx.lineTo(centerX + 250, 480);
-            // ctx.stroke();
+            ctx.fillText(data.name, centerX, 370);
 
-            // 5. รายละเอียดแบบทดสอบ
-            ctx.font = `30px ${fontFamily}`;
+            ctx.font = `bold 30px ${fontFamily}`;
             ctx.fillStyle = "#334155";
-            ctx.fillText("ได้ผ่านการทำแบบทดสอบ", centerX, 500);
+            ctx.fillText("ได้ผ่านการทำแบบทดสอบ", centerX, 450);
 
             ctx.font = `900 34px ${fontFamily}`;
             ctx.fillStyle = "#1e3a8a";
-            ctx.fillText(`“ ${data.title} ”`, centerX, 570);
+            ctx.fillText(`“ ${data.title} ”`, centerX, 520);
 
-            // 6. ส่วนวันที่ (เว้นระยะบรรทัดให้โปร่งขึ้น)
-            ctx.font = `24px ${fontFamily}`;
+            ctx.font = `bold 24px ${fontFamily}`;
             ctx.fillStyle = "#64748b";
-            ctx.fillText(`ให้ไว้ ณ วันที่ ${data.date}`, centerX, 630);
+            ctx.fillText(`ให้ไว้ ณ วันที่ ${data.date}`, centerX, 580);
 
-            // 7. พื้นที่ลงนามและคะแนน (ชิดขอบล่าง พร้อมเว้นที่ลงนาม)
+            // 4. พื้นที่ส่วนท้าย (คะแนน และ ลายเซ็น)
             const marginSide = 140; 
-            const footerY = 750; // บรรทัดล่างสุด
+            const footerY = 750;
 
             // ฝั่งซ้าย: คะแนน
             ctx.textAlign = "left";
             ctx.font = `bold 14px ${fontFamily}`;
-            ctx.fillStyle = "#94a3b8";
+            ctx.fillStyle = "#64748b";
             ctx.fillText("ผลคะแนนที่ได้", marginSide, footerY - 35);
-            
             ctx.font = `900 48px ${fontFamily}`;
-            ctx.fillStyle = "#ffffff";
             ctx.fillText(data.score, marginSide, footerY);
-            
             ctx.font = `24px ${fontFamily}`;
             ctx.fillText(` / ${data.total}`, marginSide + ctx.measureText(data.score).width + 5, footerY);
 
-            // ฝั่งขวา: พื้นที่ลงนาม (เว้นช่องว่างระหว่าง "วันที่" กับ "ผู้บริหาร" ไว้ให้เซ็น)
-            ctx.textAlign = "center";
-            ctx.beginPath(); 
-            ctx.strokeStyle = "#94a3b8";
-            ctx.lineWidth = 2;
-            ctx.moveTo(canvas.width - marginSide - 280, footerY - 10);
-            ctx.lineTo(canvas.width - marginSide, footerY - 10);
-            ctx.stroke();
+            // ฝั่งขวา: พื้นที่ลงนาม
+            const signAreaCenterX = canvas.width - marginSide - 140;
+            
+            // --- [เพิ่ม] วาดรูปลายเซ็น ---
+            // if (imgSignature.complete && imgSignature.naturalWidth > 0) {
+            //     const sigWidth = 200; // ปรับความกว้างลายเซ็นตามต้องการ
+            //     const sigHeight = (imgSignature.naturalHeight / imgSignature.naturalWidth) * sigWidth;
+            //     // วาดให้กึ่งกลางและอยู่เหนือเส้นเซ็นชื่อ
+            //     ctx.drawImage(imgSignature, signAreaCenterX - (sigWidth / 2), footerY - 80, sigWidth, sigHeight);
+            // }
 
-            ctx.font = `bold 22px ${fontFamily}`;
-            ctx.fillStyle = "#334155";
-            ctx.fillText("ผู้บริหารสถานศึกษา", canvas.width - marginSide - 140, footerY + 15);
+            // วาดเส้นเซ็นชื่อ
+            // ctx.textAlign = "center";
+            // ctx.beginPath(); 
+            // ctx.strokeStyle = "#94a3b8";
+            // ctx.lineWidth = 2;
+            // ctx.moveTo(canvas.width - marginSide - 280, footerY - 10);
+            // ctx.lineTo(canvas.width - marginSide, footerY - 10);
+            // ctx.stroke();
 
-            // สิ้นสุดการวาด
+            // // ชื่อตำแหน่ง
+            // ctx.font = `bold 22px ${fontFamily}`;
+            // ctx.fillStyle = "#334155";
+            // ctx.fillText("ผู้บริหารสถานศึกษา", signAreaCenterX, footerY + 15);
+
             resolve();
         }
     });
@@ -725,7 +724,7 @@ async function showCertificateModal(title, score, total, bgUrl) {
     document.body.style.overflow = 'hidden';
 
     try {
-        const response = await fetch(`/get-cert-base64?url=${encodeURIComponent(bgUrl)}`);
+        const response = await fetch(`student/get-cert-base64?url=${encodeURIComponent(bgUrl)}`);
         const result = await response.json();
         
         currentCertData = {

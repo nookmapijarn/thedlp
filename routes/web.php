@@ -165,7 +165,7 @@ Route::middleware('auth', 'verified')->group(function () {
         Route::post('/quizzes/{id}/initialize', [ExamController::class, 'initializeAttempt'])->name('quizzes.initialize');
         Route::get('/quizzes/{id}/start', [ExamController::class, 'startQuiz'])->name('quizzes.start');
         Route::post('/quizzes/{id}/submit', [ExamController::class, 'submitQuiz'])->name('quizzes.submit');
-        Route::get('/get-cert-base64', [ExamController::class, 'getCertificateBase64'])->name('cert.base64');
+        Route::get('student/get-cert-base64', [ExamController::class, 'getCertificateBase64'])->name('cert.base64');
         // สื่อ
         Route::get('/สื่อการเรียนรู้', [MediaController::class, 'index'])->name('สื่อการเรียนรู้');
         // Routes for students to view and enroll in courses

@@ -181,6 +181,39 @@
                                                 <span class="absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform duration-200 peer-checked:translate-x-4 shadow-sm"></span>
                                             </div>
                                         </label>
+                                        <div class="space-y-4">
+                                            <h4 class="text-[11px] uppercase tracking-[0.2em] font-black text-slate-500 mb-5">ตั้งค่าเกียรติบัตร</h4>
+                                            
+                                            <div class="relative group/cert">
+                                                <input type="file" id="quiz_certificate_input" accept="image/*" class="hidden">
+                                                <input type="hidden" name="quiz_certificate_base64" id="quiz_certificate_base64">
+                                                <div id="cert-preview-container" class="hidden relative w-full rounded-2xl border-2 border-emerald-100 overflow-hidden bg-slate-50">
+                                                    <img id="cert-preview-img" src="#" alt="Certificate Preview" class="w-full h-auto object-contain max-h-[200px]">
+                                                    <button type="button" id="btn-remove-cert" class="absolute top-2 right-2 p-2 bg-rose-500 text-white rounded-full hover:bg-rose-600 transition-colors shadow-lg">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                                        </svg>
+                                                    </button>
+                                                </div>
+
+                                                <label id="cert-upload-label" for="quiz_certificate_input" class="flex items-center justify-between p-4 bg-white rounded-2xl border border-slate-200/60 cursor-pointer hover:border-emerald-300 transition-all group">
+                                                    <div class="flex items-center gap-3">
+                                                        <div class="p-2 bg-emerald-50 text-emerald-600 rounded-lg group-hover:bg-emerald-600 group-hover:text-white transition-colors">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                            </svg>
+                                                        </div>
+                                                        <div>
+                                                            <span class="block text-sm font-black text-slate-700">อัปโหลดแม่แบบเกียรติบัตร</span>
+                                                            <span class="text-[10px] text-slate-400">คลิกเพื่อเลือกไฟล์ภาพ (.jpg, .png)</span>
+                                                        </div>
+                                                    </div>
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-slate-300 group-hover:text-emerald-500 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                                                    </svg>
+                                                </label>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -386,5 +419,53 @@
         if (cropper) cropper.destroy();
     });
 
+</script>
+
+
+<script>
+    const certInput = document.getElementById('quiz_certificate_input');
+    const certPreviewContainer = document.getElementById('cert-preview-container');
+    const certPreviewImg = document.getElementById('cert-preview-img');
+    const certUploadLabel = document.getElementById('cert-upload-label');
+    const btnRemoveCert = document.getElementById('btn-remove-cert');
+    // อ้างอิงถึง Hidden Input ที่เพิ่มใหม่
+    const certBase64Input = document.getElementById('quiz_certificate_base64');
+
+    // เมื่อเลือกไฟล์เกียรติบัตร
+    certInput.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            // ตรวจสอบขนาดไฟล์ (ไม่ควรเกิน 2MB สำหรับ Base64 เพื่อป้องกัน Request ตัวใหญ่เกินไป)
+            if (file.size > 2 * 1024 * 1024) {
+                alert('ไฟล์เกียรติบัตรใหญ่เกินไป (ไม่ควรเกิน 2MB)');
+                this.value = '';
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const base64String = event.target.result;
+                
+                // 1. แสดงรูป Preview
+                certPreviewImg.src = base64String;
+                certPreviewContainer.classList.remove('hidden');
+                certUploadLabel.classList.add('hidden');
+                
+                // 2. เก็บค่าลง Hidden Input เพื่อส่งไปพร้อม Form
+                certBase64Input.value = base64String;
+            }
+            reader.readAsDataURL(file);
+        }
+    });
+
+    // เมื่อกดปุ่มลบรูปเกียรติบัตร
+    btnRemoveCert.addEventListener('click', function(e) {
+        e.preventDefault();
+        certInput.value = ''; 
+        certBase64Input.value = ''; // ล้างค่า Base64 ออกด้วย
+        certPreviewImg.src = '#';
+        certPreviewContainer.classList.add('hidden');
+        certUploadLabel.classList.remove('hidden');
+    });
 </script>
 </x-teachers-layout>

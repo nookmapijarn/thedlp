@@ -20,8 +20,8 @@
             box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.1) !important;
         }
 
-        /* สำหรับพรีวิวรูปภาพ */
-        #cover_preview_container img {
+        /* พรีวิวรูปภาพ */
+        .preview-img-box {
             width: 100%;
             height: 200px;
             object-fit: cover;
@@ -38,6 +38,7 @@
             
             <input type="file" id="excel_import" accept=".xlsx, .xls, .csv" class="hidden">
             <input type="hidden" name="quiz_cover_base64" id="quiz_cover_base64">
+            <input type="hidden" name="quiz_certificate_base64" id="quiz_certificate_base64">
 
             <div class="bg-white rounded-[2.5rem] shadow-2xl shadow-slate-200/50 border border-slate-100 overflow-hidden">
                 <div class="bg-gradient-to-r from-amber-500 via-amber-600 to-amber-600 px-10 py-8">
@@ -56,9 +57,7 @@
                         <div class="bg-black/10 backdrop-blur-md px-6 py-3 rounded-2xl border border-white/10 text-left md:text-right">
                             <p class="text-[10px] font-black text-amber-200 uppercase tracking-[0.2em] mb-1">แก้ไขล่าสุดเมื่อ</p>
                             <p class="text-sm font-black text-white">
-                                {{ $quiz->updated_at 
-                                    ? \Carbon\Carbon::parse($quiz->updated_at)->format('d/m/Y H:i') 
-                                    : 'ไม่มีข้อมูลวันที่' }} น.
+                                {{ $quiz->updated_at ? \Carbon\Carbon::parse($quiz->updated_at)->format('d/m/Y H:i') : 'ไม่มีข้อมูล' }} น.
                             </p>
                         </div>
                     </div>
@@ -67,30 +66,23 @@
                 <div class="p-10">
                     <div class="grid grid-cols-1 lg:grid-cols-12 gap-10">
                         <div class="lg:col-span-7 space-y-8">
-                            <div class="group">
-                                <label class="flex items-center gap-2 text-sm font-black text-slate-700 mb-3 ml-1">
-                                    ภาพปกแบบทดสอบ
-                                </label>
-                                <div id="cover_preview_container" class="relative group cursor-pointer" onclick="document.getElementById('cover_input').click()">
-                                    @if($quiz->cover_image)
-                                        <img id="cover_preview" src="{{ $quiz->cover_image }}" class="border-4 border-dashed border-slate-100 group-hover:border-amber-400 transition-colors">
-                                    @else
-                                        <div id="placeholder_ui" class="w-full h-[200px] bg-slate-50 border-4 border-dashed border-slate-200 rounded-[1.5rem] flex flex-col items-center justify-center text-slate-400 group-hover:text-amber-500 group-hover:border-amber-300 transition-all">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                            </svg>
-                                            <span class="font-bold">คลิกเพื่อเปลี่ยนภาพปก</span>
+                            
+                            <div class="grid grid-cols-1 sm:grid-cols-1 gap-6">
+                                <div class="group">
+                                    <label class="flex items-center gap-2 text-sm font-black text-slate-700 mb-3 ml-1">ภาพปกแบบทดสอบ</label>
+                                    <div class="relative cursor-pointer" onclick="document.getElementById('cover_input').click()">
+                                        <div id="cover_placeholder" class="{{ $quiz->cover_image ? 'hidden' : '' }} w-full h-[200px] bg-slate-50 border-4 border-dashed border-slate-200 rounded-[1.5rem] flex flex-col items-center justify-center text-slate-400 hover:text-amber-500 hover:border-amber-300 transition-all">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                                            <span class="text-xs font-bold">เปลี่ยนภาพปก</span>
                                         </div>
-                                        <img id="cover_preview" class="hidden border-4 border-dashed border-slate-100">
-                                    @endif
-                                    <input type="file" id="cover_input" accept="image/*" class="hidden" onchange="previewCoverImage(this)">
+                                        <img id="cover_preview" src="{{ $quiz->cover_image ?? '' }}" class="{{ $quiz->cover_image ? '' : 'hidden' }} preview-img-box border-4 border-slate-100 object-cover">
+                                        <input type="file" id="cover_input" accept="image/*" class="hidden" onchange="previewCoverImage(this)">
+                                    </div>
                                 </div>
                             </div>
 
                             <div class="group">
-                                <label class="flex items-center gap-2 text-sm font-black text-slate-700 mb-3 ml-1">
-                                    ชื่อแบบทดสอบ <span class="text-rose-500">*</span>
-                                </label>
+                                <label class="flex items-center gap-2 text-sm font-black text-slate-700 mb-3 ml-1">ชื่อแบบทดสอบ <span class="text-rose-500">*</span></label>
                                 <input type="text" name="quiz_title" value="{{ old('quiz_title', $quiz->title) }}" required 
                                     class="w-full rounded-2xl border-slate-200 bg-slate-50/50 focus:bg-white focus:ring-4 focus:ring-amber-500/10 focus:border-amber-500 transition-all py-4 px-5 text-lg text-slate-600 font-bold">
                             </div>
@@ -98,8 +90,7 @@
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                                 <div class="group">
                                     <label class="flex items-center gap-2 text-sm font-black text-slate-700 mb-3 ml-1">ระดับชั้น <span class="text-rose-500">*</span></label>
-                                    <select id="grade_level" name="grade_level" required 
-                                        class="w-full rounded-2xl border-slate-200 bg-slate-50/50 focus:bg-white focus:ring-4 focus:ring-amber-500/10 focus:border-amber-500 transition-all py-4 px-5 text-slate-600 font-bold">
+                                    <select id="grade_level" name="grade_level" required class="w-full rounded-2xl border-slate-200 bg-slate-50/50 focus:bg-white focus:ring-4 focus:ring-amber-500/10 focus:border-amber-500 transition-all py-4 px-5 text-slate-600 font-bold">
                                         <option value="">เลือกระดับชั้น</option>
                                         <option value="0" @selected($quiz->grade_level == 0)>ทุกระดับ</option>
                                         <option value="1" @selected($quiz->grade_level == 1)>ประถมศึกษา</option>
@@ -112,7 +103,10 @@
                                     <select id="subject_select" name="subject_code" data-selected="{{ $quiz->subject_code }}" required></select>
                                 </div>
                             </div>
-                            
+                            <div class="group">
+                                <label class="block text-sm font-black text-slate-700 mb-3 ml-1 uppercase tracking-wider">คำอธิบายเพิ่มเติม</label>
+                                <textarea name="quiz_description" rows="4" placeholder="ระบุรายละเอียดหรือคำชี้แจง..." class="w-full rounded-2xl border-slate-200 bg-slate-50/50 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all text-sm  resize-none">{{ $quiz->description }}</textarea>
+                            </div>
                             <input type="hidden" name="subject_group" id="subject_group" value="{{ $quiz->subject_group }}">
                         </div>
 
@@ -120,8 +114,7 @@
                             <div class="bg-slate-50 rounded-[2.5rem] p-8 border border-slate-100 space-y-8 h-full">
                                 <div>
                                     <h4 class="text-xs uppercase tracking-[0.2em] font-black text-slate-400 flex items-center gap-2 mb-6">
-                                        <span class="w-2 h-2 rounded-full bg-orange-500 animate-pulse"></span>
-                                        ตั้งค่าแบบทดสอบ
+                                        <span class="w-2 h-2 rounded-full bg-orange-500 animate-pulse"></span> ตั้งค่าแบบทดสอบ
                                     </h4>
                                     
                                     <div class="grid grid-cols-2 gap-4 mb-8">
@@ -172,6 +165,37 @@
                                                 <span class="absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform peer-checked:translate-x-4"></span>
                                             </div>
                                         </label>
+
+                                        <div class="group">
+                                            <label class="flex items-center gap-2 text-sm font-black text-slate-700 mb-3 ml-1">ภาพเกียรติบัตร</label>
+                                            <div class="relative">
+                                                <div id="cert_placeholder" 
+                                                    onclick="document.getElementById('cert_input').click()" 
+                                                    class="{{ !blank($quiz->certificate_image) ? 'hidden' : '' }} cursor-pointer w-full h-[200px] bg-slate-50 border-4 border-dashed border-slate-200 rounded-[1.5rem] flex flex-col items-center justify-center text-slate-400 hover:text-emerald-500 hover:border-emerald-300 transition-all">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                    </svg>
+                                                    <span class="text-xs font-bold">เพิ่มเกียรติบัตร</span>
+                                                </div>
+
+                                                <div id="cert_preview_container" 
+                                                    class="{{ blank($quiz->certificate_image) ? 'hidden' : '' }} relative">
+                                                    <img id="cert_preview" 
+                                                        src="{{ !blank($quiz->certificate_image) ? $quiz->certificate_image : '' }}" 
+                                                        class="preview-img-box border-4 border-slate-100 object-cover">
+                                                    
+                                                    <button type="button" 
+                                                            onclick="removeCertImage()" 
+                                                            class="absolute -top-2 -right-2 p-2 bg-rose-500 text-white rounded-full hover:bg-rose-600 shadow-lg transition-transform active:scale-90">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                                        </svg>
+                                                    </button>
+                                                </div>
+
+                                                <input type="file" id="cert_input" accept="image/*" class="hidden" onchange="previewCertImage(this)">
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -192,10 +216,10 @@
                         </div>
                     </div>
                     <div class="flex items-center gap-4 w-full md:w-auto">
-                        <button type="button" onclick="document.getElementById('excel_import').click()" class="flex-1 md:flex-none px-6 py-3.5 bg-white border-2 border-slate-100 text-slate-600 rounded-2xl font-black text-sm hover:border-emerald-500 flex items-center gap-2">
-                             Excel
+                        <button type="button" onclick="document.getElementById('excel_import').click()" class="flex-1 md:flex-none px-6 py-3.5 bg-white border-2 border-slate-100 text-slate-600 rounded-2xl font-black text-sm hover:border-emerald-500 flex items-center gap-2 transition-all">
+                            Excel
                         </button>
-                        <button type="button" onclick="addQuestion()" class="flex-1 md:flex-none px-8 py-3.5 bg-slate-900 text-white rounded-2xl font-black text-sm hover:bg-black flex items-center gap-2">
+                        <button type="button" onclick="addQuestion()" class="flex-1 md:flex-none px-8 py-3.5 bg-slate-900 text-white rounded-2xl font-black text-sm hover:bg-black flex items-center gap-2 transition-all">
                             เพิ่มข้อใหม่
                         </button>
                     </div>
@@ -218,46 +242,60 @@
     @include('teachers.partials.quiz-scripts')
 
     <script>
-        // --- Logic: Preview และแปลงรูปภาพเป็น Base64 ---
+        // --- Preview Cover ---
         function previewCoverImage(input) {
             if (input.files && input.files[0]) {
                 const reader = new FileReader();
                 reader.onload = function(e) {
                     const base64String = e.target.result;
-                    // แสดงใน Preview
-                    const previewImg = document.getElementById('cover_preview');
-                    const placeholder = document.getElementById('placeholder_ui');
-                    
-                    previewImg.src = base64String;
-                    previewImg.classList.remove('hidden');
-                    if(placeholder) placeholder.classList.add('hidden');
-                    
-                    // เก็บค่าไว้ใน Hidden Input เพื่อส่งเข้า Controller
+                    document.getElementById('cover_preview').src = base64String;
+                    document.getElementById('cover_preview').classList.remove('hidden');
+                    document.getElementById('cover_placeholder').classList.add('hidden');
                     document.getElementById('quiz_cover_base64').value = base64String;
                 }
                 reader.readAsDataURL(input.files[0]);
             }
         }
-// ฟังก์ชันล็อกแบบ "ห้ามแก้แต่ส่งค่าได้"
-function toggleSubjectLock(isLocked) {
-    const control = tsSubject.control; // ดึงตัว Element หน้าจอของ TomSelect
-    
-    if (isLocked) {
-        // 1. ทำให้คลิกไม่ได้ (CSS)
-        control.style.pointerEvents = 'none'; 
-        // 2. ปรับสีให้ดูว่าแก้ไขไม่ได้ (เทาอ่อน)
-        control.style.backgroundColor = '#e9ecef';
-        control.style.opacity = '0.8';
-        // 3. ป้องกันการกดลบ (Backspace/Delete)
-        tsSubject.settings.readonly = true;
-    } else {
-        // ปลดล็อกกลับมาเป็นปกติ
-        control.style.pointerEvents = 'auto';
-        control.style.backgroundColor = '';
-        control.style.opacity = '1';
-        tsSubject.settings.readonly = false;
-    }
-}
+
+        // --- Preview Certificate ---
+        function previewCertImage(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const base64String = e.target.result;
+                    document.getElementById('cert_preview').src = base64String;
+                    document.getElementById('cert_preview_container').classList.remove('hidden');
+                    document.getElementById('cert_placeholder').classList.add('hidden');
+                    document.getElementById('quiz_certificate_base64').value = base64String;
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        // --- Remove Certificate ---
+        function removeCertImage() {
+            document.getElementById('cert_input').value = ""; // ล้างไฟล์ใน input
+            document.getElementById('quiz_certificate_base64').value = "REMOVE"; // ส่งค่าไปบอก Controller ว่าให้ลบรูปเดิม
+            document.getElementById('cert_preview_container').classList.add('hidden');
+            document.getElementById('cert_placeholder').classList.remove('hidden');
+        }
+
+        // --- TomSelect & Other Logics ---
+        function toggleSubjectLock(isLocked) {
+            const control = tsSubject.control;
+            if (isLocked) {
+                control.style.pointerEvents = 'none'; 
+                control.style.backgroundColor = '#e9ecef';
+                control.style.opacity = '0.8';
+                tsSubject.settings.readonly = true;
+            } else {
+                control.style.pointerEvents = 'auto';
+                control.style.backgroundColor = '';
+                control.style.opacity = '1';
+                tsSubject.settings.readonly = false;
+            }
+        }
+
         const initialQuestions = @json($questions);
         const gradeSelect = document.getElementById('grade_level');
         const subjectSelectEl = document.getElementById('subject_select');
@@ -279,63 +317,50 @@ function toggleSubjectLock(isLocked) {
             }
         });
 
-async function loadSubjects(grade, defaultValue = null) {
-    // กรณีเกรด 0 หรือไม่ระบุ
-    if (grade === "" || grade === "0") {
-        const specialValue = 'กก00000';
-        tsSubject.clearOptions();
-        tsSubject.addOptions([{ value: specialValue, text: 'กก00000 วิชาแกน/พื้นฐาน (อัตโนมัติ)' }]);
-        tsSubject.setValue(specialValue);
-        
-        // ล็อกการคลิก แต่สถานะ Object ยังเป็น Enable (ส่งค่าได้ปกติ)
-        toggleSubjectLock(true); 
-        return;
-    }
+        async function loadSubjects(grade, defaultValue = null) {
+            if (grade === "" || grade === "0") {
+                const specialValue = 'กก00000';
+                tsSubject.clearOptions();
+                tsSubject.addOptions([{ value: specialValue, text: 'กก00000 วิชาแกน/พื้นฐาน (อัตโนมัติ)' }]);
+                tsSubject.setValue(specialValue);
+                toggleSubjectLock(true); 
+                return;
+            }
+            toggleSubjectLock(false);
+            if (!grade) return;
+            tsSubject.clearOptions();
+            try {
+                const response = await fetch("{{ route('api.subjects') }}?grade=" + grade);
+                const data = await response.json();
+                const options = data.map(item => ({ value: item.SUB_CODE, text: `${item.SUB_CODE} ${item.SUB_NAME}` }));
+                tsSubject.addOptions(options);
+                if (defaultValue) tsSubject.setValue(defaultValue);
+            } catch (err) { console.error(err); }
+        }
 
-    // กรณีเกรดปกติ ให้ปลดล็อก
-    toggleSubjectLock(false);
-    
-    if (!grade) return;
-    tsSubject.clearOptions();
-    try {
-        const response = await fetch("{{ route('api.subjects') }}?grade=" + grade);
-        const data = await response.json();
-        const options = data.map(item => ({ value: item.SUB_CODE, text: `${item.SUB_CODE} ${item.SUB_NAME}` }));
-        tsSubject.addOptions(options);
-        
-        if (defaultValue) tsSubject.setValue(defaultValue);
-    } catch (err) { console.error(err); }
-}
-
-// ส่วนของ Event Listener
-gradeSelect.addEventListener('change', function() {
-    tsSubject.clear();
-    loadSubjects(this.value);
-});
+        gradeSelect.addEventListener('change', function() {
+            tsSubject.clear();
+            loadSubjects(this.value);
+        });
 
         window.onload = () => {
             const initialGrade = gradeSelect.value;
             const initialSubject = subjectSelectEl.getAttribute('data-selected');
-            
-            // เรียกใช้ loadSubjects เพื่อเช็คเงื่อนไขตั้งแต่วันแรกที่โหลดหน้า
-            if (initialGrade !== undefined) {
-                loadSubjects(initialGrade, initialSubject);
-            }
+            if (initialGrade !== undefined) loadSubjects(initialGrade, initialSubject);
 
             if (initialQuestions && initialQuestions.length > 0) {
-                    initialQuestions.forEach((q, index) => {
-                        // แปลงค่า is_correct ให้เป็น boolean ที่ชัดเจน
-                        setTimeout(() => addQuestion({
-                            ...q,
-                            choices: q.choices.map(c => ({ 
-                                ...c, 
-                                is_correct: (c.is_correct == 1 || c.is_correct === true) 
-                            }))
-                        }), index * 30); // ใช้ delay นิดหน่อยเพื่อให้ animation สวย
-                    });
-                } else {
-                    addQuestion();
-                }
+                initialQuestions.forEach((q, index) => {
+                    setTimeout(() => addQuestion({
+                        ...q,
+                        choices: q.choices.map(c => ({ 
+                            ...c, 
+                            is_correct: (c.is_correct == 1 || c.is_correct === true) 
+                        }))
+                    }), index * 30);
+                });
+            } else {
+                addQuestion();
+            }
         };
     </script>
 </x-teachers-layout>

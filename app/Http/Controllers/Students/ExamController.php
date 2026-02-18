@@ -309,16 +309,38 @@ class ExamController extends Controller
         }
     }
 
-    // ใน Controller ของคุณ (เช่น QuizController)
     public function getCertificateBase64(Request $request) {
-        $url = $request->query('url');
+        $url = $request->query('url'); 
+        
         try {
-            $imageData = file_get_contents($url);
-            $type = pathinfo($url, PATHINFO_EXTENSION);
-            $base64 = 'data:image/' . $type . ';base64,' . base64_encode($imageData);
+            // 1. ถอดรหัสชื่อไฟล์ภาษาไทย
+            $decodedUrl = urldecode($url);
+
+            // 2. แปลง URL ให้เป็น Path ในเครื่องคอมพิวเตอร์จริงๆ
+            // สมมติ URL คือ http://127.0.0.1:8000/storage/images/xxx.png
+            // เราจะเปลี่ยนส่วน http://127.0.0.1:8000/ ให้เป็นที่อยู่โฟลเดอร์ public/
+            $pathInsidePublic = str_replace(url('/'), '', $decodedUrl); // จะเหลือ /storage/images/...
+            $absolutePath = public_path($pathInsidePublic); // จะได้ C:\...\public\storage\images\...
+
+            // ตรวจสอบว่าไฟล์มีอยู่จริงไหม (Debug ไปในตัว)
+            if (!file_exists($absolutePath)) {
+                return response::json([
+                    'error' => 'File not found',
+                    'debug_path' => $absolutePath // ส่งค่ากลับไปดูใน Console ว่ามันชี้ไปถูกที่ไหม
+                ], 404);
+            }
+
+            // 3. อ่านไฟล์
+            $imageData = file_get_contents($absolutePath);
+            $finfo = new \finfo(FILEINFO_MIME_TYPE);
+            $mimeType = $finfo->buffer($imageData);
+            
+            $base64 = 'data:' . $mimeType . ';base64,' . base64_encode($imageData);
+            
             return response()->json(['base64' => $base64]);
+
         } catch (\Exception $e) {
-            return response()->json(['error' => 'Could not load image'], 500);
+            return response()->json(['error' => $e->getMessage()], 500);
         }
     }
 }
