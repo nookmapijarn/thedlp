@@ -95,7 +95,7 @@
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                                 <div class="group">
                                     <label class="flex items-center gap-2 text-sm font-black text-slate-700 mb-3 ml-1">ระดับชั้น <span class="text-rose-500">*</span></label>
-                                    <select id="grade_level" name="grade_level" required 
+                                    <select id="grade_level" name="grade_level" required
                                         class="w-full rounded-2xl border-slate-200 bg-slate-50/50 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all py-4 px-5 text-slate-600 font-bold cursor-pointer">
                                         <option value="">เลือกระดับชั้น</option>
                                         <option value="0">ทุกระดับ</option>

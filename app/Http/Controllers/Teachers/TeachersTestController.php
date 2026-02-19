@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\File; // อย่าลืม use ด้านบนไฟล์
 
 class TeachersTestController extends Controller
 {
@@ -65,11 +66,13 @@ class TeachersTestController extends Controller
 
         DB::beginTransaction();
         try {
-            // --- 1. Logic การจัดการภาพ Cover ---
+            // --- 1. เตรียมตัวแปรสำหรับ URL รูปภาพ (ประกาศไว้ข้างนอก if เสมอ) ---
             $coverPublicUrl = null;
+            $certPublicUrl = null; // *** แก้ไขจุดนี้: เพิ่มการประกาศตัวแปรเริ่มต้น ***
+
+            // --- 2. Logic การจัดการภาพ Cover ---
             if ($request->input('quiz_cover_base64')) {
                 $imageData = $request->input('quiz_cover_base64');
-                
                 $imageData = preg_replace('#^data:image/\w+;base64,#i', '', $imageData);
                 $imageData = base64_decode($imageData);
 
@@ -84,29 +87,20 @@ class TeachersTestController extends Controller
                 $coverPublicUrl = asset('storage/images/exams/cover/' . $imageName);
             }
 
-            // 2. จัดการภาพเกียรติบัตร (Base64) - ส่วนที่เพิ่มใหม่
+            // --- 3. จัดการภาพเกียรติบัตร (Base64) ---
             if ($request->input('quiz_certificate_base64')) {
                 $certData = $request->input('quiz_certificate_base64');
-                
-                // ตัดส่วนหัว base64 ออก
                 $certData = preg_replace('#^data:image/\w+;base64,#i', '', $certData);
                 $certData = base64_decode($certData);
 
-                // ตั้งชื่อไฟล์ใหม่ (ขึ้นต้นด้วย cert_)
                 $certName = 'cert_' . $request->subject_code . '_' . time() . '.png';
-                
-                // กำหนด Directory สำหรับเกียรติบัตร
                 $certDirectory = public_path('storage/images/exams/certificate');
                 
-                // ตรวจสอบและสร้าง Folder ถ้ายังไม่มี
                 if (!file_exists($certDirectory)) { 
                     mkdir($certDirectory, 0777, true); 
                 }
 
-                // บันทึกไฟล์ลงใน Folder
                 file_put_contents($certDirectory . '/' . $certName, $certData);
-                
-                // สร้าง URL สำหรับเก็บลง Database
                 $certPublicUrl = asset('storage/images/exams/certificate/' . $certName);
             }
 
@@ -114,7 +108,7 @@ class TeachersTestController extends Controller
             $requireLocation = $request->has('require_location') ? 1 : 0;
             $requireSnapshot = $request->has('require_snapshot') ? 1 : 0;
 
-            // --- 3. บันทึก Attempt ลง Database ---
+            // --- 4. บันทึก Quiz ลง Database ---
             $quizId = DB::table('quizzes')->insertGetId([
                 'title' => $request->quiz_title,
                 'description' => $request->quiz_description,
@@ -127,13 +121,13 @@ class TeachersTestController extends Controller
                 'total_score' => 0,
                 'time_limit' => $request->time_limit ?? 0,
                 'cover_image' => $coverPublicUrl,
-                'certificate_image' => $certPublicUrl,
+                'certificate_image' => $certPublicUrl, // ตอนนี้จะไม่ Error แล้วเพราะมีค่า null รองรับ
                 'created_by' => Auth::id(),
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
 
-            // --- 4. บันทึกข้อสอบ (แก้ไข Logic การบันทึก Choice) ---
+            // --- 5. บันทึกข้อสอบและ Choice ---
             foreach ($request->questions as $qData) {
                 $questionId = DB::table('questions')->insertGetId([
                     'quiz_id' => $quizId,
@@ -151,12 +145,8 @@ class TeachersTestController extends Controller
                 $totalQuizScore += $qData['score'];
 
                 if (isset($qData['choices'])) {
-                    // *** แก้ไขจุดที่ 1: เพิ่ม $cIdx เพื่อดึง index ของลูป ***
                     foreach ($qData['choices'] as $cIdx => $cData) {
                         if(!empty($cData['choice_text'])) {
-                            
-                            // *** แก้ไขจุดที่ 2: เช็คกับ correct_index ที่ส่งมาจาก Radio Button ***
-                            // ถ้า index ของลูปนี้ ตรงกับ correct_index ที่เลือกมา ให้เป็น 1
                             $isCorrect = (isset($qData['correct_index']) && $qData['correct_index'] == $cIdx) ? 1 : 0;
 
                             DB::table('choices')->insert([
@@ -174,7 +164,7 @@ class TeachersTestController extends Controller
             DB::table('quizzes')->where('id', $quizId)->update(['total_score' => $totalQuizScore]);
 
             DB::commit();
-            return redirect()->route('ttest.index')->with('success', 'สร้างแบบทดสอบและอัปโหลดภาพปกสำเร็จแล้ว!');
+            return redirect()->route('ttest.index')->with('success', 'สร้างแบบทดสอบเรียบร้อยแล้ว!');
 
         } catch (\Exception $e) {
             DB::rollBack();
@@ -212,136 +202,142 @@ class TeachersTestController extends Controller
         return view('teachers.edit-ttest', compact('quiz', 'questions'));
     }
 
-public function update(Request $request, $id)
-{
-    $request->validate([
-        'quiz_title' => 'required|string|max:255',
-        'subject_code' => 'required|string',
-        'questions' => 'required|array|min:1',
-        'questions.*.question_text' => 'required|string',
-        'questions.*.score' => 'required|numeric|min:0',
-        'pass_percentage' => 'required|numeric|min:0|max:100',
-        'grade_level' => 'required|numeric|min:0|max:3',
-    ]);
+    public function update(Request $request, $id)
+    {
+        $request->validate([
+            'quiz_title' => 'required|string|max:255',
+            'subject_code' => 'required|string',
+            'questions' => 'required|array|min:1',
+            'questions.*.question_text' => 'required|string',
+            'questions.*.score' => 'required|numeric|min:0',
+            'pass_percentage' => 'required|numeric|min:0|max:100',
+            'grade_level' => 'required|numeric|min:0|max:3',
+        ]);
 
-    DB::beginTransaction();
-    try {
-        // --- 1. เตรียมข้อมูลพื้นฐานสำหรับการอัปเดต ---
-        $updateData = [
-            'title' => $request->quiz_title,
-            'description' => $request->quiz_description,
-            'subject_code' => $request->subject_code,
-            'subject_group' => $request->subject_group,
-            'pass_percentage' => $request->pass_percentage,
-            'grade_level' => $request->grade_level,
-            'require_location' => $request->has('require_location') ? 1 : 0,
-            'require_snapshot' => $request->has('require_snapshot') ? 1 : 0,
-            'time_limit' => $request->time_limit ?? 0,
-            'updated_at' => now(),
-        ];
-
-        // --- 2. Logic การจัดการภาพ Cover (เหมือน Store) ---
-        if ($request->input('quiz_cover_base64')) {
-            $imageData = $request->input('quiz_cover_base64');
-            $imageData = preg_replace('#^data:image/\w+;base64,#i', '', $imageData);
-            $imageData = base64_decode($imageData);
-
-            $imageName = 'cover_' . $request->subject_code . '_' . time() . '.png';
-            $directory = public_path('storage/images/exams/cover');
-            
-            if (!file_exists($directory)) { 
-                mkdir($directory, 0777, true); 
+        DB::beginTransaction();
+        try {
+            // ดึงข้อมูลเดิมมาเพื่อตรวจสอบไฟล์ภาพเก่า
+            $quiz = DB::table('quizzes')->where('id', $id)->first();
+            if (!$quiz) {
+                throw new \Exception("ไม่พบข้อมูลแบบทดสอบ");
             }
 
-            file_put_contents($directory . '/' . $imageName, $imageData);
-            $updateData['cover_image'] = asset('storage/images/exams/cover/' . $imageName);
-        }
-
-        // --- 3. Logic การจัดการภาพ Certificate (เหมือน Store) ---
-        // ดึงค่าจาก input มาพักไว้ก่อน
-        $certBase64 = $request->input('quiz_certificate_base64');
-
-        if ($certBase64 === 'REMOVE') {
-            // กรณีที่ 1: ผู้ใช้กดลบรูปภาพ
-            // (ทางเลือก) คุณอาจจะลบไฟล์จริงในเครื่องออกด้วยเพื่อไม่ให้เปลืองพื้นที่
-            // if ($quiz->certificate_image) { ... logic ลบไฟล์ ... }
-            
-            $updateData['certificate_image'] = null; 
-
-        } elseif ($certBase64 && str_starts_with($certBase64, 'data:image')) {
-            // กรณีที่ 2: มีการอัปโหลดรูปใหม่ (เช็คว่าเป็น format base64)
-            $certData = preg_replace('#^data:image/\w+;base64,#i', '', $certBase64);
-            $certData = base64_decode($certData);
-
-            $certName = 'cert_' . $request->subject_code . '_' . time() . '.png';
-            $certDirectory = public_path('storage/images/exams/certificate');
-            
-            if (!file_exists($certDirectory)) { 
-                mkdir($certDirectory, 0777, true); 
-            }
-
-            file_put_contents($certDirectory . '/' . $certName, $certData);
-            
-            // เก็บ URL หรือ Path ลงใน Array สำหรับอัปเดต
-            $updateData['certificate_image'] = asset('storage/images/exams/certificate/' . $certName);
-        }
-        // ถ้า $certBase64 เป็นค่าว่าง (null) คือผู้ใช้ไม่ได้ทำอะไรกับรูปภาพเลย 
-        // เราก็ไม่ต้องใส่ $updateData['certificate_image'] เพื่อคงค่าเดิมไว้
-
-        // --- 4. อัปเดตข้อมูล Quiz หลัก ---
-        DB::table('quizzes')->where('id', $id)->update($updateData);
-
-        // --- 5. จัดการคำถามและตัวเลือก (ลบของเก่าทิ้งแล้วลงใหม่) ---
-        $oldQuestionIds = DB::table('questions')->where('quiz_id', $id)->pluck('id');
-        DB::table('choices')->whereIn('question_id', $oldQuestionIds)->delete();
-        DB::table('questions')->where('quiz_id', $id)->delete();
-
-        $totalQuizScore = 0;
-        foreach ($request->questions as $qData) {
-            $questionId = DB::table('questions')->insertGetId([
-                'quiz_id' => $id,
-                'question_text' => $qData['question_text'],
-                'question_type' => $qData['question_type'],
-                'score' => $qData['score'],
-                'standard' => $qData['standard'] ?? null,
-                'indicator' => $qData['indicator'] ?? null,
-                'topic' => $qData['topic'] ?? null,
-                'taxonomy_level' => $qData['taxonomy_level'] ?? null,
-                'created_at' => now(),
+            $updateData = [
+                'title' => $request->quiz_title,
+                'description' => $request->quiz_description,
+                'subject_code' => $request->subject_code,
+                'subject_group' => $request->subject_group,
+                'pass_percentage' => $request->pass_percentage,
+                'grade_level' => $request->grade_level,
+                'require_location' => $request->has('require_location') ? 1 : 0,
+                'require_snapshot' => $request->has('require_snapshot') ? 1 : 0,
+                'time_limit' => $request->time_limit ?? 0,
                 'updated_at' => now(),
-            ]);
+            ];
 
-            $totalQuizScore += $qData['score'];
+            // --- 1. จัดการภาพ Cover ---
+            $coverBase64 = $request->input('quiz_cover_base64');
+            if ($coverBase64 === 'REMOVE') {
+                $this->deleteOldFile($quiz->cover_image); // ลบไฟล์เก่า
+                $updateData['cover_image'] = null;
+            } elseif ($coverBase64 && str_starts_with($coverBase64, 'data:image')) {
+                $this->deleteOldFile($quiz->cover_image); // ลบไฟล์เก่าก่อนลงไฟล์ใหม่
+                
+                $imageData = preg_replace('#^data:image/\w+;base64,#i', '', $coverBase64);
+                $imageName = 'cover_' . $request->subject_code . '_' . time() . '.png';
+                $directory = public_path('storage/images/exams/cover');
+                
+                if (!File::exists($directory)) { File::makeDirectory($directory, 0777, true); }
+                File::put($directory . '/' . $imageName, base64_decode($imageData));
+                
+                $updateData['cover_image'] = asset('storage/images/exams/cover/' . $imageName);
+            }
 
-            if (isset($qData['choices'])) {
-                foreach ($qData['choices'] as $cIdx => $cData) {
-                    if(!empty($cData['choice_text'])) {
-                        // เช็คกับ correct_index แบบเดียวกับฟังก์ชัน Store
-                        $isCorrect = (isset($qData['correct_index']) && $qData['correct_index'] == $cIdx) ? 1 : 0;
+            // --- 2. จัดการภาพ Certificate ---
+            $certBase64 = $request->input('quiz_certificate_base64');
+            if ($certBase64 === 'REMOVE') {
+                $this->deleteOldFile($quiz->certificate_image);
+                $updateData['certificate_image'] = null;
+            } elseif ($certBase64 && str_starts_with($certBase64, 'data:image')) {
+                $this->deleteOldFile($quiz->certificate_image);
+                
+                $certData = preg_replace('#^data:image/\w+;base64,#i', '', $certBase64);
+                $certName = 'cert_' . $request->subject_code . '_' . time() . '.png';
+                $certDirectory = public_path('storage/images/exams/certificate');
+                
+                if (!File::exists($certDirectory)) { File::makeDirectory($certDirectory, 0777, true); }
+                File::put($certDirectory . '/' . $certName, base64_decode($certData));
+                
+                $updateData['certificate_image'] = asset('storage/images/exams/certificate/' . $certName);
+            }
 
-                        DB::table('choices')->insert([
-                            'question_id' => $questionId,
-                            'choice_text' => $cData['choice_text'],
-                            'is_correct' => $isCorrect,
-                            'created_at' => now(),
-                        ]);
+            // --- 3. อัปเดตข้อมูล Quiz หลัก ---
+            DB::table('quizzes')->where('id', $id)->update($updateData);
+
+            // --- 4. จัดการคำถามและตัวเลือก (Delete and Re-insert) ---
+            $oldQuestionIds = DB::table('questions')->where('quiz_id', $id)->pluck('id');
+            DB::table('choices')->whereIn('question_id', $oldQuestionIds)->delete();
+            DB::table('questions')->where('quiz_id', $id)->delete();
+
+            $totalQuizScore = 0;
+            foreach ($request->questions as $qData) {
+                $questionId = DB::table('questions')->insertGetId([
+                    'quiz_id' => $id,
+                    'question_text' => $qData['question_text'],
+                    'question_type' => $qData['question_type'],
+                    'score' => $qData['score'],
+                    'standard' => $qData['standard'] ?? null,
+                    'indicator' => $qData['indicator'] ?? null,
+                    'topic' => $qData['topic'] ?? null,
+                    'taxonomy_level' => $qData['taxonomy_level'] ?? null,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+
+                $totalQuizScore += $qData['score'];
+
+                if (isset($qData['choices'])) {
+                    foreach ($qData['choices'] as $cIdx => $cData) {
+                        if(!empty($cData['choice_text'])) {
+                            $isCorrect = (isset($qData['correct_index']) && $qData['correct_index'] == $cIdx) ? 1 : 0;
+                            DB::table('choices')->insert([
+                                'question_id' => $questionId,
+                                'choice_text' => $cData['choice_text'],
+                                'is_correct' => $isCorrect,
+                                'created_at' => now(),
+                            ]);
+                        }
                     }
                 }
             }
+
+            // อัปเดตคะแนนรวมสุดท้าย
+            DB::table('quizzes')->where('id', $id)->update(['total_score' => $totalQuizScore]);
+
+            DB::commit();
+            return redirect()->route('ttest.index')->with('success', 'อัปเดตแบบทดสอบเรียบร้อยแล้ว');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            \Log::error('Update Quiz Error: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'เกิดข้อผิดพลาด: ' . $e->getMessage())->withInput();
         }
-
-        // --- 6. อัปเดตคะแนนรวมสุดท้าย ---
-        DB::table('quizzes')->where('id', $id)->update(['total_score' => $totalQuizScore]);
-
-        DB::commit();
-        return redirect()->route('ttest.index')->with('success', 'อัปเดตแบบทดสอบและข้อมูลรูปภาพเรียบร้อยแล้ว');
-
-    } catch (\Exception $e) {
-        DB::rollBack();
-        \Log::error('Update Quiz Error: ' . $e->getMessage());
-        return redirect()->back()->with('error', 'เกิดข้อผิดพลาดในการอัปเดต: ' . $e->getMessage())->withInput();
     }
-}
+
+    /**
+     * Helper function สำหรับลบไฟล์ภาพเก่า
+     */
+    private function deleteOldFile($fullUrl)
+    {
+        if (!$fullUrl) return;
+
+        // แปลง URL กลับเป็น Path ในเครื่อง (สมมติว่าใช้ asset('storage/...'))
+        $path = str_replace(asset('storage'), public_path('storage'), $fullUrl);
+        
+        if (File::exists($path)) {
+            File::delete($path);
+        }
+    }
 
     public function getSubjects(Request $request) {
         $grade = $request->query('grade');
