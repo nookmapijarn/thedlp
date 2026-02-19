@@ -640,11 +640,11 @@ async function renderCertificate(canvasId, data) {
             ctx.textBaseline = "middle";
 
             // 2. วาด Logo
-            const logoSize = 100;
-            const logoY = 85;
-            if (imgLogo.complete && imgLogo.naturalWidth > 0) {
-                ctx.drawImage(imgLogo, centerX - (logoSize / 2), logoY - (logoSize / 2), logoSize, logoSize);
-            }
+            // const logoSize = 100;
+            // const logoY = 85;
+            // if (imgLogo.complete && imgLogo.naturalWidth > 0) {
+            //     ctx.drawImage(imgLogo, centerX - (logoSize / 2), logoY - (logoSize / 2), logoSize, logoSize);
+            // }
 
             // 3. ข้อความเนื้อหา
             ctx.font = `bold 60px ${fontFamily}`;
