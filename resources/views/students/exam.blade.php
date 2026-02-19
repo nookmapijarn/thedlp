@@ -468,7 +468,7 @@
 
                                         {{-- จัดการ --}}
                                         <td class="block md:table-cell px-8 py-5 md:py-6 text-right">
-                                            @if ($percent >= 80)
+                                            @if ($passed)
                                                 <button onclick="showCertificateModal('{{ $attempt->quiz_title }}', '{{ $attempt->user_score }}', '{{ $attempt->quiz_total_score }}', '{{ $attempt->certificate_image }}')"
                                                     class="w-full md:w-auto inline-flex items-center justify-center gap-2 text-indigo-600 hover:text-indigo-800 font-bold text-xs bg-indigo-50 px-4 py-2 rounded-xl transition-all border border-indigo-100 md:border-none">
                                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
