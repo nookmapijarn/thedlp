@@ -14,6 +14,7 @@ class Course extends Model
         'title',
         'description',
         'price',
+        'cover_image',
         'is_published',
     ];
 

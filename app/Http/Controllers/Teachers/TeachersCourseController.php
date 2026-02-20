@@ -46,38 +46,64 @@ class TeachersCourseController extends Controller
 
     public function store(Request $request)
     {
+        // 1. Validation: ปรับให้รับเป็น string (Base64)
         $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
             'price' => 'nullable|numeric|min:0',
-            'cover_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'cover_image_base64' => 'nullable|string', 
         ]);
-        
-        $coverImageName = null;
-        if ($request->hasFile('cover_image')) {
-            // สร้างชื่อไฟล์ที่ไม่ซ้ำกัน
-            $file = $request->file('cover_image');
-            $coverImageName = uniqid() . '.' . $file->getClientOriginalExtension();
-            
-            // กำหนดโฟลเดอร์ปลายทางและสร้างโฟลเดอร์ถ้ายังไม่มี
-            $destinationPath = public_path('storage/images/covers');
-            if (!file_exists($destinationPath)) {
-                mkdir($destinationPath, 0755, true);
+
+        try {
+            $coverFullUrl = null;
+            $request->validate([
+                'title' => 'required|string|max:255',
+                'cover_image_base64' => 'nullable|string', // ตรวจสอบว่าชื่อตรงกับในหน้า View ไหม
+            ]);
+            // --- Logic การจัดการภาพ Cover (Base64) ---
+            if ($request->input('cover_image_base64')) {
+                $imageData = $request->input('cover_image_base64');
+                
+                // ตัดส่วนหัว Prefix ของ Base64 ออก
+                $imageData = preg_replace('#^data:image/\w+;base64,#i', '', $imageData);
+                $imageData = base64_decode($imageData);
+
+                // ตั้งชื่อไฟล์: ใช้ชื่อคอร์ส (แบบ slug) หรือ ID ผสมกับเวลาเพื่อป้องกันชื่อซ้ำ
+                $imageName = 'course_' . time() . '_' . uniqid() . '.png';
+                
+                // กำหนด Directory ภายใต้ public_path
+                $directory = public_path('storage/images/course');
+
+                // ตรวจสอบและสร้าง Folder หากยังไม่มี
+                if (!file_exists($directory)) {
+                    mkdir($directory, 0755, true);
+                }
+
+                // บันทึกไฟล์ลง Disk
+                file_put_contents($directory . '/' . $imageName, $imageData);
+                
+                // สร้าง URL เต็ม (Full Path) เพื่อเก็บลงฐานข้อมูลตามที่คุณออกแบบไว้
+                $coverFullUrl = asset('storage/images/course/' . $imageName);
             }
-            
-            // ย้ายไฟล์ไปยังโฟลเดอร์ที่ต้องการ
-            $file->move($destinationPath, $coverImageName);
+
+            // --- บันทึกข้อมูล Course ---
+            Course::create([
+                'teacher_id' => Auth::id(),
+                'title' => $request->input('title'),
+                'description' => $request->input('description'),
+                'price' => $request->input('price') ?? 0,
+                'cover_image' => $coverFullUrl, // เก็บ URL เต็ม เช่น http://domain.com/storage/images/course/xxx.png
+                'is_published' => 1,
+            ]);
+
+            return redirect()->route('courses.manage')->with('success', 'คอร์สถูกสร้างเรียบร้อยแล้ว');
+
+        } catch (\Exception $e) {
+            \Log::error('Course Store Error: ' . $e->getMessage());
+            return redirect()->back()
+                ->with('error', 'เกิดข้อผิดพลาดในการบันทึก: ' . $e->getMessage())
+                ->withInput();
         }
-
-        Course::create([
-            'teacher_id' => Auth::id(),
-            'title' => $request->input('title'),
-            'description' => $request->input('description'),
-            'price' => $request->input('price'),
-            'cover_image' => 'images/covers/' . $coverImageName, // บันทึกเฉพาะเส้นทางที่สัมพันธ์กับ public
-        ]);
-
-        return redirect()->route('courses.manage')->with('success', 'คอร์สถูกสร้างเรียบร้อยแล้ว');
     }
     /**
      * Show the form for editing an existing course.
@@ -105,47 +131,72 @@ class TeachersCourseController extends Controller
 
     public function update(Request $request, Course $course)
     {
-        // ... (ส่วนตรวจสอบสิทธิ์และ validation)
+        // 1. ตรวจสอบสิทธิ์
         if (Auth::id() !== $course->teacher_id) {
             return redirect()->route('courses.manage')->with('error', 'You do not have permission to update this course.');
         }
 
+        // 2. Validation (เปลี่ยนจาก image เป็น string เพื่อรับ Base64)
         $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
             'price' => 'nullable|numeric|min:0',
-            'cover_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'cover_image_base64' => 'nullable|string', 
         ]);
 
-        $coverImageName = $course->cover_image; // ใช้ชื่อไฟล์เดิมเป็นค่าเริ่มต้น
-        if ($request->hasFile('cover_image')) {
-            // สร้างชื่อไฟล์ใหม่และย้ายไฟล์
-            $file = $request->file('cover_image');
-            $newCoverImageName = uniqid() . '.' . $file->getClientOriginalExtension();
-            $destinationPath = public_path('storage/images/course');
-            if (!file_exists($destinationPath)) {
-                mkdir($destinationPath, 0755, true);
-            }
-            $file->move($destinationPath, $newCoverImageName);
+        try {
+            $coverFullUrl = $course->cover_image; // ใช้ค่าเดิมไว้ก่อน
 
-            // ลบไฟล์เก่า
-            if ($course->cover_image) {
-                $oldImagePath = public_path('storage/' . $course->cover_image);
-                if (file_exists($oldImagePath)) {
-                    unlink($oldImagePath);
+            // --- Logic การจัดการภาพ Cover (Base64) เมื่อมีการส่งรูปใหม่มา ---
+            if ($request->filled('cover_image_base64')) {
+                
+                // A. ลบไฟล์เก่าออกจาก Server (ถ้ามี)
+                if ($course->cover_image) {
+                    // แปลง URL เต็มกลับเป็น path ในเครื่อง
+                    // เช่น จาก http://site.com/storage/images/course/abc.png -> storage/images/course/abc.png
+                    $relativeContentPath = str_replace(asset('storage/'), '', $course->cover_image);
+                    $oldFilePath = public_path('storage/' . $relativeContentPath);
+                    
+                    if (file_exists($oldFilePath)) {
+                        unlink($oldFilePath);
+                    }
                 }
+
+                // B. จัดการรูปภาพใหม่ (Base64)
+                $imageData = $request->input('cover_image_base64');
+                $imageData = preg_replace('#^data:image/\w+;base64,#i', '', $imageData);
+                $imageData = base64_decode($imageData);
+
+                $imageName = 'course_' . time() . '_' . uniqid() . '.png';
+                $directory = public_path('storage/images/course');
+
+                if (!file_exists($directory)) {
+                    mkdir($directory, 0755, true);
+                }
+
+                // บันทึกไฟล์ใหม่
+                file_put_contents($directory . '/' . $imageName, $imageData);
+                
+                // C. สร้าง Full URL สำหรับเก็บใน DB
+                $coverFullUrl = asset('storage/images/course/' . $imageName);
             }
-            $coverImageName = 'images/course/' . $newCoverImageName;
+
+            // 3. อัปเดตข้อมูลลงฐานข้อมูล
+            $course->update([
+                'title' => $request->input('title'),
+                'description' => $request->input('description'),
+                'price' => $request->input('price') ?? 0,
+                'cover_image' => $coverFullUrl,
+            ]);
+
+            return redirect()->route('courses.manage')->with('success', 'คอร์สถูกอัปเดตเรียบร้อยแล้ว');
+
+        } catch (\Exception $e) {
+            \Log::error('Course Update Error: ' . $e->getMessage());
+            return redirect()->back()
+                ->with('error', 'เกิดข้อผิดพลาดในการอัปเดต: ' . $e->getMessage())
+                ->withInput();
         }
-
-        $course->update([
-            'title' => $request->input('title'),
-            'description' => $request->input('description'),
-            'price' => $request->input('price'),
-            'cover_image' => $coverImageName,
-        ]);
-
-        return redirect()->route('courses.manage')->with('success', 'คอร์สถูกอัปเดนเรียบร้อยแล้ว');
     }
 
     /**
@@ -263,13 +314,110 @@ class TeachersCourseController extends Controller
         ]);
         $lesson->save();
 
-        return redirect()->back()->with('success', 'บทเรียนถูกเพิ่มเรียบร้อยแล้ว');
+        return redirect()->route('courses.manage_modules', $lesson->module->course_id)
+                    ->with('success', 'สร้างบทเรียนเรียบร้อยแล้ว');
     }
 
     // --- ฟังก์ชันสำหรับการแก้ไขและลบ (สามารถเพิ่มได้ตามต้องการ) ---
-    // public function edit(Course $course) {}
-    // public function update(Request $request, Course $course) {}
-    // public function destroy(Course $course) {}
-    // public function destroyModule(Module $module) {}
-    // public function destroyLesson(Lesson $lesson) {}
+/**
+     * อัปเดตชื่อ Module
+     */
+    public function updateModule(Request $request, Module $module)
+    {
+        if (Auth::id() !== $module->course->teacher_id) {
+            return redirect()->back()->with('error', 'คุณไม่มีสิทธิ์ดำเนินการ');
+        }
+
+        $request->validate(['title' => 'required|string|max:255']);
+        
+        $module->update([
+            'title' => $request->title
+        ]);
+
+        return redirect()->back()->with('success', 'แก้ไขโมดูลเรียบร้อยแล้ว');
+    }
+
+    /**
+     * ลบ Module และจัดการลำดับใหม่
+     */
+    public function destroyModule(Module $module)
+    {
+        $course = $module->course;
+        if (Auth::id() !== $course->teacher_id) {
+            return redirect()->back()->with('error', 'คุณไม่มีสิทธิ์ดำเนินการ');
+        }
+
+        $deletedOrder = $module->order_number;
+        $module->delete();
+
+        // Re-order: ปรับลำดับโมดูลที่เหลือให้รันต่อกัน
+        Module::where('course_id', $course->id)
+            ->where('order_number', '>', $deletedOrder)
+            ->decrement('order_number');
+
+        return redirect()->back()->with('success', 'ลบโมดูลเรียบร้อยแล้ว');
+    }
+
+    // --- ส่วนการจัดการ Lessons (เพิ่มเติม) ---
+
+    /**
+     * แสดงหน้าแก้ไข Lesson
+     */
+    public function editLesson(Lesson $lesson)
+    {
+        if (Auth::id() !== $lesson->module->course->teacher_id) {
+            return redirect()->route('courses.manage')->with('error', 'คุณไม่มีสิทธิ์เข้าถึงหน้านี้');
+        }
+        
+        $quizzes = Quiz::where('created_by', Auth::id())->get();
+        return view('teachers.courses.edit_lesson', compact('lesson', 'quizzes'));
+    }
+
+    /**
+     * อัปเดตข้อมูล Lesson
+     */
+    public function updateLesson(Request $request, Lesson $lesson)
+    {
+        if (Auth::id() !== $lesson->module->course->teacher_id) {
+            return redirect()->back()->with('error', 'คุณไม่มีสิทธิ์ดำเนินการ');
+        }
+
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'content' => 'required|string',
+            'video_url' => 'nullable|url',
+            'quiz_id' => 'nullable|exists:quizzes,id',
+        ]);
+
+        $lesson->update([
+            'title' => $request->title,
+            'content' => $request->content,
+            'video_url' => $request->video_url,
+            'quiz_id' => $request->quiz_id,
+        ]);
+
+        return redirect()->route('courses.manage_modules', $lesson->module->course_id)
+                         ->with('success', 'อัปเดตบทเรียนเรียบร้อยแล้ว');
+    }
+
+    /**
+     * ลบ Lesson และจัดการลำดับใหม่
+     */
+    public function destroyLesson(Lesson $lesson)
+    {
+        $moduleId = $lesson->module_id;
+        if (Auth::id() !== $lesson->module->course->teacher_id) {
+            return redirect()->back()->with('error', 'คุณไม่มีสิทธิ์ดำเนินการ');
+        }
+
+        $deletedOrder = $lesson->order_number;
+        $lesson->delete();
+
+        // Re-order: ปรับลำดับบทเรียนในโมดูลนั้นๆ
+        Lesson::where('module_id', $moduleId)
+            ->where('order_number', '>', $deletedOrder)
+            ->decrement('order_number');
+
+        return redirect()->back()->with('success', 'ลบบทเรียนเรียบร้อยแล้ว');
+    }
 }

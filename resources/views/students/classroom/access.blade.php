@@ -89,7 +89,13 @@
                                                         ไม่มีวิดีโอสำหรับบทเรียนนี้
                                                     </div>
                                                 @endif
-                                                <p class="text-gray-700">คำอธิบาย : {{ $lesson->content }}</p>
+                                                @php
+                                                    $content = e($lesson->content); // ป้องกัน XSS ก่อนด้วย function e()
+                                                    $pattern = '/(https?:\/\/[^\s]+)/';
+                                                    $contentWithLinks = preg_replace($pattern, '<a href="$1" class="text-blue-600 hover:underline" target="_blank">$1</a>', $content);
+                                                @endphp
+
+                                                <p class="text-gray-700">คำอธิบาย : {!! $contentWithLinks !!}</p>
                                                 
                                                 {{-- ปุ่มที่เปลี่ยนสถานะตามที่ผู้ใช้กด --}}
                                                 <div class="lesson-progress-container mt-4">

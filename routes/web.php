@@ -148,6 +148,11 @@ Route::middleware('auth', 'verified')->group(function () {
         Route::post('/teachers/courses/{course}/modules', [TeachersCourseController::class, 'storeModule'])->name('courses.store_module');
         Route::get('/teachers/modules/{module}/create-lesson', [TeachersCourseController::class, 'createLesson'])->name('modules.create_lesson');
         Route::post('/teachers/modules/{module}/lessons', [TeachersCourseController::class, 'storeLesson'])->name('modules.store_lesson');
+        Route::put('/modules/{module}', [TeachersCourseController::class, 'updateModule'])->name('modules.update');
+        Route::delete('/modules/{module}', [TeachersCourseController::class, 'destroyModule'])->name('modules.destroy');
+        Route::get('/lessons/{lesson}/edit', [TeachersCourseController::class, 'editLesson'])->name('lessons.edit');
+        Route::put('/lessons/{lesson}', [TeachersCourseController::class, 'updateLesson'])->name('lessons.update');
+        Route::delete('/lessons/{lesson}', [TeachersCourseController::class, 'destroyLesson'])->name('lessons.destroy');
         });
 });
 

@@ -15,8 +15,8 @@
             @endif
 
             <div class="bg-white rounded-lg shadow-md p-6">
-                {{-- เพิ่ม enctype="multipart/form-data" --}}
-                <form action="{{ route('courses.update', $course->id) }}" method="POST" enctype="multipart/form-data">
+                {{-- นำ enctype ออกได้เลยเพราะเราส่งผ่าน base64 --}}
+                <form action="{{ route('courses.update', $course->id) }}" method="POST">
                     @csrf
                     @method('PUT')
 
@@ -25,16 +25,26 @@
                         <input type="text" id="title" name="title" value="{{ old('title', $course->title) }}" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
                     </div>
 
-                    {{-- เพิ่มส่วนแสดงและอัปโหลดรูปภาพ --}}
+                    {{-- ส่วนจัดการรูปภาพปก --}}
                     <div class="mb-4">
-                        <label for="cover_image" class="block text-gray-700 font-semibold mb-2">รูปภาพปก:</label>
-                        @if ($course->cover_image)
-                            <img src="{{ asset('storage/' . $course->cover_image) }}" alt="Course Cover" class="w-full md:w-1/2 rounded-lg mb-2">
-                        @else
-                            <p class="text-gray-500">ยังไม่มีรูปภาพปก</p>
-                        @endif
-                        <input type="file" id="cover_image" name="cover_image" accept="image/*" class="w-full text-gray-700 py-2">
-                        <p class="text-sm text-gray-500 mt-1">อัปโหลดไฟล์ใหม่เพื่อแทนที่ไฟล์เดิม</p>
+                        <label class="block text-gray-700 font-semibold mb-2">รูปภาพปก:</label>
+                        
+                        <div class="mb-3">
+                            <div id="preview_container" class="{{ $course->cover_image ? '' : 'hidden' }}">
+                                <p class="text-sm text-gray-500 mb-2">รูปภาพปัจจุบัน/ตัวอย่าง:</p>
+                                <img id="image_preview" src="{{ $course->cover_image }}" alt="Course Cover" class="w-full md:w-1/2 rounded-lg shadow-sm border mb-2">
+                            </div>
+                            
+                            @if (!$course->cover_image)
+                                <p id="no_image_text" class="text-gray-500 italic mb-2">ยังไม่มีรูปภาพปก</p>
+                            @endif
+                        </div>
+
+                        <input type="file" id="image_selector" accept="image/*" class="w-full text-gray-700 py-2">
+                        
+                        <input type="hidden" name="cover_image_base64" id="cover_image_base64">
+                        
+                        <p class="text-sm text-gray-500 mt-1">อัปโหลดไฟล์ใหม่เพื่อแทนที่ไฟล์เดิม (JPEG, PNG, JPG)</p>
                     </div>
 
                     <div class="mb-4">
@@ -59,4 +69,39 @@
             </div>
         </div>
     </div>
+
+    {{-- JavaScript สำหรับจัดการ Preview และแปลง Base64 --}}
+    <script>
+        document.getElementById('image_selector').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            const reader = new FileReader();
+
+            if (file) {
+                // ตรวจสอบขนาดไฟล์เบื้องต้น (2MB)
+                if (file.size > 2 * 1024 * 1024) {
+                    alert('ไฟล์มีขนาดใหญ่เกิน 2MB กรุณาเลือกไฟล์ใหม่');
+                    e.target.value = '';
+                    return;
+                }
+
+                reader.onloadend = function() {
+                    const base64String = reader.result;
+                    
+                    // อัปเดตค่าใน Hidden Input
+                    document.getElementById('cover_image_base64').value = base64String;
+                    
+                    // เปลี่ยนรูปภาพที่แสดงพรีวิว
+                    const preview = document.getElementById('image_preview');
+                    const container = document.getElementById('preview_container');
+                    const noImageText = document.getElementById('no_image_text');
+                    
+                    preview.src = base64String;
+                    container.classList.remove('hidden');
+                    if(noImageText) noImageText.classList.add('hidden');
+                }
+                
+                reader.readAsDataURL(file);
+            }
+        });
+    </script>
 </x-teachers-layout>

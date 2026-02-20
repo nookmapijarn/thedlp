@@ -15,8 +15,8 @@
             @endif
 
             <div class="bg-white rounded-lg shadow-md p-6">
-                {{-- เพิ่ม enctype="multipart/form-data" --}}
-                <form action="{{ route('courses.store') }}" method="POST" enctype="multipart/form-data">
+                {{-- นำ enctype ออกได้เพราะเราส่งเป็น string base64 แทน --}}
+                <form action="{{ route('courses.store') }}" method="POST">
                     @csrf
 
                     <div class="mb-4">
@@ -24,11 +24,20 @@
                         <input type="text" id="title" name="title" value="{{ old('title') }}" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
                     </div>
 
-                    {{-- เพิ่ม input สำหรับรูปภาพ --}}
+                    {{-- ส่วนจัดการรูปภาพ --}}
                     <div class="mb-4">
-                        <label for="cover_image" class="block text-gray-700 font-semibold mb-2">รูปภาพปก:</label>
-                        <input type="file" id="cover_image" name="cover_image" accept="image/*" class="w-full text-gray-700 py-2">
-                        <p class="text-sm text-gray-500 mt-1">ไฟล์ JPEG, PNG, JPG หรือ GIF (สูงสุด 2MB)</p>
+                        <label class="block text-gray-700 font-semibold mb-2">รูปภาพปก:</label>
+                        
+                        <input type="file" id="image_selector" accept="image/*" class="w-full text-gray-700 py-2 mb-2">
+                        
+                        <input type="hidden" name="cover_image_base64" id="cover_image_base64">
+
+                        <div id="preview_container" class="hidden mt-2">
+                            <p class="text-sm text-gray-500 mb-2">ตัวอย่างรูปภาพ:</p>
+                            <img id="image_preview" src="#" alt="Preview" class="w-48 h-auto rounded-lg shadow-sm border">
+                        </div>
+                        
+                        <p class="text-sm text-gray-500 mt-1">ไฟล์ JPEG, PNG, JPG (สูงสุด 2MB) ระบบจะแปลงเป็น Base64 อัตโนมัติ</p>
                     </div>
 
                     <div class="mb-4">
@@ -50,4 +59,36 @@
             </div>
         </div>
     </div>
+
+    {{-- JavaScript สำหรับจัดการ Base64 --}}
+    <script>
+        document.getElementById('image_selector').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            const reader = new FileReader();
+
+            if (file) {
+                // ตรวจสอบขนาดไฟล์ (ไม่เกิน 2MB)
+                if (file.size > 2 * 1024 * 1024) {
+                    alert('ไฟล์มีขนาดใหญ่เกิน 2MB กรุณาเลือกไฟล์ใหม่');
+                    e.target.value = '';
+                    return;
+                }
+
+                reader.onloadend = function() {
+                    const base64String = reader.result;
+                    
+                    // ใส่ค่าใน Hidden Input
+                    document.getElementById('cover_image_base64').value = base64String;
+                    
+                    // แสดงตัวอย่างรูป
+                    const preview = document.getElementById('image_preview');
+                    const container = document.getElementById('preview_container');
+                    preview.src = base64String;
+                    container.classList.remove('hidden');
+                }
+                
+                reader.readAsDataURL(file);
+            }
+        });
+    </script>
 </x-teachers-layout>
