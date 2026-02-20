@@ -57,10 +57,10 @@
                         </div>
 
                         <div>
-                            <label for="quiz_id" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
+                            <label hidden for="quiz_id" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
                                 <i data-lucide="help-circle" class="w-4 h-4 mr-1 text-blue-500"></i> เชื่อมต่อแบบทดสอบ
                             </label>
-                            <select id="quiz_id" name="quiz_id" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none bg-white transition">
+                            <select hidden id="quiz_id" name="quiz_id" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none bg-white transition">
                                 <option value="">-- ไม่ผูกแบบทดสอบ --</option>
                                 @foreach ($quizzes as $quiz)
                                     <option value="{{ $quiz->id }}" {{ old('quiz_id') == $quiz->id ? 'selected' : '' }}>
