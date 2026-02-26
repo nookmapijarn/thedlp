@@ -208,63 +208,108 @@
             </div>
 
             {{-- Course and Activities Grid --}}
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div class="bg-white border border-slate-200 rounded-2xl shadow-sm flex flex-col overflow-hidden">
-                    <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
-                        <h3 class="font-bold text-slate-800 flex items-center uppercase text-sm tracking-wide">
-                            <span class="w-1.5 h-4 bg-green-500 rounded-full mr-3"></span>
-                            รายวิชาที่สอบผ่าน (Credits)
-                        </h3>
-                    </div>
-                    <div class="p-4 flex-grow overflow-y-auto max-h-[350px]">
-                        <ul class="space-y-3">
-                            @foreach($grade_data as $g)
-                            <li class="flex items-center p-3 bg-white border border-slate-100 rounded-xl shadow-sm">
-                                <div class="w-10 h-10 rounded-lg bg-green-50 flex items-center justify-center mr-3 text-green-600 font-bold text-xs">
-                                    {{ $g->GRADE }}
-                                </div>
-                                <div class="flex-grow">
-                                    <p class="text-[10px] font-bold text-slate-400 uppercase">{{ $g->SEMESTRY }} | {{ $g->SUB_CODE }}</p>
-                                    <p class="text-sm font-bold text-slate-700 line-clamp-1">{{ $g->SUB_NAME }}</p>
-                                </div>
-                            </li>
-                            @endforeach
-                        </ul>
-                    </div>
-                    <div class="p-4 bg-slate-900 text-white flex justify-between items-center">
-                        <span class="text-xs font-bold uppercase tracking-[0.2em] text-slate-400">Total Credits</span>
-                        <span class="text-xl font-black text-green-400">{{ $sum_grade }} <small class="text-[10px] text-white">นก.</small></span>
-                    </div>
-                </div>
+@php
+    // แยกข้อมูลออกเป็น 2 ชุด
+    // เปลี่ยน '1' และ '2' ให้ตรงกับค่า SUB_TYPE ในฐานข้อมูลของคุณ
+    $compulsory_subjects = $grade_data->where('SUB_TYPE', '1');
+    $elective_subjects = $grade_data->where('SUB_TYPE', '2');
 
-                <div class="bg-white border border-slate-200 rounded-2xl shadow-sm flex flex-col overflow-hidden">
-                    <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
-                        <h3 class="font-bold text-slate-800 flex items-center uppercase text-sm tracking-wide">
-                            <span class="w-1.5 h-4 bg-amber-500 rounded-full mr-3"></span>
-                            กิจกรรมพัฒนาคุณภาพชีวิต
-                        </h3>
+    // คำนวณหน่วยกิตแยกการ์ด (สมมติชื่อคอลัมน์หน่วยกิตคือ CREDIT)
+    $sum_compulsory = $compulsory_subjects->sum('SUB_CREDIT');
+    $sum_elective = $elective_subjects->sum('SUB_CREDIT');
+@endphp
+
+{{-- ปรับ grid เป็น 3 คอลัมน์บนหน้าจอ XL --}}
+<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+    
+    {{-- 1. การ์ดวิชาบังคับ (Compulsory) --}}
+    <div class="bg-white border border-slate-200 rounded-2xl shadow-sm flex flex-col overflow-hidden">
+        <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+            <h3 class="font-bold text-slate-800 flex items-center uppercase text-sm tracking-wide">
+                <span class="w-1.5 h-4 bg-blue-600 rounded-full mr-3"></span>
+                วิชาบังคับ
+            </h3>
+        </div>
+        <div class="p-4 flex-grow overflow-y-auto max-h-[350px]">
+            <ul class="space-y-3">
+                @foreach($compulsory_subjects as $g)
+                <li class="flex items-center p-3 bg-white border border-slate-100 rounded-xl shadow-sm">
+                    <div class="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center mr-3 text-blue-600 font-bold text-xs">
+                        {{ $g->GRADE }}
                     </div>
-                    <div class="p-4 flex-grow overflow-y-auto max-h-[350px]">
-                        <ul class="space-y-3">
-                            @foreach($activity_data as $a)
-                            <li class="flex items-center p-3 bg-white border border-slate-100 rounded-xl shadow-sm">
-                                <div class="w-10 h-10 rounded-lg bg-amber-50 flex items-center justify-center mr-3 text-amber-600 font-bold text-xs text-center leading-tight">
-                                    {{ $a->HOUR }}<br><span class="text-[8px] uppercase">ชม.</span>
-                                </div>
-                                <div class="flex-grow">
-                                    <p class="text-[10px] font-bold text-slate-400 uppercase">{{ $a->SEMESTRY }}</p>
-                                    <p class="text-sm font-bold text-slate-700 line-clamp-1">{{ $a->ACTIVITY }}</p>
-                                </div>
-                            </li>
-                            @endforeach
-                        </ul>
+                    <div class="flex-grow">
+                        <p class="text-[10px] font-bold text-slate-400 uppercase">{{ $g->SEMESTRY }} | {{ $g->SUB_CODE }}</p>
+                        <p class="text-sm font-bold text-slate-700 line-clamp-1">{{ $g->SUB_NAME }}</p>
                     </div>
-                    <div class="p-4 bg-slate-900 text-white flex justify-between items-center">
-                        <span class="text-xs font-bold uppercase tracking-[0.2em] text-slate-400">Total Hours</span>
-                        <span class="text-xl font-black text-amber-400">{{ $sum_act }} <small class="text-[10px] text-white">ชม.</small></span>
+                </li>
+                @endforeach
+            </ul>
+        </div>
+        <div class="p-4 bg-slate-900 text-white flex justify-between items-center">
+            <span class="text-xs font-bold uppercase tracking-[0.2em] text-slate-400">Compulsory Credits</span>
+            <span class="text-xl font-black text-blue-400">{{ $sum_compulsory }} <small class="text-[10px] text-white">นก.</small></span>
+        </div>
+    </div>
+
+    {{-- 2. การ์ดวิชาเลือก (Elective) --}}
+    <div class="bg-white border border-slate-200 rounded-2xl shadow-sm flex flex-col overflow-hidden">
+        <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+            <h3 class="font-bold text-slate-800 flex items-center uppercase text-sm tracking-wide">
+                <span class="w-1.5 h-4 bg-purple-500 rounded-full mr-3"></span>
+                วิชาเลือก
+            </h3>
+        </div>
+        <div class="p-4 flex-grow overflow-y-auto max-h-[350px]">
+            <ul class="space-y-3">
+                @foreach($elective_subjects as $g)
+                <li class="flex items-center p-3 bg-white border border-slate-100 rounded-xl shadow-sm">
+                    <div class="w-10 h-10 rounded-lg bg-purple-50 flex items-center justify-center mr-3 text-purple-600 font-bold text-xs">
+                        {{ $g->GRADE }}
                     </div>
-                </div>
-            </div>
+                    <div class="flex-grow">
+                        <p class="text-[10px] font-bold text-slate-400 uppercase">{{ $g->SEMESTRY }} | {{ $g->SUB_CODE }}</p>
+                        <p class="text-sm font-bold text-slate-700 line-clamp-1">{{ $g->SUB_NAME }}</p>
+                    </div>
+                </li>
+                @endforeach
+            </ul>
+        </div>
+        <div class="p-4 bg-slate-900 text-white flex justify-between items-center">
+            <span class="text-xs font-bold uppercase tracking-[0.2em] text-slate-400">Elective Credits</span>
+            <span class="text-xl font-black text-purple-400">{{ $sum_elective }} <small class="text-[10px] text-white">นก.</small></span>
+        </div>
+    </div>
+
+    {{-- 3. การ์ดกิจกรรม (เดิม) --}}
+    <div class="bg-white border border-slate-200 rounded-2xl shadow-sm flex flex-col overflow-hidden">
+        <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+            <h3 class="font-bold text-slate-800 flex items-center uppercase text-sm tracking-wide">
+                <span class="w-1.5 h-4 bg-amber-500 rounded-full mr-3"></span>
+                กิจกรรมพัฒนาคุณภาพชีวิต
+            </h3>
+        </div>
+        <div class="p-4 flex-grow overflow-y-auto max-h-[350px]">
+            <ul class="space-y-3">
+                @foreach($activity_data as $a)
+                <li class="flex items-center p-3 bg-white border border-slate-100 rounded-xl shadow-sm">
+                    <div class="w-10 h-10 rounded-lg bg-amber-50 flex items-center justify-center mr-3 text-amber-600 font-bold text-xs text-center leading-tight">
+                        {{ $a->HOUR }}<br><span class="text-[8px] uppercase">ชม.</span>
+                    </div>
+                    <div class="flex-grow">
+                        <p class="text-[10px] font-bold text-slate-400 uppercase">{{ $a->SEMESTRY }}</p>
+                        <p class="text-sm font-bold text-slate-700 line-clamp-1">{{ $a->ACTIVITY }}</p>
+                    </div>
+                </li>
+                @endforeach
+            </ul>
+        </div>
+        <div class="p-4 bg-slate-900 text-white flex justify-between items-center">
+            <span class="text-xs font-bold uppercase tracking-[0.2em] text-slate-400">Total Hours</span>
+            <span class="text-xl font-black text-amber-400">{{ $sum_act }} <small class="text-[10px] text-white">ชม.</small></span>
+        </div>
+    </div>
+
+</div>
 
             {{-- All Grade --}}
             <div class="grid grid-cols-1 lg:grid-cols-1 gap-6">
