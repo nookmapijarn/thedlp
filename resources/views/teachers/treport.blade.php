@@ -227,7 +227,7 @@
         return `
         <div class="official-card">
             <div class="card-content-print">
-                <div class="card-header-print"><p>บัตรประจำตัวนักศึกษาระดับ ${lv}</p><p>{{ config('app.name_th') }} (กลุ่ม {{ $tumbon }})</p></div>
+                <div class="card-header-print"><p>บัตรประจำตัวนักศึกษาระดับ ${lv}</p><p>{{ config('app.name_th') }}{{ config('app.name_district') }} (กลุ่ม {{ $tumbon }})</p></div>
                 <div class="card-body-print">
                     <div class="photo-box-print"><img src="https://phothongdlec.ac.th/storage/images/avatar/${s.id}.png" onerror="this.src='https://phothongdlec.ac.th/storage/images/avatar/unkhonw.png'"></div>
                     <div class="info-box-print">
