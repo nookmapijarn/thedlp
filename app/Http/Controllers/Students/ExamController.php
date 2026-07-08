@@ -296,6 +296,25 @@ class ExamController extends Controller
             ]);
 
             DB::commit();
+
+            // บันทึกประวัติการส่งคำตอบข้อสอบออนไลน์ (PDPA Audit Trail)
+            try {
+                if (\Illuminate\Support\Facades\Schema::hasTable('audit_logs')) {
+                    DB::table('audit_logs')->insert([
+                        'user_id' => auth()->id(),
+                        'user_name' => auth()->user()->name,
+                        'action' => 'submit_quiz',
+                        'target_id' => $id,
+                        'target_code' => $quiz->title ?? 'Quiz #' . $id,
+                        'target_name' => 'ส่งคำตอบข้อสอบออนไลน์ ได้คะแนน: ' . $totalScoreEarned . ' คะแนน' . ($isPassed ? ' (ผ่านเกณฑ์)' : ' (ไม่ผ่านเกณฑ์)'),
+                        'ip_address' => $request->ip(),
+                        'user_agent' => substr($request->userAgent(), 0, 255),
+                        'created_at' => now(),
+                    ]);
+                }
+            } catch (\Exception $auditEx) {
+                Log::error("Failed to write submit_quiz audit log: " . $auditEx->getMessage());
+            }
             
             // ล้าง Session เมื่อทำเสร็จ
             session()->forget("active_attempt_{$id}");
@@ -312,29 +331,48 @@ class ExamController extends Controller
     public function getCertificateBase64(Request $request) {
         $url = $request->query('url'); 
         
+        if (!$url) {
+            return response()->json(['error' => 'URL is required'], 400);
+        }
+
         try {
             // 1. ถอดรหัสชื่อไฟล์ภาษาไทย
             $decodedUrl = urldecode($url);
 
-            // 2. แปลง URL ให้เป็น Path ในเครื่องคอมพิวเตอร์จริงๆ
-            // สมมติ URL คือ http://127.0.0.1:8000/storage/images/xxx.png
-            // เราจะเปลี่ยนส่วน http://127.0.0.1:8000/ ให้เป็นที่อยู่โฟลเดอร์ public/
-            $pathInsidePublic = str_replace(url('/'), '', $decodedUrl); // จะเหลือ /storage/images/...
-            $absolutePath = public_path($pathInsidePublic); // จะได้ C:\...\public\storage\images\...
+            // ป้องกัน SSRF / Domain Validation
+            if (!str_starts_with($decodedUrl, url('/'))) {
+                return response()->json(['error' => 'Access Denied: Invalid Domain'], 403);
+            }
 
-            // ตรวจสอบว่าไฟล์มีอยู่จริงไหม (Debug ไปในตัว)
-            if (!file_exists($absolutePath)) {
-                return response::json([
+            // 2. แปลง URL ให้เป็น Path ในเครื่องคอมพิวเตอร์จริงๆ
+            $pathInsidePublic = str_replace(url('/'), '', $decodedUrl); 
+            $absolutePath = public_path($pathInsidePublic); 
+
+            // ป้องกัน Path Traversal
+            $realCertPath = realpath(public_path('storage/images/exams/certificate'));
+            $resolvedPath = realpath($absolutePath);
+
+            if ($resolvedPath === false || $realCertPath === false || !str_starts_with($resolvedPath, $realCertPath)) {
+                return response()->json(['error' => 'Access Denied: Invalid Path'], 403);
+            }
+
+            // ตรวจสอบว่าไฟล์มีอยู่จริงไหม
+            if (!file_exists($resolvedPath)) {
+                return response()->json([
                     'error' => 'File not found',
-                    'debug_path' => $absolutePath // ส่งค่ากลับไปดูใน Console ว่ามันชี้ไปถูกที่ไหม
+                    'debug_path' => $resolvedPath
                 ], 404);
             }
 
             // 3. อ่านไฟล์
-            $imageData = file_get_contents($absolutePath);
+            $imageData = file_get_contents($resolvedPath);
             $finfo = new \finfo(FILEINFO_MIME_TYPE);
             $mimeType = $finfo->buffer($imageData);
             
+            if (!str_starts_with($mimeType, 'image/')) {
+                return response()->json(['error' => 'Invalid file type'], 400);
+            }
+
             $base64 = 'data:' . $mimeType . ';base64,' . base64_encode($imageData);
             
             return response()->json(['base64' => $base64]);

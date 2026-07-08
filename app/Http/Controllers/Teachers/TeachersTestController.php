@@ -572,27 +572,40 @@ class TeachersTestController extends Controller
         }
 
         try {
-            $ch = curl_init();
-            curl_setopt($ch, CURLOPT_URL, $url);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-            curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-            curl_setopt($ch, CURLOPT_TIMEOUT, 20);
-            curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36');
+            $decodedUrl = urldecode($url);
 
-            $data = curl_exec($ch);
-            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-            $contentType = curl_getinfo($ch, CURLINFO_CONTENT_TYPE);
-            curl_close($ch);
+            // ป้องกัน SSRF: บังคับให้โหลดเฉพาะโดเมนของตัวแอปเองเท่านั้น
+            $appHost = parse_url(url('/'), PHP_URL_HOST);
+            $urlHost = parse_url($decodedUrl, PHP_URL_HOST);
 
-            if ($httpCode !== 200 || !$data) {
-                return response()->json([
-                    'error' => "ดึงรูปไม่สำเร็จ (HTTP $httpCode)",
-                    'url_attempted' => $url
-                ], 500);
+            if (!$urlHost || strcasecmp($appHost, $urlHost) !== 0) {
+                return response()->json(['error' => 'Access Denied: External domains are not allowed'], 403);
             }
 
-            $base64 = 'data:' . $contentType . ';base64,' . base64_encode($data);
+            // แปลงเป็น Path ท้องถิ่นและทำการตรวจสอบความปลอดภัยเพื่อป้องกัน Path Traversal
+            $pathInsidePublic = str_replace(url('/'), '', $decodedUrl);
+            $absolutePath = public_path($pathInsidePublic);
+
+            $realCertPath = realpath(public_path('storage/images/exams/certificate'));
+            $resolvedPath = realpath($absolutePath);
+
+            if ($resolvedPath === false || $realCertPath === false || !str_starts_with($resolvedPath, $realCertPath)) {
+                return response()->json(['error' => 'Access Denied: Invalid Path'], 403);
+            }
+
+            if (!file_exists($resolvedPath)) {
+                return response()->json(['error' => 'File not found'], 404);
+            }
+
+            $data = file_get_contents($resolvedPath);
+            $finfo = new \finfo(FILEINFO_MIME_TYPE);
+            $mimeType = $finfo->buffer($data);
+
+            if (!str_starts_with($mimeType, 'image/')) {
+                return response()->json(['error' => 'Invalid file type'], 400);
+            }
+
+            $base64 = 'data:' . $mimeType . ';base64,' . base64_encode($data);
             return response()->json(['base64' => $base64]);
 
         } catch (\Exception $e) {

@@ -12,6 +12,7 @@ use App\Http\Controllers\WelcomeController;
 use App\Http\Controllers\Admin\ZipUploadController;
 use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\Admin\DatareviweController;
+use App\Http\Controllers\Admin\AuditLogController;
 
 
 // Stdudent
@@ -83,6 +84,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/adminuserremove', [AdminUserController::class, 'remove'])->name('adminuserremove');
         Route::post('/adminuserremove', [AdminUserController::class, 'remove'])->name('adminuserremove');
         Route::match(['get', 'post'], '/admin/datareview', [DatareviweController::class, 'index'])->name('datareview');
+        Route::get('/auditlogs', [AuditLogController::class, 'index'])->name('admin.audit_logs');
     });
 });
 
@@ -184,6 +186,7 @@ Route::middleware('auth', 'verified')->group(function () {
         // AI OLIS
         Route::get('/olisai', [OlisAiController::class, 'index'])->name('olisai');
         Route::post('/olisai/chat', [OlisAiController::class, 'chat'])->name('olisai.chat');
+        Route::post('/olisai/clear', [OlisAiController::class, 'clearHistory'])->name('olisai.clear');
         });
 });
 

@@ -59,7 +59,45 @@ class TeachersStudentProfile extends Controller
             $tactivity = 'activity' . $found_level;
 
             $student_data = DB::table($tstudent)->where('ID', $target_id)->get();
-            $std_code = $student_data->first()->STD_CODE;
+            if ($student_data->isEmpty()) {
+                return view('teachers.tstudentprofile', compact('student_data', 'grade_data', 'activity_data', 'sum_grade', 'sum_act', 'grade_all'))
+                    ->withErrors(['student_id' => 'ไม่พบข้อมูลที่ระบุ']);
+            }
+            $student = $student_data->first();
+            $std_code = $student->STD_CODE;
+
+            // บันทึกประวัติการเข้าถึงข้อมูลส่วนบุคคล (Audit Trail / Access Log) ตามกฎหมาย PDPA
+            $studentName = ($student->PRENAME ?? '') . ($student->NAME ?? '') . ' ' . ($student->SURNAME ?? '');
+            
+            // 1. บันทึกประวัติลงไฟล์ log ท้องถิ่น
+            \Illuminate\Support\Facades\Log::info(sprintf(
+                "AUDIT: Teacher %s (ID: %d) accessed student profile. Student Code: %s, Name: %s, IP: %s, UserAgent: %s",
+                \Illuminate\Support\Facades\Auth::user()->name,
+                \Illuminate\Support\Facades\Auth::id(),
+                $std_code,
+                $studentName,
+                $request->ip(),
+                $request->userAgent()
+            ));
+
+            // 2. บันทึกประวัติลงฐานข้อมูลตาราง audit_logs (หากตารางนี้มีอยู่แล้ว)
+            try {
+                if (\Illuminate\Support\Facades\Schema::hasTable('audit_logs')) {
+                    DB::table('audit_logs')->insert([
+                        'user_id' => \Illuminate\Support\Facades\Auth::id(),
+                        'user_name' => \Illuminate\Support\Facades\Auth::user()->name,
+                        'action' => 'view_profile',
+                        'target_id' => $target_id,
+                        'target_code' => $std_code,
+                        'target_name' => $studentName,
+                        'ip_address' => $request->ip(),
+                        'user_agent' => substr($request->userAgent(), 0, 255),
+                        'created_at' => now(),
+                    ]);
+                }
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::error("Failed to insert audit log to database: " . $e->getMessage());
+            }
 
             $grade_data = DB::table($tgrade)
                 ->where('STD_CODE', '=', $std_code)

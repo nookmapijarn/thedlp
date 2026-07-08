@@ -9,10 +9,28 @@
         <div class="container mx-auto max-w-4xl p-4 flex flex-col h-full">
 
             <main class="flex-1 flex flex-col overflow-hidden">
-                <header class="border-b border-gray-200 dark:border-gray-700 p-4 flex items-center justify-center flex-shrink-0">
+                @if(session('success'))
+                    <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-2 rounded-lg text-sm m-4">
+                        {{ session('success') }}
+                    </div>
+                @endif
+                @if(session('error'))
+                    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-2 rounded-lg text-sm m-4">
+                        {{ session('error') }}
+                    </div>
+                @endif
+                <header class="border-b border-gray-200 dark:border-gray-700 p-4 flex items-center justify-between flex-shrink-0">
                     <div class="flex items-center gap-4">
                         <h2 class="text-2xl font-semibold dark:text-white">Olis AI Assistant</h2>
                     </div>
+                    @if(!$conversations->isEmpty())
+                        <form action="{{ route('olisai.clear') }}" method="POST" onsubmit="return confirm('คุณต้องการลบประวัติการสนทนาทั้งหมดใช่หรือไม่?')">
+                            @csrf
+                            <button type="submit" class="text-sm px-3 py-1.5 bg-red-100 hover:bg-red-200 text-red-600 dark:bg-red-950 dark:hover:bg-red-900 dark:text-red-300 rounded-lg transition font-medium">
+                                ลบประวัติการสนทนา
+                            </button>
+                        </form>
+                    @endif
                 </header>
 
                 {{-- กล่องแชท: ใช้ overflow-y-scroll เพื่อให้สามารถเลื่อนดูข้อความได้ --}}

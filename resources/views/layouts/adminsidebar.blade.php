@@ -40,6 +40,14 @@ $currentPath = Request::path();
                {{-- <span class="inline-flex items-center justify-center px-2 ms-3 text-sm font-medium text-gray-800 bg-gray-100 rounded-full dark:bg-gray-700 dark:text-gray-300">Pro</span> --}}
             </a>
          </li>
+         <li>
+            <a href="{{ route('admin.audit_logs') }}" class="{{ $currentPath == 'admin/auditlogs' ? 'bg-gray-200' : '' }} flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
+               <svg width="24px" height="24px" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-6">
+                  <path fill-rule="evenodd" d="M12 2.25a9.75 9.75 0 1 0 9.75 9.75A9.75 9.75 0 0 0 12 2.25ZM12 7.5a.75.75 0 0 1 .75.75v3.75a.75.75 0 0 1-1.5 0V8.25A.75.75 0 0 1 12 7.5Zm0 9a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5Z" clip-rule="evenodd" />
+               </svg>                             
+               <span class="flex-1 ms-3 whitespace-nowrap">บันทึกการใช้งาน (Logs)</span>
+            </a>
+         </li>
        </ul>
     </div>
  </aside>
