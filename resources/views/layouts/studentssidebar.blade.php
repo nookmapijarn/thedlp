@@ -13,6 +13,20 @@
 
         <ul class="space-y-1.5">
 
+            {{-- 0. หน้าแรก --}}
+            <li>
+                <a href="{{ url('home') }}"
+                   class="group flex items-center p-3 text-[16px] font-bold uppercase tracking-wider transition-all duration-200 rounded-2xl
+                   {{ Request::is('home') ? 'bg-white text-blue-600 shadow-md translate-x-1' : 'text-slate-500 hover:bg-white/60 hover:text-blue-500 hover:translate-x-1' }}">
+                    <div class="flex items-center justify-center w-8 h-8 rounded-xl {{ Request::is('home') ? 'text-blue-600' : 'text-slate-400 group-hover:text-blue-500' }}">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+                        </svg>
+                    </div>
+                    <span class="ms-3 tracking-widest">หน้าแรก</span>
+                </a>
+            </li>
+
             {{-- 1. ประวัติการเรียน --}}
             <li>
                 <a href="{{ url('ประวัติการเรียน') }}"
@@ -106,6 +120,28 @@
                         <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M8 7V2.221a2 2 0 0 0-.5.365L3.586 6.5a2 2 0 0 0-.365.5H8Zm2 0V2h7a2 2 0 0 1 2 2v.126a5.087 5.087 0 0 0-4.74 1.368v.001l-6.642 6.642a3 3 0 0 0-.82 1.532l-.74 3.692a3 3 0 0 0 3.53 3.53l3.694-.738a3 3 0 0 0 1.532-.82L19 15.149V20a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9h5a2 2 0 0 0 2-2Z" clip-rule="evenodd"/><path fill-rule="evenodd" d="M17.447 8.08a1.087 1.087 0 0 1 1.187.238l.002.001a1.088 1.088 0 0 1 0 1.539l-.377.377-1.54-1.542.373-.374.002-.001c.1-.102.22-.182.353-.237Zm-2.143 2.027-4.644 4.644-.385 1.924 1.925-.385 4.644-4.642-1.54-1.54Zm2.56-4.11a3.087 3.087 0 0 0-2.187.909l-6.645 6.645a1 1 0 0 0-.274.51l-.739 3.693a1 1 0 0 0 1.177 1.176l3.693-.738a1 1 0 0 0 .51-.274l6.65-6.646a3.088 3.088 0 0 0-2.185-5.275Z" clip-rule="evenodd"/></svg>
                     </div>
                     <span class="ms-3 tracking-widest">ทดสอบออนไลน์</span>
+                </a>
+            </li>
+
+            {{-- 9. ศูนย์รับแจ้งปัญหา --}}
+            <li>
+                <a href="{{ route('help.index') }}"
+                   class="group flex items-center p-3 text-[16px] font-bold uppercase tracking-wider transition-all duration-200 rounded-2xl
+                   {{ Request::is('ศูนย์รับแจ้งปัญหา*') ? 'bg-white text-blue-600 shadow-md translate-x-1' : 'text-slate-500 hover:bg-white/60 hover:text-blue-500 hover:translate-x-1' }}">
+                    <div class="flex items-center justify-center w-8 h-8 rounded-xl {{ Request::is('ศูนย์รับแจ้งปัญหา*') ? 'text-blue-600' : 'text-slate-400 group-hover:text-blue-500' }}">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-6">
+                            <path fill-rule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12ZM12 8.25a.75.75 0 0 1 .75.75v3.75a.75.75 0 0 1-1.5 0V9a.75.75 0 0 1 .75-.75Zm0 8.25a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                    <span class="ms-3 tracking-widest">ศูนย์รับแจ้งปัญหา</span>
+                    @php
+                        $studentUnreadCount = \App\Models\HelpNotification::where('user_id', Auth::id())->where('is_read', false)->count();
+                    @endphp
+                    @if($studentUnreadCount > 0)
+                        <span class="inline-flex items-center justify-center w-5 h-5 ms-auto text-xs font-bold text-white bg-red-600 rounded-full">
+                            {{ $studentUnreadCount }}
+                        </span>
+                    @endif
                 </a>
             </li>
 

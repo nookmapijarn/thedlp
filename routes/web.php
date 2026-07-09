@@ -13,6 +13,7 @@ use App\Http\Controllers\Admin\ZipUploadController;
 use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\Admin\DatareviweController;
 use App\Http\Controllers\Admin\AuditLogController;
+use App\Http\Controllers\Admin\AdminHelpRequestController;
 
 
 // Stdudent
@@ -26,6 +27,7 @@ use App\Http\Controllers\Students\OlisAiController;
 use App\Http\Controllers\Students\ExamController;
 use App\Http\Controllers\Students\MediaController;
 use App\Http\Controllers\Students\PetitionController;
+use App\Http\Controllers\Students\HelpCenterController;
 
 // Teacher
 use App\Http\Controllers\Teachers\TeachersController;
@@ -36,6 +38,8 @@ use App\Http\Controllers\Teachers\TeachersReportController;
 use App\Http\Controllers\Teachers\TeachersTestController;
 use App\Http\Controllers\Teachers\TeachersBookController;
 use App\Http\Controllers\Teachers\TeachersCourseController;
+use App\Http\Controllers\Teachers\TeacherHelpRequestController;
+use App\Http\Controllers\NotificationController;
 
 // Boss
 use App\Http\Controllers\Boss\BossController;
@@ -85,6 +89,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/adminuserremove', [AdminUserController::class, 'remove'])->name('adminuserremove');
         Route::match(['get', 'post'], '/admin/datareview', [DatareviweController::class, 'index'])->name('datareview');
         Route::get('/auditlogs', [AuditLogController::class, 'index'])->name('admin.audit_logs');
+        Route::get('/help-requests', [AdminHelpRequestController::class, 'index'])->name('admin.help.index');
+        Route::post('/help-requests/{id}/reply', [AdminHelpRequestController::class, 'reply'])->name('admin.help.reply');
+        Route::patch('/help-requests/{id}/status', [AdminHelpRequestController::class, 'updateStatus'])->name('admin.help.status');
     });
 });
 
@@ -155,12 +162,18 @@ Route::middleware('auth', 'verified')->group(function () {
         Route::get('/lessons/{lesson}/edit', [TeachersCourseController::class, 'editLesson'])->name('lessons.edit');
         Route::put('/lessons/{lesson}', [TeachersCourseController::class, 'updateLesson'])->name('lessons.update');
         Route::delete('/lessons/{lesson}', [TeachersCourseController::class, 'destroyLesson'])->name('lessons.destroy');
+        
+        // ศูนย์ช่วยเหลือผู้เรียนสำหรับคุณครู
+        Route::get('/help-requests', [TeacherHelpRequestController::class, 'index'])->name('teachers.help.index');
+        Route::post('/help-requests/{id}/reply', [TeacherHelpRequestController::class, 'reply'])->name('teachers.help.reply');
+        Route::patch('/help-requests/{id}/status', [TeacherHelpRequestController::class, 'updateStatus'])->name('teachers.help.status');
         });
 });
 
 // Student Route
 Route::middleware('auth', 'verified')->group(function () {
     Route::middleware('checkrole:1')->group(function () {
+        Route::get('/home', [DashboardController::class, 'home'])->name('home');
         Route::get('/ประวัติการเรียน', [DashboardController::class, 'index'])->name('ประวัติการเรียน');
         Route::get('/ตารางสอบ', [ExamscheduleController::class, 'index'])->name('ตารางสอบ');
         Route::get('/การจบหลักสูตร', [FinalController::class, 'index'])->name('การจบหลักสูตร');
@@ -175,6 +188,9 @@ Route::middleware('auth', 'verified')->group(function () {
         Route::get('student/get-cert-base64', [ExamController::class, 'getCertificateBase64'])->name('cert.base64');
         // สื่อ
         Route::get('/สื่อการเรียนรู้', [MediaController::class, 'index'])->name('สื่อการเรียนรู้');
+        // ศูนย์รับแจ้งปัญหาผู้เรียน
+        Route::get('/ศูนย์รับแจ้งปัญหา', [HelpCenterController::class, 'index'])->name('help.index');
+        Route::post('/ศูนย์รับแจ้งปัญหา', [HelpCenterController::class, 'store'])->name('help.store');
         // Routes for students to view and enroll in courses
         Route::get('/เรียนออนไลน์', [ClassroomController::class, 'index'])->name('เรียนออนไลน์');
         Route::get('/ห้องเรียน', [ClassroomController::class, 'enterRoom'])->name('ห้องเรียน');
@@ -203,11 +219,22 @@ Route::prefix('/help')->group(function () {
 
 
 Route::middleware('auth')->group(function () {
+    Route::get('/notifications/{id}/read', [NotificationController::class, 'read'])->name('notifications.read');
+    Route::post('/notifications/read-all', [NotificationController::class, 'readAll'])->name('notifications.read_all');
     Route::get('/avatar/update', [ProfileController::class, 'updateAvatar'])->name('avatar.update');
     Route::post('/avatar/update', [ProfileController::class, 'updateAvatar'])->name('avatar.update');
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::post('/fcm-token/store', [FcmController::class, 'store'])->name('fcm.store');
 });
+
+Route::get('/privacy-policy', function () {
+    return view('policy.privacy');
+})->name('policy.privacy');
+
+Route::get('/cookie-policy', function () {
+    return view('policy.cookie');
+})->name('policy.cookie');
 
 require __DIR__.'/auth.php';

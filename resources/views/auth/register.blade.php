@@ -58,12 +58,20 @@
                         </div>
 
                         <div class="space-y-2">
-                            <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em] text-center">ชื่อผู้ใช้งาน</label>
-                            <input name="name" type="text" value="{{ old('name') }}" required
+                            <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em] text-center">เลขประจำตัวประชาชน 13 หลัก</label>
+                            <input name="citizen_id" type="number" value="{{ old('citizen_id') }}" required
                                    class="w-full px-4 py-3 bg-slate-100 border-none rounded-xl focus:ring-2 focus:ring-blue-500/20 text-center text-gray-700 font-medium transition-all"
-                                   placeholder="Your Name">
-                            <x-input-error :messages="$errors->get('name')" class="mt-1 flex flex-col items-center" />
+                                   placeholder="0000000000000">
+                            <x-input-error :messages="$errors->get('citizen_id')" class="mt-1 flex flex-col items-center" />
                         </div>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em] text-center">ชื่อผู้ใช้งาน</label>
+                        <input name="name" type="text" value="{{ old('name') }}" required
+                               class="w-full px-4 py-3 bg-slate-100 border-none rounded-xl focus:ring-2 focus:ring-blue-500/20 text-center text-gray-700 font-medium transition-all"
+                               placeholder="Your Name">
+                        <x-input-error :messages="$errors->get('name')" class="mt-1 flex flex-col items-center" />
                     </div>
 
                     <div class="space-y-2">

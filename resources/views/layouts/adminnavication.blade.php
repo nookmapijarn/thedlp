@@ -21,6 +21,50 @@
       </div>
 
       <div class="flex items-center gap-4">
+        
+        <!-- Notification Bell Dropdown -->
+        @php
+          $unreadNotifications = \App\Models\HelpNotification::where('user_id', Auth::id())->where('is_read', false)->latest()->take(5)->get();
+        @endphp
+        <div class="relative" x-data="{ open: false }">
+          <button @click="open = !open" class="relative p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl focus:outline-none dark:text-gray-400 dark:hover:text-gray-200 transition-colors">
+            <!-- Bell Icon -->
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0"></path>
+            </svg>
+            @if($unreadNotifications->count() > 0)
+              <span class="absolute top-0 right-0 transform translate-x-1/3 -translate-y-1/3 flex h-5 w-5 items-center justify-center rounded-full bg-red-600 text-[10px] font-black text-white ring-2 ring-white dark:ring-gray-800 shadow-md">
+                {{ $unreadNotifications->count() }}
+              </span>
+            @endif
+          </button>
+          
+          <div x-show="open" @click.outside="open = false" x-cloak
+               class="absolute right-0 mt-2 w-80 bg-white dark:bg-gray-800 border border-gray-150 dark:border-gray-700 rounded-2xl shadow-xl z-50 py-2 divide-y divide-gray-100 dark:divide-gray-700 animate-in fade-in duration-200">
+            <div class="px-4 py-2 font-bold text-gray-700 dark:text-gray-200 flex justify-between items-center text-xs">
+              <span>การแจ้งเตือน</span>
+              @if($unreadNotifications->count() > 0)
+                <form action="{{ route('notifications.read_all') }}" method="POST">
+                  @csrf
+                  <button type="submit" class="text-[10px] text-indigo-650 dark:text-indigo-400 hover:underline">อ่านทั้งหมด</button>
+                </form>
+              @endif
+            </div>
+            <div class="max-h-64 overflow-y-auto divide-y divide-gray-50 dark:divide-gray-700 text-xs">
+              @forelse($unreadNotifications as $notif)
+                <a href="{{ route('notifications.read', $notif->id) }}" class="flex px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                  <div class="flex-1">
+                    <p class="text-[11px] font-semibold text-gray-800 dark:text-gray-200 leading-snug">{{ $notif->message }}</p>
+                    <span class="text-[9px] text-gray-400 font-semibold block mt-1">{{ $notif->created_at->diffForHumans() }}</span>
+                  </div>
+                </a>
+              @empty
+                <div class="p-6 text-center text-gray-400 font-bold text-xs">ไม่มีการแจ้งเตือนใหม่</div>
+              @endforelse
+            </div>
+          </div>
+        </div>
+
         <div class="flex items-center ms-3">
           <button type="button" class="flex items-center gap-2 p-1 pr-3 text-sm bg-gray-50 dark:bg-gray-800 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-all border border-gray-100 dark:border-gray-700 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-800" id="user-menu-button" aria-expanded="false" data-dropdown-toggle="dropdown-user">
             <span class="sr-only">Open user menu</span>

@@ -254,11 +254,16 @@
                 @endforeach
             </div>
 
-            <div class="mt-24 text-center">
+            <div class="mt-24 text-center space-y-4 pb-12">
                 <div class="inline-block px-6 py-2 rounded-full glass-stat border-slate-700">
                     <p class="text-slate-400 text-[10px] font-medium tracking-[0.2em]">
                         จัดทำโดย <span class="text-yellow-400 font-bold">นายนนทชัย มาพิจารณ์</span>
                     </p>
+                </div>
+                <div class="flex justify-center items-center gap-4 text-[10px] font-bold text-slate-450 tracking-wider">
+                    <a href="{{ route('policy.privacy') }}" class="hover:text-yellow-300 transition-colors">นโยบายความเป็นส่วนตัว (Privacy Policy)</a>
+                    <span class="text-slate-600">•</span>
+                    <a href="{{ route('policy.cookie') }}" class="hover:text-yellow-300 transition-colors">นโยบายคุกกี้ (Cookie Policy)</a>
                 </div>
             </div>
         </main>

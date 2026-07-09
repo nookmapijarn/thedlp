@@ -48,6 +48,22 @@ $currentPath = Request::path();
                <span class="flex-1 ms-3 whitespace-nowrap">บันทึกการใช้งาน (Logs)</span>
             </a>
          </li>
+         <li>
+            <a href="{{ route('admin.help.index') }}" class="{{ $currentPath == 'admin/help-requests' ? 'bg-gray-200' : '' }} flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
+               <svg width="24px" height="24px" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-6">
+                  <path fill-rule="evenodd" d="M12 2.25a9.75 9.75 0 1 0 9.75 9.75A9.75 9.75 0 0 0 12 2.25ZM12 7.5a.75.75 0 0 1 .75.75v3.75a.75.75 0 0 1-1.5 0V8.25A.75.75 0 0 1 12 7.5Zm0 9a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5Z" clip-rule="evenodd" />
+               </svg>                            
+               <span class="flex-1 ms-3 whitespace-nowrap">ศูนย์รับแจ้งปัญหา</span>
+               @php
+                  $adminPendingCount = \App\Models\HelpRequest::where('status', 'pending')->count();
+               @endphp
+               @if($adminPendingCount > 0)
+                  <span class="inline-flex items-center justify-center w-5 h-5 ms-3 text-xs font-bold text-white bg-red-650 rounded-full">
+                     {{ $adminPendingCount }}
+                  </span>
+               @endif
+            </a>
+         </li>
        </ul>
     </div>
  </aside>

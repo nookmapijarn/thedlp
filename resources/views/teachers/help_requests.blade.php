@@ -1,0 +1,366 @@
+<x-teachers-layout>
+    @php
+        $totalRequests = \App\Models\HelpRequest::count();
+        $pendingRequests = \App\Models\HelpRequest::where('status', 'pending')->count();
+        $inProgressRequests = \App\Models\HelpRequest::where('status', 'in_progress')->count();
+        $resolvedRequests = \App\Models\HelpRequest::where('status', 'resolved')->count();
+        $rejectedRequests = \App\Models\HelpRequest::where('status', 'rejected')->count();
+
+        // Categories breakdown for pending requests
+        $categories = [
+            'ปัญหาการใช้งานระบบ' => 'ปัญหาการใช้งานระบบ / ล็อกอิน',
+            'ปัญหาการเรียน / รายวิชา' => 'ปัญหาการเรียน / บทเรียนออนไลน์ / ทดสอบออนไลน์',
+            'ข้อมูลทะเบียนนักศึกษา' => 'ข้อมูลทะเบียน / กลุ่มเรียน / ผลการเรียน',
+            'กิจกรรม กพช.' => 'กิจกรรม กพช. / ชั่วโมงกิจกรรม',
+            'อาคารสถานที่ / ห้องน้ำ / ไฟฟ้า / อินเทอร์เน็ต / อื่นๆ' => 'อาคารสถานที่ / ห้องน้ำ / ไฟฟ้า / อินเทอร์เน็ต / อื่นๆ',
+            'ยาเสพติด / บุหรี่ / อื่นๆ' => 'ยาเสพติด / บุหรี่ / อื่นๆ',
+            'ล่วงละเมิดทางเพศ' => 'ล่วงละเมิดทางเพศ',
+            'เรื่องอื่น ๆ' => 'เรื่องอื่น ๆ'
+        ];
+        
+        $pendingByCategory = [];
+        foreach (array_keys($categories) as $catKey) {
+            $pendingByCategory[$catKey] = \App\Models\HelpRequest::where('category', $catKey)->where('status', 'pending')->count();
+        }
+    @endphp
+
+    <div class="p-6 max-w-7xl mx-auto space-y-6">
+        
+        <!-- Alerts -->
+        @if(session('success'))
+            <div class="p-4 mb-6 text-sm text-green-800 rounded-2xl bg-green-50 dark:bg-green-950/30 dark:text-green-300 border border-green-200 dark:border-green-800/40 flex items-center gap-3 animate-in fade-in" role="alert">
+                <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <span class="font-bold">{{ session('success') }}</span>
+            </div>
+        @endif
+
+        <!-- Main Header Banner (Admin Style) -->
+        <div class="bg-gradient-to-r from-purple-50/70 via-slate-50 to-indigo-50/70 dark:from-slate-900/90 dark:via-purple-950/80 dark:to-indigo-950/90 text-slate-800 dark:text-white rounded-[2.5rem] p-8 sm:p-10 shadow-sm border border-slate-100 dark:border-gray-800 relative overflow-hidden flex flex-col justify-between min-h-[180px]">
+            <div class="relative z-10 space-y-3">
+                <span class="inline-flex items-center px-4 py-1.5 rounded-full bg-purple-100 text-purple-800 dark:bg-purple-950/50 dark:text-purple-300 text-xs font-black tracking-widest uppercase border border-purple-200/60 dark:border-purple-800/40 shadow-sm">
+                    Teacher Helpdesk Management
+                </span>
+                <h1 class="text-3xl font-black text-slate-900 dark:text-white">ศูนย์จัดการความช่วยเหลือผู้เรียน (สำหรับครู)</h1>
+                <p class="text-sm text-slate-600 dark:text-slate-350 leading-relaxed font-semibold max-w-3xl">
+                    ตรวจสอบประวัติความก้าวหน้าคำร้องเรียนปัญหาต่าง ๆ บันทึกผลการประสานงานภายใน และตอบกลับชี้แจงผู้เรียนโดยตรงเพื่อความรวดเร็ว
+                </p>
+            </div>
+        </div>
+
+        <!-- 1. Top Summary Stats Panel (Admin Style) -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <!-- Stat 1: Total -->
+            <div class="p-5 bg-white dark:bg-gray-850 border border-slate-100 dark:border-gray-700/60 rounded-[2rem] shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-black text-slate-400 uppercase tracking-widest">คำร้องทั้งหมด</span>
+                    <span class="p-2 bg-slate-50 dark:bg-slate-700 text-slate-500 rounded-xl">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                    </span>
+                </div>
+                <div class="mt-4">
+                    <span class="text-3xl font-black text-slate-800 dark:text-white">{{ $totalRequests }}</span>
+                    <span class="text-xs font-bold text-slate-400 block mt-1">รายการสะสมรวมทั้งหมด</span>
+                </div>
+            </div>
+
+            <!-- Stat 2: Pending Requests (Red alert count) -->
+            <div class="p-5 bg-white dark:bg-gray-850 border border-slate-150/80 dark:border-gray-700/60 rounded-[2rem] shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-black text-red-500 dark:text-red-400 uppercase tracking-widest">กำลังรอแก้ไข (Unresolved)</span>
+                    <span class="p-2 bg-red-100 dark:bg-red-950 text-red-650 dark:text-red-300 rounded-xl">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                    </span>
+                </div>
+                <div class="mt-4">
+                    <!-- Unresolved Count in bold Red -->
+                    <span class="text-3xl font-black text-red-600 dark:text-red-400">{{ $pendingRequests }}</span>
+                    <span class="text-xs font-bold text-red-400 block mt-1 mb-3">คำร้องที่ต้องเร่งดำเนินการ</span>
+                    
+                    <!-- Categories Breakdown -->
+                    <div class="pt-2 border-t border-red-100 dark:border-red-950/45 space-y-1 text-[10px]">
+                        @foreach($pendingByCategory as $catName => $count)
+                            <div class="flex justify-between items-center text-red-850 dark:text-red-300 font-bold">
+                                <span class="truncate pr-2">{{ $catName }}</span>
+                                <span class="px-1.5 py-0.2 rounded-full bg-red-100 dark:bg-red-950 text-red-650 dark:text-red-400 text-[9px] font-black min-w-[16px] text-center">
+                                    {{ $count }}
+                                </span>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stat 3: In Progress -->
+            <div class="p-5 bg-white dark:bg-gray-850 border border-slate-100 dark:border-gray-700/60 rounded-[2rem] shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-black text-slate-400 uppercase tracking-widest">กำลังดำเนินการ</span>
+                    <span class="p-2 bg-blue-50 dark:bg-blue-950 text-blue-500 rounded-xl">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    </span>
+                </div>
+                <div class="mt-4">
+                    <span class="text-3xl font-black text-blue-600 dark:text-blue-400">{{ $inProgressRequests }}</span>
+                    <span class="text-xs font-bold text-slate-400 block mt-1">รับเรื่องแล้วและอยู่ระหว่างการประสานงาน</span>
+                </div>
+            </div>
+
+            <!-- Stat 4: Resolved -->
+            <div class="p-5 bg-white dark:bg-gray-850 border border-slate-100 dark:border-gray-700/60 rounded-[2rem] shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-black text-slate-400 uppercase tracking-widest">แก้ไขสำเร็จแล้ว</span>
+                    <span class="p-2 bg-green-50 dark:bg-green-950 text-green-500 rounded-xl">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    </span>
+                </div>
+                <div class="mt-4">
+                    <span class="text-3xl font-black text-green-600 dark:text-green-400">{{ $resolvedRequests }}</span>
+                    <span class="text-xs font-bold text-slate-400 block mt-1">รายการที่ดำเนินการเสร็จสิ้นสำเร็จ</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. Tabbed navigation filter (Admin Style) -->
+        <div class="p-2 bg-slate-100 dark:bg-gray-750 border border-slate-200/40 rounded-2xl flex flex-wrap gap-1">
+            <a href="{{ route('teachers.help.index', ['status' => 'all']) }}" 
+               class="px-4 py-2 text-xs font-black rounded-xl transition-all flex items-center gap-2
+               {{ $statusFilter == 'all' ? 'bg-white dark:bg-gray-800 text-slate-800 dark:text-white shadow-sm' : 'text-slate-500 hover:text-slate-700' }}">
+                ทั้งหมด
+                <span class="px-2 py-0.5 rounded-lg bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 text-[10px]">{{ $totalRequests }}</span>
+            </a>
+            
+            <a href="{{ route('teachers.help.index', ['status' => 'pending']) }}" 
+               class="px-4 py-2 text-xs font-black rounded-xl transition-all flex items-center gap-2
+               {{ $statusFilter == 'pending' ? 'bg-white dark:bg-gray-800 text-red-650 dark:text-red-400 shadow-sm' : 'text-slate-500 hover:text-red-500' }}">
+                รอตรวจสอบ
+                <span class="px-2 py-0.5 rounded-lg bg-red-100 dark:bg-red-950 text-red-665 dark:text-red-400 text-[10px] font-black">
+                    {{ $pendingRequests }}
+                </span>
+            </a>
+            
+            <a href="{{ route('teachers.help.index', ['status' => 'in_progress']) }}" 
+               class="px-4 py-2 text-xs font-black rounded-xl transition-all flex items-center gap-2
+               {{ $statusFilter == 'in_progress' ? 'bg-white dark:bg-gray-800 text-blue-600 dark:text-blue-400 shadow-sm' : 'text-slate-500 hover:text-blue-500' }}">
+                กำลังดำเนินการ
+                <span class="px-2 py-0.5 rounded-lg bg-blue-50 dark:bg-blue-950 text-blue-650 dark:text-blue-300 text-[10px] font-black">{{ $inProgressRequests }}</span>
+            </a>
+            
+            <a href="{{ route('teachers.help.index', ['status' => 'resolved']) }}" 
+               class="px-4 py-2 text-xs font-black rounded-xl transition-all flex items-center gap-2
+               {{ $statusFilter == 'resolved' ? 'bg-white dark:bg-gray-800 text-green-600 dark:text-green-400 shadow-sm' : 'text-slate-500 hover:text-green-500' }}">
+                แก้ไขเสร็จสิ้น
+                <span class="px-2 py-0.5 rounded-lg bg-green-50 dark:bg-green-950/50 text-green-655 dark:text-green-400 text-[10px] font-black">{{ $resolvedRequests }}</span>
+            </a>
+            
+            <a href="{{ route('teachers.help.index', ['status' => 'rejected']) }}" 
+               class="px-4 py-2 text-xs font-black rounded-xl transition-all flex items-center gap-2
+               {{ $statusFilter == 'rejected' ? 'bg-white dark:bg-gray-800 text-red-650 dark:text-red-400 shadow-sm' : 'text-slate-500 hover:text-red-500' }}">
+                ปฏิเสธคำขอ
+                <span class="px-2 py-0.5 rounded-lg bg-red-50 dark:bg-red-950/20 text-red-750 dark:text-red-400 text-[10px] font-black">{{ $rejectedRequests }}</span>
+            </a>
+        </div>
+
+        <!-- 3. List of Support Tickets (Admin / Collapsible Accordion Style) -->
+        <div class="bg-white border border-slate-100 rounded-[2.5rem] shadow-sm p-6 space-y-6">
+            @if($helpRequests->isEmpty())
+                <div class="p-16 text-center bg-slate-50 dark:bg-slate-800/40 rounded-[2.5rem] border border-dashed border-slate-200 dark:border-slate-700 space-y-3">
+                    <svg class="w-12 h-12 text-slate-400 mx-auto" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002-2.25V5.25A2.25 2.25 0 0018 3H6a2.25 2.25 0 00-2 2.25v13.5A2.25 2.25 0 006 21h3"></path></svg>
+                    <p class="text-sm text-slate-555 dark:text-slate-400 font-bold">ไม่พบข้อมูลคำร้องขอความช่วยเหลือตามสถานะที่เลือก</p>
+                </div>
+            @else
+                <div class="space-y-6" x-data="{ activeTicket: {{ request()->query('ticket') ?? 'null' }} }">
+                    @foreach($helpRequests as $item)
+                        <div id="ticket-{{ $item->id }}"
+                             :class="activeTicket === {{ $item->id }} 
+                             ? 'border-purple-500 bg-slate-50/20 dark:bg-gray-800/20 dark:border-purple-500 shadow-md' 
+                             : 'border-slate-100 dark:border-gray-850 bg-white dark:bg-gray-850 shadow-sm'"
+                             class="p-6 border rounded-[2.5rem] hover:shadow-md hover:border-slate-200 dark:hover:border-gray-700/80 transition-all duration-300">
+                            
+                            <!-- Ticket Header Metadata -->
+                            <div class="flex flex-wrap items-start justify-between gap-4">
+                                <div class="space-y-1">
+                                    <div class="flex items-center gap-2">
+                                        <span class="px-2.5 py-1 text-[10px] font-black rounded-lg bg-purple-50 dark:bg-purple-950/40 text-purple-700 dark:text-purple-300">
+                                            {{ $item->category }}
+                                        </span>
+                                        <span class="text-xs text-slate-400 dark:text-slate-500 font-mono">#{{ str_pad($item->id, 5, '0', STR_PAD_LEFT) }}</span>
+                                    </div>
+                                    <div class="text-xs font-bold text-slate-700 dark:text-slate-300">
+                                        ผู้ส่ง: <span class="text-purple-650 dark:text-purple-400 font-extrabold">{{ $item->user?->name ?? 'ไม่ระบุชื่อ' }}</span> 
+                                        (รหัส: {{ $item->student_id ?? 'ไม่มีรหัส' }})
+                                    </div>
+                                    <div class="text-[10px] text-slate-400 dark:text-slate-500 font-bold">
+                                        {{ \Carbon\Carbon::parse($item->created_at)->addYears(543)->locale('th')->isoFormat('D MMM YY, HH:mm') }} น.
+                                    </div>
+                                </div>
+
+                                <div class="flex items-center gap-2.5">
+                                    <!-- Status Badges -->
+                                    @if($item->status == 'pending')
+                                        <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-red-100 text-red-800 dark:bg-red-950 dark:text-red-300">รอตรวจสอบ</span>
+                                    @elseif($item->status == 'in_progress')
+                                        <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300">กำลังดำเนินการ</span>
+                                    @elseif($item->status == 'resolved')
+                                        <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-green-100 text-green-800 dark:bg-green-950 dark:text-green-300">แก้ไขเสร็จสิ้น</span>
+                                    @else
+                                        <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-red-50 text-red-755 dark:bg-red-950/20 dark:text-red-400">ปฏิเสธคำขอ</span>
+                                    @endif
+
+                                    <!-- Reply button relocated (Top-right alignment) -->
+                                    <button type="button" @click="activeTicket === {{ $item->id }} ? activeTicket = null : activeTicket = {{ $item->id }}" 
+                                            class="px-3.5 py-2 bg-slate-900 hover:bg-black text-white font-extrabold text-[11px] rounded-xl shadow transition-all active:scale-95 flex items-center gap-1 dark:bg-gray-700 dark:hover:bg-gray-650">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
+                                        <span x-text="activeTicket === {{ $item->id }} ? 'ปิด' : 'จัดการ'">จัดการ</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Expandable Card Body -->
+                            <div x-show="activeTicket === {{ $item->id }}" x-collapse x-cloak
+                                 class="pt-5 border-t border-slate-100 dark:border-gray-700/60 space-y-5 animate-in fade-in duration-200">
+
+                                <!-- Stepper Timeline Visual -->
+                                <div class="py-4 border-b border-slate-100 dark:border-gray-700/60 max-w-lg mx-auto">
+                                    <div class="flex items-center justify-between">
+                                        <!-- Step 1: Created -->
+                                        <div class="flex flex-col items-center flex-1">
+                                            <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs bg-green-500 text-white shadow-sm ring-4 ring-green-50 dark:ring-green-950">1</div>
+                                            <span class="text-[10px] font-extrabold text-slate-500 dark:text-slate-400 mt-1.5">ส่งเรื่องแล้ว</span>
+                                        </div>
+                                        
+                                        <!-- Connector line -->
+                                        <div class="flex-1 h-0.5 {{ in_array($item->status, ['in_progress', 'resolved', 'rejected']) ? 'bg-green-500' : 'bg-slate-200 dark:bg-slate-700' }}"></div>
+
+                                        <!-- Step 2: In Progress -->
+                                        <div class="flex flex-col items-center flex-1">
+                                            <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs 
+                                                {{ in_array($item->status, ['in_progress', 'resolved', 'rejected']) ? 'bg-blue-600 text-white shadow-sm ring-4 ring-blue-100 dark:ring-blue-950' : 'bg-slate-200 dark:bg-slate-700 text-slate-500' }}">2</div>
+                                            <span class="text-[10px] font-extrabold {{ in_array($item->status, ['in_progress', 'resolved', 'rejected']) ? 'text-blue-600 dark:text-blue-400' : 'text-slate-400 dark:text-slate-500' }} mt-1.5">กำลังดำเนินการ</span>
+                                        </div>
+
+                                        <!-- Connector line -->
+                                        <div class="flex-1 h-0.5 {{ in_array($item->status, ['resolved', 'rejected']) ? 'bg-green-500' : 'bg-slate-200 dark:bg-slate-700' }}"></div>
+
+                                        <!-- Step 3: Resolved / Rejected -->
+                                        <div class="flex flex-col items-center flex-1">
+                                            @if($item->status == 'rejected')
+                                                <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs bg-red-500 text-white shadow-sm ring-4 ring-red-100 dark:ring-red-950">X</div>
+                                                <span class="text-[10px] font-extrabold text-red-500 mt-1.5">ปฏิเสธคำขอ</span>
+                                            @else
+                                                <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs 
+                                                    {{ $item->status == 'resolved' ? 'bg-green-500 text-white shadow-sm ring-4 ring-green-100 dark:ring-green-950' : 'bg-slate-200 dark:bg-slate-700 text-slate-500' }}">3</div>
+                                                <span class="text-[10px] font-extrabold {{ $item->status == 'resolved' ? 'text-green-600 dark:text-green-400' : 'text-slate-400 dark:text-slate-500' }} mt-1.5">เสร็จสิ้น</span>
+                                            @endif
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Subject and Details Message -->
+                                <div class="space-y-1.5">
+                                    <h4 class="text-base font-extrabold text-slate-900 dark:text-white">{{ $item->subject }}</h4>
+                                    <p class="text-xs sm:text-sm text-slate-700 dark:text-slate-350 leading-relaxed bg-slate-50/50 dark:bg-gray-800/80 p-4 rounded-xl border border-slate-100 dark:border-slate-700/40 whitespace-pre-wrap">{{ $item->message }}</p>
+                                </div>
+
+                                <!-- Logs / Timeline history list -->
+                                @if($item->logs && $item->logs->count() > 0)
+                                    <div class="p-4 bg-slate-50 dark:bg-slate-800/30 border border-slate-100 dark:border-slate-800 rounded-2xl space-y-3">
+                                        <h5 class="text-xs font-bold text-purple-700 dark:text-purple-400 flex items-center gap-1.5">
+                                            <svg class="w-3 h-3 text-purple-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                            บันทึกความคืบหน้าการทำงาน (Action Logs)
+                                        </h5>
+                                        <div class="space-y-3 pl-2 border-l border-purple-150 dark:border-purple-900/40">
+                                            @foreach($item->logs as $log)
+                                                <div class="relative pl-4 space-y-1 text-xs">
+                                                    <div class="absolute -left-[12.5px] top-1 w-2.5 h-2.5 rounded-full bg-purple-500 dark:bg-purple-400 border-2 border-white dark:border-gray-850 shadow-sm"></div>
+                                                    <div class="flex items-center gap-2 text-slate-500 dark:text-slate-450 font-bold">
+                                                        <span>{{ $log->action_detail }}</span>
+                                                        <span>•</span>
+                                                        <span>โดย: {{ $log->user?->name }}</span>
+                                                        <span>•</span>
+                                                        <span class="font-mono text-[10px]">{{ $log->created_at->addYears(543)->locale('th')->isoFormat('D MMM YY, HH:mm') }} น.</span>
+                                                    </div>
+                                                    @if($log->note)
+                                                        <p class="text-slate-600 dark:text-slate-350 bg-white/60 dark:bg-gray-800/60 p-2.5 rounded-xl border border-slate-100 dark:border-slate-700/30 mt-1 italic">
+                                                            "{{ $log->note }}"
+                                                        </p>
+                                                    @endif
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                    </div>
+                                @endif
+
+                                <!-- Interactive Reply Form drawer -->
+                                <div class="p-5 bg-slate-50 dark:bg-gray-800 rounded-[1.8rem] border border-slate-150 dark:border-slate-700 shadow-inner mt-4">
+                                    <form action="{{ route('teachers.help.reply', $item->id) }}" method="POST" class="space-y-4">
+                                        @csrf
+                                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                            
+                                            <!-- Column 1 & 2: Text inputs -->
+                                            <div class="md:col-span-2 space-y-4">
+                                                <!-- Reply text message -->
+                                                <div class="space-y-1.5">
+                                                    <label for="admin_reply_{{ $item->id }}" class="text-xs font-bold text-slate-500 dark:text-slate-400 block uppercase">พิมพ์ข้อความตอบกลับผู้เรียน (ส่งตรงไปยังหน้าประวัติคำร้องของผู้เรียน)</label>
+                                                    <textarea name="admin_reply" id="admin_reply_{{ $item->id }}" rows="3" required placeholder="ระบุคำชี้แจงเพื่อแจ้งผู้เรียนโดยตรง..."
+                                                              class="w-full bg-white dark:bg-gray-850 border border-slate-200 dark:border-slate-650 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-purple-500 outline-none text-slate-800 dark:text-slate-100 placeholder:text-slate-400 resize-none">{{ $item->admin_reply }}</textarea>
+                                                </div>
+
+                                                <!-- Internal / Action Note -->
+                                                <div class="space-y-1.5">
+                                                    <label for="action_note_{{ $item->id }}" class="text-xs font-bold text-slate-500 dark:text-slate-400 block uppercase">จดบันทึกการดำเนินการ (Action Log - จะแสดงในรายละเอียดลำดับขั้นตอนของคำร้อง)</label>
+                                                    <textarea name="action_note" id="action_note_{{ $item->id }}" rows="2" placeholder="ระบุการดำเนินการสั้นๆ เช่น 'รับเอกสารและตรวจสอบสิทธิ์แล้ว', 'แจ้งอาจารย์ประจำวิชาเพื่อปรับเกรดแล้ว'..."
+                                                              class="w-full bg-white dark:bg-gray-850 border border-slate-200 dark:border-slate-650 rounded-xl px-4 py-2 text-xs focus:ring-2 focus:ring-purple-500 outline-none text-slate-800 dark:text-slate-100 placeholder:text-slate-400 resize-none"></textarea>
+                                                </div>
+                                            </div>
+
+                                            <!-- Column 3: Controls -->
+                                            <div class="md:col-span-1 flex flex-col justify-between space-y-4">
+                                                <div class="space-y-1.5">
+                                                    <label for="status_{{ $item->id }}" class="text-xs font-bold text-slate-500 dark:text-slate-400 block uppercase">ปรับเปลี่ยนสถานะ</label>
+                                                    <select name="status" id="status_{{ $item->id }}" required
+                                                            class="w-full bg-white dark:bg-gray-850 border border-slate-200 dark:border-slate-650 rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-purple-500 outline-none text-slate-800 dark:text-slate-100">
+                                                        <option value="pending" {{ $item->status == 'pending' ? 'selected' : '' }}>รอตรวจสอบ</option>
+                                                        <option value="in_progress" {{ $item->status == 'in_progress' ? 'selected' : '' }}>กำลังดำเนินการ</option>
+                                                        <option value="resolved" {{ $item->status == 'resolved' ? 'selected' : '' }}>แก้ไขเสร็จสิ้น</option>
+                                                        <option value="rejected" {{ $item->status == 'rejected' ? 'selected' : '' }}>ปฏิเสธคำขอ</option>
+                                                    </select>
+                                                </div>
+
+                                                <button type="submit" 
+                                                        class="w-full bg-slate-900 hover:bg-black text-white font-extrabold py-3 rounded-xl transition-all shadow-md active:scale-95 text-xs flex items-center justify-center gap-1.5 dark:bg-gray-700 dark:hover:bg-gray-650">
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                                    บันทึกการดำเนินการ
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+
+                             </div>
+
+                        </div>
+                    @endforeach
+                </div>
+
+                <!-- Pagination block -->
+                <div class="pt-4 border-t border-slate-100">
+                    {{ $helpRequests->appends(['status' => $statusFilter])->links() }}
+                </div>
+            @endif
+
+        </div>
+
+    </div>
+
+    @if(request()->query('ticket'))
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const el = document.getElementById('ticket-{{ request()->query('ticket') }}');
+                if (el) {
+                    setTimeout(() => {
+                        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }, 300);
+                }
+            });
+        </script>
+    @endif
+</x-teachers-layout>

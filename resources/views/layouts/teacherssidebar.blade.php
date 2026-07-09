@@ -120,6 +120,29 @@
                 </a>
             </li>
 
+            {{-- 9. ศูนย์รับแจ้งปัญหา --}}
+            <li>
+                <a href="{{ route('teachers.help.index') }}"
+                   class="group flex items-center p-3 text-[15px] font-bold tracking-wide transition-all duration-300 rounded-2xl
+                   {{ Route::currentRouteName() == 'teachers.help.index' ? 'bg-white text-purple-600 shadow-md translate-x-1 ring-1 ring-purple-100' : 'text-slate-500 hover:bg-white/60 hover:text-purple-500 hover:translate-x-1' }}">
+                    <div class="flex items-center justify-center w-9 h-9 rounded-xl transition-colors {{ Route::currentRouteName() == 'teachers.help.index' ? 'bg-purple-50 text-purple-600' : 'bg-slate-100/50 text-slate-400 group-hover:bg-purple-50 group-hover:text-purple-500' }}">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M18.364 5.636l-3.536 3.536m0 0A7 7 0 1110.5 3.5c1.1 0 2.12.253 3.03.7M14.828 9.172A4 4 0 1112 8.244m2.828.928a4 4 0 01-2.828-.928"></path>
+                        </svg>
+                    </div>
+                    <span class="ms-3">ศูนย์รับแจ้งปัญหา</span>
+                    @php
+                        $teacherPendingCount = \App\Models\HelpRequest::where('status', 'pending')->count();
+                    @endphp
+                    @if($teacherPendingCount > 0)
+                        <span class="inline-flex items-center justify-center w-5 h-5 ms-3 text-xs font-bold text-white bg-red-600 rounded-full">
+                            {{ $teacherPendingCount }}
+                        </span>
+                    @endif
+                    @if(Route::currentRouteName() == 'teachers.help.index') <div class="ms-auto w-1.5 h-1.5 rounded-full bg-amber-400"></div> @endif
+                </a>
+            </li>
+
         </ul>
 
         {{-- Footer Card --}}

@@ -22,12 +22,17 @@
                 <x-input-error :messages="$errors->get('zip_file')" class="mb-4" />
                 
                 <div class="mb-6">
-                    <label for="zip_file" class="flex flex-col items-center justify-center w-full h-44 border-2 border-gray-300 border-dashed rounded-2xl cursor-pointer bg-gray-50 hover:bg-gray-100/70 dark:hover:bg-gray-700/30 dark:bg-gray-800 dark:border-gray-600 dark:hover:border-gray-500 transition-all group relative">
+                    <label for="zip_file" class="flex flex-col items-center justify-center w-full h-44 border-2 border-gray-300 border-dashed rounded-2xl cursor-pointer bg-gray-55 hover:bg-gray-100/70 dark:hover:bg-gray-700/30 dark:bg-gray-800 dark:border-gray-600 dark:hover:border-gray-500 transition-all group relative">
                         <div class="flex flex-col items-center justify-center pt-5 pb-6 text-center px-4">
-                            <svg class="w-10 h-10 mb-3 text-gray-400 group-hover:text-blue-500 dark:text-gray-500 transition-colors" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <!-- Default Cloud Upload Icon -->
+                            <svg class="upload-default-icon w-10 h-10 mb-3 text-gray-400 group-hover:text-blue-500 dark:text-gray-500 transition-colors" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
                             </svg>
-                            <p class="mb-1 text-sm text-gray-700 dark:text-gray-300 font-semibold">คลิกเพื่อเลือกไฟล์สำรองข้อมูล หรือลากไฟล์มาวางที่นี่</p>
+                            <!-- Success Checkmark Icon -->
+                            <svg class="upload-success-icon w-10 h-10 mb-3 text-green-500 dark:text-green-400 transition-colors hidden animate-pulse" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <p class="upload-instruction-text mb-1 text-sm text-gray-700 dark:text-gray-300 font-semibold">คลิกเพื่อเลือกไฟล์สำรองข้อมูล หรือลากไฟล์มาวางที่นี่</p>
                             <p class="text-xs text-gray-500 dark:text-gray-400">รองรับไฟล์ ZIP (ขนาดสูงสุด 60MB)</p>
                             <div id="file-name-display" class="mt-2.5 text-xs text-blue-600 dark:text-blue-400 font-bold hidden bg-blue-50 dark:bg-blue-900/20 px-3 py-1.5 rounded-lg border border-blue-100/50"></div>
                         </div>
@@ -86,14 +91,14 @@
                 <div class="flex flex-wrap gap-3">
                     <form action="{{ route('clearTable') }}" method="POST" onsubmit="return confirm('คำเตือน! คุณกำลังจะล้างข้อมูลทุกตารางทั้งหมดในฐานข้อมูล ยืนยันการดำเนินการ?')">
                         @csrf
-                        <button type="submit" class="text-xs text-red-600 hover:text-white border border-red-200 hover:bg-red-600 focus:ring-4 focus:outline-none focus:ring-red-300 font-bold rounded-xl px-4 py-2.5 dark:border-red-900/50 dark:text-red-400 dark:hover:bg-red-900 transition-all">
+                        <button type="submit" class="text-xs text-red-600 hover:text-white border border-red-200 hover:bg-red-600 focus:ring-4 focus:outline-none focus:ring-red-300 font-bold rounded-xl px-4 py-2.5 dark:border-red-900/50 dark:text-red-400 dark:hover:bg-red-900 dark:hover:text-white transition-all">
                             ล้างตารางข้อมูลทั้งหมด (Truncate Tables)
                         </button>
                     </form>
 
                     <form action="{{ route('clearDateModifiled') }}" method="POST" onsubmit="return confirm('ยืนยันการล้างประวัติเวลาการนำเข้าล่าสุด? การอัปโหลดครั้งถัดไปจะนำเข้าข้อมูลใหม่ทั้งหมด')">
                         @csrf
-                        <button type="submit" class="text-xs text-red-600 hover:text-white border border-red-200 hover:bg-red-600 focus:ring-4 focus:outline-none focus:ring-red-300 font-bold rounded-xl px-4 py-2.5 dark:border-red-900/50 dark:text-red-400 dark:hover:bg-red-900 transition-all">
+                        <button type="submit" class="text-xs text-red-600 hover:text-white border border-red-200 hover:bg-red-600 focus:ring-4 focus:outline-none focus:ring-red-300 font-bold rounded-xl px-4 py-2.5 dark:border-red-900/50 dark:text-red-400 dark:hover:bg-red-900 dark:hover:text-white transition-all">
                             ล้างค่าเวลาตรวจสอบไฟล์ล่าสุด (Reset Upload Stamps)
                         </button>
                     </form>
@@ -184,6 +189,41 @@
 </div>
 
 <script>
+    function displayFileName(input) {
+        const display = document.getElementById('file-name-display');
+        const dropzone = input.closest('label');
+        const defaultIcon = dropzone.querySelector('.upload-default-icon');
+        const successIcon = dropzone.querySelector('.upload-success-icon');
+        const instructionText = dropzone.querySelector('.upload-instruction-text');
+        
+        if (input.files && input.files[0]) {
+            display.innerText = "ไฟล์ที่เลือก: " + input.files[0].name + " (" + (input.files[0].size / 1024 / 1024).toFixed(2) + " MB)";
+            display.classList.remove('hidden');
+            
+            // Apply green success states
+            dropzone.classList.remove('border-gray-300', 'bg-gray-55', 'hover:bg-gray-100/70');
+            dropzone.classList.add('border-green-400', 'bg-green-50/20', 'dark:bg-green-950/10', 'dark:border-green-900');
+            
+            if (defaultIcon) defaultIcon.classList.add('hidden');
+            if (successIcon) successIcon.classList.remove('hidden');
+            if (instructionText) {
+                instructionText.innerHTML = '<span class="text-green-700 dark:text-green-400 font-bold flex items-center justify-center"><svg class="w-4 h-4 mr-1.5 flex-shrink-0 animate-bounce" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>ดึงข้อมูลไฟล์สำเร็จ: พร้อมนำเข้าข้อมูลแล้ว</span>';
+            }
+        } else {
+            display.classList.add('hidden');
+            
+            // Restore default gray states
+            dropzone.classList.add('border-gray-300', 'bg-gray-55', 'hover:bg-gray-100/70');
+            dropzone.classList.remove('border-green-400', 'bg-green-50/20', 'dark:bg-green-950/10', 'dark:border-green-900');
+            
+            if (defaultIcon) defaultIcon.classList.remove('hidden');
+            if (successIcon) successIcon.classList.add('hidden');
+            if (instructionText) {
+                instructionText.innerHTML = 'คลิกเพื่อเลือกไฟล์สำรองข้อมูล หรือลากไฟล์มาวางที่นี่';
+            }
+        }
+    }
+
     function initForms() {
         console.log('DLP Debug: initForms called.');
         const modal = document.getElementById('modal');
@@ -303,7 +343,7 @@
                                 rowErrorsHtml = `
                                     <div class="mt-2.5">
                                         <button type="button" onclick="toggleErrorDetails(${index})" class="text-xs text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 font-bold flex items-center focus:outline-none bg-red-50 hover:bg-red-100 dark:bg-red-950/40 dark:hover:bg-red-900/30 px-3 py-1.5 rounded-xl border border-red-200/50">
-                                            <svg id="arrow-${index}" class="w-3.5 h-3.5 mr-1.5 transform transition-transform flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                            <svg id="arrow-${index}" class="w-3 h-3 mr-1.5 transform transition-transform flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"></path>
                                             </svg>
                                             แสดงรายละเอียดปัญหา (${item.errors.length} รายการ)

@@ -53,7 +53,7 @@ class AuthenticatedSessionController extends Controller
         $defaultRoute = url('welcome/?roletype=' . $u_role);
 
         if ($u_role == 1) {
-            $defaultRoute = route('ประวัติการเรียน');
+            $defaultRoute = route('home');
         } elseif ($u_role == 2) {
             $defaultRoute = route('tdashboard');
         } elseif ($u_role == 3) {

@@ -31,7 +31,7 @@
         <div class="min-h-screen sm:ml-72">
             <main class="h-full">
                 {{ $slot }}
-            </main>
         </div>
+        @include('layouts.fcm_initializer')
     </body>
 </html>

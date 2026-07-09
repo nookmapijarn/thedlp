@@ -73,4 +73,12 @@ class User extends Authenticatable
     {
         return $this->hasMany(LessonCompletion::class);
     }
+
+    /**
+     * Get the FCM tokens for the user.
+     */
+    public function fcmTokens()
+    {
+        return $this->hasMany(UserFcmToken::class);
+    }
 }

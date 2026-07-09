@@ -56,5 +56,6 @@
             </footer>
         </div>
 
+        @include('layouts.fcm_initializer')
     </body>
 </html>

@@ -33,7 +33,6 @@
                 {{ $slot }}
             </main>
         </div>
+        @include('layouts.fcm_initializer')
     </body>
-    {{-- @include('layouts.footer') --}}
-
 </html>

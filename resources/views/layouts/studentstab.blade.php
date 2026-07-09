@@ -4,6 +4,11 @@
     // รวมเมนูทั้งหมดไว้ที่เดียวเพื่อการจัดการที่ง่าย
 $menuItems = [
     [
+        'url' => 'home', 
+        'label' => 'หน้าแรก', 
+        'icon' => 'M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z'
+    ],
+    [
         'url' => 'ประวัติการเรียน', 
         'label' => 'ประวัติการเรียน', 
         'icon' => 'M13.5 2c-.178 0-.356.013-.492.022l-.074.005a1 1 0 0 0-.934.998V11a1 1 0 0 0 1 1h7.975a1 1 0 0 0 .998-.934l.005-.074A7.04 7.04 0 0 0 22 10.5 8.5 8.5 0 0 0 13.5 2Z M11 6.025a1 1 0 0 0-1.065-.998 8.5 8.5 0 1 0 9.038 9.039A1 1 0 0 0 17.975 13H11V6.025Z'
@@ -43,6 +48,11 @@ $menuItems = [
         'label' => 'การลงทะเบียน', 
         'icon' => 'M8 3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1h2a2 2 0 0 1 2 2v15a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h2Zm6 1h-4v2H9a1 1 0 0 0 0 2h6a1 1 0 1 0 0-2h-1V4Zm-3 8a1 1 0 0 1 1-1h3a1 1 0 1 1 0 2h-3a1 1 0 0 1-1-1Zm-2-1a1 1 0 1 0 0 2h.01a1 1 0 1 0 0-2H9Zm2 5a1 1 0 0 1 1-1h3a1 1 0 1 1 0 2h-3a1 1 0 0 1-1-1Zm-2-1a1 1 0 1 0 0 2h.01a1 1 0 1 0 0-2H9Z'
     ],
+    [
+        'url' => 'ศูนย์รับแจ้งปัญหา', 
+        'label' => 'ศูนย์รับแจ้งปัญหา', 
+        'icon' => 'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z'
+    ],
 ];
 
     $mainMenus = array_slice($menuItems, 0, 3);
@@ -66,6 +76,16 @@ $menuItems = [
                             <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="{{ $item['icon'] }}"/></svg>
                         </div>
                         <span class="ms-3 uppercase tracking-widest">{{ $item['label'] }}</span>
+                        @if($item['url'] == 'ศูนย์รับแจ้งปัญหา')
+                            @php
+                                $unreadNotifCount = \App\Models\HelpNotification::where('user_id', Auth::id())->where('is_read', false)->count();
+                            @endphp
+                            @if($unreadNotifCount > 0)
+                                <span class="inline-flex items-center justify-center w-5 h-5 ms-auto text-xs font-bold text-white bg-red-600 rounded-full">
+                                    {{ $unreadNotifCount }}
+                                </span>
+                            @endif
+                        @endif
                     </a>
                 </li>
             @endforeach
@@ -105,9 +125,19 @@ $menuItems = [
         </div>
         <div class="grid grid-cols-3 gap-4 pb-10">
             @foreach ($moreMenus as $item)
-                <a href="{{ url($item['url']) }}" class="flex flex-col items-center p-4 bg-white rounded-3xl shadow-sm border border-slate-100 {{ Request::is($item['url']) ? 'text-blue-600 ring-2 ring-blue-100' : 'text-slate-500' }}">
+                <a href="{{ url($item['url']) }}" class="flex flex-col items-center p-4 bg-white rounded-3xl shadow-sm border border-slate-100 {{ Request::is($item['url']) ? 'text-blue-600 ring-2 ring-blue-100' : 'text-slate-500' }} relative">
                     <svg class="w-8 h-8 mb-2" fill="currentColor" viewBox="0 0 24 24"><path d="{{ $item['icon'] }}"/></svg>
                     <span class="text-[10px] font-bold text-center leading-tight">{{ $item['label'] }}</span>
+                    @if($item['url'] == 'ศูนย์รับแจ้งปัญหา')
+                        @php
+                            $unreadNotifCount = \App\Models\HelpNotification::where('user_id', Auth::id())->where('is_read', false)->count();
+                        @endphp
+                        @if($unreadNotifCount > 0)
+                            <span class="absolute top-2 right-2 inline-flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-red-650 rounded-full">
+                                {{ $unreadNotifCount }}
+                            </span>
+                        @endif
+                    @endif
                 </a>
             @endforeach
         </div>

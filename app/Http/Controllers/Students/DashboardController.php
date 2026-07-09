@@ -137,19 +137,22 @@ class DashboardController extends Controller
     }
 
     public function grade_avg($gradelist) {
-        $grade = 0;
-        $all_grade = 0;
-        $grade_avg = 0;
+        $totalPoints = 0;
+        $totalCredits = 0;
         foreach ($gradelist as $g) {
-            if (is_numeric($g->GRADE) && $g->GRADE != 0) {   
-                $grade += $g->GRADE;
-                $all_grade++;
+            if (is_numeric($g->GRADE) && $g->GRADE > 0) {
+                $subject = $this->getSubject($g->SUB_CODE);
+                $credit = $subject ? $subject->SUB_CREDIT : 0;
+                
+                $totalPoints += (float)$g->GRADE * $credit;
+                $totalCredits += $credit;
             }
         }
-        if ($all_grade != 0) {
-            $grade_avg = round($grade / $all_grade, 2);
+        
+        if ($totalCredits > 0) {
+            return round($totalPoints / $totalCredits, 2);
         }       
-        return $grade_avg;
+        return 0;
     }
 
     public function exam_avg($gradelist) {
@@ -225,5 +228,114 @@ class DashboardController extends Controller
 
     public function getStudentidByUser() {
         return auth()->user()->student_id;
+    }
+
+    public function home()
+    {
+        $id = auth()->user()->student_id;
+        $this->lavel = str_split($id, 1)[3];
+        $userId = auth()->id();
+        
+        // ดึง STD_CODE
+        $this->std_code = DB::table("student{$this->lavel}")
+            ->where('ID', $id)
+            ->value('STD_CODE');
+
+        // ดึงข้อมูลหลัก
+        $student = DB::table("student{$this->lavel}")
+            ->where('STD_CODE', $this->std_code)
+            ->first();
+
+        // 1. ดึงหลักสูตรออนไลน์ที่เผยแพร่ล่าสุด 3 รายการ
+        $courses = \App\Models\Course::with('teacher')
+            ->where('is_published', true)
+            ->latest()
+            ->take(3)
+            ->get();
+
+        // 2. ดึงข้อสอบที่ได้รับมอบหมายล่าสุด 3 รายการ
+        $assignedQuizzes = DB::table('quiz_assignments')
+            ->join('quizzes', 'quiz_assignments.quiz_id', '=', 'quizzes.id')
+            ->leftJoin('users', 'quizzes.created_by', '=', 'users.id')
+            ->where('quiz_assignments.user_id', $userId)
+            ->select(
+                'quizzes.*',
+                'users.name as created_by_name',
+                'quiz_assignments.assigned_at',
+                'quiz_assignments.due_date',
+                'quiz_assignments.is_completed'
+            )
+            ->orderBy('quiz_assignments.is_completed', 'asc')
+            ->orderBy('quiz_assignments.assigned_at', 'desc')
+            ->take(3)
+            ->get();
+
+        // 3. ดึงคลังข้อสอบทั่วไปที่เหมาะสมกับระดับชั้นล่าสุด 3 รายการ
+        $quizzes = DB::table('quizzes')
+            ->leftJoin('users', 'quizzes.created_by', '=', 'users.id')
+            ->select(
+                'quizzes.*', 
+                'users.name as creator_name'
+            )
+            ->addSelect([
+                'is_attempted' => DB::table('quiz_attempts')
+                    ->selectRaw('count(*)')
+                    ->whereColumn('quiz_id', 'quizzes.id')
+                    ->where('user_id', $userId)
+                    ->whereNotNull('finished_at')
+                    ->limit(1)
+            ])
+            ->where('quizzes.is_active', 1)
+            ->where(function($q) {
+                $q->where('quizzes.grade_level', 0)
+                  ->orWhere('quizzes.grade_level', $this->lavel);
+            })
+            ->latest()
+            ->take(3)
+            ->get();
+
+        // 4. ดึงข้อมูลกิจกรรม กพช.
+        $activity = DB::table("activity{$this->lavel}")
+            ->where('STD_CODE', $this->std_code)
+            ->get();
+        $act_sum = 0;
+        foreach ($activity as $p) {
+            $act_sum += $p->HOUR;
+        }
+        $act_percentage = min(100, round(($act_sum * 100) / 200, 0));
+
+        // 5. ดึงข้อมูลรายวิชาและคำนวณหน่วยกิต
+        $gradelist = DB::table("grade{$this->lavel}")
+            ->where('STD_CODE', $this->std_code)
+            ->get();
+        $credit_data = $this->cal_credit($gradelist);
+        $credit = $credit_data['CREDIT'];
+        $allcredit = $credit_data['ALL_CREDIT'];
+        $credit_percent = $allcredit != 0 ? round(($credit * 100) / $allcredit, 0) : 0;
+
+        // 6. คำนวณเกรดเฉลี่ยสะสม
+        $grade_avg = $this->grade_avg($gradelist);
+
+        // 7. ดึงรายการภาคเรียนที่ลงทะเบียน
+        $semestrylist1 = DB::table("grade{$this->lavel}")
+            ->where('STD_CODE', $this->std_code)
+            ->select('SEMESTRY')
+            ->distinct()
+            ->orderBy('SEMESTRY', 'ASC')
+            ->get();
+
+        return view('students.home', compact(
+            'courses', 
+            'assignedQuizzes', 
+            'quizzes', 
+            'student', 
+            'act_sum', 
+            'act_percentage', 
+            'credit', 
+            'allcredit', 
+            'credit_percent', 
+            'grade_avg',
+            'semestrylist1'
+        ));
     }
 }
