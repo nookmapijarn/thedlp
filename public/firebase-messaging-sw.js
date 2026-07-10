@@ -15,6 +15,15 @@ firebase.initializeApp(firebaseConfig);
 
 const messaging = firebase.messaging();
 
+// Force immediate activation of the updated service worker
+self.addEventListener('install', (event) => {
+    self.skipWaiting();
+});
+
+self.addEventListener('activate', (event) => {
+    event.waitUntil(clients.claim());
+});
+
 // Handle background messages
 messaging.onBackgroundMessage((payload) => {
     console.log('[firebase-messaging-sw.js] Received background message ', payload);
@@ -24,14 +33,33 @@ messaging.onBackgroundMessage((payload) => {
 self.addEventListener('notificationclick', function(event) {
     event.notification.close();
 
-    // Retrieve the target URL from the data payload (supporting both manual and Firebase SDK auto-display payloads)
+    // Retrieve the target URL or fallback to ticket query parameter
     let redirectUrl = '/';
+    let ticketId = null;
+
     if (event.notification.data) {
         if (event.notification.data.url) {
             redirectUrl = event.notification.data.url;
-        } else if (event.notification.data.FCM_MSG && event.notification.data.FCM_MSG.data && event.notification.data.FCM_MSG.data.url) {
-            redirectUrl = event.notification.data.FCM_MSG.data.url;
         }
+        if (event.notification.data.ticket) {
+            ticketId = event.notification.data.ticket;
+        }
+
+        // Check inside nested FCM_MSG parameter object structure
+        if (event.notification.data.FCM_MSG && event.notification.data.FCM_MSG.data) {
+            const fcmData = event.notification.data.FCM_MSG.data;
+            if (fcmData.url) {
+                redirectUrl = fcmData.url;
+            }
+            if (fcmData.ticket) {
+                ticketId = fcmData.ticket;
+            }
+        }
+    }
+
+    // Dynamic fallback URL for raw ticket notifications
+    if (redirectUrl === '/' && ticketId) {
+        redirectUrl = '/ศูนย์รับแจ้งปัญหา?ticket=' + ticketId;
     }
 
     // Force open the redirect URL in a new window/tab for maximum mobile compatibility
