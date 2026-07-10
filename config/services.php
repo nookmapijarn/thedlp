@@ -43,6 +43,6 @@ return [
         'messaging_sender_id' => env('FIREBASE_MESSAGING_SENDER_ID'),
         'app_id' => env('FIREBASE_APP_ID'),
         'vapid_key' => env('FIREBASE_VAPID_KEY'),
-        'credentials_path' => env('FIREBASE_CREDENTIALS_PATH'),
+        'credentials_path' => env('FIREBASE_CREDENTIALS_PATH', base_path('olis-b1bc2-firebase-adminsdk-fbsvc-057ba63d59.json')),
     ],
 ];
