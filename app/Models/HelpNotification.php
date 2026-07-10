@@ -44,7 +44,10 @@ class HelpNotification extends Model
                 $userId,
                 'ศูนย์รับแจ้งปัญหา (OLIS)',
                 $message,
-                ['ticket' => $helpRequestId]
+                [
+                    'ticket' => (string) $helpRequestId,
+                    'url' => route('notifications.read', ['id' => $notification->id])
+                ]
             );
         } catch (\Exception $e) {
             logger()->error("FCM Dispatch Error: " . $e->getMessage());

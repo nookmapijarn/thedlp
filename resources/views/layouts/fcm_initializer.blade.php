@@ -67,7 +67,13 @@
                             icon: '/storage/logo.png',
                             data: payload.data
                         };
-                        new Notification(notificationTitle, notificationOptions);
+                        const notification = new Notification(notificationTitle, notificationOptions);
+                        
+                        notification.onclick = function(event) {
+                            event.preventDefault();
+                            const redirectUrl = payload.data ? payload.data.url : '/';
+                            window.location.href = redirectUrl;
+                        };
                     }
                 });
 
