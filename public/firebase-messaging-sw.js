@@ -67,3 +67,8 @@ self.addEventListener('notificationclick', function(event) {
         clients.openWindow(redirectUrl)
     );
 });
+
+// Register a fetch handler to satisfy PWA installation criteria in mobile browsers
+self.addEventListener('fetch', (event) => {
+    // Pass-through request fetch
+});

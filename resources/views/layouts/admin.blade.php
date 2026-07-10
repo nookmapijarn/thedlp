@@ -9,6 +9,7 @@
         <meta name="robots" content="ทะเบียนนักศึกษา - 'app.name_th' {{ config('app.name_th') }}, นักศึกษา {{ config('app.name_th') }}, ผลการเรียน {{ config('app.name_th') }}">
         <title>{{ config('app.name') }} {{ config('app.name_th') }} </title>
         <link rel="icon" type="image/x-icon" href="{{asset('storage/logo.png');}}">
+        <link rel="manifest" href="/manifest.json">
 
         <!-- Fonts -->
         <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
@@ -34,5 +35,6 @@
             </main>
         </div>
         @include('layouts.fcm_initializer')
+        @include('layouts.pwa_installer')
     </body>
 </html>
