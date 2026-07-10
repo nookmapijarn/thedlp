@@ -116,6 +116,8 @@ class FcmService
             return false;
         }
 
+        $logoUrl = asset('storage/logo.png');
+
         $successCount = 0;
         foreach ($tokens as $token) {
             $payload = [
@@ -124,6 +126,11 @@ class FcmService
                     'notification' => [
                         'title' => $title,
                         'body' => $body
+                    ],
+                    'webpush' => [
+                        'notification' => [
+                            'icon' => $logoUrl
+                        ]
                     ],
                     'data' => array_map('strval', $data) // FCM requires data values to be strings
                 ]
@@ -141,8 +148,18 @@ class FcmService
                 
                 // If token is invalid/expired, clean it up from DB
                 $resJson = $response->json();
-                if (isset($resJson['error']['status']) && 
-                    ($resJson['error']['status'] === 'UNREGISTERED' || $resJson['error']['message'] === 'The registration token is not a valid FCM registration token')) {
+                $isUnregistered = false;
+                if (isset($resJson['error'])) {
+                    $err = $resJson['error'];
+                    if (isset($err['message']) && ($err['message'] === 'NotRegistered' || $err['message'] === 'Requested entity was not found.' || $err['message'] === 'The registration token is not a valid FCM registration token')) {
+                        $isUnregistered = true;
+                    }
+                    if (isset($err['details'][0]['errorCode']) && $err['details'][0]['errorCode'] === 'UNREGISTERED') {
+                        $isUnregistered = true;
+                    }
+                }
+
+                if ($isUnregistered) {
                     \App\Models\UserFcmToken::where('token', $token)->delete();
                 }
             }

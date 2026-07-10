@@ -15,19 +15,9 @@ firebase.initializeApp(firebaseConfig);
 
 const messaging = firebase.messaging();
 
-// Handle background messages
+// Handle background messages (Firebase SDK displays them natively based on FCM payload notification block)
 messaging.onBackgroundMessage((payload) => {
     console.log('[firebase-messaging-sw.js] Received background message ', payload);
-    
-    const notificationTitle = payload.notification.title || 'แจ้งเตือนจากระบบ OLIS';
-    const notificationOptions = {
-        body: payload.notification.body || 'มีข้อความอัปเดตใหม่ถึงคุณ',
-        icon: '/storage/logo.png',
-        badge: '/storage/logo.png',
-        data: payload.data || {}
-    };
-
-    self.registration.showNotification(notificationTitle, notificationOptions);
 });
 
 // Handle notification click to redirect users to the target action page
