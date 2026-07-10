@@ -15,7 +15,7 @@ firebase.initializeApp(firebaseConfig);
 
 const messaging = firebase.messaging();
 
-// Handle background messages (Firebase SDK displays them natively based on FCM payload notification block)
+// Handle background messages
 messaging.onBackgroundMessage((payload) => {
     console.log('[firebase-messaging-sw.js] Received background message ', payload);
 });
@@ -24,21 +24,18 @@ messaging.onBackgroundMessage((payload) => {
 self.addEventListener('notificationclick', function(event) {
     event.notification.close();
 
-    const redirectUrl = event.notification.data ? event.notification.data.url : '/';
+    // Retrieve the target URL from the data payload (supporting both manual and Firebase SDK auto-display payloads)
+    let redirectUrl = '/';
+    if (event.notification.data) {
+        if (event.notification.data.url) {
+            redirectUrl = event.notification.data.url;
+        } else if (event.notification.data.FCM_MSG && event.notification.data.FCM_MSG.data && event.notification.data.FCM_MSG.data.url) {
+            redirectUrl = event.notification.data.FCM_MSG.data.url;
+        }
+    }
 
+    // Force open the redirect URL in a new window/tab for maximum mobile compatibility
     event.waitUntil(
-        clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function(windowClients) {
-            // Focus if a window with our domain is already open
-            for (var i = 0; i < windowClients.length; i++) {
-                var client = windowClients[i];
-                if (client.url.indexOf(self.location.origin) === 0 && 'focus' in client) {
-                    return client.navigate(redirectUrl).then(c => c.focus());
-                }
-            }
-            // If no window is open, open a new tab
-            if (clients.openWindow) {
-                return clients.openWindow(redirectUrl);
-            }
-        })
+        clients.openWindow(redirectUrl)
     );
 });
