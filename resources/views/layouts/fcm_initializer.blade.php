@@ -64,7 +64,7 @@
                         const notificationTitle = payload.notification.title || 'ศูนย์รับแจ้งปัญหา (OLIS)';
                         const notificationOptions = {
                             body: payload.notification.body,
-                            icon: '/storage/logo.png',
+                            icon: '/storage/olislogo.png',
                             data: payload.data
                         };
                         const notification = new Notification(notificationTitle, notificationOptions);

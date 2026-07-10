@@ -116,7 +116,7 @@ class FcmService
             return false;
         }
 
-        $logoUrl = asset('storage/logo.png');
+        $logoUrl = asset('storage/olislogo.png');
 
         $successCount = 0;
         foreach ($tokens as $token) {
