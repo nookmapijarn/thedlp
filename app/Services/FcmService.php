@@ -85,7 +85,19 @@ class FcmService
      */
     public static function sendPushNotification($userId, $title, $body, $data = [])
     {
-        $credentialsPath = config('services.firebase.credentials_path') ?? base_path('firebase-credentials.json');
+        $credentialsPath = config('services.firebase.credentials_path');
+        
+        if ($credentialsPath && !file_exists($credentialsPath)) {
+            $resolvedPath = base_path($credentialsPath);
+            if (file_exists($resolvedPath)) {
+                $credentialsPath = $resolvedPath;
+            }
+        }
+
+        if (empty($credentialsPath) || !file_exists($credentialsPath)) {
+            $credentialsPath = base_path('olis-b1bc2-firebase-adminsdk-fbsvc-057ba63d59.json');
+        }
+        
         $projectId = config('services.firebase.project_id');
 
         if (empty($projectId)) {
