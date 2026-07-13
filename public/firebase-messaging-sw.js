@@ -15,13 +15,35 @@ firebase.initializeApp(firebaseConfig);
 
 const messaging = firebase.messaging();
 
-// Force immediate activation of the updated service worker
+const CACHE_NAME = 'olis-offline-cache-v1';
+const OFFLINE_URL = '/offline';
+
+// Cache the offline fallback page on installation
 self.addEventListener('install', (event) => {
     self.skipWaiting();
+    event.waitUntil(
+        caches.open(CACHE_NAME).then((cache) => {
+            return cache.add(new Request(OFFLINE_URL, { cache: 'reload' }));
+        })
+    );
 });
 
+// Clean up old caches on activation
 self.addEventListener('activate', (event) => {
-    event.waitUntil(clients.claim());
+    event.waitUntil(
+        Promise.all([
+            clients.claim(),
+            caches.keys().then((cacheNames) => {
+                return Promise.all(
+                    cacheNames.map((cacheName) => {
+                        if (cacheName !== CACHE_NAME) {
+                            return caches.delete(cacheName);
+                        }
+                    })
+                );
+            })
+        ])
+    );
 });
 
 // Handle background messages
@@ -86,7 +108,16 @@ self.addEventListener('notificationclick', function(event) {
     );
 });
 
-// Register a fetch handler to satisfy PWA installation criteria in mobile browsers
+// Intercept fetch requests and return offline fallback page if network fails
 self.addEventListener('fetch', (event) => {
-    // Pass-through request fetch
+    // Only intercept navigation requests (i.e. loading html pages)
+    if (event.request.mode === 'navigate') {
+        event.respondWith(
+            fetch(event.request).catch(() => {
+                return caches.open(CACHE_NAME).then((cache) => {
+                    return cache.match(OFFLINE_URL);
+                });
+            })
+        );
+    }
 });

@@ -1,6 +1,17 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
     <head>
+        <script>
+            (function() {
+                const userId = {{ auth()->id() ?? 'null' }};
+                if (userId) {
+                    const lastActiveUrl = localStorage.getItem('olis_last_active_url_u' + userId);
+                    if (lastActiveUrl && lastActiveUrl !== window.location.href) {
+                        window.location.replace(lastActiveUrl);
+                    }
+                }
+            })();
+        </script>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">

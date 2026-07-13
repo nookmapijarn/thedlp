@@ -44,6 +44,7 @@
                 {{ $slot }}
             </main>
         </div>
+        @include('layouts.pwa_installer')
     </body>
     @include('layouts.footer')
 </html>

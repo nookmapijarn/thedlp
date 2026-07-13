@@ -8,6 +8,9 @@
         <meta name="description" content="ทะเบียนนักศึกษา - 'app.name_th' {{ config('app.name_th') }}, นักศึกษา {{ config('app.name_th') }}, ผลการเรียน {{ config('app.name_th') }}">
         <meta name="robots" content="ทะเบียนนักศึกษา - 'app.name_th' {{ config('app.name_th') }}, นักศึกษา {{ config('app.name_th') }}, ผลการเรียน {{ config('app.name_th') }}">
         <title>{{ config('app.name') }} {{ config('app.name_th') }} (สำหรับครู)</title>
+        <meta name="theme-color" content="#7e22ce">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-status-bar-style" content="#7e22ce">
         <link rel="icon" type="image/x-icon" href="{{asset('storage/logo.png');}}">
         <link rel="manifest" href="/manifest.json">
 
@@ -23,7 +26,12 @@
 
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
-        
+        <style>
+            body { 
+                overscroll-behavior-y: contain; /* ป้องกันการดึงหน้าจอเพื่อรีเฟรชบนมือถือ */
+                -webkit-tap-highlight-color: transparent;
+            }
+        </style>
     </head>
     
     <body class="font-sans antialiased min-h-screen">

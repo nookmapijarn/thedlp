@@ -43,8 +43,11 @@
                 <div class="h-[1px] w-12 bg-purple-500 mx-auto opacity-80"></div>
                 <p class="text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em]">สร้างบัญชีผู้ใช้งานใหม่</p>
             </div>
+            
+
 
             <div class="bg-white/70 backdrop-blur-md rounded-[2rem] p-8 sm:p-10 border border-white shadow-2xl shadow-slate-200/50">
+                <label class="block text-[20px] font-bold text-gray-900 uppercase tracking-[0.2em] text-center">สำหรับผู้เรียนเท่านั้น</label>
                 <form method="POST" action="{{ route('register') }}" class="space-y-5">
                     @csrf
 

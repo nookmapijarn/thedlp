@@ -85,6 +85,11 @@ class FcmService
      */
     public static function sendPushNotification($userId, $title, $body, $data = [])
     {
+        if (auth()->check() && $userId == auth()->id()) {
+            return false;
+        }
+        $data['recipient_id'] = (string) $userId;
+
         $credentialsPath = config('services.firebase.credentials_path');
         
         if ($credentialsPath && !file_exists($credentialsPath)) {

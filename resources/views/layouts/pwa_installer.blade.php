@@ -1,3 +1,9 @@
+<!-- PWA Offline Status Banner -->
+<div id="pwa-offline-bar" class="fixed top-0 left-0 w-full z-[9999] bg-rose-600 text-white text-[11px] font-black py-2 text-center flex items-center justify-center gap-1.5 shadow-md transform -translate-y-full transition-all duration-300">
+    <span class="w-2 h-2 rounded-full bg-white animate-pulse"></span>
+    <span>⚠️ ขาดการเชื่อมต่ออินเทอร์เน็ต - ระบบกำลังทำงานในโหมดออฟไลน์ (Connection Offline)</span>
+</div>
+
 <!-- PWA Interactive Install Prompt Card -->
 <div id="pwa-install-prompt" class="fixed bottom-6 left-6 z-[999] max-w-md w-[calc(100%-3rem)] sm:w-96 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-2xl p-5 transform -translate-y-10 opacity-0 pointer-events-none transition-all duration-500 ease-out flex gap-4">
     <!-- Glowing Animated Download Icon -->
@@ -24,6 +30,38 @@
 
 <script>
     document.addEventListener("DOMContentLoaded", function () {
+        // --- 1. Offline Mode Detection ---
+        const offlineBar = document.getElementById('pwa-offline-bar');
+
+        if (offlineBar) {
+            window.addEventListener('offline', () => {
+                showOfflineBar();
+            });
+
+            window.addEventListener('online', () => {
+                hideOfflineBar();
+            });
+
+            // Initial status check on page load
+            if (!navigator.onLine) {
+                showOfflineBar();
+            }
+        }
+
+        function showOfflineBar() {
+            if (offlineBar) {
+                offlineBar.classList.remove('-translate-y-full');
+            }
+        }
+
+        function hideOfflineBar() {
+            if (offlineBar) {
+                offlineBar.classList.add('-translate-y-full');
+            }
+        }
+
+
+        // --- 2. PWA Installation Event Prompt ---
         let deferredPrompt;
         const promptEl = document.getElementById('pwa-install-prompt');
         const btnInstall = document.getElementById('pwa-prompt-btn-install');
@@ -102,5 +140,18 @@
             hidePwaPrompt();
             deferredPrompt = null;
         });
+
+        // --- 3. Save last active page URL ---
+        (function() {
+            const userId = {{ auth()->id() ?? 'null' }};
+            if (userId) {
+                const currentUrl = window.location.href;
+                const excludeKeywords = ['/login', '/logout', '/register', '/password', '/welcome', '/olis', '/regis', 'offline'];
+                const shouldExclude = excludeKeywords.some(keyword => currentUrl.includes(keyword)) || window.location.pathname === '/';
+                if (!shouldExclude) {
+                    localStorage.setItem('olis_last_active_url_u' + userId, currentUrl);
+                }
+            }
+        })();
     });
 </script>

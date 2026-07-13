@@ -19,6 +19,11 @@ class FcmController extends Controller
         $token = $request->token;
         $deviceType = $request->device_type ?? 'web';
 
+        // Remove token association from any other users first (prevent shared browser token leakage)
+        UserFcmToken::where('token', $token)
+            ->where('user_id', '!=', $userId)
+            ->delete();
+
         // Store or update the token for this user
         UserFcmToken::updateOrCreate(
             [

@@ -169,7 +169,7 @@
                     <p class="text-sm text-slate-500 dark:text-slate-400 font-bold">ไม่พบข้อมูลคำร้องขอความช่วยเหลือในหมวดหมู่สถานะนี้</p>
                 </div>
             @else
-                <div class="space-y-6" x-data="{ activeTicket: {{ request()->query('ticket') ?? 'null' }} }">
+                <div class="space-y-6" x-data="{ activeTicket: {{ request()->query('ticket') ?? 'null' }} }" x-init="$watch('activeTicket', value => { if(value) { initChatPolling(value); } else { stopChatPolling(); } }); if (activeTicket) { initChatPolling(activeTicket); }">
                     @foreach($filteredRequests as $item)
                         <div id="ticket-{{ $item->id }}"
                              :class="activeTicket === {{ $item->id }} 
@@ -260,52 +260,38 @@
                                     </div>
                                 </div>
 
-                                <!-- Subject and Details Message -->
-                                <div class="space-y-1.5">
-                                    <h4 class="text-base font-extrabold text-slate-900 dark:text-white">{{ $item->subject }}</h4>
-                                    <p class="text-xs sm:text-sm text-slate-700 dark:text-slate-350 leading-relaxed bg-slate-50/50 dark:bg-gray-800/80 p-4 rounded-xl border border-slate-100 dark:border-slate-700/40 whitespace-pre-wrap">{{ $item->message }}</p>
-                                </div>
-
-                                <!-- Logs / Timeline history list -->
-                                @if($item->logs && $item->logs->count() > 0)
-                                    <div class="p-4 bg-slate-50 dark:bg-slate-800/30 border border-slate-100 dark:border-slate-800 rounded-2xl space-y-3">
-                                        <!-- Shrunk clock icon to w-3 h-3 -->
-                                        <h5 class="text-xs font-bold text-indigo-700 dark:text-indigo-400 flex items-center gap-1.5">
-                                            <svg class="w-3 h-3 text-indigo-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                            บันทึกความคืบหน้าการทำงาน (Action Logs)
-                                        </h5>
-                                        <div class="space-y-3 pl-2 border-l border-indigo-150 dark:border-indigo-900/40">
-                                            @foreach($item->logs as $log)
-                                                <div class="relative pl-4 space-y-1 text-xs">
-                                                    <div class="absolute -left-[12.5px] top-1 w-2.5 h-2.5 rounded-full bg-indigo-500 dark:bg-indigo-400 border-2 border-white dark:border-gray-850 shadow-sm"></div>
-                                                    <div class="flex items-center gap-2 text-slate-500 dark:text-slate-450 font-bold">
-                                                        <span>{{ $log->action_detail }}</span>
-                                                        <span>•</span>
-                                                        <span>โดย: {{ $log->user?->name }}</span>
-                                                        <span>•</span>
-                                                        <span class="font-mono text-[10px]">{{ $log->created_at->addYears(543)->locale('th')->isoFormat('D MMM YY, HH:mm') }} น.</span>
-                                                    </div>
-                                                    @if($log->note)
-                                                        <p class="text-slate-600 dark:text-slate-350 bg-white/60 dark:bg-gray-800/60 p-2.5 rounded-xl border border-slate-100 dark:border-slate-700/30 mt-1 italic">
-                                                            "{{ $log->note }}"
-                                                        </p>
-                                                    @endif
+                                <!-- Chat Area Container -->
+                                <div class="space-y-4">
+                                    <div class="space-y-1">
+                                        <h4 class="text-sm font-extrabold text-slate-900 dark:text-white">หัวข้อ: {{ $item->subject }}</h4>
+                                        <p class="text-[11px] font-bold text-slate-400 dark:text-slate-500">หมวดหมู่: {{ $item->category }}</p>
+                                    </div>
+                                    
+                                    <!-- Chat Conversation Window -->
+                                    <div class="border border-slate-200/60 dark:border-gray-700/60 rounded-[2rem] overflow-hidden flex flex-col bg-slate-50/20 dark:bg-slate-900/30 h-[400px]">
+                                        <!-- Messages Scroll Area -->
+                                        <div id="chat-messages-{{ $item->id }}" class="flex-1 overflow-y-auto p-4 space-y-3.5 scrollbar-hide">
+                                            <!-- Loader -->
+                                            <div class="flex items-center justify-center h-full">
+                                                <div class="text-xs text-slate-450 dark:text-slate-500 font-bold flex items-center gap-2">
+                                                    <svg class="animate-spin h-4 w-4 text-indigo-500" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                                                    กำลังโหลดการสนทนา...
                                                 </div>
-                                            @endforeach
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Chat Input Bar -->
+                                        <div class="border-t border-slate-200/60 dark:border-gray-700/60 p-3 bg-white dark:bg-gray-800 flex gap-2 items-center">
+                                            <textarea id="chat-input-{{ $item->id }}" rows="1" placeholder="พิมพ์ข้อความตอบกลับ..." 
+                                                      class="flex-1 bg-slate-50 dark:bg-slate-700/40 border border-slate-200/80 dark:border-slate-650 rounded-xl px-4 py-2.5 text-xs font-semibold focus:ring-2 focus:ring-indigo-500 outline-none text-slate-800 dark:text-slate-100 placeholder:text-slate-400 resize-none max-h-20" 
+                                                      onkeydown="handleChatSubmit(event, {{ $item->id }})"></textarea>
+                                            <button onclick="sendChatMessage({{ $item->id }})" 
+                                                    class="p-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-md transition-all active:scale-95 flex items-center justify-center shrink-0">
+                                                <svg class="w-4 h-4 transform rotate-90" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126a59.768 59.768 0 0121.485 12 59.77 59.77 0 01-18.215 8.876L5.999 12zm0 0h7.5"></path></svg>
+                                            </button>
                                         </div>
                                     </div>
-                                @endif
-
-                                <!-- Admin Reply Panel -->
-                                @if($item->admin_reply)
-                                    <div class="mt-4 bg-indigo-50/50 dark:bg-indigo-950/20 border border-indigo-100 dark:border-indigo-900/40 p-4.5 rounded-[1.5rem] space-y-2 relative">
-                                        <div class="flex items-center gap-2">
-                                            <div class="w-5 h-5 bg-indigo-600 text-white rounded-full flex items-center justify-center font-bold text-[9px]">A</div>
-                                            <span class="text-xs font-black text-indigo-750 dark:text-indigo-400">ข้อความชี้แจงจากเจ้าหน้าที่:</span>
-                                        </div>
-                                        <p class="text-xs sm:text-sm text-slate-800 dark:text-slate-300 leading-relaxed font-semibold pl-7 whitespace-pre-wrap">{{ $item->admin_reply }}</p>
-                                    </div>
-                                @endif
+                                </div>
 
                             </div>
 
@@ -316,6 +302,139 @@
         </div>
 
     </div>
+
+    <script>
+        let activeChatInterval = null;
+        let currentUserId = {{ auth()->id() }};
+
+        function initChatPolling(ticketId) {
+            if (activeChatInterval) {
+                clearInterval(activeChatInterval);
+            }
+            fetchChatMessages(ticketId);
+            activeChatInterval = setInterval(() => {
+                fetchChatMessages(ticketId);
+            }, 3000);
+        }
+
+        function stopChatPolling() {
+            if (activeChatInterval) {
+                clearInterval(activeChatInterval);
+                activeChatInterval = null;
+            }
+        }
+
+        function fetchChatMessages(ticketId) {
+            const chatArea = document.getElementById(`chat-messages-${ticketId}`);
+            if (!chatArea) return;
+
+            fetch(`/help-requests/${ticketId}/messages`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.messages) {
+                        renderChatMessages(chatArea, data.messages);
+                    }
+                })
+                .catch(err => console.error('Error fetching chat:', err));
+        }
+
+        function renderChatMessages(container, messages) {
+            let htmlContent = '';
+            
+            messages.forEach(msg => {
+                if (msg.type === 'system') {
+                    htmlContent += `
+                        <div class="flex justify-center my-2">
+                            <span class="px-3 py-1 bg-slate-100 dark:bg-slate-800 text-[10px] font-black rounded-full text-slate-550 dark:text-slate-400 border border-slate-200/30">
+                                ${msg.text} • ${msg.time}
+                            </span>
+                        </div>
+                    `;
+                } else {
+                    const isMe = msg.user_id === currentUserId;
+                    if (isMe) {
+                        htmlContent += `
+                            <div class="flex justify-end gap-2 my-2.5">
+                                <div class="flex flex-col items-end max-w-[80%]">
+                                    <div class="px-4 py-2.5 bg-indigo-600 text-white rounded-2xl rounded-tr-none shadow-sm text-xs font-bold leading-relaxed whitespace-pre-wrap text-left">
+                                        ${msg.text}
+                                    </div>
+                                    <span class="text-[9px] text-slate-400 font-bold mt-1">${msg.time}</span>
+                                </div>
+                            </div>
+                        `;
+                    } else {
+                        htmlContent += `
+                            <div class="flex justify-start gap-2 my-2.5">
+                                <div class="w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-[11px] font-black text-slate-650 dark:text-slate-350 shrink-0">
+                                    ${msg.sender_name.charAt(0)}
+                                </div>
+                                <div class="flex flex-col items-start max-w-[80%]">
+                                    <span class="text-[10px] text-slate-400 font-extrabold mb-1">${msg.sender_name}</span>
+                                    <div class="px-4 py-2.5 bg-slate-100 dark:bg-slate-850 text-slate-800 dark:text-slate-200 rounded-2xl rounded-tl-none border border-slate-200/30 shadow-sm text-xs font-bold leading-relaxed whitespace-pre-wrap text-left">
+                                        ${msg.text}
+                                    </div>
+                                    <span class="text-[9px] text-slate-400 font-bold mt-1">${msg.time}</span>
+                                </div>
+                            </div>
+                        `;
+                    }
+                }
+            });
+
+            const wasScrolledToBottom = container.scrollHeight - container.clientHeight <= container.scrollTop + 60;
+            const isFirstLoad = container.getAttribute('data-last-html') === null;
+
+            if (container.getAttribute('data-last-html') !== htmlContent) {
+                container.innerHTML = htmlContent;
+                container.setAttribute('data-last-html', htmlContent);
+                
+                if (isFirstLoad || wasScrolledToBottom) {
+                    container.scrollTop = container.scrollHeight;
+                }
+            }
+        }
+
+        function sendChatMessage(ticketId) {
+            const inputEl = document.getElementById(`chat-input-${ticketId}`);
+            if (!inputEl) return;
+
+            const messageText = inputEl.value.trim();
+            if (!messageText) return;
+
+            inputEl.disabled = true;
+
+            fetch(`/help-requests/${ticketId}/messages`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                },
+                body: JSON.stringify({ message: messageText })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    inputEl.value = '';
+                    fetchChatMessages(ticketId);
+                }
+                inputEl.disabled = false;
+                inputEl.focus();
+            })
+            .catch(err => {
+                console.error('Error sending message:', err);
+                inputEl.disabled = false;
+            });
+        }
+
+        function handleChatSubmit(event, ticketId) {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                sendChatMessage(ticketId);
+            }
+        }
+    </script>
 
     @if(request()->query('ticket'))
         <script>

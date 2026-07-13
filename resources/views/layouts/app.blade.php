@@ -4,6 +4,9 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0"> <meta name="csrf-token" content="{{ csrf_token() }}">
         <title>{{ config('app.name') }} {{ config('app.name_th') }}</title>
+        <meta name="theme-color" content="#7e22ce">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-status-bar-style" content="#7e22ce">
         <link rel="icon" type="image/x-icon" href="{{ asset('storage/logo.png') }}">
         <link rel="manifest" href="/manifest.json">
 
@@ -14,12 +17,13 @@
         @vite(['resources/css/app.css', 'resources/js/app.js'])
 
         <style>
-            body { font-family: 'IBM Plex Sans Thai', sans-serif; }
+            body { 
+                font-family: 'IBM Plex Sans Thai', sans-serif; 
+                overscroll-behavior-y: contain; /* ป้องกันการดึงหน้าจอเพื่อรีเฟรชบนมือถือ (Elastic bounce) */
+                -webkit-tap-highlight-color: transparent;
+            }
             .scrollbar-hide::-webkit-scrollbar { display: none; }
             html { scroll-behavior: smooth; }
-            
-            /* เทคนิคทำให้เนื้อหาไม่กระตุกเวลาซ่อน/แสดง Bottom Tab */
-            body { -webkit-tap-highlight-color: transparent; }
         </style>
     </head>
     

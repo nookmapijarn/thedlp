@@ -60,6 +60,14 @@
                 // Listen to foreground messages and show notification if page is open
                 messaging.onMessage((payload) => {
                     console.log('[FCM] Received foreground message: ', payload);
+                    
+                    const recipientId = payload.data ? payload.data.recipient_id : null;
+                    const currentUserId = "{{ auth()->id() ?? '' }}";
+                    if (recipientId && currentUserId && recipientId !== currentUserId) {
+                        console.log('[FCM] Blocked notification: active user is not the intended recipient.');
+                        return;
+                    }
+
                     if (Notification.permission === 'granted') {
                         const notificationTitle = payload.notification.title || 'ศูนย์รับแจ้งปัญหา (OLIS)';
                         const notificationOptions = {

@@ -67,7 +67,7 @@
                 </div>
 
                 <!-- Stat 2: Pending Requests (Red alert count) -->
-                <div class="p-5 bg-red-50/30 dark:bg-red-950/10 border border-red-100 dark:border-red-950/40 rounded-[2rem] shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
+                <div class="p-5 bg-red-50/30 dark:bg-red-950/10 border border-red-100 dark:border-red-950/45 rounded-[2rem] shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
                     <div class="flex items-center justify-between">
                         <span class="text-xs font-black text-red-500 dark:text-red-400 uppercase tracking-widest">กำลังรอแก้ไข (Unresolved)</span>
                         <span class="p-2 bg-red-100 dark:bg-red-950 text-red-650 dark:text-red-300 rounded-xl">
@@ -157,7 +157,7 @@
                 
                 <a href="{{ route('admin.help.index', ['status' => 'rejected']) }}" 
                    class="px-4 py-2 text-xs font-black rounded-xl transition-all flex items-center gap-2
-                   {{ $statusFilter == 'rejected' ? 'bg-white dark:bg-gray-800 text-red-650 dark:text-red-400 shadow-sm' : 'text-slate-500 hover:text-red-500' }}">
+                   {{ $statusFilter == 'rejected' ? 'bg-white dark:bg-gray-800 text-red-655 dark:text-red-400 shadow-sm' : 'text-slate-500 hover:text-red-500' }}">
                     ปฏิเสธคำขอ
                     <span class="px-2 py-0.5 rounded-lg bg-red-50 dark:bg-red-950/20 text-red-750 dark:text-red-400 text-[10px] font-black">{{ $rejectedRequests }}</span>
                 </a>
@@ -170,7 +170,7 @@
                     <p class="text-sm text-slate-555 dark:text-slate-400 font-bold">ไม่พบข้อมูลคำร้องขอความช่วยเหลือตามสถานะที่เลือก</p>
                 </div>
             @else
-                <div class="space-y-6" x-data="{ activeTicket: {{ request()->query('ticket') ?? 'null' }} }">
+                <div class="space-y-6" x-data="{ activeTicket: {{ request()->query('ticket') ?? 'null' }} }" x-init="$watch('activeTicket', value => { if(value) { initChatPolling(value); } else { stopChatPolling(); } }); if (activeTicket) { initChatPolling(activeTicket); }">
                     @foreach($helpRequests as $item)
                         <div id="ticket-{{ $item->id }}"
                              :class="activeTicket === {{ $item->id }} 
@@ -205,7 +205,7 @@
                                     @elseif($item->status == 'resolved')
                                         <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-green-100 text-green-800 dark:bg-green-950 dark:text-green-300">แก้ไขเสร็จสิ้น</span>
                                     @else
-                                        <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-red-50 text-red-750 dark:bg-red-950/20 dark:text-red-400">ปฏิเสธคำขอ</span>
+                                        <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-red-50 text-red-755 dark:bg-red-950/20 dark:text-red-400">ปฏิเสธคำขอ</span>
                                     @endif
 
                                     <!-- Reply button relocated -->
@@ -221,135 +221,51 @@
                             <div x-show="activeTicket === {{ $item->id }}" x-collapse x-cloak
                                  class="pt-5 border-t border-slate-100 dark:border-gray-700/60 space-y-5 animate-in fade-in duration-200">
 
-                                <!-- Stepper Timeline Visual -->
-                                <div class="py-4 border-b border-slate-100 dark:border-gray-700/60 max-w-lg mx-auto">
-                                    <div class="flex items-center justify-between">
-                                        <!-- Step 1: Created -->
-                                        <div class="flex flex-col items-center flex-1">
-                                            <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs bg-green-500 text-white shadow-sm ring-4 ring-green-50 dark:ring-green-950">1</div>
-                                            <span class="text-[10px] font-extrabold text-slate-500 dark:text-slate-400 mt-1.5">ส่งเรื่องแล้ว</span>
-                                        </div>
-                                        
-                                        <!-- Connector line -->
-                                        <div class="flex-1 h-0.5 {{ in_array($item->status, ['in_progress', 'resolved', 'rejected']) ? 'bg-green-500' : 'bg-slate-200 dark:bg-slate-700' }}"></div>
-
-                                        <!-- Step 2: In Progress -->
-                                        <div class="flex flex-col items-center flex-1">
-                                            <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs 
-                                                {{ in_array($item->status, ['in_progress', 'resolved', 'rejected']) ? 'bg-blue-600 text-white shadow-sm ring-4 ring-blue-100 dark:ring-blue-950' : 'bg-slate-200 dark:bg-slate-700 text-slate-500' }}">2</div>
-                                            <span class="text-[10px] font-extrabold {{ in_array($item->status, ['in_progress', 'resolved', 'rejected']) ? 'text-blue-600 dark:text-blue-400' : 'text-slate-400 dark:text-slate-500' }} mt-1.5">กำลังดำเนินการ</span>
-                                        </div>
-
-                                        <!-- Connector line -->
-                                        <div class="flex-1 h-0.5 {{ in_array($item->status, ['resolved', 'rejected']) ? 'bg-green-500' : 'bg-slate-200 dark:bg-slate-700' }}"></div>
-
-                                        <!-- Step 3: Resolved / Rejected -->
-                                        <div class="flex flex-col items-center flex-1">
-                                            @if($item->status == 'rejected')
-                                                <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs bg-red-500 text-white shadow-sm ring-4 ring-red-100 dark:ring-red-950">X</div>
-                                                <span class="text-[10px] font-extrabold text-red-500 mt-1.5">ปฏิเสธคำขอ</span>
-                                            @else
-                                                <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs 
-                                                    {{ $item->status == 'resolved' ? 'bg-green-500 text-white shadow-sm ring-4 ring-green-100 dark:ring-green-950' : 'bg-slate-200 dark:bg-slate-700 text-slate-500' }}">3</div>
-                                                <span class="text-[10px] font-extrabold {{ $item->status == 'resolved' ? 'text-green-600 dark:text-green-400' : 'text-slate-400 dark:text-slate-500' }} mt-1.5">เสร็จสิ้น</span>
-                                            @endif
-                                        </div>
+                                <!-- Chat Area Container -->
+                                <div class="space-y-4 w-full">
+                                    <div class="space-y-1">
+                                        <h4 class="text-sm font-extrabold text-slate-900 dark:text-white">หัวข้อ: {{ $item->subject }}</h4>
+                                        <p class="text-[11px] font-bold text-slate-400 dark:text-slate-500">หมวดหมู่: {{ $item->category }}</p>
                                     </div>
-                                </div>
-
-                                <!-- Subject and Details Message -->
-                                <div class="space-y-1.5">
-                                    <h4 class="text-base font-extrabold text-slate-900 dark:text-white">{{ $item->subject }}</h4>
-                                    <p class="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed bg-slate-50/50 dark:bg-gray-800/80 p-4 rounded-xl border border-slate-100 dark:border-slate-700/40 whitespace-pre-wrap">{{ $item->message }}</p>
-                                </div>
-
-                                <!-- Logs / Timeline history list -->
-                                @if($item->logs && $item->logs->count() > 0)
-                                    <div class="p-4 bg-slate-50 dark:bg-slate-800/30 border border-slate-100 dark:border-slate-800 rounded-2xl space-y-3">
-                                        <h5 class="text-xs font-bold text-indigo-700 dark:text-indigo-400 flex items-center gap-1.5">
-                                            <svg class="w-3 h-3 text-indigo-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                            บันทึกความคืบหน้าการทำงาน (Action Logs)
-                                        </h5>
-                                        <div class="space-y-3 pl-2 border-l border-indigo-150 dark:border-indigo-900/40">
-                                            @foreach($item->logs as $log)
-                                                <div class="relative pl-4 space-y-1 text-xs">
-                                                    <div class="absolute -left-[13.5px] top-1 w-2.5 h-2.5 rounded-full bg-indigo-500 border border-white dark:border-gray-800"></div>
-                                                    <div class="flex items-center gap-2 text-slate-500 dark:text-slate-400 font-bold">
-                                                        <span>{{ $log->action_detail }}</span>
-                                                        <span>•</span>
-                                                        <span>โดย: {{ $log->user?->name }}</span>
-                                                        <span>•</span>
-                                                        <span class="font-mono text-[10px]">{{ $log->created_at->addYears(543)->locale('th')->isoFormat('D MMM YY, HH:mm') }} น.</span>
-                                                    </div>
-                                                    @if($log->note)
-                                                        <p class="text-slate-600 dark:text-slate-350 bg-white dark:bg-gray-800/80 p-2 rounded-xl border border-slate-100 dark:border-slate-700/20 mt-1 italic">
-                                                            "{{ $log->note }}"
-                                                        </p>
-                                                    @endif
-                                                </div>
-                                            @endforeach
-                                        </div>
-                                    </div>
-                                @endif
-
-                                <!-- Official Admin reply if exists -->
-                                @if($item->admin_reply)
-                                    <div class="bg-indigo-50/30 dark:bg-indigo-950/20 border border-indigo-100 dark:border-indigo-900/30 p-4 rounded-xl space-y-1">
-                                        <div class="flex items-center gap-1.5 text-xs font-bold text-indigo-700 dark:text-indigo-400">
-                                            <span class="w-4 h-4 bg-indigo-600 text-white rounded-full flex items-center justify-center text-[9px] font-black">A</span>
-                                            ข้อความตอบกลับผู้เรียนล่าสุด:
-                                        </div>
-                                        <p class="text-xs sm:text-sm text-slate-700 dark:text-slate-350 pl-5 font-semibold whitespace-pre-wrap">{{ $item->admin_reply }}</p>
-                                    </div>
-                                @endif
-
-                                <!-- Interactive Reply Form drawer -->
-                                <div class="p-5 bg-white dark:bg-gray-850 rounded-2xl border border-slate-200/80 dark:border-slate-700/60 shadow-inner mt-4">
-                                    <form action="{{ route('admin.help.reply', $item->id) }}" method="POST" class="space-y-4">
-                                        @csrf
-                                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                            
-                                            <!-- Column 1 & 2: Text inputs -->
-                                            <div class="md:col-span-2 space-y-4">
-                                                <!-- Reply text message -->
-                                                <div class="space-y-1.5">
-                                                    <label for="admin_reply_{{ $item->id }}" class="text-xs font-bold text-slate-500 dark:text-slate-400 block uppercase">พิมพ์ชี้แจงคำร้องเรียน (ส่งข้อความไปยังผู้เรียน)</label>
-                                                    <textarea name="admin_reply" id="admin_reply_{{ $item->id }}" rows="3" required placeholder="พิมพ์ชี้แจงคำร้อง หรือระบุข้อมูลความคืบหน้าแจ้งผู้เรียน..."
-                                                              class="w-full bg-slate-50 dark:bg-slate-700/40 border border-slate-200 dark:border-slate-650 rounded-xl px-4 py-2 text-sm focus:ring-2 focus:ring-indigo-500 outline-none text-slate-800 dark:text-slate-100 placeholder:text-slate-400 resize-none">{{ $item->admin_reply }}</textarea>
-                                                </div>
-
-                                                <!-- Internal / Action Note -->
-                                                <div class="space-y-1.5">
-                                                    <label for="action_note_{{ $item->id }}" class="text-xs font-bold text-slate-500 dark:text-slate-400 block uppercase">จดบันทึกการดำเนินการ (Action Note - จะแสดงในไทม์ไลน์ความคืบหน้า)</label>
-                                                    <textarea name="action_note" id="action_note_{{ $item->id }}" rows="2" placeholder="ระบุการดำเนินการสั้นๆ เช่น 'ประสานงานเจ้าหน้าที่ทะเบียนตรวจสอบสิทธิ์แล้ว', 'แก้ไขในระบบหลังบ้านเรียบร้อย'..."
-                                                              class="w-full bg-slate-50 dark:bg-slate-700/40 border border-slate-200 dark:border-slate-650 rounded-xl px-4 py-2 text-xs focus:ring-2 focus:ring-indigo-500 outline-none text-slate-800 dark:text-slate-100 placeholder:text-slate-400 resize-none"></textarea>
+                                    
+                                    <!-- Chat Conversation Window -->
+                                    <div class="border border-slate-200/60 dark:border-gray-700/60 rounded-[2rem] overflow-hidden flex flex-col bg-slate-50/20 dark:bg-slate-900/30 h-[420px]">
+                                        <!-- Messages Scroll Area -->
+                                        <div id="chat-messages-{{ $item->id }}" class="flex-1 overflow-y-auto p-4 space-y-3.5 scrollbar-hide">
+                                            <!-- Loader -->
+                                            <div class="flex items-center justify-center h-full">
+                                                <div class="text-xs text-slate-450 dark:text-slate-500 font-bold flex items-center gap-2">
+                                                    <svg class="animate-spin h-4 w-4 text-indigo-500" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                                                    กำลังโหลดการสนทนา...
                                                 </div>
                                             </div>
-
-                                            <!-- Column 3: Controls -->
-                                            <div class="md:col-span-1 flex flex-col justify-between space-y-4">
-                                                <div class="space-y-1.5">
-                                                    <label for="status_{{ $item->id }}" class="text-xs font-bold text-slate-500 dark:text-slate-400 block uppercase">ปรับเปลี่ยนสถานะ</label>
-                                                    <select name="status" id="status_{{ $item->id }}" required
-                                                            class="w-full bg-slate-50 dark:bg-slate-700/40 border border-slate-200 dark:border-slate-650 rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 outline-none text-slate-800 dark:text-slate-100">
-                                                        <option value="pending" {{ $item->status == 'pending' ? 'selected' : '' }}>รอตรวจสอบ</option>
-                                                        <option value="in_progress" {{ $item->status == 'in_progress' ? 'selected' : '' }}>กำลังดำเนินการ</option>
-                                                        <option value="resolved" {{ $item->status == 'resolved' ? 'selected' : '' }}>แก้ไขเสร็จสิ้น</option>
-                                                        <option value="rejected" {{ $item->status == 'rejected' ? 'selected' : '' }}>ปฏิเสธคำขอ</option>
-                                                    </select>
-                                                </div>
-
-                                                <button type="submit" 
-                                                        class="w-full bg-slate-900 hover:bg-black text-white font-extrabold py-3 rounded-xl transition-all shadow-md active:scale-95 text-xs flex items-center justify-center gap-1.5 dark:bg-gray-700 dark:hover:bg-gray-650">
-                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                                    บันทึกการดำเนินการ
+                                        </div>
+                                        
+                                        <!-- Chat Input Bar with Status controls -->
+                                        <div class="border-t border-slate-200/60 dark:border-gray-700/60 p-3 bg-white dark:bg-gray-800 flex flex-col gap-2.5">
+                                            <div class="flex items-center gap-2">
+                                                <label class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wide">ปรับสถานะตั๋ว:</label>
+                                                <select id="chat-status-{{ $item->id }}" class="bg-slate-50 dark:bg-slate-700/50 border border-slate-200/80 dark:border-slate-650 rounded-lg px-2 py-0.5 text-[10px] font-extrabold outline-none text-slate-800 dark:text-slate-100">
+                                                    <option value="pending" {{ $item->status == 'pending' ? 'selected' : '' }}>รอตรวจสอบ</option>
+                                                    <option value="in_progress" {{ $item->status == 'in_progress' ? 'selected' : '' }}>กำลังดำเนินการ</option>
+                                                    <option value="resolved" {{ $item->status == 'resolved' ? 'selected' : '' }}>แก้ไขเสร็จสิ้น</option>
+                                                    <option value="rejected" {{ $item->status == 'rejected' ? 'selected' : '' }}>ปฏิเสธคำขอ</option>
+                                                </select>
+                                            </div>
+                                            <div class="flex gap-2 items-center">
+                                                <textarea id="chat-input-{{ $item->id }}" rows="1" placeholder="พิมพ์ชี้แจงคำร้อง หรือระบุข้อมูลความคืบหน้าแจ้งผู้เรียน..." 
+                                                          class="flex-1 bg-slate-50 dark:bg-slate-700/40 border border-slate-200/80 dark:border-slate-650 rounded-xl px-4 py-2.5 text-xs font-semibold focus:ring-2 focus:ring-indigo-500 outline-none text-slate-800 dark:text-slate-100 placeholder:text-slate-400 resize-none max-h-20" 
+                                                          onkeydown="handleChatSubmit(event, {{ $item->id }})"></textarea>
+                                                <button onclick="sendChatMessage({{ $item->id }})" 
+                                                        class="p-2.5 bg-indigo-650 hover:bg-indigo-755 text-white rounded-xl shadow-md transition-all active:scale-95 flex items-center justify-center shrink-0">
+                                                    <svg class="w-4 h-4 transform rotate-90" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126a59.768 59.768 0 0121.485 12 59.77 59.77 0 01-18.215 8.876L5.999 12zm0 0h7.5"></path></svg>
                                                 </button>
                                             </div>
                                         </div>
-                                    </form>
+                                    </div>
                                 </div>
 
-                            </div>
+                             </div>
 
                         </div>
                     @endforeach
@@ -364,6 +280,145 @@
         </div>
 
     </div>
+
+    <script>
+        let activeChatInterval = null;
+        let currentUserId = {{ auth()->id() }};
+
+        function initChatPolling(ticketId) {
+            if (activeChatInterval) {
+                clearInterval(activeChatInterval);
+            }
+            fetchChatMessages(ticketId);
+            activeChatInterval = setInterval(() => {
+                fetchChatMessages(ticketId);
+            }, 3000);
+        }
+
+        function stopChatPolling() {
+            if (activeChatInterval) {
+                clearInterval(activeChatInterval);
+                activeChatInterval = null;
+            }
+        }
+
+        function fetchChatMessages(ticketId) {
+            const chatArea = document.getElementById(`chat-messages-${ticketId}`);
+            if (!chatArea) return;
+
+            fetch(`/help-requests/${ticketId}/messages`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.messages) {
+                        renderChatMessages(chatArea, data.messages);
+                    }
+                })
+                .catch(err => console.error('Error fetching chat:', err));
+        }
+
+        function renderChatMessages(container, messages) {
+            let htmlContent = '';
+            
+            messages.forEach(msg => {
+                if (msg.type === 'system') {
+                    htmlContent += `
+                        <div class="flex justify-center my-2">
+                            <span class="px-3 py-1 bg-slate-100 dark:bg-slate-800 text-[10px] font-black rounded-full text-slate-550 dark:text-slate-400 border border-slate-200/30">
+                                ${msg.text} • ${msg.time}
+                            </span>
+                        </div>
+                    `;
+                } else {
+                    const isMe = msg.user_id === currentUserId;
+                    if (isMe) {
+                        htmlContent += `
+                            <div class="flex justify-end gap-2 my-2.5">
+                                <div class="flex flex-col items-end max-w-[80%]">
+                                    <div class="px-4 py-2.5 bg-indigo-650 text-white rounded-2xl rounded-tr-none shadow-sm text-xs font-bold leading-relaxed whitespace-pre-wrap text-left">
+                                        ${msg.text}
+                                    </div>
+                                    <span class="text-[9px] text-slate-400 font-bold mt-1">${msg.time}</span>
+                                </div>
+                            </div>
+                        `;
+                    } else {
+                        htmlContent += `
+                            <div class="flex justify-start gap-2 my-2.5">
+                                <div class="w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-[11px] font-black text-slate-650 dark:text-slate-350 shrink-0">
+                                    ${msg.sender_name.charAt(0)}
+                                </div>
+                                <div class="flex flex-col items-start max-w-[80%]">
+                                    <span class="text-[10px] text-slate-400 font-extrabold mb-1">${msg.sender_name}</span>
+                                    <div class="px-4 py-2.5 bg-slate-100 dark:bg-slate-850 text-slate-800 dark:text-slate-200 rounded-2xl rounded-tl-none border border-slate-200/30 shadow-sm text-xs font-bold leading-relaxed whitespace-pre-wrap text-left">
+                                        ${msg.text}
+                                    </div>
+                                    <span class="text-[9px] text-slate-400 font-bold mt-1">${msg.time}</span>
+                                </div>
+                            </div>
+                        `;
+                    }
+                }
+            });
+
+            const wasScrolledToBottom = container.scrollHeight - container.clientHeight <= container.scrollTop + 60;
+            const isFirstLoad = container.getAttribute('data-last-html') === null;
+
+            if (container.getAttribute('data-last-html') !== htmlContent) {
+                container.innerHTML = htmlContent;
+                container.setAttribute('data-last-html', htmlContent);
+                
+                if (isFirstLoad || wasScrolledToBottom) {
+                    container.scrollTop = container.scrollHeight;
+                }
+            }
+        }
+
+        function sendChatMessage(ticketId) {
+            const inputEl = document.getElementById(`chat-input-${ticketId}`);
+            if (!inputEl) return;
+
+            const messageText = inputEl.value.trim();
+            if (!messageText) return;
+
+            const statusEl = document.getElementById(`chat-status-${ticketId}`);
+            const statusVal = statusEl ? statusEl.value : null;
+
+            inputEl.disabled = true;
+
+            fetch(`/help-requests/${ticketId}/messages`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                },
+                body: JSON.stringify({ 
+                    message: messageText,
+                    status: statusVal
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    inputEl.value = '';
+                    fetchChatMessages(ticketId);
+                }
+                inputEl.disabled = false;
+                inputEl.focus();
+            })
+            .catch(err => {
+                console.error('Error sending message:', err);
+                inputEl.disabled = false;
+            });
+        }
+
+        function handleChatSubmit(event, ticketId) {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                sendChatMessage(ticketId);
+            }
+        }
+    </script>
 
     @if(request()->query('ticket'))
         <script>

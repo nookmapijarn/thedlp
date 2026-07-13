@@ -227,6 +227,10 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     Route::post('/fcm-token/store', [FcmController::class, 'store'])->name('fcm.store');
+    
+    // Chat endpoints for Real-time Helpdesk System
+    Route::get('/help-requests/{id}/messages', [NotificationController::class, 'getMessages'])->name('help.messages');
+    Route::post('/help-requests/{id}/messages', [NotificationController::class, 'sendMessage'])->name('help.send_message');
 });
 
 Route::get('/privacy-policy', function () {
@@ -236,5 +240,9 @@ Route::get('/privacy-policy', function () {
 Route::get('/cookie-policy', function () {
     return view('policy.cookie');
 })->name('policy.cookie');
+
+Route::get('/offline', function () {
+    return view('errors.offline');
+})->name('offline');
 
 require __DIR__.'/auth.php';

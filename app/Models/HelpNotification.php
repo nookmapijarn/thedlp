@@ -31,6 +31,10 @@ class HelpNotification extends Model
      */
     public static function sendNotification($userId, $helpRequestId, $message)
     {
+        if (auth()->check() && $userId == auth()->id()) {
+            return null;
+        }
+
         $notification = self::create([
             'user_id' => $userId,
             'help_request_id' => $helpRequestId,
