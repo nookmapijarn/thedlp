@@ -102,6 +102,13 @@
                             ล้างค่าเวลาตรวจสอบไฟล์ล่าสุด (Reset Upload Stamps)
                         </button>
                     </form>
+
+                    <form action="{{ route('fixStorageLink') }}" method="POST" onsubmit="return confirm('ยืนยันการเชื่อมโยงระบบจัดเก็บไฟล์ใหม่? เครื่องมือนี้จะลบสัญลักษณ์ลิงก์เดิมที่เสียหายบนโฮสต์และสร้างใหม่เพื่อให้แสดงผลไฟล์รูปภาพและคลิปวิดีโอได้ถูกต้อง')">
+                        @csrf
+                        <button type="submit" class="text-xs text-blue-600 hover:text-white border border-blue-200 hover:bg-blue-600 focus:ring-4 focus:outline-none focus:ring-blue-300 font-bold rounded-xl px-4 py-2.5 dark:border-blue-900/50 dark:text-blue-400 dark:hover:bg-blue-900 dark:hover:text-white transition-all">
+                            เชื่อมโยงระบบไฟล์ใหม่ (Fix Storage Symlink)
+                        </button>
+                    </form>
                 </div>
             </div>
 

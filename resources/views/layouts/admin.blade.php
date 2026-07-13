@@ -9,6 +9,7 @@
         <meta name="robots" content="ทะเบียนนักศึกษา - 'app.name_th' {{ config('app.name_th') }}, นักศึกษา {{ config('app.name_th') }}, ผลการเรียน {{ config('app.name_th') }}">
         <title>{{ config('app.name') }} {{ config('app.name_th') }} </title>
         <meta name="theme-color" content="#7e22ce">
+        <meta name="mobile-web-app-capable" content="yes">
         <meta name="apple-mobile-web-app-capable" content="yes">
         <meta name="apple-mobile-web-app-status-bar-style" content="#7e22ce">
         <link rel="icon" type="image/x-icon" href="{{asset('storage/logo.png');}}">

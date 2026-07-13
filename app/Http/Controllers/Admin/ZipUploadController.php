@@ -931,4 +931,51 @@ class ZipUploadController extends Controller
         ->header('Content-Type', 'application/json')
         ->header('X-Trigger', 'ajaxComplete');
     }
+
+    /**
+     * Re-create the public storage symlink to fix broken paths on production hosts.
+     */
+    public function fixStorageLink()
+    {
+        try {
+            $link = public_path('storage');
+            
+            // Log audit log
+            try {
+                DB::table('audit_logs')->insert([
+                    'user_id' => auth()->id(),
+                    'action' => 'fix_storage_link',
+                    'target_type' => 'system',
+                    'target_name' => 'เชื่อมโยงระบบจัดเก็บไฟล์ใหม่ (Fix Storage Symlink)',
+                    'ip_address' => request()->ip(),
+                    'user_agent' => substr(request()->userAgent(), 0, 255),
+                    'created_at' => now(),
+                ]);
+            } catch (\Exception $e) {
+                Log::error("Failed to write fixStorageLink audit log: " . $e->getMessage());
+            }
+
+            if (file_exists($link) || is_link($link)) {
+                if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+                    if (is_dir($link)) {
+                        rmdir($link);
+                    } else {
+                        unlink($link);
+                    }
+                } else {
+                    unlink($link);
+                }
+            }
+            
+            \Illuminate\Support\Facades\Artisan::call('storage:link');
+            
+            return response()->json(['success' => true, 'message' => 'เชื่อมโยงระบบจัดเก็บไฟล์ใหม่ (Fix Storage Symlink) เรียบร้อยแล้ว!'])
+                ->header('Content-Type', 'application/json')
+                ->header('X-Trigger', 'ajaxComplete');
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => 'เกิดข้อผิดพลาดในการเชื่อมโยงระบบจัดเก็บไฟล์: ' . $e->getMessage()])
+                ->header('Content-Type', 'application/json')
+                ->header('X-Trigger', 'ajaxComplete');
+        }
+    }
 }

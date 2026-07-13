@@ -61,12 +61,12 @@
                                 <!-- Left/Right Indicator Arrows -->
                                 @if(is_array($short->images) && count($short->images) > 1)
                                     <div class="absolute inset-x-2 top-1/2 -translate-y-1/2 flex justify-between pointer-events-none z-20">
-                                        <div class="w-7 h-7 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-white opacity-40">
+                                        <button type="button" onclick="scrollCarousel(this, -1)" class="w-8 h-8 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white pointer-events-auto hover:bg-black/75 transition-all shadow-md active:scale-95">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"></path></svg>
-                                        </div>
-                                        <div class="w-7 h-7 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-white opacity-40">
+                                        </button>
+                                        <button type="button" onclick="scrollCarousel(this, 1)" class="w-8 h-8 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white pointer-events-auto hover:bg-black/75 transition-all shadow-md active:scale-95">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"></path></svg>
-                                        </div>
+                                        </button>
                                     </div>
                                 @endif
                             </div>
@@ -82,7 +82,7 @@
                             </div>
                         @else
                             <!-- Video element -->
-                            <video class="w-full h-full object-cover short-video-player" loop playsinline preload="metadata">
+                            <video class="w-full h-full object-contain bg-black short-video-player" loop playsinline preload="metadata">
                                 <source src="{{ asset('storage/' . $short->video_path) }}" type="video/mp4">
                                 Your browser does not support the video tag.
                             </video>
@@ -147,7 +147,7 @@
                         <!-- Bottom Info Overlay -->
                         <div class="absolute left-4 right-20 bottom-6 z-30 flex flex-col text-white">
                             <h4 class="font-black text-sm drop-shadow-md flex items-center gap-1.5">
-                                @{{ $short->teacher->name }}
+                                {{ $short->teacher->name ?? 'คุณครู' }}
                                 <svg class="w-3.5 h-3.5 text-blue-400 fill-current" viewBox="0 0 24 24">
                                     <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
                                 </svg>
@@ -173,6 +173,14 @@
                         <!-- Shadow Overlays -->
                         <div class="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-black/90 via-black/40 to-transparent pointer-events-none z-20"></div>
                         <div class="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-black/60 to-transparent pointer-events-none z-20"></div>
+
+                        <!-- Custom Seekbar Slider -->
+                        <div class="absolute bottom-0 inset-x-0 h-5 flex items-end pb-1.5 px-4 z-40 group cursor-pointer progress-bar-container">
+                            <div class="w-full h-1 bg-white/25 rounded-full relative progress-bar-bg group-hover:h-1.5 transition-all">
+                                <div class="absolute top-0 left-0 bottom-0 bg-purple-600 rounded-full progress-bar-fill w-0"></div>
+                                <div class="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-white opacity-0 group-hover:opacity-100 transition-opacity progress-bar-handle" style="left: 0%;"></div>
+                            </div>
+                        </div>
                     </div>
                 @empty
                     <div class="w-full h-full flex flex-col items-center justify-center text-center p-6 text-white bg-slate-950">
@@ -475,6 +483,108 @@
                 });
             });
 
+            // Handle swipe gestures on image slides
+            document.querySelectorAll('.short-video-slide').forEach(slide => {
+                const carousel = slide.querySelector('.carousel-images-container');
+                const tapArea = slide.querySelector('.video-tap-area');
+                if (!carousel || !tapArea) return;
+
+                let touchStartX = 0;
+                let touchEndX = 0;
+
+                tapArea.addEventListener('touchstart', (e) => {
+                    touchStartX = e.changedTouches[0].screenX;
+                }, { passive: true });
+
+                tapArea.addEventListener('touchend', (e) => {
+                    touchEndX = e.changedTouches[0].screenX;
+                    handleSwipe();
+                }, { passive: true });
+
+                function handleSwipe() {
+                    const threshold = 45; // minimum swipe distance in px
+                    const width = carousel.clientWidth;
+                    if (touchStartX - touchEndX > threshold) {
+                        // Swipe left (next image)
+                        carousel.scrollBy({ left: width, behavior: 'smooth' });
+                    } else if (touchEndX - touchStartX > threshold) {
+                        // Swipe right (prev image)
+                        carousel.scrollBy({ left: -width, behavior: 'smooth' });
+                    }
+                }
+            });
+
+            // Bind progress seekbars for each slide
+            document.querySelectorAll('.short-video-slide').forEach(slide => {
+                const video = slide.querySelector('.short-video-player');
+                const audio = slide.querySelector('.short-audio-player');
+                const media = video || audio;
+                
+                const progressContainer = slide.querySelector('.progress-bar-container');
+                if (!media || !progressContainer) return;
+                
+                const fill = progressContainer.querySelector('.progress-bar-fill');
+                const handle = progressContainer.querySelector('.progress-bar-handle');
+                
+                // Update progress bar on timeupdate
+                media.addEventListener('timeupdate', () => {
+                    if (media.duration) {
+                        const pct = (media.currentTime / media.duration) * 100;
+                        fill.style.width = `${pct}%`;
+                        if (handle) {
+                            handle.style.left = `${pct}%`;
+                        }
+                    }
+                });
+                
+                // Handle seek click / drag
+                let isDragging = false;
+                
+                const seek = (e) => {
+                    const rect = progressContainer.getBoundingClientRect();
+                    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                    let offsetX = clientX - rect.left;
+                    if (offsetX < 0) offsetX = 0;
+                    if (offsetX > rect.width) offsetX = rect.width;
+                    
+                    const pct = offsetX / rect.width;
+                    if (media.duration) {
+                        media.currentTime = pct * media.duration;
+                    }
+                };
+                
+                progressContainer.addEventListener('mousedown', (e) => {
+                    isDragging = true;
+                    seek(e);
+                });
+                
+                window.addEventListener('mousemove', (e) => {
+                    if (isDragging) {
+                        seek(e);
+                    }
+                });
+                
+                window.addEventListener('mouseup', () => {
+                    isDragging = false;
+                });
+                
+                // Touch events for mobile
+                progressContainer.addEventListener('touchstart', (e) => {
+                    isDragging = true;
+                    seek(e);
+                }, { passive: true });
+                
+                window.addEventListener('touchmove', (e) => {
+                    if (isDragging) {
+                        seek(e);
+                    }
+                }, { passive: false });
+                
+                window.addEventListener('touchend', () => {
+                    isDragging = false;
+                });
+            });
+
             // Check if specific ID is passed in query string to snap directly to it
             const urlParams = new URLSearchParams(window.location.search);
             const queryId = urlParams.get('id');
@@ -489,6 +599,16 @@
                 }
             }
         });
+
+        // Global carousel scrolling function for click arrows
+        window.scrollCarousel = function(button, direction) {
+            const slide = button.closest('.short-video-slide');
+            const carousel = slide.querySelector('.carousel-images-container');
+            if (carousel) {
+                const width = carousel.clientWidth;
+                carousel.scrollBy({ left: direction * width, behavior: 'smooth' });
+            }
+        };
     </script>
 
     <!-- Custom inline animation for burst heart -->
