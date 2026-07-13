@@ -49,6 +49,14 @@ $currentPath = Request::path();
             </a>
          </li>
          <li>
+            <a href="{{ route('admin.shorts.index') }}" class="{{ $currentPath == 'admin/shorts' ? 'bg-gray-200' : '' }} flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
+               <svg width="24px" height="24px" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" class="size-6">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+               </svg>                            
+               <span class="flex-1 ms-3 whitespace-nowrap">จัดการคลิปสั้น</span>
+            </a>
+         </li>
+         <li>
             <a href="{{ route('admin.help.index') }}" class="{{ $currentPath == 'admin/help-requests' ? 'bg-gray-200' : '' }} flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
                <svg width="24px" height="24px" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-6">
                   <path fill-rule="evenodd" d="M12 2.25a9.75 9.75 0 1 0 9.75 9.75A9.75 9.75 0 0 0 12 2.25ZM12 7.5a.75.75 0 0 1 .75.75v3.75a.75.75 0 0 1-1.5 0V8.25A.75.75 0 0 1 12 7.5Zm0 9a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5Z" clip-rule="evenodd" />
@@ -58,8 +66,24 @@ $currentPath = Request::path();
                   $adminPendingCount = \App\Models\HelpRequest::where('status', 'pending')->count();
                @endphp
                @if($adminPendingCount > 0)
-                  <span class="inline-flex items-center justify-center w-5 h-5 ms-3 text-xs font-bold text-white bg-red-650 rounded-full">
+                  <span class="inline-flex items-center justify-center w-5 h-5 ms-3 text-xs font-bold text-white bg-red-600 rounded-full">
                      {{ $adminPendingCount }}
+                  </span>
+               @endif
+            </a>
+         </li>
+         <li>
+            <a href="{{ route('admin.petitions.index') }}" class="{{ $currentPath == 'admin/petitions' ? 'bg-gray-200' : '' }} flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
+               <svg width="24px" height="24px" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-6">
+                  <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
+               </svg>                            
+               <span class="flex-1 ms-3 whitespace-nowrap">จัดการคำร้องออนไลน์</span>
+               @php
+                  $petitionPendingCount = \App\Models\Petition::where('status', 'pending')->count();
+               @endphp
+               @if($petitionPendingCount > 0)
+                  <span class="inline-flex items-center justify-center w-5 h-5 ms-3 text-xs font-bold text-white bg-red-600 rounded-full">
+                     {{ $petitionPendingCount }}
                   </span>
                @endif
             </a>

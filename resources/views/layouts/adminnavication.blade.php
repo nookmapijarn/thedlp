@@ -40,7 +40,7 @@
           </button>
           
           <div x-show="open" @click.outside="open = false" x-cloak
-               class="absolute right-0 mt-2 w-80 bg-white dark:bg-gray-800 border border-gray-150 dark:border-gray-700 rounded-2xl shadow-xl z-50 py-2 divide-y divide-gray-100 dark:divide-gray-700 animate-in fade-in duration-200">
+               class="absolute -right-12 sm:right-0 top-full mt-2 w-80 max-w-[calc(100vw-2rem)] sm:max-w-xs bg-white dark:bg-gray-800 border border-gray-150 dark:border-gray-700 rounded-2xl shadow-xl z-50 py-2 divide-y divide-gray-100 dark:divide-gray-700 animate-in fade-in duration-200">
             <div class="px-4 py-2 font-bold text-gray-700 dark:text-gray-200 flex justify-between items-center text-xs">
               <span>การแจ้งเตือน</span>
               @if($unreadNotifications->count() > 0)

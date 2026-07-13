@@ -305,5 +305,6 @@
                 }, 200);
             }
         </script>
+        @include('layouts.page_loader')
     </body>
 </html>

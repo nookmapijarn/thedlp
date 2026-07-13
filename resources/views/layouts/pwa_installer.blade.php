@@ -42,10 +42,14 @@
                 hideOfflineBar();
             });
 
-            // Initial status check on page load
-            if (!navigator.onLine) {
-                showOfflineBar();
-            }
+            // Initial status check on page load (with delay to avoid mobile cold-start race conditions)
+            setTimeout(() => {
+                if (!navigator.onLine) {
+                    showOfflineBar();
+                } else {
+                    hideOfflineBar();
+                }
+            }, 2000);
         }
 
         function showOfflineBar() {

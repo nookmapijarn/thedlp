@@ -44,5 +44,6 @@
         </div>
         @include('layouts.fcm_initializer')
         @include('layouts.pwa_installer')
+        @include('layouts.page_loader')
     </body>
 </html>

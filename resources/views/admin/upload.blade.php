@@ -257,6 +257,7 @@
                     return response.json();
                 })
                 .then(data => {
+                    if (window.hidePageLoader) window.hidePageLoader();
                     modal.classList.add('hidden');
                     alertContainer.classList.remove('hidden');
 
@@ -406,6 +407,7 @@
                     }
                 })
                 .catch(err => {
+                    if (window.hidePageLoader) window.hidePageLoader();
                     modal.classList.add('hidden');
                     alertContainer.classList.remove('hidden');
                     alertContainer.innerHTML = `<div class="bg-red-200 text-gray-900 p-4 rounded-lg">เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์: ${err.message}</div>`;

@@ -242,7 +242,7 @@
                                         <div class="border-t border-slate-200/60 dark:border-gray-700/60 p-3 bg-white dark:bg-gray-800 flex flex-col gap-2.5">
                                             <div class="flex items-center gap-2">
                                                 <label class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wide">ปรับสถานะตั๋ว:</label>
-                                                <select id="chat-status-{{ $item->id }}" class="bg-slate-50 dark:bg-slate-700/50 border border-slate-200/80 dark:border-slate-650 rounded-lg px-2 py-0.5 text-[10px] font-extrabold outline-none text-slate-800 dark:text-slate-100">
+                                                <select id="chat-status-{{ $item->id }}" class="bg-slate-100 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg px-2 py-0.5 text-[10px] font-black outline-none text-slate-950 dark:text-white">
                                                     <option value="pending" {{ $item->status == 'pending' ? 'selected' : '' }}>รอตรวจสอบ</option>
                                                     <option value="in_progress" {{ $item->status == 'in_progress' ? 'selected' : '' }}>กำลังดำเนินการ</option>
                                                     <option value="resolved" {{ $item->status == 'resolved' ? 'selected' : '' }}>แก้ไขเสร็จสิ้น</option>
@@ -251,10 +251,10 @@
                                             </div>
                                             <div class="flex gap-2 items-center">
                                                 <textarea id="chat-input-{{ $item->id }}" rows="1" placeholder="พิมพ์ข้อความตอบกลับเพื่อแจ้งผู้เรียน..." 
-                                                          class="flex-1 bg-slate-50 dark:bg-slate-700/40 border border-slate-200/80 dark:border-slate-650 rounded-xl px-4 py-2.5 text-xs font-semibold focus:ring-2 focus:ring-purple-500 outline-none text-slate-800 dark:text-slate-100 placeholder:text-slate-400 resize-none max-h-20" 
+                                                          class="flex-1 bg-slate-100 dark:bg-slate-900 border border-slate-350 dark:border-slate-600 rounded-xl px-4 py-2.5 text-xs font-bold focus:ring-2 focus:ring-purple-500 outline-none text-slate-955 dark:text-white placeholder:text-slate-500 dark:placeholder:text-slate-400 resize-none max-h-20" 
                                                           onkeydown="handleChatSubmit(event, {{ $item->id }})"></textarea>
                                                 <button onclick="sendChatMessage({{ $item->id }}, true)" 
-                                                        class="p-2.5 bg-purple-650 hover:bg-purple-755 text-white rounded-xl shadow-md transition-all active:scale-95 flex items-center justify-center shrink-0">
+                                                        class="p-2.5 bg-purple-700 hover:bg-purple-800 text-white rounded-xl shadow-md transition-all active:scale-95 flex items-center justify-center shrink-0">
                                                     <svg class="w-4 h-4 transform rotate-90" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126a59.768 59.768 0 0121.485 12 59.77 59.77 0 01-18.215 8.876L5.999 12zm0 0h7.5"></path></svg>
                                                 </button>
                                             </div>
@@ -331,7 +331,7 @@
                         htmlContent += `
                             <div class="flex justify-end gap-2 my-2.5">
                                 <div class="flex flex-col items-end max-w-[80%]">
-                                    <div class="px-4 py-2.5 bg-purple-650 text-white rounded-2xl rounded-tr-none shadow-sm text-xs font-bold leading-relaxed whitespace-pre-wrap text-left">
+                                    <div class="px-4 py-2.5 bg-purple-700 text-white rounded-2xl rounded-tr-none shadow-sm text-xs font-bold leading-relaxed whitespace-pre-wrap text-left">
                                         ${msg.text}
                                     </div>
                                     <span class="text-[9px] text-slate-400 font-bold mt-1">${msg.time}</span>
@@ -346,7 +346,7 @@
                                 </div>
                                 <div class="flex flex-col items-start max-w-[80%]">
                                     <span class="text-[10px] text-slate-400 font-extrabold mb-1">${msg.sender_name}</span>
-                                    <div class="px-4 py-2.5 bg-slate-100 dark:bg-slate-850 text-slate-800 dark:text-slate-200 rounded-2xl rounded-tl-none border border-slate-200/30 shadow-sm text-xs font-bold leading-relaxed whitespace-pre-wrap text-left">
+                                    <div class="px-4 py-2.5 bg-slate-200/80 dark:bg-slate-800 text-slate-950 dark:text-slate-50 rounded-2xl rounded-tl-none border border-slate-300/80 dark:border-slate-700/50 shadow-sm text-xs font-bold leading-relaxed whitespace-pre-wrap text-left">
                                         ${msg.text}
                                     </div>
                                     <span class="text-[9px] text-slate-400 font-bold mt-1">${msg.time}</span>

@@ -40,5 +40,6 @@
                 {{ $slot }}
             </div>
         </div>
+        @include('layouts.page_loader')
     </body>
 </html>

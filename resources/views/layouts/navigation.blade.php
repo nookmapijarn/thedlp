@@ -56,7 +56,7 @@
                   </button>
                   
                   <div x-show="open" @click.outside="open = false" x-cloak
-                       class="absolute right-0 mt-2 w-80 bg-white border border-slate-150 rounded-2xl shadow-xl z-50 py-2 divide-y divide-slate-100 animate-in fade-in duration-200">
+                       class="absolute -right-12 sm:right-0 top-full mt-2 w-80 max-w-[calc(100vw-2rem)] sm:max-w-xs bg-white border border-slate-150 rounded-2xl shadow-xl z-50 py-2 divide-y divide-slate-100 animate-in fade-in duration-200">
                     <div class="px-4 py-2 font-bold text-slate-700 flex justify-between items-center text-xs">
                       <span>การแจ้งเตือน</span>
                       @if($unreadNotifications->count() > 0)
@@ -129,7 +129,7 @@
                     @endif
                   </button>
                   <div x-show="open" @click.outside="open = false" x-cloak
-                       class="absolute right-0 mt-2 w-72 bg-white border border-slate-150 rounded-2xl shadow-xl z-50 py-2 divide-y divide-slate-100 animate-in fade-in duration-200">
+                       class="absolute -right-6 top-full mt-2 w-72 max-w-[calc(100vw-2rem)] bg-white border border-slate-150 rounded-2xl shadow-xl z-50 py-2 divide-y divide-slate-100 animate-in fade-in duration-200">
                     <div class="px-4 py-2 font-bold text-slate-700 flex justify-between items-center text-xs">
                       <span>การแจ้งเตือน</span>
                       @if($unreadNotifications->count() > 0)

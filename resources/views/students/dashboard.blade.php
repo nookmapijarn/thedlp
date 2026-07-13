@@ -371,7 +371,7 @@
                     </div>
 
                     {{-- ส่วนที่ 2: เกณฑ์การจบหลักสูตร --}}
-                    <div class="bg-purple-900 rounded-[2.5rem] p-6 sm:p-8 shadow-xl shadow-slate-300 relative overflow-hidden text-slate-200">
+                    <div id="graduation-criteria" class="bg-purple-900 rounded-[2.5rem] p-6 sm:p-8 shadow-xl shadow-slate-300 relative overflow-hidden text-slate-200 scroll-mt-20">
                         <div class="absolute -top-10 -right-10 w-40 h-40 bg-indigo-500/10 rounded-full blur-3xl"></div>
                         
                         <div class="flex items-center gap-3 mb-8 relative z-10">

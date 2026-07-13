@@ -40,6 +40,7 @@ use App\Http\Controllers\Teachers\TeachersBookController;
 use App\Http\Controllers\Teachers\TeachersCourseController;
 use App\Http\Controllers\Teachers\TeacherHelpRequestController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\ShortVideoController;
 
 // Boss
 use App\Http\Controllers\Boss\BossController;
@@ -92,6 +93,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/help-requests', [AdminHelpRequestController::class, 'index'])->name('admin.help.index');
         Route::post('/help-requests/{id}/reply', [AdminHelpRequestController::class, 'reply'])->name('admin.help.reply');
         Route::patch('/help-requests/{id}/status', [AdminHelpRequestController::class, 'updateStatus'])->name('admin.help.status');
+
+        // OLIS Shorts for Admin
+        Route::get('/shorts', [ShortVideoController::class, 'adminIndex'])->name('admin.shorts.index');
+        Route::delete('/shorts/{id}', [ShortVideoController::class, 'adminDestroy'])->name('admin.shorts.destroy');
+
+        // Online Petitions for Admin
+        Route::get('/petitions', [PetitionController::class, 'adminIndex'])->name('admin.petitions.index');
+        Route::put('/petitions/{id}', [PetitionController::class, 'adminUpdate'])->name('admin.petitions.update');
     });
 });
 
@@ -167,6 +176,12 @@ Route::middleware('auth', 'verified')->group(function () {
         Route::get('/help-requests', [TeacherHelpRequestController::class, 'index'])->name('teachers.help.index');
         Route::post('/help-requests/{id}/reply', [TeacherHelpRequestController::class, 'reply'])->name('teachers.help.reply');
         Route::patch('/help-requests/{id}/status', [TeacherHelpRequestController::class, 'updateStatus'])->name('teachers.help.status');
+
+        // OLIS Shorts for Teachers
+        Route::get('/shorts', [ShortVideoController::class, 'teacherIndex'])->name('teachers.shorts.index');
+        Route::post('/shorts', [ShortVideoController::class, 'teacherStore'])->name('teachers.shorts.store');
+        Route::delete('/shorts/{id}', [ShortVideoController::class, 'teacherDestroy'])->name('teachers.shorts.destroy');
+        Route::put('/shorts/{id}', [ShortVideoController::class, 'teacherUpdate'])->name('teachers.shorts.update');
         });
 });
 
@@ -174,12 +189,19 @@ Route::middleware('auth', 'verified')->group(function () {
 Route::middleware('auth', 'verified')->group(function () {
     Route::middleware('checkrole:1')->group(function () {
         Route::get('/home', [DashboardController::class, 'home'])->name('home');
+
+        // OLIS Shorts for Students
+        Route::get('/shorts', [ShortVideoController::class, 'index'])->name('shorts.index');
+        Route::post('/shorts/{id}/like', [ShortVideoController::class, 'toggleLike'])->name('shorts.like');
+        Route::post('/shorts/{id}/view', [ShortVideoController::class, 'incrementView'])->name('shorts.view');
+
         Route::get('/ประวัติการเรียน', [DashboardController::class, 'index'])->name('ประวัติการเรียน');
         Route::get('/ตารางสอบ', [ExamscheduleController::class, 'index'])->name('ตารางสอบ');
         Route::get('/การจบหลักสูตร', [FinalController::class, 'index'])->name('การจบหลักสูตร');
         Route::get('/การลงทะเบียน', [StudentRegisController::class, 'index'])->name('การลงทะเบียน');
         Route::get('/กพช', [ActivityController::class, 'index'])->name('กพช');
         Route::get('/คำร้องออนไลน์', [PetitionController::class, 'index'])->name('คำร้องออนไลน์');
+        Route::post('/คำร้องออนไลน์', [PetitionController::class, 'store'])->name('คำร้องออนไลน์.store');
         // ระบบทดสอบ
         Route::get('/ทดสอบออนไลน์', [ExamController::class, 'index'])->name('ทดสอบออนไลน์');
         Route::post('/quizzes/{id}/initialize', [ExamController::class, 'initializeAttempt'])->name('quizzes.initialize');

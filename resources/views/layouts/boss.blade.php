@@ -45,6 +45,7 @@
             </main>
         </div>
         @include('layouts.pwa_installer')
+        @include('layouts.page_loader')
     </body>
     @include('layouts.footer')
 </html>
