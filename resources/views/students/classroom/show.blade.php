@@ -33,6 +33,49 @@
                     </div>
                 </div>
 
+                {{-- Short Videos connected to this course --}}
+                @if(!$shortVideos->isEmpty())
+                    <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+                        <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+                            <svg class="w-6 h-6 text-purple-650" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5l4.72-4.72a.75.75 0 011.28.53v11.38a.75.75 0 01-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 002.25-2.25v-9a2.25 2.25 0 00-2.25-2.25h-9A2.25 2.25 0 002.25 7.5v9a2.25 2.25 0 002.25 2.25z"/>
+                            </svg>
+                            คลิปแนะนำการเรียนรู้สั้น (OLIS Shorts)
+                        </h2>
+                        <div class="flex gap-4 overflow-x-auto pb-3 scrollbar-thin scrollbar-thumb-purple-200">
+                            @foreach($shortVideos as $video)
+                                <a href="{{ route('shorts.index', ['id' => $video->id]) }}" class="flex-shrink-0 group relative w-36 h-56 rounded-2xl overflow-hidden border border-gray-150 dark:border-gray-750 shadow-sm hover:shadow-md hover:scale-105 transition-all">
+                                    <!-- Video Poster / Slideshow Thumbnail -->
+                                    @if($video->type === 'images' && is_array($video->images) && count($video->images) > 0)
+                                        <img src="{{ asset('storage/' . $video->images[0]) }}" class="w-full h-full object-cover">
+                                    @elseif($video->video_path)
+                                        <div class="w-full h-full bg-slate-900 flex items-center justify-center relative">
+                                            <video src="{{ asset('storage/' . $video->video_path) }}#t=0.5" class="w-full h-full object-cover" muted></video>
+                                            <div class="absolute inset-0 bg-black/30 flex items-center justify-center">
+                                                <svg class="w-8 h-8 text-white/90 drop-shadow-md group-hover:scale-110 transition-transform" fill="currentColor" viewBox="0 0 24 24">
+                                                    <path d="M8 5v14l11-7z"/>
+                                                </svg>
+                                            </div>
+                                        </div>
+                                    @else
+                                        <div class="w-full h-full bg-purple-100 flex items-center justify-center">
+                                            <span class="text-xs font-bold text-purple-650">คลิปสั้น</span>
+                                        </div>
+                                    @endif
+
+                                    <!-- Dark Overlay and Title info -->
+                                    <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/45 to-transparent pt-8 pb-3 px-3 flex flex-col justify-end text-white">
+                                        <span class="text-[10px] font-bold truncate">{{ $video->title }}</span>
+                                        <span class="text-[8px] opacity-75 font-medium mt-0.5 flex items-center gap-1">
+                                            👁️ {{ $video->views_count }} • ❤️ {{ $video->likes_count }}
+                                        </span>
+                                    </div>
+                                </a>
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
+
                 {{-- Modules and Lessons --}}
                 <div class="bg-white rounded-lg shadow-md p-6">
                     <h2 class="text-2xl font-bold text-gray-800 mb-4">สารบัญหลักสูตร</h2>

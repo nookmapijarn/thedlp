@@ -39,4 +39,9 @@ class Course extends Model
     {
         return $this->hasManyThrough(Lesson::class, Module::class);
     }
+
+    public function shortVideos()
+    {
+        return $this->hasMany(ShortVideo::class);
+    }
 }

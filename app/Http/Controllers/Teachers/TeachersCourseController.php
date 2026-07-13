@@ -23,7 +23,9 @@ class TeachersCourseController extends Controller
      */
     public function manage()
     {
-        $courses = Course::where('teacher_id', Auth::id())->get();
+        $courses = Course::where('teacher_id', Auth::id())
+            ->withCount(['modules', 'lessons', 'shortVideos'])
+            ->get();
         return view('teachers.courses.dashboard', compact('courses'));
     }
     

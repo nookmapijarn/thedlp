@@ -50,7 +50,12 @@ class ClassroomController extends Controller
                                     ->exists();
         }
 
-        return view('students.classroom.show', compact('course', 'isEnrolled'));
+        // Retrieve short videos linked to this course
+        $shortVideos = \App\Models\ShortVideo::where('course_id', $course->id)
+                                            ->latest()
+                                            ->get();
+
+        return view('students.classroom.show', compact('course', 'isEnrolled', 'shortVideos'));
     }
 
     /**

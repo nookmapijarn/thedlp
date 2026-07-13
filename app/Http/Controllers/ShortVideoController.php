@@ -11,12 +11,17 @@ use Illuminate\Support\Facades\Storage;
 
 class ShortVideoController extends Controller
 {
-    /**
-     * Display the TikTok-style swipe feed for students.
-     */
-    public function index()
+    public function index(Request $request)
     {
+        $startId = $request->query('id');
         $shorts = ShortVideo::with(['teacher', 'course'])->latest()->get();
+
+        if ($startId) {
+            $shorts = $shorts->sortBy(function($short) use ($startId) {
+                return $short->id == $startId ? 0 : 1;
+            })->values();
+        }
+
         return view('students.shorts', compact('shorts'));
     }
 
