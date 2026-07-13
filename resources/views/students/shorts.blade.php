@@ -106,7 +106,7 @@
                             <!-- Teacher Profile -->
                             <div class="flex flex-col items-center">
                                 <div class="relative w-11 h-11 rounded-full border-2 border-purple-500 overflow-hidden shadow-md bg-slate-900">
-                                    <img src="{{ $short->teacher->avatar ? asset('storage/' . $short->teacher->avatar) : 'https://as1.ftcdn.net/v2/jpg/03/46/83/96/1000_F_346839683_6nAPzbhpSkIpb8pmAwufkC7c5eD7wYws.jpg' }}" class="w-full h-full object-cover">
+                                    <img src="{{ ($short->teacher && $short->teacher->avatar) ? asset('storage/' . $short->teacher->avatar) : 'https://as1.ftcdn.net/v2/jpg/03/46/83/96/1000_F_346839683_6nAPzbhpSkIpb8pmAwufkC7c5eD7wYws.jpg' }}" class="w-full h-full object-cover">
                                 </div>
                                 <span class="text-[9px] text-white font-bold bg-purple-600 px-1.5 py-0.5 rounded-full -mt-2.5 z-10 shadow-sm border border-white/20">ครู</span>
                             </div>
@@ -147,7 +147,7 @@
                         <!-- Bottom Info Overlay -->
                         <div class="absolute left-4 right-20 bottom-6 z-30 flex flex-col text-white">
                             <h4 class="font-black text-sm drop-shadow-md flex items-center gap-1.5">
-                                {{ $short->teacher->name ?? 'คุณครู' }}
+                                {{ $short->teacher?->name ?? 'คุณครู' }}
                                 <svg class="w-3.5 h-3.5 text-blue-400 fill-current" viewBox="0 0 24 24">
                                     <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
                                 </svg>
