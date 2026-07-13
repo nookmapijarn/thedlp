@@ -33,8 +33,8 @@ messaging.onBackgroundMessage((payload) => {
 self.addEventListener('notificationclick', function(event) {
     event.notification.close();
 
-    // Retrieve the target URL or fallback to ticket query parameter
-    let redirectUrl = '/';
+    // Retrieve the target URL or fallback parameters
+    let redirectUrl = self.location.origin + '/';
     let ticketId = null;
 
     if (event.notification.data) {
@@ -45,7 +45,7 @@ self.addEventListener('notificationclick', function(event) {
             ticketId = event.notification.data.ticket;
         }
 
-        // Check inside nested FCM_MSG parameter object structure
+        // Check inside nested FCM_MSG parameter object structure (Firebase SDK auto-display)
         if (event.notification.data.FCM_MSG && event.notification.data.FCM_MSG.data) {
             const fcmData = event.notification.data.FCM_MSG.data;
             if (fcmData.url) {
@@ -57,14 +57,32 @@ self.addEventListener('notificationclick', function(event) {
         }
     }
 
-    // Dynamic fallback URL for raw ticket notifications
-    if (redirectUrl === '/' && ticketId) {
-        redirectUrl = '/ศูนย์รับแจ้งปัญหา?ticket=' + ticketId;
+    // Resolve relative path fallbacks to absolute URLs (strictly required for PWA launching)
+    if (redirectUrl === '/' || redirectUrl === self.location.origin + '/') {
+        if (ticketId) {
+            redirectUrl = self.location.origin + '/ศูนย์รับแจ้งปัญหา?ticket=' + ticketId;
+        } else {
+            redirectUrl = self.location.origin + '/welcome';
+        }
+    } else if (redirectUrl.indexOf('http') !== 0) {
+        redirectUrl = self.location.origin + redirectUrl;
     }
 
-    // Force open the redirect URL in a new window/tab for maximum mobile compatibility
     event.waitUntil(
-        clients.openWindow(redirectUrl)
+        clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function(windowClients) {
+            // 1. If a PWA standalone window or website tab is already open, focus it and redirect
+            for (var i = 0; i < windowClients.length; i++) {
+                var client = windowClients[i];
+                if (client.url.indexOf(self.location.origin) === 0 && 'focus' in client) {
+                    client.focus();
+                    return client.navigate(redirectUrl);
+                }
+            }
+            // 2. If no window is open, open a new window (which launches the installed PWA standalone app on mobile)
+            if (clients.openWindow) {
+                return clients.openWindow(redirectUrl);
+            }
+        })
     );
 });
 
