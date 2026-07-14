@@ -473,7 +473,7 @@
                                         {{-- จัดการ --}}
                                          <td class="block md:table-cell px-2 md:px-8 py-3 md:py-6 text-right border-t border-slate-100/50 md:border-none">
                                             @if ($passed)
-                                                <button onclick="showCertificateModal('{{ $attempt->quiz_title }}', '{{ $attempt->user_score }}', '{{ $attempt->quiz_total_score }}', '{{ $attempt->certificate_image }}')"
+                                                <button onclick="showCertificateModal('{{ addslashes($attempt->quiz_title) }}', '{{ $attempt->user_score }}', '{{ $attempt->quiz_total_score }}', '{{ $attempt->certificate_image }}', '{{ addslashes($attempt->certificate_config) }}', '{{ $attempt->certificate_signature }}')"
                                                     class="w-full md:w-auto inline-flex items-center justify-center gap-1.5 text-indigo-650 hover:text-indigo-850 dark:text-indigo-400 dark:hover:text-indigo-300 font-black text-xs bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/40 dark:hover:bg-indigo-950/60 px-4 py-2.5 rounded-xl transition-all border border-indigo-100 dark:border-indigo-900/30 shadow-sm shadow-indigo-100/50 dark:shadow-none">
                                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                                                     รับเกียรติบัตร
@@ -601,7 +601,7 @@ async function renderCertificate(canvasId, data) {
     // 2. เตรียมรูปภาพ
     const imgBg = new Image();
     const imgLogo = new Image();
-    const imgSignature = new Image(); // เพิ่มตัวแปรรูปลายเซ็น
+    const imgSignature = new Image();
     
     imgBg.crossOrigin = "anonymous";
     imgLogo.crossOrigin = "anonymous";
@@ -610,7 +610,7 @@ async function renderCertificate(canvasId, data) {
     // แหล่งที่มารูปภาพ
     imgBg.src = data.base64;
     imgLogo.src = '{{ asset("storage/logo.png") ?? asset("storage/olislogo.png") }}';
-    imgSignature.src = '{{ asset("storage/signature.png") ?? asset("storage/nonesignature.png") }}';
+    imgSignature.src = data.signature_path ? data.signature_path : '{{ asset("storage/signature.png") ?? asset("storage/nonesignature.png") }}';
 
     return new Promise((resolve) => {
         let loadedCount = 0;
@@ -639,89 +639,143 @@ async function renderCertificate(canvasId, data) {
 
             const centerX = canvas.width / 2;
             const fontFamily = "'Prompt', sans-serif";
-            ctx.textAlign = "center";
             ctx.textBaseline = "middle";
 
-            // 2. วาด Logo
-            // const logoSize = 100;
-            // const logoY = 85;
-            // if (imgLogo.complete && imgLogo.naturalWidth > 0) {
-            //     ctx.drawImage(imgLogo, centerX - (logoSize / 2), logoY - (logoSize / 2), logoSize, logoSize);
-            // }
+            let config = null;
+            if (data.config) {
+                try {
+                    config = typeof data.config === 'string' ? JSON.parse(data.config) : data.config;
+                } catch (e) {
+                    console.error("Failed to parse certificate config", e);
+                }
+            }
 
-            // 3. ข้อความเนื้อหา
-            ctx.font = `bold 60px ${fontFamily}`;
-            ctx.fillStyle = "#1e3a8a"; 
-            ctx.fillText("ประกาศนียบัตร", centerX, 210);
+            // If custom configurations exist
+            if (config) {
+                // Draw Student Name
+                if (config.student_name && config.student_name.visible) {
+                    const c = config.student_name;
+                    ctx.textAlign = c.align || "center";
+                    ctx.font = `bold ${c.size}px ${fontFamily}`;
+                    ctx.fillStyle = c.color || "#1e293b";
+                    const x = (c.x / 100) * canvas.width;
+                    const y = (c.y / 100) * canvas.height;
+                    ctx.fillText(data.name, x, y);
+                }
 
-            ctx.font = `bold 24px ${fontFamily}`;
-            ctx.fillText("ศูนย์ส่งเสริมการเรียนรู้ระดับอำเภอ{{ config('app.name_district') }}", centerX, 265);
+                // Draw Quiz Title
+                if (config.quiz_title && config.quiz_title.visible) {
+                    const c = config.quiz_title;
+                    ctx.textAlign = c.align || "center";
+                    ctx.font = `bold ${c.size}px ${fontFamily}`;
+                    ctx.fillStyle = c.color || "#1e3a8a";
+                    const x = (c.x / 100) * canvas.width;
+                    const y = (c.y / 100) * canvas.height;
+                    ctx.fillText(`“ ${data.title} ”`, x, y);
+                }
 
-            ctx.font = `bold  24px ${fontFamily}`;
-            ctx.fillStyle = "#4338ca";
-            ctx.fillText("ให้ไว้เพื่อแสดงว่า", centerX, 310);
+                // Draw Quiz Score
+                if (config.quiz_score && config.quiz_score.visible) {
+                    const c = config.quiz_score;
+                    ctx.textAlign = c.align || "left";
+                    ctx.font = `bold ${c.size}px ${fontFamily}`;
+                    ctx.fillStyle = c.color || "#64748b";
+                    const x = (c.x / 100) * canvas.width;
+                    const y = (c.y / 100) * canvas.height;
+                    ctx.fillText(`คะแนน: ${data.score} / ${data.total}`, x, y);
+                }
 
-            ctx.font = `bold 44px ${fontFamily}`;
-            ctx.fillStyle = "#1e293b";
-            ctx.fillText(data.name, centerX, 370);
+                // Draw Date
+                if (config.date && config.date.visible) {
+                    const c = config.date;
+                    ctx.textAlign = c.align || "center";
+                    ctx.font = `bold ${c.size}px ${fontFamily}`;
+                    ctx.fillStyle = c.color || "#64748b";
+                    const x = (c.x / 100) * canvas.width;
+                    const y = (c.y / 100) * canvas.height;
+                    ctx.fillText(`ให้ไว้ ณ วันที่ ${data.date}`, x, y);
+                }
 
-            ctx.font = `bold 30px ${fontFamily}`;
-            ctx.fillStyle = "#334155";
-            ctx.fillText("ได้ผ่านการทำแบบทดสอบ", centerX, 450);
+                // Draw Signature
+                if (config.signature && config.signature.visible) {
+                    const c = config.signature;
+                    if (imgSignature.complete && imgSignature.naturalWidth > 0) {
+                        const x = (c.x / 100) * canvas.width;
+                        const y = (c.y / 100) * canvas.height;
+                        ctx.drawImage(imgSignature, x, y, c.width || 200, c.height || 80);
+                    }
+                }
 
-            ctx.font = `900 34px ${fontFamily}`;
-            ctx.fillStyle = "#1e3a8a";
-            ctx.fillText(`“ ${data.title} ”`, centerX, 520);
+                // Draw Signer Name
+                if (config.signer_name && config.signer_name.visible) {
+                    const c = config.signer_name;
+                    ctx.textAlign = c.align || "center";
+                    ctx.font = `bold ${c.size}px ${fontFamily}`;
+                    ctx.fillStyle = c.color || "#334155";
+                    const x = (c.x / 100) * canvas.width;
+                    const y = (c.y / 100) * canvas.height;
+                    ctx.fillText(c.text || '', x, y);
+                }
 
-            ctx.font = `bold 24px ${fontFamily}`;
-            ctx.fillStyle = "#64748b";
-            ctx.fillText(`ให้ไว้ ณ วันที่ ${data.date}`, centerX, 580);
+                // Draw Signer Title
+                if (config.signer_title && config.signer_title.visible) {
+                    const c = config.signer_title;
+                    ctx.textAlign = c.align || "center";
+                    ctx.font = `bold ${c.size}px ${fontFamily}`;
+                    ctx.fillStyle = c.color || "#64748b";
+                    const x = (c.x / 100) * canvas.width;
+                    const y = (c.y / 100) * canvas.height;
+                    ctx.fillText(c.text || '', x, y);
+                }
+            } else {
+                // FALLBACK to standard classic layout coordinates if no custom designer config exists (Backward compatibility)
+                ctx.textAlign = "center";
+                ctx.font = `bold 60px ${fontFamily}`;
+                ctx.fillStyle = "#1e3a8a"; 
+                ctx.fillText("ประกาศนียบัตร", centerX, 210);
 
-            // 4. พื้นที่ส่วนท้าย (คะแนน และ ลายเซ็น)
-            const marginSide = 140; 
-            const footerY = 750;
+                ctx.font = `bold 24px ${fontFamily}`;
+                ctx.fillText("ศูนย์ส่งเสริมการเรียนรู้ระดับอำเภอ{{ config('app.name_district') }}", centerX, 265);
 
-            // ฝั่งซ้าย: คะแนน
-            ctx.textAlign = "left";
-            ctx.font = `bold 14px ${fontFamily}`;
-            ctx.fillStyle = "#64748b";
-            ctx.fillText("ผลคะแนนที่ได้", marginSide, footerY - 35);
-            ctx.font = `900 48px ${fontFamily}`;
-            ctx.fillText(data.score, marginSide, footerY);
-            ctx.font = `24px ${fontFamily}`;
-            ctx.fillText(` / ${data.total}`, marginSide + ctx.measureText(data.score).width + 5, footerY);
+                ctx.font = `bold  24px ${fontFamily}`;
+                ctx.fillStyle = "#4338ca";
+                ctx.fillText("ให้ไว้เพื่อแสดงว่า", centerX, 310);
 
-            // ฝั่งขวา: พื้นที่ลงนาม
-            const signAreaCenterX = canvas.width - marginSide - 140;
-            
-            // --- [เพิ่ม] วาดรูปลายเซ็น ---
-            // if (imgSignature.complete && imgSignature.naturalWidth > 0) {
-            //     const sigWidth = 200; // ปรับความกว้างลายเซ็นตามต้องการ
-            //     const sigHeight = (imgSignature.naturalHeight / imgSignature.naturalWidth) * sigWidth;
-            //     // วาดให้กึ่งกลางและอยู่เหนือเส้นเซ็นชื่อ
-            //     ctx.drawImage(imgSignature, signAreaCenterX - (sigWidth / 2), footerY - 80, sigWidth, sigHeight);
-            // }
+                ctx.font = `bold 44px ${fontFamily}`;
+                ctx.fillStyle = "#1e293b";
+                ctx.fillText(data.name, centerX, 370);
 
-            // วาดเส้นเซ็นชื่อ
-            // ctx.textAlign = "center";
-            // ctx.beginPath(); 
-            // ctx.strokeStyle = "#94a3b8";
-            // ctx.lineWidth = 2;
-            // ctx.moveTo(canvas.width - marginSide - 280, footerY - 10);
-            // ctx.lineTo(canvas.width - marginSide, footerY - 10);
-            // ctx.stroke();
+                ctx.font = `bold 30px ${fontFamily}`;
+                ctx.fillStyle = "#334155";
+                ctx.fillText("ได้ผ่านการทำแบบทดสอบ", centerX, 450);
 
-            // // ชื่อตำแหน่ง
-            // ctx.font = `bold 22px ${fontFamily}`;
-            // ctx.fillStyle = "#334155";
-            // ctx.fillText("ผู้บริหารสถานศึกษา", signAreaCenterX, footerY + 15);
+                ctx.font = `900 34px ${fontFamily}`;
+                ctx.fillStyle = "#1e3a8a";
+                ctx.fillText(`“ ${data.title} ”`, centerX, 520);
+
+                ctx.font = `bold 24px ${fontFamily}`;
+                ctx.fillStyle = "#64748b";
+                ctx.fillText(`ให้ไว้ ณ วันที่ ${data.date}`, centerX, 580);
+
+                const marginSide = 140; 
+                const footerY = 750;
+
+                ctx.textAlign = "left";
+                ctx.font = `bold 14px ${fontFamily}`;
+                ctx.fillStyle = "#64748b";
+                ctx.fillText("ผลคะแนนที่ได้", marginSide, footerY - 35);
+                ctx.font = `900 48px ${fontFamily}`;
+                ctx.fillText(data.score, marginSide, footerY);
+                ctx.font = `24px ${fontFamily}`;
+                ctx.fillText(` / ${data.total}`, marginSide + ctx.measureText(data.score).width + 5, footerY);
+            }
 
             resolve();
         }
     });
 }
 
-async function showCertificateModal(title, score, total, bgUrl) {
+async function showCertificateModal(title, score, total, bgUrl, configStr, signatureUrl) {
     const modal = document.getElementById('certificate-modal');
     modal.classList.remove('hidden');
     document.body.style.overflow = 'hidden';
@@ -730,13 +784,24 @@ async function showCertificateModal(title, score, total, bgUrl) {
         const response = await fetch(`student/get-cert-base64?url=${encodeURIComponent(bgUrl)}`);
         const result = await response.json();
         
+        let parsedConfig = null;
+        if (configStr) {
+            try {
+                parsedConfig = JSON.parse(configStr);
+            } catch (err) {
+                console.error("Error parsing certificate config string", err);
+            }
+        }
+
         currentCertData = {
             base64: result.base64,
             name: "{{ auth()->user()->name }}",
             title: title,
             score: score,
             total: total,
-            date: new Date().toLocaleDateString('th-TH', { day: 'numeric', month: 'long', year: 'numeric' })
+            date: new Date().toLocaleDateString('th-TH', { day: 'numeric', month: 'long', year: 'numeric' }),
+            config: parsedConfig,
+            signature_path: signatureUrl || null
         };
 
         // วาดลง Canvas ทันทีที่ข้อมูลพร้อม

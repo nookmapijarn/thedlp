@@ -104,6 +104,19 @@ class TeachersTestController extends Controller
                 $certPublicUrl = asset('storage/images/exams/certificate/' . $certName);
             }
 
+            // --- 3.1 จัดการรูปลายเซ็น (หากมีอัปโหลด) ---
+            $signaturePublicUrl = null;
+            if ($request->hasFile('quiz_signature')) {
+                $sigFile = $request->file('quiz_signature');
+                $sigName = 'sig_' . time() . '.' . $sigFile->getClientOriginalExtension();
+                $sigDirectory = public_path('storage/images/exams/signature');
+                if (!file_exists($sigDirectory)) {
+                    mkdir($sigDirectory, 0777, true);
+                }
+                $sigFile->move($sigDirectory, $sigName);
+                $signaturePublicUrl = asset('storage/images/exams/signature/' . $sigName);
+            }
+
             $totalQuizScore = 0;
             $requireLocation = $request->has('require_location') ? 1 : 0;
             $requireSnapshot = $request->has('require_snapshot') ? 1 : 0;
@@ -122,6 +135,8 @@ class TeachersTestController extends Controller
                 'time_limit' => $request->time_limit ?? 0,
                 'cover_image' => $coverPublicUrl,
                 'certificate_image' => $certPublicUrl, // ตอนนี้จะไม่ Error แล้วเพราะมีค่า null รองรับ
+                'certificate_config' => $request->certificate_config,
+                'certificate_signature' => $signaturePublicUrl,
                 'created_by' => Auth::id(),
                 'created_at' => now(),
                 'updated_at' => now(),
@@ -269,6 +284,36 @@ class TeachersTestController extends Controller
                 File::put($certDirectory . '/' . $certName, base64_decode($certData));
                 
                 $updateData['certificate_image'] = asset('storage/images/exams/certificate/' . $certName);
+            }
+
+            // --- 2.1 จัดการรูปลายเซ็น (หากมีอัปโหลด) ---
+            if ($request->hasFile('quiz_signature')) {
+                // ลบรูปภาพลายเซ็นเดิมถ้ามี
+                if (!empty($quiz->certificate_signature)) {
+                    $this->deleteOldFile($quiz->certificate_signature);
+                }
+                
+                $sigFile = $request->file('quiz_signature');
+                $sigName = 'sig_' . time() . '.' . $sigFile->getClientOriginalExtension();
+                $sigDirectory = public_path('storage/images/exams/signature');
+                if (!File::exists($sigDirectory)) {
+                    File::makeDirectory($sigDirectory, 0777, true);
+                }
+                $sigFile->move($sigDirectory, $sigName);
+                $updateData['certificate_signature'] = asset('storage/images/exams/signature/' . $sigName);
+            }
+
+            // --- 2.2 จัดการการลบลายเซ็น (หากถูกระบุให้ลบ) ---
+            if ($request->input('quiz_signature_remove') === 'true') {
+                if (!empty($quiz->certificate_signature)) {
+                    $this->deleteOldFile($quiz->certificate_signature);
+                }
+                $updateData['certificate_signature'] = null;
+            }
+
+            // --- 2.3 บันทึกการตั้งค่าตารางพิกัดเกี่รยติบัตร ---
+            if ($request->has('certificate_config')) {
+                $updateData['certificate_config'] = $request->input('certificate_config');
             }
 
             // --- 3. อัปเดตข้อมูล Quiz หลัก ---

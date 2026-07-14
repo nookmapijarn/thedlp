@@ -134,6 +134,8 @@ class ExamController extends Controller
                 'quizzes.total_score as quiz_total_score',
                 'quizzes.cover_image as cover_image',
                 'quizzes.certificate_image as certificate_image',
+                'quizzes.certificate_config as certificate_config',
+                'quizzes.certificate_signature as certificate_signature',
             )
             ->orderBy('quiz_attempts.finished_at', 'desc')
             ->get();
