@@ -11,6 +11,20 @@ class WelcomeController extends Controller
 {
     public function index()
     {
+        // If user is already logged in, redirect them to their dashboard immediately
+        if (auth()->check()) {
+            $role = auth()->user()->role;
+            if ($role == 1) {
+                return redirect()->route('home');
+            } elseif ($role == 2) {
+                return redirect()->route('tdashboard');
+            } elseif ($role == 3) {
+                return redirect()->route('boss');
+            } elseif ($role == 4) {
+                return redirect()->route('admin');
+            }
+        }
+
         // 1. หาภาคเรียนล่าสุด
         $currentSemester = DB::table('grade1')->max('SEMESTRY');
         if (!$currentSemester) {

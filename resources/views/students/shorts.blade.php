@@ -28,12 +28,98 @@
         }
     </style>
 
-    <div class="fixed inset-x-0 top-0 bottom-16 sm:bottom-0 sm:left-72 bg-slate-950 flex items-center justify-center z-30">
+    <div x-data="{ 
+            search: '', 
+            currentFilter: 'all', 
+            showSearch: false,
+            hasVisible: true,
+            filterChanged() {
+                setTimeout(() => {
+                    const visibleSlides = document.querySelectorAll('.short-video-slide:not([style*=\'display: none\'])');
+                    this.hasVisible = visibleSlides.length > 0;
+                    if (visibleSlides.length > 0) {
+                        const firstVisible = visibleSlides[0];
+                        firstVisible.scrollIntoView({ behavior: 'auto' });
+                        const idx = parseInt(firstVisible.getAttribute('data-index'));
+                        if (window.managePlayback) window.managePlayback(idx);
+                    } else {
+                        if (window.stopAllPlayback) window.stopAllPlayback();
+                    }
+                }, 100);
+            }
+         }" 
+         x-init="$watch('search', value => filterChanged()); $watch('currentFilter', value => filterChanged())"
+         class="fixed inset-x-0 top-0 bottom-16 sm:bottom-0 sm:left-72 bg-slate-950 flex items-center justify-center z-30">
         <div class="w-full h-full max-w-[480px] bg-black relative flex flex-col sm:border-x sm:border-slate-800">
+            
+            <!-- TikTok-like Top Overlay Header -->
+            <div class="absolute top-4 inset-x-0 px-4 flex flex-col gap-3.5 z-40 pointer-events-none">
+                <div class="flex items-center justify-between pointer-events-auto">
+                    <!-- Left: Logo/Header -->
+                    <div class="text-white text-sm font-black tracking-tight drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
+                        OLIS <span class="text-rose-500">Shorts</span>
+                    </div>
+
+                    <!-- Center: Text Tabs (แนะนำ / วิชาเรียน) -->
+                    <div class="flex items-center space-x-6 text-sm font-black drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
+                        <button type="button" @click="currentFilter = 'all'" 
+                            :class="currentFilter === 'all' ? 'text-white border-b-2 border-white pb-0.5' : 'text-white/60 hover:text-white'"
+                            class="transition-all focus:outline-none">
+                            แนะนำ
+                        </button>
+                        <button type="button" @click="currentFilter = 'course'" 
+                            :class="currentFilter === 'course' ? 'text-white border-b-2 border-white pb-0.5' : 'text-white/60 hover:text-white'"
+                            class="transition-all focus:outline-none">
+                            วิชาเรียน
+                        </button>
+                    </div>
+
+                    <!-- Right: Search Button -->
+                    <button type="button" @click="showSearch = !showSearch; if(showSearch) { $nextTick(() => $refs.searchInput.focus()) }" 
+                        class="p-2 bg-black/40 hover:bg-black/60 text-white rounded-full transition-all focus:outline-none backdrop-blur-md border border-white/10 active:scale-95">
+                        <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Sliding Search Box -->
+                <div x-show="showSearch" x-transition.duration.300ms
+                    class="w-full flex items-center gap-2 bg-black/80 backdrop-blur-lg px-4 py-2.5 rounded-2xl border border-white/10 pointer-events-auto shadow-2xl">
+                    <span class="text-white/40 flex-shrink-0">
+                        <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
+                    </span>
+                    <input x-ref="searchInput" x-model="search" type="text" placeholder="ค้นหาคลิปวิดีโอการเรียนรู้..."
+                        class="flex-1 bg-transparent text-white border-none focus:outline-none focus:ring-0 text-xs placeholder-white/40 p-0 font-medium">
+                    <button type="button" @click="search = ''; showSearch = false" 
+                        class="text-rose-500 hover:text-rose-400 text-xs font-black px-1.5 focus:outline-none">
+                        ปิด
+                    </button>
+                </div>
+            </div>
+
             <!-- Scroll container -->
             <div id="shorts-container" class="flex-1 overflow-y-scroll snap-y snap-mandatory relative" style="-ms-overflow-style: none; scrollbar-width: none;">
+                
+                <!-- Empty State Overlay for Filtered Results -->
+                <div x-show="!hasVisible" x-transition 
+                     class="absolute inset-0 flex flex-col items-center justify-center text-slate-400 bg-black/95 z-20 px-6 text-center">
+                    <svg class="w-14 h-14 text-slate-700 mb-3" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5l4.72-4.72a.75.75 0 011.28.53v11.38a.75.75 0 01-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 002.25-2.25v-9a2.25 2.25 0 00-2.25-2.25h-9A2.25 2.25 0 002.25 7.5v9a2.25 2.25 0 002.25 2.25z"></path>
+                    </svg>
+                    <h4 class="font-black text-sm text-slate-350">ไม่พบวิดีโอที่ค้นหา</h4>
+                    <p class="text-xs text-slate-500 mt-1 leading-relaxed">กรุณาลองเปลี่ยนคำค้นหา หรือสลับแท็บฟิลเตอร์ด้านบน</p>
+                </div>
+
                 @forelse($shorts as $index => $short)
-                    <div class="w-full h-full snap-start snap-always relative flex-shrink-0 short-video-slide" data-id="{{ $short->id }}" data-index="{{ $index }}" data-course-id="{{ $short->course_id }}">
+                    <div class="w-full h-full snap-start snap-always relative flex-shrink-0 short-video-slide" 
+                         data-id="{{ $short->id }}" 
+                         data-index="{{ $index }}" 
+                         data-course-id="{{ $short->course_id }}"
+                         x-show="(currentFilter === 'all' || (currentFilter === 'course' && '{{ $short->course_id }}' !== '')) && ('{{ addslashes($short->title) }} {{ addslashes($short->description ?? '') }}'.toLowerCase().includes(search.toLowerCase()))"
+                         x-transition.opacity>
                         
                         @if($short->type === 'images')
                             <!-- Image slideshow element -->
@@ -429,6 +515,37 @@
 
             slides.forEach(slide => observer.observe(slide));
 
+            // Auto-loop to first video when scrolling past the last slide
+            let isLooping = false;
+            container.addEventListener('scroll', () => {
+                if (isLooping) return;
+
+                const tolerance = 15;
+                if (container.scrollTop + container.clientHeight >= container.scrollHeight - tolerance) {
+                    const visibleSlides = document.querySelectorAll('.short-video-slide:not([style*="display: none"])');
+                    if (visibleSlides.length > 1) {
+                        const lastVisible = visibleSlides[visibleSlides.length - 1];
+                        const lastIndex = parseInt(lastVisible.getAttribute('data-index'));
+                        if (activeIndex === lastIndex) {
+                            isLooping = true;
+                            const firstVisible = visibleSlides[0];
+                            
+                            // Scroll back to the first visible slide smoothly
+                            firstVisible.scrollIntoView({ behavior: 'smooth' });
+                            
+                            const idx = parseInt(firstVisible.getAttribute('data-index'));
+                            activeIndex = idx;
+                            managePlayback(idx);
+
+                            // Release loop guard after animation finishes
+                            setTimeout(() => {
+                                isLooping = false;
+                            }, 1200);
+                        }
+                    }
+                }
+            });
+
             // Tap area play/pause and double-tap like triggers
             slides.forEach(slide => {
                 const tapArea = slide.querySelector('.video-tap-area');
@@ -724,6 +841,43 @@
                     }, 500);
                 }
             }
+            // Expose playback methods globally for AlpineJS integration
+            window.managePlayback = managePlayback;
+            window.stopAllPlayback = () => {
+                stopShortVideoPing();
+                slides.forEach(slide => {
+                    const video = slide.querySelector('.short-video-player');
+                    const audio = slide.querySelector('.short-audio-player');
+                    if (video) {
+                        if (video.playPromise !== undefined) {
+                            video.playPromise.then(() => {
+                                video.pause();
+                                video.currentTime = 0;
+                            }).catch(() => {
+                                video.pause();
+                                video.currentTime = 0;
+                            });
+                        } else {
+                            video.pause();
+                            video.currentTime = 0;
+                        }
+                    }
+                    if (audio) {
+                        if (audio.playPromise !== undefined) {
+                            audio.playPromise.then(() => {
+                                audio.pause();
+                                audio.currentTime = 0;
+                            }).catch(() => {
+                                audio.pause();
+                                audio.currentTime = 0;
+                            });
+                        } else {
+                            audio.pause();
+                            audio.currentTime = 0;
+                        }
+                    }
+                });
+            };
         });
 
         // Global carousel scrolling function for click arrows

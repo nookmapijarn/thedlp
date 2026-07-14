@@ -45,7 +45,14 @@
             // Initial status check on page load (with delay to avoid mobile cold-start race conditions)
             setTimeout(() => {
                 if (!navigator.onLine) {
-                    showOfflineBar();
+                    // Double check with a real network ping to prevent false positives on cold start
+                    fetch('/offline', { method: 'HEAD', cache: 'no-store' })
+                        .then(() => {
+                            hideOfflineBar();
+                        })
+                        .catch(() => {
+                            showOfflineBar();
+                        });
                 } else {
                     hideOfflineBar();
                 }

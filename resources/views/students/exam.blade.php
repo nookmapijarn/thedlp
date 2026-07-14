@@ -28,26 +28,33 @@
                     </div>
                 </div>
 
-                {{-- Premium Tab Navigation --}}
-                <nav class="flex space-x-1" aria-label="Tabs">
-                    <button onclick="switchTab('assigned')" id="tab-btn-assigned"
-                        class="tab-link relative py-4 px-6 font-semibold text-sm transition-all duration-300">
-                        📋 ที่ครูมอบหมาย
-                        @if(isset($assignedCount) && $assignedCount > 0)
-                            <span class="ml-2 py-0.5 px-2 rounded-full text-[10px] bg-red-500 text-white">{{ $assignedCount }}</span>
-                        @endif
-                    </button>
+                {{-- Premium Tab Segmented Control --}}
+                <div class="py-3 flex justify-center">
+                    <div class="bg-slate-100 dark:bg-slate-900 rounded-2xl p-1.5 flex w-full max-w-lg shadow-inner border border-slate-200/30 dark:border-slate-800">
+                        <button onclick="switchTab('assigned')" id="tab-btn-assigned"
+                            class="tab-link flex-1 py-2.5 text-center rounded-xl text-xs font-black transition-all duration-300 flex items-center justify-center gap-1.5 focus:outline-none">
+                            📋 มอบหมาย
+                            @php
+                                $incompleteAssigned = count($assignedQuizzes->where('is_completed', false));
+                            @endphp
+                            @if($incompleteAssigned > 0)
+                                <span class="py-0.5 px-2 rounded-full text-[9px] bg-red-500 text-white font-black animate-pulse shadow-sm">
+                                    {{ $incompleteAssigned }}
+                                </span>
+                            @endif
+                        </button>
 
-                    <button onclick="switchTab('all')" id="tab-btn-all"
-                        class="tab-link relative py-4 px-6 font-semibold text-sm transition-all duration-300">
-                        📚 ทั้งหมด
-                    </button>
+                        <button onclick="switchTab('all')" id="tab-btn-all"
+                            class="tab-link flex-1 py-2.5 text-center rounded-xl text-xs font-black transition-all duration-300 flex items-center justify-center gap-1.5 focus:outline-none">
+                            📚 คลังข้อสอบ
+                        </button>
 
-                    <button onclick="switchTab('history')" id="tab-btn-history"
-                        class="tab-link relative py-4 px-6 font-semibold text-sm transition-all duration-300">
-                        🕒 ประวัติ
-                    </button>
-                </nav>
+                        <button onclick="switchTab('history')" id="tab-btn-history"
+                            class="tab-link flex-1 py-2.5 text-center rounded-xl text-xs font-black transition-all duration-300 flex items-center justify-center gap-1.5 focus:outline-none">
+                            🕒 ประวัติการสอบ
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -407,49 +414,46 @@
                                         $passed = $percent >= 50;
                                     @endphp
                                     {{-- Row: Becomes a Card on Mobile --}}
-                                    <tr class="block md:table-row hover:bg-slate-50/80 transition-all group overflow-hidden">
+                                    <tr class="block md:table-row bg-white dark:bg-slate-850 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-[0_4px_20px_rgb(0,0,0,0.015)] md:shadow-none p-4 md:p-0 mb-4 md:mb-0 hover:bg-slate-50/40 dark:hover:bg-slate-800/10 transition-all group overflow-hidden">
                                         
                                         {{-- ชื่อข้อสอบ --}}
-                                        <td class="block md:table-cell px-8 py-4 md:py-6">
-                                            <span class="md:hidden text-[10px] text-slate-400 font-bold uppercase block mb-1">วิชา</span>
-                                            <div class="text-sm font-bold text-slate-700 group-hover:text-indigo-600 transition-colors">{{ $attempt->quiz_title }}</div>
-                                            <div class="text-[10px] text-slate-400 uppercase mt-1">Total: {{ $attempt->quiz_total_score }} pts</div>
+                                        <td class="block md:table-cell px-2 md:px-8 py-2.5 md:py-6">
+                                            <span class="md:hidden text-[9px] text-slate-400 dark:text-slate-500 font-black uppercase tracking-wider block mb-1">ชื่อวิชา / ข้อสอบ</span>
+                                            <div class="text-sm font-black text-slate-800 dark:text-slate-200 group-hover:text-indigo-650 dark:group-hover:text-indigo-400 transition-colors">{{ $attempt->quiz_title }}</div>
+                                            <div class="text-[9px] text-slate-400 dark:text-slate-500 mt-1 font-bold">คะแนนเต็ม: {{ $attempt->quiz_total_score }} คะแนน</div>
                                         </td>
 
                                         {{-- วันที่สอบ --}}
-                                        <td class="block md:table-cell px-8 py-3 md:py-6">
-                                            <div class="flex justify-between md:block">
-                                                <span class="md:hidden text-[10px] text-slate-400 font-bold uppercase">วันที่สอบ</span>
-                                                <div>
-                                                    <div class="text-sm text-slate-500 font-medium">
-                                                        {{-- ตรวจสอบก่อนว่ามีข้อมูลไหม ถ้าไม่มีให้แสดง '-' --}}
+                                        <td class="block md:table-cell px-2 md:px-8 py-2.5 md:py-6 border-t border-slate-100/50 md:border-none">
+                                            <div class="flex justify-between md:block items-center">
+                                                <span class="md:hidden text-[9px] text-slate-400 dark:text-slate-500 font-black uppercase tracking-wider">วันที่เข้าสอบ</span>
+                                                <div class="text-right md:text-left">
+                                                    <div class="text-sm text-slate-600 dark:text-slate-350 font-bold">
                                                         {{ $attempt->finished_at 
                                                             ? \Carbon\Carbon::parse($attempt->finished_at)->translatedFormat('j M Y') 
                                                             : 'ยังไม่ระบุ' }}
                                                     </div>
-                                                    <div class="text-[10px] text-slate-400">
-                                                        {{-- ทำเช่นเดียวกันกับส่วนของเวลา --}}
+                                                    <div class="text-[10px] text-slate-400 mt-0.5 font-bold">
                                                         @if($attempt->finished_at)
                                                             {{ \Carbon\Carbon::parse($attempt->finished_at)->format('H:i') }} น.
                                                         @else
                                                             --:-- น.
                                                         @endif
                                                     </div>
-                                                    {{-- Hidden timestamp for sorting --}}
                                                     <span class="hidden sort-data">{{ $attempt->finished_at }}</span>
                                                 </div>
                                             </div>
                                         </td>
 
                                         {{-- คะแนน --}}
-                                        <td class="block md:table-cell px-8 py-3 md:py-6 text-center">
+                                        <td class="block md:table-cell px-2 md:px-8 py-2.5 md:py-6 text-center border-t border-slate-100/50 md:border-none">
                                             <div class="flex justify-between md:flex-col items-center">
-                                                <span class="md:hidden text-[10px] text-slate-400 font-bold uppercase">คะแนน</span>
+                                                <span class="md:hidden text-[9px] text-slate-400 dark:text-slate-500 font-black uppercase tracking-wider">คะแนนที่ได้</span>
                                                 <div class="inline-flex flex-col items-end md:items-center">
-                                                    <span class="text-base font-black {{ $passed ? 'text-emerald-500' : 'text-rose-500' }}">
+                                                    <span class="text-base font-black {{ $passed ? 'text-emerald-500 dark:text-emerald-400' : 'text-rose-500 dark:text-rose-400' }}">
                                                         {{ $attempt->user_score }}
                                                     </span>
-                                                    <div class="w-16 bg-slate-100 h-1 rounded-full mt-1 overflow-hidden mx-auto">
+                                                    <div class="w-16 bg-slate-100 dark:bg-slate-800 h-1.5 rounded-full mt-1 overflow-hidden mx-auto hidden md:block">
                                                         <div class="{{ $passed ? 'bg-emerald-400' : 'bg-rose-400' }} h-full" style="width: {{ $percent }}%"></div>
                                                     </div>
                                                 </div>
@@ -457,27 +461,27 @@
                                         </td>
 
                                         {{-- สถานะ --}}
-                                        <td class="block md:table-cell px-8 py-3 md:py-6 text-center">
+                                        <td class="block md:table-cell px-2 md:px-8 py-2.5 md:py-6 text-center border-t border-slate-100/50 md:border-none">
                                             <div class="flex justify-between md:block items-center">
-                                                <span class="md:hidden text-[10px] text-slate-400 font-bold uppercase">สถานะ</span>
-                                                <span class="px-4 py-1.5 rounded-full text-[10px] font-bold {{ $passed ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : 'bg-rose-50 text-rose-600 border border-rose-100' }}">
-                                                    {{ $passed ? 'PASSED' : 'FAILED' }}
+                                                <span class="md:hidden text-[9px] text-slate-400 dark:text-slate-500 font-black uppercase tracking-wider">ผลสอบ</span>
+                                                <span class="px-3 py-1 rounded-full text-[9px] font-black {{ $passed ? 'bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-900/30' : 'bg-rose-50 dark:bg-rose-950/30 text-rose-600 dark:text-rose-400 border border-rose-100 dark:border-rose-900/30' }}">
+                                                    {{ $passed ? 'ผ่านเกณฑ์' : 'ไม่ผ่านเกณฑ์' }}
                                                 </span>
                                             </div>
                                         </td>
 
                                         {{-- จัดการ --}}
-                                        <td class="block md:table-cell px-8 py-5 md:py-6 text-right">
+                                         <td class="block md:table-cell px-2 md:px-8 py-3 md:py-6 text-right border-t border-slate-100/50 md:border-none">
                                             @if ($passed)
                                                 <button onclick="showCertificateModal('{{ $attempt->quiz_title }}', '{{ $attempt->user_score }}', '{{ $attempt->quiz_total_score }}', '{{ $attempt->certificate_image }}')"
-                                                    class="w-full md:w-auto inline-flex items-center justify-center gap-2 text-indigo-600 hover:text-indigo-800 font-bold text-xs bg-indigo-50 px-4 py-2 rounded-xl transition-all border border-indigo-100 md:border-none">
-                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                                                    เกียรติบัตร
+                                                    class="w-full md:w-auto inline-flex items-center justify-center gap-1.5 text-indigo-650 hover:text-indigo-850 dark:text-indigo-400 dark:hover:text-indigo-300 font-black text-xs bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/40 dark:hover:bg-indigo-950/60 px-4 py-2.5 rounded-xl transition-all border border-indigo-100 dark:border-indigo-900/30 shadow-sm shadow-indigo-100/50 dark:shadow-none">
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                                    รับเกียรติบัตร
                                                 </button>
                                             @else
                                                 <div class="flex justify-between md:block items-center">
-                                                    <span class="md:hidden text-[10px] text-slate-400 font-bold uppercase tracking-wider">เกียรติบัตร</span>
-                                                    <span class="text-slate-300 text-[10px] italic">ไม่ถึงเกณฑ์ (80%)</span>
+                                                    <span class="md:hidden text-[9px] text-slate-400 dark:text-slate-500 font-black uppercase tracking-wider">เกียรติบัตร</span>
+                                                    <span class="text-slate-400 dark:text-slate-500 text-[10px] font-bold italic">ไม่ถึงเกณฑ์ (ผ่าน 50%)</span>
                                                 </div>
                                             @endif
                                         </td>
@@ -529,17 +533,16 @@
         function switchTab(tabName) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
             document.querySelectorAll('.tab-link').forEach(el => {
-                el.classList.remove('text-indigo-600');
-                el.classList.add('text-slate-400');
-                const underline = el.querySelector('.tab-underline');
-                if (underline) underline.remove();
+                el.classList.remove('bg-white', 'dark:bg-slate-800', 'text-indigo-600', 'dark:text-indigo-400', 'shadow-sm', 'border', 'border-slate-200/40', 'dark:border-slate-700/40');
+                el.classList.add('text-slate-500', 'dark:text-slate-400');
             });
 
             document.getElementById(`tab-${tabName}`).classList.remove('hidden');
             const activeBtn = document.getElementById(`tab-btn-${tabName}`);
-            activeBtn.classList.remove('text-slate-400');
-            activeBtn.classList.add('text-indigo-600');
-            activeBtn.insertAdjacentHTML('beforeend', '<span class="tab-underline absolute bottom-0 left-0 w-full h-1 bg-indigo-600 rounded-t-full"></span>');
+            if (activeBtn) {
+                activeBtn.classList.remove('text-slate-500', 'dark:text-slate-400');
+                activeBtn.classList.add('bg-white', 'dark:bg-slate-800', 'text-indigo-600', 'dark:text-indigo-400', 'shadow-sm', 'border', 'border-slate-200/40', 'dark:border-slate-700/40');
+            }
         }
 
         // --- Improved Table Sorting ---
@@ -776,7 +779,9 @@ function hideCertificateModal() {
 }
                 
                 document.addEventListener('DOMContentLoaded', () => {
-                switchTab('all');
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const defaultTab = urlParams.get('tab') || 'all';
+                    switchTab(defaultTab);
                 });
 
 

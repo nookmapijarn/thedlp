@@ -226,16 +226,22 @@
                 <h4 class="text-xs font-black text-slate-400 uppercase tracking-widest block">หลักสูตรออนไลน์ใหม่น่าสนใจ</h4>
                 <div class="flex overflow-x-scroll gap-4 pb-4 scrollbar-none snap-x snap-mandatory">
                     @foreach($courses as $course)
-                        <a href="{{ route('classroom.show', $course->id) }}" class="flex-shrink-0 w-80 bg-white dark:bg-gray-800 border border-slate-150 dark:border-gray-700/80 rounded-2xl p-4.5 shadow-sm snap-start flex items-start space-x-4">
-                            <div class="w-16 h-20 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex-shrink-0 flex items-center justify-center text-white font-black text-xl shadow-inner">
-                                📚
-                            </div>
+                        <a href="{{ route('classroom.show', $course->id) }}" class="flex-shrink-0 w-80 bg-white dark:bg-gray-800 border border-slate-150 dark:border-gray-700/80 rounded-2xl p-4.5 shadow-sm snap-start flex items-center space-x-4">
+                            @if($course->cover_image)
+                                <div class="w-16 h-20 rounded-xl overflow-hidden flex-shrink-0 shadow-md border border-slate-100 dark:border-gray-750">
+                                    <img src="{{ $course->cover_image }}" alt="Cover" class="w-full h-full object-cover">
+                                </div>
+                            @else
+                                <div class="w-16 h-20 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex-shrink-0 flex items-center justify-center text-white font-black text-xl shadow-inner">
+                                    📚
+                                </div>
+                            @endif
                             <div class="space-y-1.5 flex-1 min-w-0">
-                                <span class="inline-flex px-2 py-0.5 bg-indigo-50 text-indigo-700 text-[8px] font-extrabold rounded-md uppercase tracking-wider">
+                                <span class="inline-flex px-2 py-0.5 bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-400 text-[8px] font-extrabold rounded-md uppercase tracking-wider">
                                     {{ $course->subject_code ?? 'ONLINE' }}
                                 </span>
                                 <h5 class="text-xs font-black text-slate-900 dark:text-white truncate">{{ $course->title }}</h5>
-                                <p class="text-[10px] text-slate-500 dark:text-slate-400 line-clamp-2 leading-relaxed">
+                                <p class="text-[10px] text-slate-500 dark:text-slate-400 line-clamp-2 leading-relaxed font-bold">
                                     สอนโดย {{ $course->teacher->name ?? 'ไม่ระบุชื่อผู้สอน' }}
                                 </p>
                             </div>

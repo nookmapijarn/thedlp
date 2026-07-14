@@ -365,7 +365,7 @@ class ExamController extends Controller
             // ล้าง Session เมื่อทำเสร็จ
             session()->forget("active_attempt_{$id}");
 
-            return redirect()->route('ทดสอบออนไลน์')->with('success', "ส่งข้อสอบสำเร็จ! ได้คะแนน: $totalScoreEarned");
+            return redirect()->route('ทดสอบออนไลน์', ['tab' => 'history'])->with('success', "ส่งข้อสอบสำเร็จ! ได้คะแนน: $totalScoreEarned");
 
         } catch (\Exception $e) {
             DB::rollBack();
