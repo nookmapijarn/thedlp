@@ -330,15 +330,21 @@
                     if (i === index) {
                         // Play targeted active video if present
                         if (video) {
-                            video.play().catch(err => {
-                                console.log("Autoplay blocked, waiting for user click.", err);
+                            video.playPromise = video.play();
+                            video.playPromise.catch(err => {
+                                if (err.name !== 'AbortError') {
+                                    console.log("Autoplay blocked, waiting for user click.", err);
+                                }
                             });
                         }
 
                         // Play background audio if present
                         if (audio) {
-                            audio.play().catch(err => {
-                                console.log("Audio autoplay blocked.", err);
+                            audio.playPromise = audio.play();
+                            audio.playPromise.catch(err => {
+                                if (err.name !== 'AbortError') {
+                                    console.log("Audio autoplay blocked.", err);
+                                }
                             });
                         }
                         
@@ -360,15 +366,35 @@
                             stopShortVideoPing();
                         }
                     } else {
-                        // Pause adjacent videos and reset timeframe
+                        // Pause adjacent videos and reset timeframe safely
                         if (video) {
-                            video.pause();
-                            video.currentTime = 0;
+                            if (video.playPromise !== undefined) {
+                                video.playPromise.then(() => {
+                                    video.pause();
+                                    video.currentTime = 0;
+                                }).catch(() => {
+                                    video.pause();
+                                    video.currentTime = 0;
+                                });
+                            } else {
+                                video.pause();
+                                video.currentTime = 0;
+                            }
                         }
-                        // Pause adjacent background audios
+                        // Pause adjacent background audios safely
                         if (audio) {
-                            audio.pause();
-                            audio.currentTime = 0;
+                            if (audio.playPromise !== undefined) {
+                                audio.playPromise.then(() => {
+                                    audio.pause();
+                                    audio.currentTime = 0;
+                                }).catch(() => {
+                                    audio.pause();
+                                    audio.currentTime = 0;
+                                });
+                            } else {
+                                audio.pause();
+                                audio.currentTime = 0;
+                            }
                         }
                     }
                 });
@@ -441,13 +467,26 @@
                 if (!media) return;
                 
                 if (media.paused) {
-                    media.play().catch(e => console.log(e));
+                    media.playPromise = media.play();
+                    media.playPromise.catch(e => {
+                        if (e.name !== 'AbortError') {
+                            console.log(e);
+                        }
+                    });
                     if (overlay) {
                         overlay.classList.add('opacity-0', 'scale-75');
                         setTimeout(() => overlay.classList.add('hidden'), 300);
                     }
                 } else {
-                    media.pause();
+                    if (media.playPromise !== undefined) {
+                        media.playPromise.then(() => {
+                            media.pause();
+                        }).catch(() => {
+                            media.pause();
+                        });
+                    } else {
+                        media.pause();
+                    }
                     if (overlay) {
                         overlay.classList.remove('hidden');
                         setTimeout(() => {

@@ -270,4 +270,22 @@ Route::get('/offline', function () {
     return view('errors.offline');
 })->name('offline');
 
+Route::get('/link-storage', function () {
+    try {
+        $shortcut = public_path('storage');
+        if (file_exists($shortcut)) {
+            if (is_link($shortcut)) {
+                unlink($shortcut);
+            } else {
+                return 'Storage directory exists but is not a link. Please rename or delete public/storage folder manually.';
+            }
+        }
+        
+        \Illuminate\Support\Facades\Artisan::call('storage:link');
+        return 'Storage link created successfully!';
+    } catch (\Exception $e) {
+        return 'Error: ' . $e->getMessage();
+    }
+});
+
 require __DIR__.'/auth.php';

@@ -9,7 +9,7 @@
         <meta name="apple-mobile-web-app-capable" content="yes">
         <meta name="apple-mobile-web-app-status-bar-style" content="#7e22ce">
         <link rel="icon" type="image/x-icon" href="{{ asset('storage/logo.png') }}">
-        <link rel="manifest" href="/manifest.json">
+        <link rel="manifest" href="/manifest.json" crossorigin="use-credentials">
 
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

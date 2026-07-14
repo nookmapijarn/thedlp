@@ -14,7 +14,7 @@
         <meta name="apple-mobile-web-app-status-bar-style" content="#7e22ce">
         <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
         <link rel="icon" type="image/x-icon" href="{{asset('storage/logo.png');}}">
-        <link rel="manifest" href="/manifest.json">
+        <link rel="manifest" href="/manifest.json" crossorigin="use-credentials">
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">

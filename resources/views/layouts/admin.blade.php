@@ -13,7 +13,7 @@
         <meta name="apple-mobile-web-app-capable" content="yes">
         <meta name="apple-mobile-web-app-status-bar-style" content="#7e22ce">
         <link rel="icon" type="image/x-icon" href="{{asset('storage/logo.png');}}">
-        <link rel="manifest" href="/manifest.json">
+        <link rel="manifest" href="/manifest.json" crossorigin="use-credentials">
 
         <!-- Fonts -->
         <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
