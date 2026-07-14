@@ -1,169 +1,328 @@
 <x-teachers-layout>
     {{-- Main Container --}}
-    <div class="p-4  transition-all duration-300">
+    <div class="p-6 mt-16 max-w-7xl mx-auto space-y-6">
         
-        {{-- ส่วนของกราฟ --}}
-        <div class="p-6 bg-white border border-slate-100 rounded-2xl shadow-sm mt-20">
-            <div class="flex items-center justify-between mb-4">
-                <h3 class="text-lg font-bold text-slate-700">สถิติจำนวนผู้เรียน</h3>
-                <span class="px-3 py-1 bg-purple-50 text-purple-600 text-xs font-bold rounded-full">อัปเดตเรียลไทม์</span>
+        <!-- Welcome Greeting Banner Block -->
+        @php
+            $teacherPendingCount = \App\Models\HelpRequest::where('status', 'pending')->count();
+        @endphp
+        <div class="bg-gradient-to-r from-purple-500 via-violet-800 to-purple-500 rounded-[2.5rem] p-8 sm:p-10 text-white shadow-md relative overflow-hidden flex flex-col md:flex-row md:items-center md:justify-between min-h-[140px]">
+            <div class="absolute -right-10 -top-10 w-48 h-48 bg-white/10 rounded-full blur-2xl"></div>
+            <div class="relative z-10 space-y-3">
+                <span class="inline-flex items-center px-4 py-1.5 rounded-full bg-white/20 text-white text-[10px] font-black tracking-widest uppercase border border-white/10 shadow-sm leading-none">
+                    OLIS Teacher Portal
+                </span>
+                <h2 class="text-3xl font-black mt-1">สวัสดีครับครู {{ Auth::user()->name }}</h2>
+                <p class="text-sm text-purple-100 font-bold max-w-2xl leading-relaxed">
+                    ยินดีต้อนรับสู่ระบบจัดการบทเรียน ตรวจสอบผลการเรียน และวิเคราะห์ข้อมูลผู้เรียนอย่างเป็นระบบ
+                </p>
             </div>
-            <div class="relative w-full" style="height: 350px;">
-                <canvas id="myChart"></canvas>
+            <img class="w-16 h-16 md:w-20 md:h-20 object-cover rounded-3xl border-4 border-white/20 shadow-inner flex-shrink-0 mt-4 md:mt-0" src="https://as1.ftcdn.net/v2/jpg/03/46/83/96/1000_F_346839683_6nAPzbhpSkIpb8pmAwufkC7c5eD7wYws.jpg" alt="Teacher photo">
+        </div>
+
+        <!-- Quick Tools Menu Grid -->
+        <div class="space-y-3">
+            <span class="text-xs font-black text-slate-450 dark:text-slate-500 uppercase tracking-widest ml-1 block">เมนูควบคุมการทำงาน</span>
+            <div class="grid grid-cols-3 md:grid-cols-6 gap-4">
+                <!-- จัดการหลักสูตร -->
+                <a href="{{ route('courses.manage') }}" class="flex flex-col items-center justify-center p-4 bg-white dark:bg-slate-900 border border-slate-150 dark:border-slate-800 rounded-[1.75rem] text-center hover:shadow-md hover:border-purple-300 dark:hover:border-purple-900/60 transition-all duration-300 transform hover:-translate-y-0.5 active:scale-95 shadow-sm">
+                    <div class="w-12 h-12 rounded-2xl bg-purple-50 dark:bg-purple-950/40 text-purple-650 flex items-center justify-center mb-2.5">
+                        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M9 6c0-1.65685 1.3431-3 3-3s3 1.34315 3 3-1.3431 3-3 3-3-1.34315-3-3Zm2 3.62992c-.1263-.04413-.25-.08799-.3721-.13131-1.33928-.47482-2.49256-.88372-4.77995-.8482C4.84875 8.66593 4 9.46413 4 10.5v7.2884c0 1.0878.91948 1.8747 1.92888 1.8616 1.283-.0168 2.04625.1322 2.79671.3587.29285.0883.57733.1863.90372.2987l.00249.0008c.11983.0413.24534.0845.379.1299.2989.1015.6242.2088.9892.3185V9.62992Zm2-.00374V20.7551c.5531-.1678 1.0379-.3374 1.4545-.4832.2956-.1034.5575-.1951.7846-.2653.7257-.2245 1.4655-.3734 2.7479-.3566.5019.0065.9806-.1791 1.3407-.4788.3618-.3011.6723-.781.6723-1.3828V10.5c0-.58114-.2923-1.05022-.6377-1.3503-.3441-.29904-.8047-.49168-1.2944-.49929-2.2667-.0352-3.386.36906-4.6847.83812-.1256.04539-.253.09138-.3832.13765Z"/>
+                        </svg>
+                    </div>
+                    <span class="text-xs font-black text-slate-700 dark:text-slate-300 leading-tight">จัดการหลักสูตร</span>
+                </a>
+                <!-- แบบทดสอบ -->
+                <a href="{{ url('teachers/ttest') }}" class="flex flex-col items-center justify-center p-4 bg-white dark:bg-slate-900 border border-slate-150 dark:border-slate-800 rounded-[1.75rem] text-center hover:shadow-md hover:border-purple-300 dark:hover:border-purple-900/60 transition-all duration-300 transform hover:-translate-y-0.5 active:scale-95 shadow-sm">
+                    <div class="w-12 h-12 rounded-2xl bg-purple-50 dark:bg-purple-950/40 text-purple-650 flex items-center justify-center mb-2.5">
+                        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                            <path fill-rule="evenodd" d="M8 7V2.221a2 2 0 0 0-.5.365L3.586 6.5a2 2 0 0 0-.365.5H8Zm2 0V2h7a2 2 0 0 1 2 2v.126a5.087 5.087 0 0 0-4.74 1.368v.001l-6.642 6.642a3 3 0 0 0-.82 1.532l-.74 3.692a3 3 0 0 0 3.53 3.53l3.694-.738a3 3 0 0 0 1.532-.82L19 15.149V20a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9h5a2 2 0 0 0 2-2Z" clip-rule="evenodd"/>
+                            <path fill-rule="evenodd" d="M17.447 8.08a1.087 1.087 0 0 1 1.187.238l.002.001a1.088 1.088 0 0 1 0 1.539l-.377.377-1.54-1.542.373-.374.002-.001c.1-.102.22-.182.353-.237Zm-2.143 2.027-4.644 4.644-.385 1.924 1.925-.385 4.644-4.642-1.54-1.54Zm2.56-4.11a3.087 3.087 0 0 0-2.187.909l-6.645 6.645a1 1 0 0 0-.274.51l-.739 3.693a1 1 0 0 0 1.177 1.176l3.693-.738a1 1 0 0 0 .51-.274l6.65-6.646a3.088 3.088 0 0 0-2.185-5.275Z" clip-rule="evenodd"/>
+                        </svg>
+                    </div>
+                    <span class="text-xs font-black text-slate-700 dark:text-slate-300 leading-tight">แบบทดสอบ</span>
+                </a>
+                <!-- จัดการคลิปสั้น -->
+                <a href="{{ route('teachers.shorts.index') }}" class="flex flex-col items-center justify-center p-4 bg-white dark:bg-slate-900 border border-slate-150 dark:border-slate-800 rounded-[1.75rem] text-center hover:shadow-md hover:border-purple-300 dark:hover:border-purple-900/60 transition-all duration-300 transform hover:-translate-y-0.5 active:scale-95 shadow-sm">
+                    <div class="w-12 h-12 rounded-2xl bg-purple-50 dark:bg-purple-950/40 text-purple-650 flex items-center justify-center mb-2.5">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                        </svg>
+                    </div>
+                    <span class="text-xs font-black text-slate-700 dark:text-slate-300 leading-tight">จัดการคลิปสั้น</span>
+                </a>
+                <!-- รายงาน กศน.4 -->
+                <a href="{{ url('teachers/treport') }}" class="flex flex-col items-center justify-center p-4 bg-white dark:bg-slate-900 border border-slate-150 dark:border-slate-800 rounded-[1.75rem] text-center hover:shadow-md hover:border-purple-300 dark:hover:border-purple-900/60 transition-all duration-300 transform hover:-translate-y-0.5 active:scale-95 shadow-sm">
+                    <div class="w-12 h-12 rounded-2xl bg-purple-50 dark:bg-purple-950/40 text-purple-650 flex items-center justify-center mb-2.5">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M19 7h1v12a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v14a1 1 0 0 0 1 1h11.5M7 14h6m-6 3h6m0-10h.5m-.5 3h.5M7 7h3v3H7V7Z"/>
+                        </svg>
+                    </div>
+                    <span class="text-xs font-black text-slate-700 dark:text-slate-300 leading-tight">รายงาน กศน.4</span>
+                </a>
+                <!-- ผลการเรียน -->
+                <a href="{{ url('teachers/tgrade') }}" class="flex flex-col items-center justify-center p-4 bg-white dark:bg-slate-900 border border-slate-150 dark:border-slate-800 rounded-[1.75rem] text-center hover:shadow-md hover:border-purple-300 dark:hover:border-purple-900/60 transition-all duration-300 transform hover:-translate-y-0.5 active:scale-95 shadow-sm">
+                    <div class="w-12 h-12 rounded-2xl bg-purple-50 dark:bg-purple-950/40 text-purple-650 flex items-center justify-center mb-2.5">
+                        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                            <path fill-rule="evenodd" d="M7 2a2 2 0 0 0-2 2v1a1 1 0 0 0 0 2v1a1 1 0 0 0 0 2v1a1 1 0 1 0 0 2v1a1 1 0 1 0 0 2v1a1 1 0 1 0 0 2v1a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H7Zm3 8a3 3 0 1 1 6 0 3 3 0 0 1-6 0Zm-1 7a3 3 0 0 1 3-3h2a3 3 0 0 1 3 3 1 1 0 0 1-1 1h-6a1 1 0 0 1-1-1Z" clip-rule="evenodd"/>
+                        </svg>
+                    </div>
+                    <span class="text-xs font-black text-slate-700 dark:text-slate-300 leading-tight">ผลการเรียน</span>
+                </a>
+                <!-- ศูนย์รับแจ้งปัญหา -->
+                <a href="{{ route('teachers.help.index') }}" class="flex flex-col items-center justify-center p-4 bg-white dark:bg-slate-900 border border-slate-150 dark:border-slate-800 rounded-[1.75rem] text-center hover:shadow-md hover:border-purple-300 dark:hover:border-purple-900/60 transition-all duration-300 transform hover:-translate-y-0.5 active:scale-95 shadow-sm relative">
+                    <div class="w-12 h-12 rounded-2xl bg-purple-50 dark:bg-purple-950/40 text-purple-650 flex items-center justify-center mb-2.5">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M18.364 5.636l-3.536 3.536m0 0A7 7 0 1110.5 3.5c1.1 0 2.12.253 3.03.7M14.828 9.172A4 4 0 1112 8.244m2.828.928a4 4 0 01-2.828-.928"></path>
+                        </svg>
+                    </div>
+                    <span class="text-xs font-black text-slate-700 dark:text-slate-300 leading-tight">ศูนย์รับแจ้งปัญหา</span>
+                    @if($teacherPendingCount > 0)
+                        <span class="absolute top-3 right-3 flex h-5.5 w-5.5 items-center justify-center rounded-full bg-red-650 text-[10px] font-black text-white ring-2 ring-white">
+                            {{ $teacherPendingCount }}
+                        </span>
+                    @endif
+                </a>
             </div>
         </div>
 
-        {{-- ตารางที่ 1: จำนวนผู้เรียนแยกตามประเภท --}}
-        <div class="mt-6 overflow-hidden bg-white border border-slate-100 rounded-2xl shadow-sm">
-            <div class="p-6 border-b border-slate-50 bg-slate-50/50">
-                <h3 class="text-lg font-bold text-slate-800">จำนวนผู้เรียน (คน)</h3>
-                <p class="text-sm text-slate-500">หลักสูตรการศึกษานอกระบบระดับการศึกษาขั้นพื้นฐาน พุทธศักราช 2551</p>
+        <!-- Ranking Section -->
+        <div class="space-y-4">
+            <div class="flex items-center gap-2 ml-1">
+                <span class="text-xs font-black text-slate-450 dark:text-slate-500 uppercase tracking-widest block">กระดานจัดอันดับ (Ranking Boards)</span>
+                <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-purple-100 text-purple-800 dark:bg-purple-950/50 dark:text-purple-300 text-[9px] font-black uppercase tracking-wider">OLIS Analytics</span>
             </div>
-            <div class="overflow-x-auto">
-                <table class="w-full text-sm text-left text-slate-600">
-                    <thead class="text-xs uppercase bg-slate-50 text-slate-500 font-bold">
-                        <tr>
-                            <th class="px-6 py-4">ภาคเรียน</th>
-                            @foreach($labels as $sem)
-                                <th class="px-6 py-4 text-center">{{ $sem }}</th>
-                            @endforeach
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-slate-100">
-                        <tr class="hover:bg-amber-50/50 transition-colors">
-                            <td class="px-6 py-4 font-bold text-amber-600 italic">● ผู้เรียนใหม่</td>
-                            @foreach($data_student['data_new_student'] as $ns)
-                                <td class="px-6 py-4 text-center font-medium">{{ $ns }}</td>
-                            @endforeach
-                        </tr>
-                        <tr class="hover:bg-purple-50/50 transition-colors">
-                            <td class="px-6 py-4 font-bold text-purple-600 italic">● ผู้เรียนเก่า</td>
-                            @foreach($data_student['data_old_student'] as $os)
-                                <td class="px-6 py-4 text-center font-medium">{{ $os }}</td>
-                            @endforeach
-                        </tr>
-                        <tr class="bg-indigo-50/30 font-black">
-                            <td class="px-6 py-4 text-indigo-700 underline decoration-indigo-200 decoration-2">ผู้เรียนทั้งหมด</td>
-                            @foreach($data_student['data_student'] as $total)
-                                <td class="px-6 py-4 text-center text-indigo-700 text-base">{{ $total }}</td>
-                            @endforeach
-                        </tr>
-                    </tbody>
-                </table>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                
+                <!-- 1. ผู้เรียนเข้าเรียนสูงสุด -->
+                <div class="bg-white dark:bg-slate-900 border border-slate-150 dark:border-slate-800 rounded-[1.75rem] p-5 shadow-sm space-y-4 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center gap-2.5 pb-3 border-b border-slate-100 dark:border-slate-850">
+                            <div class="w-8 h-8 rounded-xl bg-amber-50 dark:bg-amber-950/30 text-amber-500 flex items-center justify-center font-bold text-lg">🏆</div>
+                            <div>
+                                <h4 class="text-sm font-black text-slate-800 dark:text-white leading-none">ผู้เรียนเข้าเรียนสูงสุด</h4>
+                                <span class="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Active Students</span>
+                            </div>
+                        </div>
+                        <ul class="divide-y divide-slate-50 dark:divide-slate-850/50 mt-3 space-y-2">
+                            @forelse($top_students as $index => $std)
+                                <li class="flex items-center justify-between py-1 text-xs">
+                                    <div class="flex items-center gap-2 min-w-0">
+                                        <span class="w-5 h-5 flex items-center justify-center rounded-full font-mono font-black text-[10px] 
+                                            @if($index == 0) bg-amber-100 text-amber-800 @elseif($index == 1) bg-slate-100 text-slate-700 @elseif($index == 2) bg-orange-100 text-orange-850 @else bg-slate-50 text-slate-400 @endif">
+                                            {{ $index + 1 }}
+                                        </span>
+                                        <span class="font-bold text-slate-700 dark:text-slate-300 truncate max-w-[120px]">{{ $std->name }}</span>
+                                    </div>
+                                    <span class="text-[10px] font-black text-slate-450 bg-slate-100 dark:bg-slate-800/80 px-2 py-0.5 rounded-md shrink-0">{{ $std->logs_count }} ครั้ง</span>
+                                </li>
+                            @empty
+                                <li class="text-center text-slate-400 py-6 text-xs font-bold">ไม่มีข้อมูลการเข้าเรียน</li>
+                            @endforelse
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- 2. ครูผู้สร้างผลงานมากที่สุด -->
+                <div class="bg-white dark:bg-slate-900 border border-slate-150 dark:border-slate-800 rounded-[1.75rem] p-5 shadow-sm space-y-4 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center gap-2.5 pb-3 border-b border-slate-100 dark:border-slate-850">
+                            <div class="w-8 h-8 rounded-xl bg-purple-50 dark:bg-purple-950/30 text-purple-500 flex items-center justify-center font-bold text-lg">⭐</div>
+                            <div>
+                                <h4 class="text-sm font-black text-slate-800 dark:text-white leading-none">ครูผู้สร้างผลงานสูงสุด</h4>
+                                <span class="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Top Creators</span>
+                            </div>
+                        </div>
+                        <ul class="divide-y divide-slate-50 dark:divide-slate-850/50 mt-3 space-y-2">
+                            @forelse($top_teachers as $index => $tc)
+                                <li class="flex items-center justify-between py-1 text-xs">
+                                    <div class="flex items-center gap-2 min-w-0">
+                                        <span class="w-5 h-5 flex items-center justify-center rounded-full font-mono font-black text-[10px] 
+                                            @if($index == 0) bg-amber-100 text-amber-800 @elseif($index == 1) bg-slate-100 text-slate-700 @elseif($index == 2) bg-orange-100 text-orange-850 @else bg-slate-50 text-slate-400 @endif">
+                                            {{ $index + 1 }}
+                                        </span>
+                                        <span class="font-bold text-slate-700 dark:text-slate-300 truncate max-w-[120px]">{{ $tc['name'] }}</span>
+                                    </div>
+                                    <span class="text-[10px] font-black text-purple-700 bg-purple-50 dark:bg-purple-950/40 dark:text-purple-300 px-2 py-0.5 rounded-md shrink-0">{{ $tc['total'] }} รายการ</span>
+                                </li>
+                            @empty
+                                <li class="text-center text-slate-400 py-6 text-xs font-bold">ไม่มีข้อมูลผู้สร้าง</li>
+                            @endforelse
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- 3. คลิปที่มีผู้กดไลก์สูงสุด -->
+                <div class="bg-white dark:bg-slate-900 border border-slate-150 dark:border-slate-800 rounded-[1.75rem] p-5 shadow-sm space-y-4 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center gap-2.5 pb-3 border-b border-slate-100 dark:border-slate-850">
+                            <div class="w-8 h-8 rounded-xl bg-pink-50 dark:bg-pink-950/30 text-pink-500 flex items-center justify-center font-bold text-lg">❤️</div>
+                            <div>
+                                <h4 class="text-sm font-black text-slate-800 dark:text-white leading-none">คลิปผู้กดไลก์สูงสุด</h4>
+                                <span class="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Most Liked Clips</span>
+                            </div>
+                        </div>
+                        <ul class="divide-y divide-slate-50 dark:divide-slate-850/50 mt-3 space-y-2">
+                            @forelse($top_liked_shorts as $index => $sv)
+                                <li class="flex items-center justify-between py-1 text-xs">
+                                    <div class="flex items-center gap-2 min-w-0">
+                                        <span class="w-5 h-5 flex items-center justify-center rounded-full font-mono font-black text-[10px] 
+                                            @if($index == 0) bg-amber-100 text-amber-800 @elseif($index == 1) bg-slate-100 text-slate-700 @elseif($index == 2) bg-orange-100 text-orange-850 @else bg-slate-50 text-slate-400 @endif">
+                                            {{ $index + 1 }}
+                                        </span>
+                                        <span class="font-bold text-slate-700 dark:text-slate-300 truncate max-w-[120px]">{{ $sv->title }}</span>
+                                    </div>
+                                    <span class="text-[10px] font-black text-pink-700 bg-pink-50 dark:bg-pink-950/40 dark:text-pink-300 px-2 py-0.5 rounded-md shrink-0">{{ $sv->likes_count ?? 0 }} ไลก์</span>
+                                </li>
+                            @empty
+                                <li class="text-center text-slate-400 py-6 text-xs font-bold">ไม่มีข้อมูลคลิปสั้น</li>
+                            @endforelse
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- 4. หลักสูตรที่มีผู้เรียนมากที่สุด -->
+                <div class="bg-white dark:bg-slate-900 border border-slate-150 dark:border-slate-800 rounded-[1.75rem] p-5 shadow-sm space-y-4 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center gap-2.5 pb-3 border-b border-slate-100 dark:border-slate-850">
+                            <div class="w-8 h-8 rounded-xl bg-blue-50 dark:bg-blue-950/30 text-blue-500 flex items-center justify-center font-bold text-lg">📚</div>
+                            <div>
+                                <h4 class="text-sm font-black text-slate-800 dark:text-white leading-none">หลักสูตรนักเรียนสูงสุด</h4>
+                                <span class="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Top Enrolled Courses</span>
+                            </div>
+                        </div>
+                        <ul class="divide-y divide-slate-50 dark:divide-slate-850/50 mt-3 space-y-2">
+                            @forelse($top_courses as $index => $cs)
+                                <li class="flex items-center justify-between py-1 text-xs">
+                                    <div class="flex items-center gap-2 min-w-0">
+                                        <span class="w-5 h-5 flex items-center justify-center rounded-full font-mono font-black text-[10px] 
+                                            @if($index == 0) bg-amber-100 text-amber-800 @elseif($index == 1) bg-slate-100 text-slate-700 @elseif($index == 2) bg-orange-100 text-orange-850 @else bg-slate-50 text-slate-400 @endif">
+                                            {{ $index + 1 }}
+                                        </span>
+                                        <span class="font-bold text-slate-700 dark:text-slate-300 truncate max-w-[120px]">{{ $cs->title }}</span>
+                                    </div>
+                                    <span class="text-[10px] font-black text-blue-700 bg-blue-50 dark:bg-blue-950/40 dark:text-blue-300 px-2 py-0.5 rounded-md shrink-0">{{ $cs->enrollments_count }} คน</span>
+                                </li>
+                            @empty
+                                <li class="text-center text-slate-400 py-6 text-xs font-bold">ไม่มีข้อมูลหลักสูตร</li>
+                            @endforelse
+                        </ul>
+                    </div>
+                </div>
+
             </div>
         </div>
 
-        {{-- ตารางที่ 2: รายตำบล --}}
-        @if($student_tumbon !== null)
-        <div class="mt-6 overflow-hidden bg-white border border-slate-100 rounded-2xl shadow-sm mb-10">
-            <div class="p-6 border-b border-slate-50 bg-slate-50/50">
-                <h3 class="text-lg font-bold text-slate-800 text-purple-700">จำนวนผู้เรียน (รายตำบล) ภาคเรียนที่ {{$current_semestry}}</h3>
+        <!-- My Shorts Grid -->
+        <div class="space-y-3">
+            <div class="flex items-center justify-between ml-1">
+                <span class="text-xs font-black text-slate-450 dark:text-slate-500 uppercase tracking-widest">วิดีโอคลิปสั้นของคุณ ({{ $shorts->count() }})</span>
+                <a href="{{ route('teachers.shorts.index') }}" class="text-xs font-black text-purple-600 dark:text-purple-400 uppercase tracking-wider hover:underline">จัดการทั้งหมด →</a>
             </div>
-            <div class="overflow-x-auto">
-                <table class="w-full text-sm text-left">
-                    <thead class="bg-slate-800 text-white text-xs uppercase tracking-wider">
-                        <tr>
-                            <th class="px-4 py-4 text-center">ลำดับ</th>
-                            <th class="px-4 py-4">ศกร.ระดับตำบล</th>
-                            <th class="px-4 py-4">ครูผู้สอน</th>
-                            <th class="px-4 py-4 text-center bg-pink-500/10 text-pink-600">ประถม</th>
-                            <th class="px-4 py-4 text-center bg-green-500/10 text-green-600">มัธยมต้น</th>
-                            <th class="px-4 py-4 text-center bg-amber-500/10 text-amber-600">มัธยมปลาย</th>
-                            <th class="px-4 py-4 text-center bg-indigo-600 text-white">รวม</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-slate-100">
-                        @php $totalST1 = 0; $totalST2 = 0; $totalST3 = 0; @endphp
-                        @foreach($student_tumbon as $index => $sttm)
-                            @php
-                                $totalST1 += $sttm['STUDENT']['ST1'];
-                                $totalST2 += $sttm['STUDENT']['ST2'];
-                                $totalST3 += $sttm['STUDENT']['ST3'];
-                                $rowTotal = $sttm['STUDENT']['ST1'] + $sttm['STUDENT']['ST2'] + $sttm['STUDENT']['ST3'];
-                            @endphp
-                            <tr class="hover:bg-slate-50 transition-colors group">
-                                <td class="px-4 py-4 text-center text-slate-400 font-mono">{{ $index + 1 }}</td>
-                                <td class="px-4 py-4 font-bold text-slate-700">{{ $sttm['GRP']->GRP_NAME }}</td>
-                                <td class="px-4 py-4 text-slate-500">{{ $sttm['GRP']->GRP_ADVIS }}</td>
-                                <td class="px-4 py-4 text-center font-bold text-pink-600 bg-pink-50/30">{{ $sttm['STUDENT']['ST1'] }}</td>
-                                <td class="px-4 py-4 text-center font-bold text-green-600 bg-green-50/30">{{ $sttm['STUDENT']['ST2'] }}</td>
-                                <td class="px-4 py-4 text-center font-bold text-amber-600 bg-amber-50/30">{{ $sttm['STUDENT']['ST3'] }}</td>
-                                <td class="px-4 py-4 text-center font-black text-indigo-700 bg-indigo-50 group-hover:bg-indigo-100">{{ $rowTotal }}</td>
-                            </tr>
+            
+            @if($shorts->isEmpty())
+                <div class="p-8 bg-white dark:bg-slate-900 border border-slate-150 dark:border-slate-800 rounded-[2rem] text-center text-slate-400 font-bold text-sm">
+                    ยังไม่มีวิดีโอคลิปสั้น หรือสไลด์โชว์ที่อัปโหลด
+                </div>
+            @else
+                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
+                    @foreach($shorts->take(6) as $s)
+                        <div class="bg-white dark:bg-slate-900 border border-slate-150 dark:border-slate-800 rounded-[1.75rem] overflow-hidden shadow-sm hover:shadow-md hover:border-purple-300 dark:hover:border-purple-900/60 transition-all duration-300">
+                            <div class="relative h-44 sm:h-56 bg-slate-950 flex items-center justify-center">
+                                @if($s->type === 'images' && is_array($s->images) && count($s->images) > 0)
+                                    <img class="w-full h-full object-cover" src="{{ asset('storage/shorts/images/' . $s->images[0]) }}" onerror="this.src='https://as1.ftcdn.net/v2/jpg/03/46/83/96/1000_F_346839683_6nAPzbhpSkIpb8pmAwufkC7c5eD7wYws.jpg'">
+                                    <span class="absolute top-2 right-2 px-2.5 py-0.5 rounded-full bg-slate-950/70 text-white text-[9px] font-black">📷 {{ count($s->images) }} ภาพ</span>
+                                @elseif($s->video_path)
+                                    <video class="w-full h-full object-cover" src="{{ asset('storage/shorts/videos/' . $s->video_path) }}"></video>
+                                    <span class="absolute top-2 right-2 px-2.5 py-0.5 rounded-full bg-slate-950/70 text-white text-[9px] font-black">🎬 วิดีโอ</span>
+                                @else
+                                    <span class="text-xs text-slate-500">ไม่มีรูปภาพ</span>
+                                @endif
+                            </div>
+                            <div class="p-3.5 space-y-1.5">
+                                <h5 class="text-xs font-black text-slate-800 dark:text-white truncate leading-tight">{{ $s->title }}</h5>
+                                <div class="flex items-center justify-between text-[10px] text-slate-450 dark:text-slate-500 font-bold">
+                                    <span>👁️ {{ $s->views_count ?? 0 }} วิว</span>
+                                    <span>❤️ {{ $s->likes_count ?? 0 }} ไลค์</span>
+                                </div>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            @endif
+        </div>
+
+        <!-- Double Column (Courses & Quizzes) -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pb-10">
+            
+            <!-- Left: My Courses -->
+            <div class="space-y-3">
+                <div class="flex items-center justify-between ml-1">
+                    <span class="text-xs font-black text-slate-450 dark:text-slate-500 uppercase tracking-widest">หลักสูตรการสอน ({{ $courses->count() }})</span>
+                    <a href="{{ route('courses.manage') }}" class="text-xs font-black text-purple-600 dark:text-purple-400 uppercase tracking-wider hover:underline">จัดการทั้งหมด →</a>
+                </div>
+                
+                @if($courses->isEmpty())
+                    <div class="p-8 bg-white dark:bg-slate-900 border border-slate-150 dark:border-slate-800 rounded-[2rem] text-center text-slate-400 font-bold text-sm h-full min-h-[200px] flex items-center justify-center">
+                        ยังไม่ได้สร้างหลักสูตรหรือวิชาเรียนออนไลน์
+                    </div>
+                @else
+                    <div class="space-y-3.5">
+                        @foreach($courses->take(4) as $c)
+                            <div class="flex gap-4 p-4 bg-white dark:bg-slate-900 border border-slate-150 dark:border-slate-800 rounded-[1.75rem] shadow-sm relative">
+                                <img class="w-16 h-16 object-cover rounded-2xl flex-shrink-0 shadow-sm border border-slate-100 dark:border-slate-800" src="{{ $c->cover_image ? $c->cover_image : 'https://as1.ftcdn.net/v2/jpg/03/46/83/96/1000_F_346839683_6nAPzbhpSkIpb8pmAwufkC7c5eD7wYws.jpg' }}" onerror="this.src='https://as1.ftcdn.net/v2/jpg/03/46/83/96/1000_F_346839683_6nAPzbhpSkIpb8pmAwufkC7c5eD7wYws.jpg'">
+                                <div class="flex-grow space-y-1.5 min-w-0">
+                                    <div class="flex items-center gap-2">
+                                        <span class="px-2.5 py-0.5 rounded-full {{ $c->is_published ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300' : 'bg-slate-100 text-slate-500 dark:bg-slate-850 dark:text-slate-400' }} text-[9px] font-black uppercase tracking-wider leading-none">
+                                            {{ $c->is_published ? 'เปิดสอน' : 'ร่าง' }}
+                                        </span>
+                                    </div>
+                                    <h4 class="text-sm font-black text-slate-800 dark:text-white truncate leading-tight">{{ $c->title }}</h4>
+                                    <span class="text-xs text-slate-450 dark:text-slate-500 font-bold block leading-none">{{ $c->modules->count() }} บทเรียน | ผู้สมัครเรียน {{ $c->enrollments->count() }} คน</span>
+                                    <div class="flex gap-2 pt-1.5">
+                                        <a href="{{ route('courses.edit', $c->id) }}" class="px-3 py-1 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-750 text-slate-700 dark:text-slate-350 text-[10px] font-black rounded-lg transition-all">แก้ไขคอร์ส</a>
+                                        <a href="{{ route('courses.report', $c->id) }}" class="px-3 py-1 bg-purple-50 hover:bg-purple-100 dark:bg-purple-950/40 dark:hover:bg-purple-900/30 text-purple-700 dark:text-purple-300 text-[10px] font-black rounded-lg transition-all">รายงานผู้เรียน</a>
+                                    </div>
+                                </div>
+                            </div>
                         @endforeach
-                    </tbody>
-                    <tfoot class="bg-indigo-700 text-white font-bold">
-                        <tr>
-                            <td colspan="3" class="px-4 py-4 text-right uppercase tracking-widest">Grand Total</td>
-                            <td class="px-4 py-4 text-center border-l border-indigo-600">{{ $totalST1 }}</td>
-                            <td class="px-4 py-4 text-center border-l border-indigo-600">{{ $totalST2 }}</td>
-                            <td class="px-4 py-4 text-center border-l border-indigo-600">{{ $totalST3 }}</td>
-                            <td class="px-4 py-4 text-center bg-amber-400 text-slate-900 text-lg">{{ $totalST1 + $totalST2 + $totalST3 }}</td>
-                        </tr>
-                    </tfoot>
-                </table>
+                    </div>
+                @endif
             </div>
+
+            <!-- Right: My Quizzes -->
+            <div class="space-y-3">
+                <div class="flex items-center justify-between ml-1">
+                    <span class="text-xs font-black text-slate-450 dark:text-slate-500 uppercase tracking-widest">คลังข้อสอบ/แบบทดสอบ ({{ $quizzes->count() }})</span>
+                    <a href="{{ url('teachers/ttest') }}" class="text-xs font-black text-purple-600 dark:text-purple-400 uppercase tracking-wider hover:underline">จัดการทั้งหมด →</a>
+                </div>
+                
+                @if($quizzes->isEmpty())
+                    <div class="p-8 bg-white dark:bg-slate-900 border border-slate-150 dark:border-slate-800 rounded-[2rem] text-center text-slate-400 font-bold text-sm h-full min-h-[200px] flex items-center justify-center">
+                        ยังไม่มีแบบทดสอบหรือชุดคำถามที่สร้าง
+                    </div>
+                @else
+                    <div class="space-y-3">
+                        @foreach($quizzes->take(4) as $q)
+                            <div class="p-4.5 bg-white dark:bg-slate-900 border border-slate-150 dark:border-slate-800 rounded-[1.75rem] shadow-sm flex items-center justify-between gap-4">
+                                <div class="space-y-1.5 min-w-0">
+                                    <h4 class="text-sm font-black text-slate-800 dark:text-white truncate leading-tight">{{ $q->title }}</h4>
+                                    <span class="text-xs text-slate-450 dark:text-slate-500 font-bold block leading-none">วิชา: {{ $q->subject_code }} | {{ $q->total_score }} คะแนน</span>
+                                </div>
+                                <a href="{{ route('ttest.edit', $q->id) }}" class="px-4 py-2 bg-slate-850 hover:bg-slate-950 text-white rounded-2xl text-[11px] font-black tracking-widest uppercase transition-all shadow-sm active:scale-95 flex-shrink-0">
+                                    แก้ไข
+                                </a>
+                            </div>
+                        @endforeach
+                    </div>
+                @endif
+            </div>
+
         </div>
-        @endif
+
     </div>
 </x-teachers-layout>
 
 @include('layouts.footer')
-
-{{-- Script ปรับจูนสี Chart ให้สวยขึ้น --}}
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" ></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script type="text/javascript">
-    const labels = {{ Js::from($labels) }};
-    const data_student = {{ Js::from($data_student['data_student']) }};
-    const data_new_student = {{ Js::from($data_student['data_new_student']) }}; 
-    const data_old_student = {{ Js::from($data_student['data_old_student']) }};
-
-    const ctx = document.getElementById('myChart').getContext('2d');
-    
-    // สร้าง Gradient สำหรับสีแท่งกราฟ
-    const purpleGrad = ctx.createLinearGradient(0, 0, 0, 400);
-    purpleGrad.addColorStop(0, '#8b5cf6');
-    purpleGrad.addColorStop(1, '#6366f1');
-
-    const amberGrad = ctx.createLinearGradient(0, 0, 0, 400);
-    amberGrad.addColorStop(0, '#fbbf24');
-    amberGrad.addColorStop(1, '#f59e0b');
-
-    new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: labels,
-            datasets: [
-                {
-                    label: 'ผู้เรียนใหม่',
-                    backgroundColor: amberGrad,
-                    borderRadius: 6,
-                    data: data_new_student,
-                },
-                {
-                    label: 'ผู้เรียนเก่า',
-                    backgroundColor: purpleGrad,
-                    borderRadius: 6,
-                    data: data_old_student,
-                },
-                {
-                    label: 'ผู้เรียนทั้งหมด',
-                    backgroundColor: '#e2e8f0',
-                    borderRadius: 6,
-                    data: data_student,
-                }
-            ]
-        },
-        options: {
-            maintainAspectRatio: false,
-            plugins: {
-                legend: { position: 'top', labels: { usePointStyle: true, font: { family: 'IBM Plex Sans Thai', weight: '600' } } }
-            },
-            scales: {
-                y: { beginAtZero: true, grid: { display: false } },
-                x: { grid: { display: false } }
-            }
-        }
-    });
-</script>

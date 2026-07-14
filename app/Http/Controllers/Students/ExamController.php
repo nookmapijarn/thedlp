@@ -295,6 +295,52 @@ class ExamController extends Controller
                 'tab_switch_count'  => $request->input('violation_count', 0),
             ]);
 
+            // บันทึกเวลาทำข้อสอบสะสมเข้าเวลาเรียน และบันทึกจบการเรียนบทเรียนอัตโนมัติ
+            $attempt = DB::table('quiz_attempts')->where('id', $attemptId)->first();
+            if ($attempt) {
+                $started = Carbon::parse($attempt->started_at);
+                $finished = Carbon::now();
+                $duration = $finished->diffInSeconds($started);
+
+                // ตรวจสอบว่าแบบทดสอบเชื่อมโยงกับบทเรียนของหลักสูตรใด
+                $lesson = DB::table('lessons')->where('quiz_id', $id)->first();
+                if ($lesson) {
+                    $module = DB::table('modules')->where('id', $lesson->module_id)->first();
+                    $courseId = $module ? $module->course_id : null;
+
+                    if ($courseId) {
+                        // 1. บันทึกสถิติลง study_sessions ด้วยประเภท 'quiz'
+                        DB::table('study_sessions')->insert([
+                            'user_id' => Auth::id(),
+                            'course_id' => $courseId,
+                            'short_video_id' => null,
+                            'type' => 'quiz',
+                            'accessed_at' => $started,
+                            'exited_at' => $finished,
+                            'duration' => $duration,
+                            'created_at' => now(),
+                            'updated_at' => now(),
+                        ]);
+
+                        // 2. บันทึกประวัติการจบการเรียนสำหรับบทเรียนนี้โดยอัตโนมัติ
+                        $completionExists = DB::table('lesson_completions')
+                            ->where('user_id', Auth::id())
+                            ->where('lesson_id', $lesson->id)
+                            ->exists();
+
+                        if (!$completionExists) {
+                            DB::table('lesson_completions')->insert([
+                                'user_id' => Auth::id(),
+                                'lesson_id' => $lesson->id,
+                                'completed_at' => now(),
+                                'created_at' => now(),
+                                'updated_at' => now(),
+                            ]);
+                        }
+                    }
+                }
+            }
+
             DB::commit();
 
             // บันทึกประวัติการส่งคำตอบข้อสอบออนไลน์ (PDPA Audit Trail)

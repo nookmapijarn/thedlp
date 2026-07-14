@@ -1,5 +1,5 @@
 <x-teachers-layout>
-    <div class="p-6 max-w-7xl mx-auto space-y-6" x-data="{ editOpen: false, editShort: { id: null, title: '', description: '', course_id: '' } }">
+    <div class="p-6 mt-16 max-w-7xl mx-auto space-y-6" x-data="{ editOpen: false, editShort: { id: null, title: '', description: '', course_id: '' } }">
         
         <!-- Alerts -->
         @if(session('success'))

@@ -69,6 +69,20 @@
                                 @endforeach
                             </select>
                         </div>
+
+                        <div>
+                            <label for="short_video_id" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
+                                <i data-lucide="video" class="w-4 h-4 mr-1 text-purple-600"></i> เชื่อมต่อกับคลิปแนะนำสั้น (OLIS Shorts)
+                            </label>
+                            <select id="short_video_id" name="short_video_id" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:outline-none bg-white transition">
+                                <option value="">-- ไม่เชื่อมคลิปสั้น --</option>
+                                @foreach ($shortVideos as $video)
+                                    <option value="{{ $video->id }}" {{ old('short_video_id') == $video->id ? 'selected' : '' }}>
+                                        {{ $video->title }} ({{ $video->type === 'video' ? 'วิดีโอ' : 'ภาพสไลด์' }})
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
                     </div>
 
                     <div class="mb-8">

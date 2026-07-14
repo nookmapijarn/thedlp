@@ -1,348 +1,441 @@
 <x-app-layout>
-    <div class="">
-        <div class="container mx-auto px-4 py-8">
-            <div class="course-title mt-24">รายวิชา : {{ $course->title }}</div>
+    <style>
+        /* Hide nav, full immersive */
+        nav { display: none !important; }
+        footer { display: none !important; }
+        .ml-0.sm\:ml-72 { margin-left: 0 !important; }
+        @media (min-width: 640px) { .ml-0.sm\:ml-72 { margin-left: 0 !important; } }
+        main > div.max-w-7xl { padding: 0 !important; max-width: 100% !important; }
+        body { overflow: hidden; }
 
-            {{-- Progress Bar --}}
-            <div class="relative p-4 mt-8 max-w-sm mx-auto">
-                <div class="flex mb-2 items-center justify-between">
-                    <div>
-                        <span class="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-teal-600 bg-teal-200">
-                            In Progress
-                        </span>
-                    </div>
-                    <div class="text-right">
-                        <span class="text-xs font-semibold inline-block text-teal-600 progress-text">
-                            {{ $progress ?? 0 }}%
-                        </span>
-                    </div>
-                </div>
-                <div class="flex rounded-full h-2 bg-gray-200">
-                    <div style="width:{{ $progress ?? 0 }}%" class="rounded-full bg-teal-500 progress-bar"></div>
+        /* Snap scroll */
+        .lesson-scroll { scroll-snap-type: y mandatory; -ms-overflow-style: none; scrollbar-width: none; }
+        .lesson-scroll::-webkit-scrollbar { display: none; }
+        .lesson-slide { scroll-snap-align: start; scroll-snap-stop: always; }
+
+        /* 16:9 video */
+        .yt-container { position: relative; width: 100%; height: 100%; }
+        .yt-container iframe { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 100%; height: 100%; }
+
+        /* Quiz pulse */
+        @keyframes qp { 0%,100% { box-shadow: 0 0 0 0 rgba(168,85,247,0.5); } 70% { box-shadow: 0 0 0 12px rgba(168,85,247,0); } }
+        .quiz-pulse { animation: qp 2s infinite; }
+
+        /* Auto-complete toast */
+        @keyframes toast-in { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .toast-anim { animation: toast-in 0.4s ease-out; }
+
+        /* Text content scroll inside overlay */
+        .content-scroll { -ms-overflow-style: none; scrollbar-width: none; max-height: 40vh; }
+        .content-scroll::-webkit-scrollbar { display: none; }
+
+        /* Image carousel */
+        .img-carousel { -ms-overflow-style: none; scrollbar-width: none; }
+        .img-carousel::-webkit-scrollbar { display: none; }
+    </style>
+
+    <div class="fixed inset-0 bg-black flex flex-col z-40">
+
+        {{-- ===== TOP BAR (overlay) ===== --}}
+        <div class="absolute top-0 inset-x-0 z-50 bg-gradient-to-b from-black/70 via-black/30 to-transparent px-4 pt-3 pb-8 flex items-center gap-3 pointer-events-none">
+            <a href="{{ route('classroom.show', $course->id) }}" class="pointer-events-auto w-9 h-9 rounded-full bg-white/15 backdrop-blur-md flex items-center justify-center text-white hover:bg-white/25 transition-all flex-shrink-0">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5"></path></svg>
+            </a>
+            <div class="flex-1 min-w-0">
+                <p class="text-xs font-black text-white truncate drop-shadow-lg">{{ $course->title }}</p>
+                <p class="text-[10px] font-bold text-white/60" id="lesson-label">บทที่ 1/{{ $allLessons->count() }}</p>
+            </div>
+            <div class="pointer-events-auto flex items-center gap-2 flex-shrink-0">
+                <span class="text-[11px] font-black text-white drop-shadow-lg" id="progress-text">{{ $progress }}%</span>
+                <div class="w-16 h-1.5 bg-white/20 rounded-full overflow-hidden">
+                    <div class="h-full rounded-full bg-gradient-to-r from-purple-400 to-cyan-400 transition-all duration-500" id="progress-bar" style="width: {{ $progress }}%"></div>
                 </div>
             </div>
+        </div>
 
-            {{-- Tab Navigation --}}
-            <div class="tabs flex border-b border-gray-200 dark:border-gray-700 mt-8">
-                @foreach ($course->modules->sortBy('order_number') as $module)
-                    <button class="tab-btn py-4 px-6 font-medium text-sm border-b-2 border-transparent hover:text-blue-600 hover:border-blue-500 transition-all duration-300 {{ $loop->first ? 'active' : '' }}" data-tab="tab{{ $module->id }}">
-                        เรื่องที่ {{ $module->order_number }} {{ $module->title }}
-                    </button>
-                @endforeach
-            </div>
+        {{-- ===== MAIN SCROLL ===== --}}
+        <div id="lesson-container" class="flex-1 overflow-y-scroll lesson-scroll">
+            @foreach ($allLessons as $index => $lesson)
+                @php
+                    $isCompleted = $completedLessons->contains('lesson_id', $lesson->id);
+                    $videoId = '';
+                    if ($lesson->video_url) {
+                        parse_str(parse_url($lesson->video_url, PHP_URL_QUERY) ?? '', $p);
+                        $videoId = $p['v'] ?? '';
+                    }
+                    $short = $lesson->shortVideo;
+                    $hasMedia = $videoId || $short;
+                @endphp
 
-            {{-- Tab Contents --}}
-            <div class="tab-contents">
-                @foreach ($course->modules->sortBy('order_number') as $module)
-                    <div class="tab-content {{ $loop->first ? 'active' : 'hidden' }}" id="tab{{ $module->id }}">
-                        <div class="section">
-                            <div class="section-title">เรื่องที่ {{ $module->order_number }} : {{ $module->title }}</div>
+                <div class="lesson-slide w-full h-full flex-shrink-0 relative bg-black" id="lesson-{{ $lesson->id }}" data-index="{{ $index }}" data-lesson-id="{{ $lesson->id }}" data-completed="{{ $isCompleted ? '1' : '0' }}">
 
-                            @if ($module->lessons->isEmpty())
-                                <p class="text-gray-500 italic mt-4">โมดูลนี้ยังไม่มีบทเรียน</p>
-                            @else
-                                @foreach ($module->lessons->sortBy('order_number') as $lesson)
-                                    <div class="chapter">
-                                        <div class="lesson" onclick="toggleVideo(this)">
-                                            <div class="lesson-title">
-                                                ตอนที่ {{ $lesson->order_number }} : {{ $lesson->title }}
-                                            </div>
-                                            {{-- แสดงผลตามสถานะการเรียนจบ --}}
-                                            <button class="toggle-btn flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg transition-all duration-300">
-                                                @if($completedLessons->contains('lesson_id', $lesson->id)) 
-                                                    <svg class="w-6 h-6 text-gray-100 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
-                                                    <path fill-rule="evenodd" d="M12 2c-.791 0-1.55.314-2.11.874l-.893.893a.985.985 0 0 1-.696.288H7.04A2.984 2.984 0 0 0 4.055 7.04v1.262a.986.986 0 0 1-.288.696l-.893.893a2.984 2.984 0 0 0 0 4.22l.893.893a.985.985 0 0 1 .288.696v1.262a2.984 2.984 0 0 0 2.984 2.984h1.262c.261 0 .512.104.696.288l.893.893a2.984 2.984 0 0 0 4.22 0l.893-.893a.985.985 0 0 1 .696-.288h1.262a2.984 2.984 0 0 0 2.984-2.984V15.7c0-.261.104-.512.288-.696l.893-.893a2.984 2.984 0 0 0 0-4.22l-.893-.893a.985.985 0 0 1-.288-.696V7.04a2.984 2.984 0 0 0-2.984-2.984h-1.262a.985.985 0 0 1-.696-.288l-.893-.893A2.984 2.984 0 0 0 12 2Zm3.683 7.73a1 1 0 1 0-1.414-1.413l-4.253 4.253-1.277-1.277a1 1 0 0 0-1.415 1.414l1.985 1.984a1 1 0 0 0 1.414 0l4.96-4.96Z" clip-rule="evenodd"/>
-                                                    </svg>
-                                                @else
-                                                    <svg class="w-6 h-6 text-gray-100 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m8.032 12 1.984 1.984 4.96-4.96m4.55 5.272.893-.893a1.984 1.984 0 0 0 0-2.806l-.893-.893a1.984 1.984 0 0 1-.581-1.403V7.04a1.984 1.984 0 0 0-1.984-1.984h-1.262a1.983 1.983 0 0 1-1.403-.581l-.893-.893a1.984 1.984 0 0 0-2.806 0l-.893.893a1.984 1.984 0 0 1-1.403.581H7.04A1.984 1.984 0 0 0 5.055 7.04v1.262c0 .527-.209 1.031-.581 1.403l-.893.893a1.984 1.984 0 0 0 0 2.806l.893.893c.372.372.581.876.581 1.403v1.262a1.984 1.984 0 0 0 1.984 1.984h1.262c.527 0 1.031.209 1.403.581l.893.893a1.984 1.984 0 0 0 2.806 0l.893-.893a1.985 1.985 0 0 1 1.403-.581h1.262a1.984 1.984 0 0 0 1.984-1.984V15.7c0-.527.209-1.031.581-1.403Z"/>
-                                                    </svg>
-                                                @endif
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="toggle-icon h-5 w-5 transform transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                                                </svg>
-                                            </button>
-                                        </div>
-                                        <div class="video-player video-hidden transition-all duration-500 overflow-hidden">
-                                            <div class="bg-white p-4 rounded-lg shadow-md">
-                                                @php
-                                                    $videoId = '';
-                                                    if ($lesson->video_url) {
-                                                        parse_str(parse_url($lesson->video_url, PHP_URL_QUERY), $url_params);
-                                                        if (isset($url_params['v'])) {
-                                                            $videoId = $url_params['v'];
-                                                        }
-                                                    }
-                                                @endphp
-
-                                                @if ($videoId)
-                                                    <div class="video-container">
-                                                        <iframe 
-                                                            src="https://www.youtube.com/embed/{{ $videoId }}" 
-                                                            frameborder="0" 
-                                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                                                            allowfullscreen>
-                                                        </iframe>
-                                                    </div>
-                                                @else
-                                                    <div class="w-full h-auto bg-gray-200 flex items-center justify-center text-gray-500 text-center py-10 rounded-md mb-4">
-                                                        ไม่มีวิดีโอสำหรับบทเรียนนี้
-                                                    </div>
-                                                @endif
-                                                @php
-                                                    $content = e($lesson->content); // ป้องกัน XSS ก่อนด้วย function e()
-                                                    $pattern = '/(https?:\/\/[^\s]+)/';
-                                                    $contentWithLinks = preg_replace($pattern, '<a href="$1" class="text-blue-600 hover:underline" target="_blank">$1</a>', $content);
-                                                @endphp
-
-                                                <p class="text-gray-700">คำอธิบาย : {!! $contentWithLinks !!}</p>
-                                                
-                                                {{-- ปุ่มที่เปลี่ยนสถานะตามที่ผู้ใช้กด --}}
-                                                <div class="lesson-progress-container mt-4">
-                                                    @if ($completedLessons->contains('lesson_id', $lesson->id))
-                                                        <button 
-                                                            class="w-full bg-emerald-500 text-white font-bold py-3 rounded-lg cursor-not-allowed opacity-75"
-                                                            disabled>
-                                                            เรียนแล้ว
-                                                        </button>
-                                                    @else
-                                                        <button
-                                                            onclick="markAsCompleted(this, {{ $lesson->id }})"
-                                                            class="complete-btn w-full bg-blue-600 text-white font-bold py-3 rounded-lg hover:bg-blue-700 transition duration-300">
-                                                            ทำเครื่องหมายว่าเรียนจบแล้ว
-                                                        </button>
-                                                    @endif
-                                                </div>
-                                            </div>
-                                        </div>
+                    {{-- ===== BACKGROUND: Full-screen media ===== --}}
+                    <div class="absolute inset-0">
+                        @if ($short && $short->video_path)
+                            {{-- Short Video full screen --}}
+                            <video class="w-full h-full object-cover short-vid" loop playsinline preload="metadata" muted>
+                                <source src="{{ asset('storage/' . $short->video_path) }}" type="video/mp4">
+                            </video>
+                        @elseif ($short && $short->type === 'images' && is_array($short->images) && count($short->images) > 0)
+                            {{-- Image carousel full screen --}}
+                            <div class="w-full h-full flex overflow-x-scroll snap-x snap-mandatory img-carousel scroll-smooth" id="img-carousel-{{ $lesson->id }}">
+                                @foreach ($short->images as $imgIdx => $imgPath)
+                                    <div class="w-full h-full flex-shrink-0 snap-start snap-always">
+                                        <img src="{{ asset('storage/' . $imgPath) }}" class="w-full h-full object-cover">
                                     </div>
                                 @endforeach
+                            </div>
+                            @if (count($short->images) > 1)
+                                <div class="absolute top-16 right-4 bg-black/50 backdrop-blur-md px-2.5 py-1 rounded-full text-[10px] font-black text-white z-20">
+                                    <span class="img-counter">1</span>/{{ count($short->images) }}
+                                </div>
                             @endif
+                            @if ($short->audio_path)
+                                <audio class="slide-audio" loop src="{{ asset('storage/' . $short->audio_path) }}" preload="auto"></audio>
+                            @endif
+                        @elseif ($videoId)
+                            {{-- YouTube full screen --}}
+                            <div class="yt-container">
+                                <iframe src="https://www.youtube.com/embed/{{ $videoId }}?enablejsapi=1&rel=0&modestbranding=1" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                            </div>
+                        @else
+                            {{-- No media: gradient bg --}}
+                            <div class="w-full h-full bg-gradient-to-br from-slate-900 via-purple-950 to-indigo-950"></div>
+                        @endif
+                    </div>
+
+                    {{-- Tap to play/pause overlay --}}
+                    @if ($short && $short->video_path)
+                        <div class="absolute inset-0 z-10 tap-overlay cursor-pointer" data-slide="{{ $index }}"></div>
+                        <div class="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
+                            <div class="play-indicator opacity-0 scale-75 transition-all duration-200 bg-black/40 backdrop-blur-sm p-5 rounded-full">
+                                <svg class="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                            </div>
+                        </div>
+                    @endif
+
+                    {{-- ===== OVERLAY: Bottom gradient + content ===== --}}
+                    <div class="absolute inset-x-0 bottom-0 z-20 pointer-events-none">
+                        <div class="bg-gradient-to-t from-black/90 via-black/50 to-transparent pt-24 pb-5 px-4">
+
+                            {{-- Lesson title + module --}}
+                            <div class="pointer-events-auto mb-3">
+                                <div class="flex items-center gap-2 mb-1">
+                                    <span class="w-6 h-6 rounded-lg flex items-center justify-center text-[9px] font-black flex-shrink-0 {{ $isCompleted ? 'bg-emerald-500/30 text-emerald-300' : 'bg-white/15 text-white/80' }}" id="badge-{{ $lesson->id }}">
+                                        @if ($isCompleted) ✓ @else {{ $index + 1 }} @endif
+                                    </span>
+                                    <p class="text-sm font-black text-white drop-shadow-lg leading-snug">{{ $lesson->title }}</p>
+                                </div>
+                                <p class="text-[10px] font-bold text-white/50 ml-8">📁 {{ $lesson->module->title }}</p>
+                            </div>
+
+                            {{-- Text content (collapsible) --}}
+                            @if ($lesson->content)
+                                <div class="pointer-events-auto mb-3 ml-8" id="content-wrap-{{ $lesson->id }}">
+                                    @php
+                                        $rawContent = e($lesson->content);
+                                        $contentHtml = preg_replace('/(https?:\/\/[^\s]+)/', '<a href="$1" class="text-purple-300 underline" target="_blank">$1</a>', $rawContent);
+                                        $contentHtml = nl2br($contentHtml);
+                                        $isLong = strlen($lesson->content) > 100;
+                                    @endphp
+
+                                    <div class="content-scroll overflow-y-auto {{ $isLong ? 'max-h-[60px]' : '' }} transition-all duration-300" id="content-{{ $lesson->id }}">
+                                        <p class="text-xs text-white/80 font-medium leading-relaxed">{!! $contentHtml !!}</p>
+                                    </div>
+
+                                    @if ($isLong)
+                                        <button onclick="toggleContent({{ $lesson->id }})" class="text-[10px] font-black text-white/60 hover:text-white mt-1 transition-colors" id="toggle-btn-{{ $lesson->id }}">
+                                            ดูเพิ่มเติม ▼
+                                        </button>
+                                    @endif
+                                </div>
+                            @endif
+
+                            {{-- Action buttons --}}
+                            <div class="pointer-events-auto flex items-center gap-2 ml-8">
+                                @if ($lesson->quiz_id)
+                                    <a href="{{ route('quizzes.start', $lesson->quiz_id) }}" class="flex items-center gap-1.5 py-2.5 px-4 bg-purple-600/80 hover:bg-purple-600 backdrop-blur-sm text-white font-black text-[11px] rounded-full shadow-lg transition-all active:scale-95 quiz-pulse">
+                                        📝 ทำแบบทดสอบ
+                                    </a>
+                                @endif
+
+                                <button id="complete-btn-{{ $lesson->id }}" onclick="markComplete(this, {{ $lesson->id }})" class="flex items-center gap-1.5 py-2.5 px-4 backdrop-blur-sm font-black text-[11px] rounded-full shadow-lg transition-all active:scale-95 {{ $isCompleted ? 'bg-emerald-500/30 text-emerald-300 cursor-default' : 'bg-white/15 hover:bg-white/25 text-white' }}" {{ $isCompleted ? 'disabled' : '' }}>
+                                    @if ($isCompleted)
+                                        ✓ เรียนจบแล้ว
+                                    @else
+                                        ☑ จบบทเรียนนี้
+                                    @endif
+                                </button>
+                            </div>
+
                         </div>
                     </div>
-                @endforeach
+
+                    {{-- ===== RIGHT SIDEBAR (TikTok-style) ===== --}}
+                    <div class="absolute right-3 bottom-44 z-30 flex flex-col items-center gap-5">
+                        {{-- Like/Bookmark style indicators --}}
+                        @if ($lesson->quiz_id)
+                            <a href="{{ route('quizzes.start', $lesson->quiz_id) }}" class="flex flex-col items-center gap-0.5 group">
+                                <div class="w-10 h-10 rounded-full bg-white/15 backdrop-blur-md flex items-center justify-center group-hover:bg-purple-500/50 transition-all">
+                                    <span class="text-lg">📝</span>
+                                </div>
+                                <span class="text-[9px] font-bold text-white/70">ข้อสอบ</span>
+                            </a>
+                        @endif
+                        @if ($lesson->short_video_id && $short)
+                            <div class="flex flex-col items-center gap-0.5">
+                                <div class="w-10 h-10 rounded-full bg-white/15 backdrop-blur-md flex items-center justify-center">
+                                    <span class="text-lg">🎬</span>
+                                </div>
+                                <span class="text-[9px] font-bold text-white/70">คลิป</span>
+                            </div>
+                        @endif
+                        @if ($lesson->video_url)
+                            <div class="flex flex-col items-center gap-0.5">
+                                <div class="w-10 h-10 rounded-full bg-white/15 backdrop-blur-md flex items-center justify-center">
+                                    <span class="text-lg">▶️</span>
+                                </div>
+                                <span class="text-[9px] font-bold text-white/70">วิดีโอ</span>
+                            </div>
+                        @endif
+                    </div>
+
+                </div>
+            @endforeach
+        </div>
+
+        {{-- ===== SIDE DOTS (Desktop nav) ===== --}}
+        <div class="hidden sm:flex fixed right-3 top-1/2 -translate-y-1/2 flex-col gap-1.5 z-50">
+            @foreach ($allLessons as $idx => $l)
+                @php $done = $completedLessons->contains('lesson_id', $l->id); @endphp
+                <button onclick="goSlide({{ $idx }})" class="side-dot w-2.5 h-2.5 rounded-full transition-all hover:scale-150 {{ $done ? 'bg-emerald-400' : 'bg-white/30' }}" data-index="{{ $idx }}" title="{{ $l->title }}"></button>
+            @endforeach
+        </div>
+
+        {{-- Auto-complete toast --}}
+        <div id="auto-toast" class="fixed bottom-24 left-1/2 -translate-x-1/2 z-[60] hidden">
+            <div class="bg-emerald-500/90 backdrop-blur-md text-white text-xs font-black px-5 py-2.5 rounded-full shadow-xl toast-anim flex items-center gap-2">
+                ✓ บทเรียนนี้เรียนจบแล้ว
             </div>
         </div>
     </div>
-</x-app-layout>
 
----
+    <script>
+        const container = document.getElementById('lesson-container');
+        const slides = document.querySelectorAll('.lesson-slide');
+        const sideDots = document.querySelectorAll('.side-dot');
+        const total = slides.length;
+        let currentIdx = 0;
+        let viewTimers = {};  // Track time spent on each slide
 
-### สไตล์และสคริปต์ (CSS & JavaScript)
-
-<style>
-    .container {
-        margin: auto;
-        padding: 20px;
-    }
-    .course-title {
-        font-size: 28px;
-        font-weight: bold;
-        margin-bottom: 10px;
-    }
-
-    .section {
-        background: #fff;
-        margin-bottom: 20px;
-        padding: 15px;
-        border-radius: 8px;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    }
-
-    .section-title {
-        font-size: 20px;
-        font-weight: bold;
-        margin-bottom: 10px;
-        color: #2f3640;
-        cursor: pointer;
-    }
-
-    .lesson {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 10px;
-        border-top: 1px solid #eee;
-        cursor: pointer;
-        transition: background 0.3s ease;
-    }
-    .lesson-success {
-        background: red;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 10px;
-        border-top: 1px solid #eee;
-        cursor: pointer;
-        transition: background 0.3s ease;
-    }
-    .lesson:hover {
-        background-color: #f0f0f0;
-    }
-
-    .lesson-title {
-        font-size: 16px;
-        color: #353b48;
-    }
-
-    .lesson.active {
-        background-color: #dff0ff;
-    }
-
-    .lesson.active .toggle-icon {
-        transform: rotate(180deg);
-    }
-
-    .video-hidden {
-        max-height: 0;
-        opacity: 0;
-        transition: all 0.5s ease-in-out;
-    }
-
-    .video-show {
-        max-height: 1000px;
-        opacity: 1;
-    }
-
-    .tabs {
-        margin-top: 30px;
-        margin-bottom: 20px;
-    }
-
-    .tab-btn {
-        position: relative;
-        color: #6b7280;
-    }
-
-    .tab-btn.active {
-        color: #3b82f6;
-        border-bottom-color: #3b82f6;
-        border-bottom-width: 2px;
-    }
-
-    .tab-content {
-        display: none;
-    }
-
-    .tab-content.active {
-        display: block;
-    }
-
-    /* CSS สำหรับกำหนดสัดส่วนวิดีโอ (16:9) โดยไม่ใช้ปลั๊กอิน */
-    .video-container {
-        position: relative;
-        width: 100%;
-        padding-top: 56.25%; /* (9 / 16) * 100% */
-        margin-bottom: 1rem;
-        overflow: hidden;
-        border-radius: 0.5rem; /* rounded-md */
-    }
-
-    .video-container iframe {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-    }
-</style>
-
-<script>
-    function toggleVideo(el) {
-        const allPlayers = document.querySelectorAll('.video-player');
-        const allLessons = document.querySelectorAll('.lesson');
-
-        const chapter = el.closest('.chapter');
-        const currentPlayer = chapter.querySelector('.video-player');
-
-        const isOpen = currentPlayer.classList.contains('video-show');
-
-        allPlayers.forEach(player => {
-            player.classList.remove('video-show');
-            player.classList.add('video-hidden');
-        });
-        allLessons.forEach(lesson => {
-            lesson.classList.remove('active');
-        });
-
-        if (!isOpen) {
-            currentPlayer.classList.remove('video-hidden');
-            currentPlayer.classList.add('video-show');
-            el.classList.add('active');
+        // ============ NAVIGATION ============
+        function goSlide(i) {
+            if (slides[i]) slides[i].scrollIntoView({ behavior: 'smooth' });
         }
-    }
 
-    // Tab functionality
-    document.addEventListener('DOMContentLoaded', function() {
-        const tabBtns = document.querySelectorAll('.tab-btn');
-        
-        tabBtns.forEach(btn => {
-            btn.addEventListener('click', function() {
-                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-                
-                this.classList.add('active');
-                const tabId = this.getAttribute('data-tab');
-                document.getElementById(tabId).classList.add('active');
+        container.addEventListener('scroll', () => {
+            const newIdx = Math.round(container.scrollTop / container.clientHeight);
+            if (newIdx !== currentIdx && newIdx >= 0 && newIdx < total) {
+                onLeaveSlide(currentIdx);
+                currentIdx = newIdx;
+                onEnterSlide(currentIdx);
+                updateUI();
+            }
+        });
+
+        function updateUI() {
+            // Side dots
+            sideDots.forEach((d, i) => {
+                d.classList.toggle('scale-150', i === currentIdx);
+                d.classList.toggle('ring-2', i === currentIdx);
+                d.classList.toggle('ring-purple-400', i === currentIdx);
+                if (i === currentIdx && !d.classList.contains('bg-emerald-400')) {
+                    d.classList.add('bg-white/80');
+                    d.classList.remove('bg-white/30');
+                } else if (!d.classList.contains('bg-emerald-400')) {
+                    d.classList.remove('bg-white/80');
+                    d.classList.add('bg-white/30');
+                }
+            });
+            // Top label
+            document.getElementById('lesson-label').textContent = `บทที่ ${currentIdx + 1}/${total}`;
+        }
+
+        // ============ SLIDE ENTER/LEAVE ============
+        function onEnterSlide(idx) {
+            const slide = slides[idx];
+            if (!slide) return;
+
+            // Play video
+            const vid = slide.querySelector('.short-vid');
+            if (vid) { vid.muted = false; vid.play().catch(() => {}); }
+
+            // Play audio
+            const aud = slide.querySelector('.slide-audio');
+            if (aud) aud.play().catch(() => {});
+
+            // Start view timer for auto-complete (3 seconds)
+            const lessonId = slide.dataset.lessonId;
+            const isCompleted = slide.dataset.completed === '1';
+            if (!isCompleted) {
+                viewTimers[idx] = setTimeout(() => {
+                    autoComplete(lessonId, slide);
+                }, 3000);
+            }
+        }
+
+        function onLeaveSlide(idx) {
+            const slide = slides[idx];
+            if (!slide) return;
+
+            // Pause video
+            const vid = slide.querySelector('.short-vid');
+            if (vid) { vid.pause(); }
+
+            // Pause audio
+            const aud = slide.querySelector('.slide-audio');
+            if (aud) aud.pause();
+
+            // Clear timer
+            if (viewTimers[idx]) {
+                clearTimeout(viewTimers[idx]);
+                delete viewTimers[idx];
+            }
+        }
+
+        // Also auto-complete when video ends
+        document.querySelectorAll('.short-vid').forEach(vid => {
+            vid.addEventListener('ended', () => {
+                const slide = vid.closest('.lesson-slide');
+                if (slide && slide.dataset.completed !== '1') {
+                    autoComplete(slide.dataset.lessonId, slide);
+                }
+                // Loop back
+                vid.play().catch(() => {});
             });
         });
-    });
 
-    // AJAX function to mark a lesson as completed
-    function markAsCompleted(button, lessonId) {
-        button.disabled = true;
-        button.classList.add('opacity-75', 'cursor-not-allowed');
-        button.innerHTML = 'กำลังบันทึก...';
-        
-        fetch(`/lessons/${lessonId}/complete`, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                // เปลี่ยนสถานะปุ่ม
-                button.classList.remove('bg-blue-600', 'hover:bg-blue-700');
-                button.classList.add('bg-emerald-500', 'opacity-75', 'cursor-not-allowed');
-                button.innerHTML = 'เรียนแล้ว';
+        // ============ TAP TO PLAY/PAUSE ============
+        document.querySelectorAll('.tap-overlay').forEach(overlay => {
+            overlay.addEventListener('click', () => {
+                const slide = overlay.closest('.lesson-slide');
+                const vid = slide.querySelector('.short-vid');
+                const indicator = slide.querySelector('.play-indicator');
+                if (!vid) return;
 
-                // อัปเดต Progress Bar และข้อความ
-                const progressBar = document.querySelector('.progress-bar');
-                const progressText = document.querySelector('.progress-text');
-
-                if (progressBar && progressText) {
-                    progressBar.style.width = data.progress + '%';
-                    progressText.innerText = data.progress + '%';
+                if (vid.paused) {
+                    vid.play();
+                    if (indicator) { indicator.classList.add('opacity-0', 'scale-75'); indicator.classList.remove('opacity-100', 'scale-100'); }
+                } else {
+                    vid.pause();
+                    if (indicator) {
+                        indicator.classList.remove('opacity-0', 'scale-75');
+                        indicator.classList.add('opacity-100', 'scale-100');
+                        setTimeout(() => { indicator.classList.add('opacity-0', 'scale-75'); indicator.classList.remove('opacity-100', 'scale-100'); }, 1500);
+                    }
                 }
-
-                // อัปเดตไอคอนในปุ่ม toggle-btn ของบทเรียนที่เพิ่งทำเสร็จ
-                const lessonDiv = button.closest('.chapter').querySelector('.lesson');
-                const toggleBtn = lessonDiv.querySelector('.toggle-btn');
-                toggleBtn.innerHTML = `
-                    <div class="text-white text-lg">
-                        <i class="fas fa-check-circle"></i>
-                    </div>
-                    <svg xmlns="http://www.w3.org/2000/svg" class="toggle-icon h-5 w-5 transform transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                    </svg>
-                `;
-
-            } else {
-                button.disabled = false;
-                button.classList.remove('opacity-75', 'cursor-not-allowed');
-                button.innerHTML = 'ทำเครื่องหมายว่าเรียนจบแล้ว';
-                alert('ไม่สามารถทำเครื่องหมายว่าเรียนจบได้');
-            }
-        })
-        .catch(error => {
-            console.error('An error occurred:', error);
-            button.disabled = false;
-            button.classList.remove('opacity-75', 'cursor-not-allowed');
-            button.innerHTML = 'ทำเครื่องหมายว่าเรียนจบแล้ว';
-            alert('เกิดข้อผิดพลาดในการเชื่อมต่อ');
+            });
         });
-    }
-</script>
+
+        // ============ AUTO COMPLETE ============
+        function autoComplete(lessonId, slide) {
+            if (slide.dataset.completed === '1') return;
+            slide.dataset.completed = '1';
+
+            fetch(`/lessons/${lessonId}/complete`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                }
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    // Update progress
+                    document.getElementById('progress-bar').style.width = data.progress + '%';
+                    document.getElementById('progress-text').textContent = data.progress + '%';
+
+                    // Update badge
+                    const badge = document.getElementById('badge-' + lessonId);
+                    if (badge) { badge.textContent = '✓'; badge.className = 'w-6 h-6 rounded-lg flex items-center justify-center text-[9px] font-black flex-shrink-0 bg-emerald-500/30 text-emerald-300'; }
+
+                    // Update button
+                    const btn = document.getElementById('complete-btn-' + lessonId);
+                    if (btn) { btn.innerHTML = '✓ เรียนจบแล้ว'; btn.disabled = true; btn.className = 'flex items-center gap-1.5 py-2.5 px-4 backdrop-blur-sm font-black text-[11px] rounded-full shadow-lg transition-all bg-emerald-500/30 text-emerald-300 cursor-default'; }
+
+                    // Update side dot
+                    const idx = parseInt(slide.dataset.index);
+                    if (sideDots[idx]) { sideDots[idx].classList.remove('bg-white/30', 'bg-white/80'); sideDots[idx].classList.add('bg-emerald-400'); }
+
+                    // Show toast
+                    showToast();
+                }
+            })
+            .catch(e => console.error('Auto-complete error:', e));
+        }
+
+        function markComplete(btn, lessonId) {
+            if (btn.disabled) return;
+            const slide = document.getElementById('lesson-' + lessonId);
+            autoComplete(lessonId, slide);
+        }
+
+        function showToast() {
+            const toast = document.getElementById('auto-toast');
+            toast.classList.remove('hidden');
+            setTimeout(() => toast.classList.add('hidden'), 2500);
+        }
+
+        // ============ TOGGLE CONTENT ============
+        function toggleContent(id) {
+            const el = document.getElementById('content-' + id);
+            const btn = document.getElementById('toggle-btn-' + id);
+            if (el.classList.contains('max-h-[60px]')) {
+                el.classList.remove('max-h-[60px]');
+                el.classList.add('max-h-[40vh]');
+                btn.textContent = 'ย่อ ▲';
+            } else {
+                el.classList.add('max-h-[60px]');
+                el.classList.remove('max-h-[40vh]');
+                btn.textContent = 'ดูเพิ่มเติม ▼';
+            }
+        }
+
+        // ============ IMAGE CAROUSEL INDEX ============
+        document.querySelectorAll('.img-carousel').forEach(carousel => {
+            const slide = carousel.closest('.lesson-slide');
+            const counter = slide.querySelector('.img-counter');
+            if (!counter) return;
+            carousel.addEventListener('scroll', () => {
+                const idx = Math.round(carousel.scrollLeft / carousel.clientWidth) + 1;
+                counter.textContent = idx;
+            });
+        });
+
+        // ============ HASH NAV + INIT ============
+        window.addEventListener('DOMContentLoaded', () => {
+            const hash = window.location.hash;
+            if (hash) {
+                const target = document.querySelector(hash);
+                if (target) setTimeout(() => target.scrollIntoView({ behavior: 'smooth' }), 300);
+            }
+            onEnterSlide(0);
+            updateUI();
+        });
+
+        // ============ HEARTBEAT ============
+        (function() {
+            let sid = null;
+            const cid = {{ $course->id }};
+            function ping() {
+                fetch('/study-session/ping', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content') },
+                    body: JSON.stringify({ course_id: cid, type: 'classroom', session_id: sid })
+                }).then(r => r.json()).then(d => { if (d.success && d.session_id) sid = d.session_id; }).catch(() => {});
+            }
+            ping(); setInterval(ping, 15000);
+        })();
+    </script>
+</x-app-layout>

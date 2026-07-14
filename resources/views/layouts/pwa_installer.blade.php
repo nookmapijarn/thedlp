@@ -91,6 +91,11 @@
             setTimeout(() => {
                 showPwaPrompt();
             }, 3000);
+
+            // Show any navigation install buttons (.pwa-install-btn)
+            document.querySelectorAll('.pwa-install-btn').forEach(btn => {
+                btn.style.display = 'inline-flex';
+            });
         });
 
         if (btnInstall) {
@@ -108,8 +113,34 @@
                 console.log(`[PWA] Install choice outcome: ${outcome}`);
                 
                 deferredPrompt = null;
+                // Hide navigation buttons
+                document.querySelectorAll('.pwa-install-btn').forEach(btn => {
+                    btn.style.display = 'none';
+                });
             };
         }
+
+        // Add event delegation for any clicked .pwa-install-btn buttons
+        document.addEventListener('click', async (event) => {
+            const btn = event.target.closest('.pwa-install-btn');
+            if (btn && deferredPrompt) {
+                // Hide custom invitation card
+                hidePwaPrompt();
+                
+                // Open native browser installation interface
+                deferredPrompt.prompt();
+                
+                // Wait for choice
+                const { outcome } = await deferredPrompt.userChoice;
+                console.log(`[PWA] Nav Install choice outcome: ${outcome}`);
+                
+                deferredPrompt = null;
+                // Hide all install buttons
+                document.querySelectorAll('.pwa-install-btn').forEach(b => {
+                    b.style.display = 'none';
+                });
+            }
+        });
 
         if (btnDismiss) {
             btnDismiss.onclick = function () {
@@ -142,6 +173,9 @@
         window.addEventListener('appinstalled', () => {
             console.log('[PWA] Application successfully installed.');
             hidePwaPrompt();
+            document.querySelectorAll('.pwa-install-btn').forEach(btn => {
+                btn.style.display = 'none';
+            });
             deferredPrompt = null;
         });
 

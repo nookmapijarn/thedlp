@@ -162,6 +162,7 @@ Route::middleware('auth', 'verified')->group(function () {
         Route::get('/teachers/courses/{course}/edit', [TeachersCourseController::class, 'edit'])->name('courses.edit');
         Route::put('/teachers/courses/{course}', [TeachersCourseController::class, 'update'])->name('courses.update');
         Route::delete('/teachers/courses/{course}', [TeachersCourseController::class, 'destroy'])->name('courses.destroy');
+        Route::get('/teachers/courses/{course}/report', [TeachersCourseController::class, 'courseReport'])->name('courses.report');
         // Routes สำหรับจัดการ Modules และ Lessons ใน Course
         Route::get('/teachers/courses/{course}/manage-modules', [TeachersCourseController::class, 'manageModules'])->name('courses.manage_modules');
         Route::post('/teachers/courses/{course}/modules', [TeachersCourseController::class, 'storeModule'])->name('courses.store_module');
@@ -195,6 +196,7 @@ Route::middleware('auth', 'verified')->group(function () {
         Route::get('/shorts', [ShortVideoController::class, 'index'])->name('shorts.index');
         Route::post('/shorts/{id}/like', [ShortVideoController::class, 'toggleLike'])->name('shorts.like');
         Route::post('/shorts/{id}/view', [ShortVideoController::class, 'incrementView'])->name('shorts.view');
+        Route::post('/study-session/ping', [\App\Http\Controllers\Students\StudySessionController::class, 'ping'])->name('study-session.ping');
 
         Route::get('/ประวัติการเรียน', [DashboardController::class, 'index'])->name('ประวัติการเรียน');
         Route::get('/ตารางสอบ', [ExamscheduleController::class, 'index'])->name('ตารางสอบ');

@@ -33,7 +33,7 @@
             <!-- Scroll container -->
             <div id="shorts-container" class="flex-1 overflow-y-scroll snap-y snap-mandatory relative" style="-ms-overflow-style: none; scrollbar-width: none;">
                 @forelse($shorts as $index => $short)
-                    <div class="w-full h-full snap-start snap-always relative flex-shrink-0 short-video-slide" data-id="{{ $short->id }}" data-index="{{ $index }}">
+                    <div class="w-full h-full snap-start snap-always relative flex-shrink-0 short-video-slide" data-id="{{ $short->id }}" data-index="{{ $index }}" data-course-id="{{ $short->course_id }}">
                         
                         @if($short->type === 'images')
                             <!-- Image slideshow element -->
@@ -130,6 +130,21 @@
                                         </svg>
                                     </a>
                                     <span class="text-[9px] text-white font-bold drop-shadow-md mt-1">บทเรียน</span>
+                                </div>
+                            @endif
+
+                            <!-- Quiz prompt button -->
+                            @php
+                                $lessonWithQuiz = $short->lessons->whereNotNull('quiz_id')->first();
+                            @endphp
+                            @if($lessonWithQuiz)
+                                <div class="flex flex-col items-center">
+                                    <a href="{{ route('quizzes.start', $lessonWithQuiz->quiz_id) }}" class="w-11 h-11 rounded-full bg-rose-600/90 backdrop-blur-md flex items-center justify-center text-white hover:bg-rose-700 transition-all border border-white/20 shadow-lg active:scale-95 animate-pulse animate-duration-1000" title="ทำแบบทดสอบ">
+                                        <svg class="w-5.5 h-5.5 text-white" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                        </svg>
+                                    </a>
+                                    <span class="text-[9px] text-white font-bold drop-shadow-md mt-1">ทำข้อสอบ</span>
                                 </div>
                             @endif
 
@@ -242,6 +257,70 @@
                 };
             };
 
+            // Heartbeat tracking for short video watch duration
+            let pingInterval = null;
+            let currentSessionId = null;
+            let currentShortVideoId = null;
+
+            function startShortVideoPing(shortId, courseId) {
+                if (pingInterval) {
+                    clearInterval(pingInterval);
+                }
+                currentSessionId = null;
+                currentShortVideoId = shortId;
+
+                function sendPing() {
+                    const activeSlide = document.querySelector(`.short-video-slide[data-id="${currentShortVideoId}"]`);
+                    if (!activeSlide) return;
+
+                    const video = activeSlide.querySelector('.short-video-player');
+                    const audio = activeSlide.querySelector('.short-audio-player');
+                    const media = video || audio;
+
+                    if (media && !media.paused) {
+                        fetch('/study-session/ping', {
+                            method: 'POST',
+                            headers: getHeaders(),
+                            body: JSON.stringify({
+                                course_id: courseId,
+                                short_video_id: currentShortVideoId,
+                                type: 'short_video',
+                                session_id: currentSessionId
+                            })
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success && data.session_id) {
+                                currentSessionId = data.session_id;
+                            }
+                        })
+                        .catch(err => console.log('Short video ping failed:', err));
+                    }
+                }
+
+                // Initial ping after 3 seconds, then every 15 seconds
+                setTimeout(() => {
+                    if (currentShortVideoId === shortId) {
+                        sendPing();
+                    }
+                }, 3000);
+
+                pingInterval = setInterval(() => {
+                    if (currentShortVideoId === shortId) {
+                        sendPing();
+                    }
+                }, 15000);
+            }
+
+            function stopShortVideoPing() {
+                if (pingInterval) {
+                    clearInterval(pingInterval);
+                    pingInterval = null;
+                }
+                currentSessionId = null;
+                currentShortVideoId = null;
+            }
+
             // Play/Pause control for specific index
             const managePlayback = (index) => {
                 slides.forEach((slide, i) => {
@@ -271,6 +350,14 @@
                                 method: 'POST',
                                 headers: getHeaders()
                             }).catch(err => console.log(err));
+                        }
+
+                        // Start heartbeat tracking if course is linked
+                        const courseId = slide.getAttribute('data-course-id');
+                        if (courseId && courseId !== '') {
+                            startShortVideoPing(shortId, courseId);
+                        } else {
+                            stopShortVideoPing();
                         }
                     } else {
                         // Pause adjacent videos and reset timeframe

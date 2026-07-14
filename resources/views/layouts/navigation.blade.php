@@ -38,6 +38,13 @@
             </div>
 
             <div class="hidden sm:flex sm:items-center sm:ml-6">
+                <!-- PWA Install Button -->
+                <button type="button" style="display: none;" class="pwa-install-btn p-2 text-slate-500 hover:text-slate-750 hover:bg-slate-100 rounded-xl focus:outline-none transition-colors mr-2" title="ติดตั้งแอปพลิเคชัน">
+                  <svg class="w-6 h-6 text-purple-600 animate-pulse" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"></path>
+                  </svg>
+                </button>
+
                 <!-- Notification Bell Dropdown -->
                 @php
                   $unreadNotifications = \App\Models\HelpNotification::where('user_id', Auth::id())->where('is_read', false)->latest()->take(5)->get();
@@ -116,6 +123,13 @@
             </div>
 
             <div class="-mr-2 flex items-center sm:hidden">
+                <!-- PWA Install Button (Mobile) -->
+                <button type="button" style="display: none;" class="pwa-install-btn p-2 text-slate-500 hover:text-slate-750 hover:bg-slate-100 rounded-xl focus:outline-none transition-colors mr-1" title="ติดตั้งแอปพลิเคชัน">
+                  <svg class="w-6 h-6 text-purple-600 animate-pulse" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"></path>
+                  </svg>
+                </button>
+
                 <!-- Mobile notification bell -->
                 <div class="relative mr-2" x-data="{ open: false }">
                   <button @click="open = !open" class="relative p-2 text-gray-500 hover:text-gray-700 hover:bg-slate-50 rounded-xl focus:outline-none transition-colors">

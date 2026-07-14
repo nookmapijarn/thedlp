@@ -52,7 +52,7 @@
                              class="w-full h-full object-cover">
                     </div>
                     <div>
-                        <span class="text-[10px] uppercase font-bold tracking-widest text-white/60 block">สวัสดีตอนเช้า</span>
+                        <span class="text-[10px] uppercase font-bold tracking-widest text-white/60 block">สวัสดี</span>
                         <h1 class="text-base font-black tracking-tight leading-none text-white">{{ auth()->user()->name }}</h1>
                     </div>
                 </div>

@@ -46,4 +46,9 @@ class ShortVideo extends Model
         if (!$user) return false;
         return $this->likes()->where('user_id', $user->id)->exists();
     }
+
+    public function lessons()
+    {
+        return $this->hasMany(Lesson::class, 'short_video_id');
+    }
 }

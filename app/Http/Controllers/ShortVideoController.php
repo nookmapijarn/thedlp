@@ -14,7 +14,7 @@ class ShortVideoController extends Controller
     public function index(Request $request)
     {
         $startId = $request->query('id');
-        $shorts = ShortVideo::with(['teacher', 'course'])->latest()->get();
+        $shorts = ShortVideo::with(['teacher', 'course', 'lessons'])->latest()->get();
 
         if ($startId) {
             $shorts = $shorts->sortBy(function($short) use ($startId) {

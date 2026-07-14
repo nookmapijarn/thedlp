@@ -70,40 +70,78 @@ class TeachersReportController extends Controller
     }
 
     public function allstudent($grp_code, $semestry, $lavel){
-        
-        $allstudent = [];
         $current_student = $this->current_student($grp_code, $semestry, $lavel);
+        if ($current_student->isEmpty()) {
+            return null;
+        }
 
+        $studentsByLevel = [];
         foreach ($current_student as $s) {
             $level = $this->lavelis($s->STD_CODE);
-            switch ($this->expfin($s->STD_CODE, $level)) {
-                case true :
-                $expfin = 1;
-                $nnet = (!empty($s->NT_SEM) ? 'ผ่านแล้ว' : (!empty($s->NT_NOSEM) ? 'E-Exam': 'มีสิทธิ'));
-                break;
-                case false:
-                $expfin = 0;
-                $nnet = (!empty($s->NT_SEM) ? $s->NT_SEM : (!empty($s->NT_NOSEM) ? 'E-Exam': '-'));
-                break;
-                default:
-                    $expfin = '*';
-                    $nnet = '*';
+            $studentsByLevel[$level][] = $s;
+        }
+
+        $allstudent = [];
+        $current_semestry = $this->get_semestry()->first()->SEMESTRY;
+
+        foreach ($studentsByLevel as $level => $studentsList) {
+            $stdCodes = array_map(function($s) { return $s->STD_CODE; }, $studentsList);
+            
+            // 1. Batch load activity hours
+            $activities = DB::table("activity{$level}")
+                ->whereIn('STD_CODE', $stdCodes)
+                ->select('STD_CODE', DB::raw('SUM(HOUR) as total_hour'))
+                ->groupBy('STD_CODE')
+                ->pluck('total_hour', 'STD_CODE')
+                ->toArray();
+
+            // 2. Batch load sum credits for expfin
+            $credits = DB::table("grade{$level}")
+                ->join("subject{$level}", "grade{$level}.SUB_CODE", '=', "subject{$level}.SUB_CODE")
+                ->whereIn("grade{$level}.STD_CODE", $stdCodes)
+                ->where(function($query) use ($level, $current_semestry) {
+                    $query->where("grade{$level}.GRADE", 'REGEXP', '[1-4]')
+                          ->orWhere(function($subQuery) use ($level, $current_semestry) {
+                              $subQuery->whereNull("grade{$level}.GRADE")
+                                       ->where("grade{$level}.SEMESTRY", $current_semestry);
+                          });
+                })
+                ->select("grade{$level}.STD_CODE", DB::raw("SUM(subject{$level}.SUB_CREDIT) as sum_credit"))
+                ->groupBy("grade{$level}.STD_CODE")
+                ->pluck('sum_credit', 'STD_CODE')
+                ->toArray();
+
+            // 3. Process each student
+            foreach ($studentsList as $s) {
+                $sum_credit = $credits[$s->STD_CODE] ?? 0;
+                $isExp = false;
+                if (($level == 1 && $sum_credit >= 48) || ($level == 2 && $sum_credit >= 55) || ($level == 3 && $sum_credit >= 76)) {
+                    $isExp = true;
+                }
+
+                if ($isExp) {
+                    $expfin = 1;
+                    $nnet = (!empty($s->NT_SEM) ? 'ผ่านแล้ว' : (!empty($s->NT_NOSEM) ? 'E-Exam': 'มีสิทธิ'));
+                } else {
+                    $expfin = 0;
+                    $nnet = (!empty($s->NT_SEM) ? $s->NT_SEM : (!empty($s->NT_NOSEM) ? 'E-Exam': '-'));
+                }
+
+                $allstudent[] = [
+                    'id'        =>  $s->ID,
+                    'cardid'    =>  $s->CARDID,
+                    'lavel'     =>  $level,
+                    'prename'   =>  $s->PRENAME, 
+                    'name'      =>  $s->NAME,
+                    'surname'   =>  $s->SURNAME,
+                    'fin_cause' =>  $s->FIN_CAUSE,
+                    'expfin'    =>  $expfin,
+                    'activity'  =>  $activities[$s->STD_CODE] ?? 0,
+                    'nt_sem'    =>  $nnet,
+                    'grp_code'  =>  $s->GRP_CODE,
+                    'ablevel1'  =>  $s->ABLEVEL1,
+                ];
             }
-            array_push($allstudent, 
-            [
-                'id'        =>  $s->ID,
-                'cardid'    =>  $s->CARDID,
-                'lavel'     =>  $level,
-                'prename'   =>  $s->PRENAME, 
-                'name'      =>  $s->NAME,
-                'surname'   =>  $s->SURNAME,
-                'fin_cause' =>  $s->FIN_CAUSE,
-                'expfin'    =>  $expfin,
-                'activity'  =>  $this->get_activity($s->STD_CODE, $level),
-                'nt_sem'    =>  $nnet,
-                'grp_code'  =>  $s->GRP_CODE,
-                'ablevel1'  =>  $s->ABLEVEL1,
-            ]);
         }
 
         $allstudent = count($allstudent) !== 0 ? $allstudent :  null;
@@ -113,77 +151,154 @@ class TeachersReportController extends Controller
     public function expstudent($grp_code, $semestry, $lavel)
     {
         $expstudents = [];
-        for ($i = 1; $i <= 3; $i++) {
-            $current_students = $this->current_student($grp_code, $semestry, $lavel);
-            if ($current_students->count() != 0) {
-                foreach ($current_students as $s) {
-                    if($this->expfin($s->STD_CODE, $i)){
-                        $expstudents[] = [
-                            'id'        =>  $s->ID,
-                            'cardid'    =>  $s->CARDID,
-                            'lavel'     =>  $i,
-                            'prename'   =>  $s->PRENAME, 
-                            'name'      =>  $s->NAME,
-                            'surname'   =>  $s->SURNAME,
-                            'fin_cause' =>  $s->FIN_CAUSE,
-                            'expfin' => true,
-                            'activity' => $this->get_activity($s->STD_CODE, $i),
-                            'nt_sem' => (!empty($s->NT_SEM) ? 'ผ่านแล้ว' : (!empty($s->NT_NOSEM) ? 'E-Exam': 'มีสิทธิ')),
-                            'grp_code' => $s->GRP_CODE,
-                            'ablevel1' => $s->ABLEVEL1,
-                        ];
-                    } else {
-                        continue;
-                    }
+        $current_semestry = $this->get_semestry()->first()->SEMESTRY;
 
-                }
+        // Since we want to search grade levels 1 to 3
+        // If $lavel is specified, we only search that level. If null, we search 1 to 3.
+        $searchLevels = ($lavel !== null) ? [$lavel] : [1, 2, 3];
+
+        foreach ($searchLevels as $i) {
+            $current_students = $this->current_student($grp_code, $semestry, $i);
+            if ($current_students->isEmpty()) {
+                continue;
             }
-        }
-        return count($expstudents) !== 0 ? $expstudents : null;
-    }
-    
 
-    public function unfinishstudent($grp_code, $semestry, $lavel)
-    {
-        $unfinishstudent = [];
-        
-        $not_current_students = $this->not_current_student($grp_code, $semestry, $lavel);
+            $stdCodes = $current_students->pluck('STD_CODE')->toArray();
 
-        foreach ($not_current_students as $s) {
-            
-            $lavel = str_split($s->ID, 1)[3];
+            // 1. Batch load activity hours
+            $activities = DB::table("activity{$i}")
+                ->whereIn('STD_CODE', $stdCodes)
+                ->select('STD_CODE', DB::raw('SUM(HOUR) as total_hour'))
+                ->groupBy('STD_CODE')
+                ->pluck('total_hour', 'STD_CODE')
+                ->toArray();
 
-            if ($this->expfin($s->STD_CODE, $lavel)) {
-                $tgrade = "grade{$lavel}";
-                $std_code = $s->STD_CODE;
+            // 2. Batch load sum credits
+            $credits = DB::table("grade{$i}")
+                ->join("subject{$i}", "grade{$i}.SUB_CODE", '=', "subject{$i}.SUB_CODE")
+                ->whereIn("grade{$i}.STD_CODE", $stdCodes)
+                ->where(function($query) use ($i, $current_semestry) {
+                    $query->where("grade{$i}.GRADE", 'REGEXP', '[1-4]')
+                          ->orWhere(function($subQuery) use ($i, $current_semestry) {
+                              $subQuery->whereNull("grade{$i}.GRADE")
+                                       ->where("grade{$i}.SEMESTRY", $current_semestry);
+                          });
+                })
+                ->select("grade{$i}.STD_CODE", DB::raw("SUM(subject{$i}.SUB_CREDIT) as sum_credit"))
+                ->groupBy("grade{$i}.STD_CODE")
+                ->pluck('sum_credit', 'STD_CODE')
+                ->toArray();
 
-                $current_count = DB::table($tgrade)->where('STD_CODE', $std_code)->where("SEMESTRY", $semestry)->count();
+            foreach ($current_students as $s) {
+                $sum_credit = $credits[$s->STD_CODE] ?? 0;
+                $isExp = false;
+                if (($i == 1 && $sum_credit >= 48) || ($i == 2 && $sum_credit >= 55) || ($i == 3 && $sum_credit >= 76)) {
+                    $isExp = true;
+                }
 
-                if ($current_count > 0) {
-                    // echo '<br><br><br><br>*********************************************************** ลงทะเบียนในภาคเรียนปัจจุบัน ***************************************!!! <br>';
-                    // echo '*********************************************************** ' . $semestry . ' ' . $s->ID . ' ' . $s->NAME . ' ' . $s->SURNAME . ' ***************************************!!! <br>';
-                } else {
-                    // echo '<br><br><br><br>*********************************************************** ไม่ได้ลงทะเบียนในภาคเรียนปัจจุบัน ***************************************!!! <br>';
-                    // echo '*********************************************************** ' . $semestry . ' ' . $s->ID . ' ' . $s->NAME . ' ' . $s->SURNAME . ' ***************************************!!! <br>';
-                    
-                    $unfinishstudent[] = [
+                if ($isExp) {
+                    $expstudents[] = [
                         'id'        =>  $s->ID,
                         'cardid'    =>  $s->CARDID,
-                        'lavel'     =>  $lavel,
+                        'lavel'     =>  $i,
                         'prename'   =>  $s->PRENAME, 
                         'name'      =>  $s->NAME,
                         'surname'   =>  $s->SURNAME,
                         'fin_cause' =>  $s->FIN_CAUSE,
-                        'expfin' => true,
-                        'activity' => $this->get_activity($s->STD_CODE, $lavel),
-                        'nt_sem' => ($s->NT_SEM != '') ? 'ผ่านแล้ว' : (($s->NT_NOSEM != '') ? 'E-Exam' : 'มีสิทธิ'),
-                        'grp_code' => $s->GRP_CODE,
-                        'ablevel1' => $s->ABLEVEL1,
+                        'expfin'    =>  true,
+                        'activity'  =>  $activities[$s->STD_CODE] ?? 0,
+                        'nt_sem'    =>  (!empty($s->NT_SEM) ? 'ผ่านแล้ว' : (!empty($s->NT_NOSEM) ? 'E-Exam': 'มีสิทธิ')),
+                        'grp_code'  =>  $s->GRP_CODE,
+                        'ablevel1'  =>  $s->ABLEVEL1,
                     ];
                 }
             }
         }
-    
+
+        return count($expstudents) !== 0 ? $expstudents : null;
+    }
+
+    public function unfinishstudent($grp_code, $semestry, $lavel)
+    {
+        $unfinishstudent = [];
+        $not_current_students = $this->not_current_student($grp_code, $semestry, $lavel);
+        if ($not_current_students->isEmpty()) {
+            return null;
+        }
+
+        $studentsByLevel = [];
+        foreach ($not_current_students as $s) {
+            $level = str_split($s->ID, 1)[3]; // index 3 is level
+            $studentsByLevel[$level][] = $s;
+        }
+
+        $current_semestry = $this->get_semestry()->first()->SEMESTRY;
+
+        foreach ($studentsByLevel as $level => $studentsList) {
+            $stdCodes = array_map(function($s) { return $s->STD_CODE; }, $studentsList);
+
+            // 1. Batch load activity hours
+            $activities = DB::table("activity{$level}")
+                ->whereIn('STD_CODE', $stdCodes)
+                ->select('STD_CODE', DB::raw('SUM(HOUR) as total_hour'))
+                ->groupBy('STD_CODE')
+                ->pluck('total_hour', 'STD_CODE')
+                ->toArray();
+
+            // 2. Batch load sum credits
+            $credits = DB::table("grade{$level}")
+                ->join("subject{$level}", "grade{$level}.SUB_CODE", '=', "subject{$level}.SUB_CODE")
+                ->whereIn("grade{$level}.STD_CODE", $stdCodes)
+                ->where(function($query) use ($level, $current_semestry) {
+                    $query->where("grade{$level}.GRADE", 'REGEXP', '[1-4]')
+                          ->orWhere(function($subQuery) use ($level, $current_semestry) {
+                              $subQuery->whereNull("grade{$level}.GRADE")
+                                       ->where("grade{$level}.SEMESTRY", $current_semestry);
+                          });
+                })
+                ->select("grade{$level}.STD_CODE", DB::raw("SUM(subject{$level}.SUB_CREDIT) as sum_credit"))
+                ->groupBy("grade{$level}.STD_CODE")
+                ->pluck('sum_credit', 'STD_CODE')
+                ->toArray();
+
+            // 3. Batch check current semestry registration counts
+            $currentCounts = DB::table("grade{$level}")
+                ->whereIn('STD_CODE', $stdCodes)
+                ->where('SEMESTRY', $semestry)
+                ->select('STD_CODE', DB::raw('COUNT(*) as total_count'))
+                ->groupBy('STD_CODE')
+                ->pluck('total_count', 'STD_CODE')
+                ->toArray();
+
+            foreach ($studentsList as $s) {
+                $sum_credit = $credits[$s->STD_CODE] ?? 0;
+                $isExp = false;
+                if (($level == 1 && $sum_credit >= 48) || ($level == 2 && $sum_credit >= 55) || ($level == 3 && $sum_credit >= 76)) {
+                    $isExp = true;
+                }
+
+                if ($isExp) {
+                    $current_count = $currentCounts[$s->STD_CODE] ?? 0;
+                    if ($current_count == 0) {
+                        $unfinishstudent[] = [
+                            'id'        =>  $s->ID,
+                            'cardid'    =>  $s->CARDID,
+                            'lavel'     =>  $level,
+                            'prename'   =>  $s->PRENAME, 
+                            'name'      =>  $s->NAME,
+                            'surname'   =>  $s->SURNAME,
+                            'fin_cause' =>  $s->FIN_CAUSE,
+                            'expfin'    =>  true,
+                            'activity'  =>  $activities[$s->STD_CODE] ?? 0,
+                            'nt_sem'    =>  (!empty($s->NT_SEM) ? 'ผ่านแล้ว' : (!empty($s->NT_NOSEM) ? 'E-Exam': 'มีสิทธิ')),
+                            'grp_code'  =>  $s->GRP_CODE,
+                            'ablevel1'  =>  $s->ABLEVEL1,
+                        ];
+                    }
+                }
+            }
+        }
+
         return !empty($unfinishstudent) ? $unfinishstudent : null;
     }
     

@@ -1,5 +1,5 @@
 <x-teachers-layout>
-    <div class="p-6 max-w-7xl mx-auto space-y-6">
+    <div class="p-6 mt-16 max-w-7xl mx-auto space-y-6">
         
         <!-- Alerts -->
         @if(session('success'))
@@ -112,6 +112,13 @@
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 12h16.5m-16.5-5.25h16.5m-16.5 10.5h16.5"></path>
                                         </svg>
                                         จัดการโครงสร้างและบทเรียน
+                                    </a>
+
+                                    <a href="{{ route('courses.report', $course->id) }}" class="w-full py-2 bg-purple-50 dark:bg-purple-950/20 text-purple-700 dark:text-purple-300 hover:bg-purple-100 dark:hover:bg-purple-900/35 border border-purple-200 dark:border-purple-800/40 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-1.5 shadow-sm">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 002 2h2a2 2 0 002-2z"></path>
+                                        </svg>
+                                        รายงานผู้เข้าเรียน
                                     </a>
                                     
                                     <div class="flex justify-between items-center gap-2">

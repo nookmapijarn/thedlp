@@ -39,11 +39,13 @@
                     @include('layouts.teacherssidebar')
             @include('layouts.teachersnavigation')
         <div class="min-h-screen sm:ml-72">
-            <main class="h-full">
+            <main class="h-full pb-20 sm:pb-10">
                 {{ $slot }}
+            </main>
         </div>
         @include('layouts.fcm_initializer')
         @include('layouts.pwa_installer')
+        @include('layouts.teachersbottombar')
         @include('layouts.page_loader')
     </body>
 </html>

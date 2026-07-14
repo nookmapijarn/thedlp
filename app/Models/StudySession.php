@@ -5,28 +5,28 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Lesson extends Model
+class StudySession extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        'module_id',
-        'quiz_id',
+        'user_id',
+        'course_id',
         'short_video_id',
-        'title',
-        'content',
-        'video_url',
-        'order_number',
+        'type',
+        'accessed_at',
+        'exited_at',
+        'duration',
     ];
 
-    public function module()
+    public function user()
     {
-        return $this->belongsTo(Module::class);
+        return $this->belongsTo(User::class);
     }
 
-    public function quiz()
+    public function course()
     {
-        return $this->belongsTo(Quiz::class);
+        return $this->belongsTo(Course::class);
     }
 
     public function shortVideo()

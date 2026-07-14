@@ -13,6 +13,8 @@ use App\Models\Course;
 use App\Models\Module;
 use App\Models\Lesson;
 use App\Models\Quiz;
+use App\Models\Enrollment;
+use App\Models\StudySession;
 
 class TeachersCourseController extends Controller
 {
@@ -234,8 +236,10 @@ class TeachersCourseController extends Controller
         }
 
         $modules = $course->modules()->with('lessons.quiz')->orderBy('order_number')->get();
+        $quizzes = Quiz::where('created_by', Auth::id())->get();
+        $shortVideos = \App\Models\ShortVideo::where('teacher_id', Auth::id())->latest()->get();
         
-        return view('teachers.courses.manage_modules', compact('course', 'modules'));
+        return view('teachers.courses.manage_modules', compact('course', 'modules', 'quizzes', 'shortVideos'));
     }
 
     /**
@@ -282,8 +286,9 @@ class TeachersCourseController extends Controller
         }
         
         $quizzes = Quiz::where('created_by', Auth::id())->get();
+        $shortVideos = \App\Models\ShortVideo::where('teacher_id', Auth::id())->latest()->get();
 
-        return view('teachers.courses.create_lesson', compact('module', 'quizzes'));
+        return view('teachers.courses.create_lesson', compact('module', 'quizzes', 'shortVideos'));
     }
 
     /**
@@ -304,6 +309,7 @@ class TeachersCourseController extends Controller
             'content' => 'required|string',
             'video_url' => 'nullable|url',
             'quiz_id' => 'nullable|exists:quizzes,id',
+            'short_video_id' => 'nullable|exists:short_videos,id',
         ]);
 
         $lesson = new Lesson([
@@ -312,6 +318,7 @@ class TeachersCourseController extends Controller
             'content' => $request->content,
             'video_url' => $request->video_url,
             'quiz_id' => $request->quiz_id,
+            'short_video_id' => $request->short_video_id,
             'order_number' => Lesson::where('module_id', $module->id)->count() + 1,
         ]);
         $lesson->save();
@@ -372,7 +379,9 @@ class TeachersCourseController extends Controller
         }
         
         $quizzes = Quiz::where('created_by', Auth::id())->get();
-        return view('teachers.courses.edit_lesson', compact('lesson', 'quizzes'));
+        $shortVideos = \App\Models\ShortVideo::where('teacher_id', Auth::id())->latest()->get();
+        
+        return view('teachers.courses.edit_lesson', compact('lesson', 'quizzes', 'shortVideos'));
     }
 
     /**
@@ -389,6 +398,7 @@ class TeachersCourseController extends Controller
             'content' => 'required|string',
             'video_url' => 'nullable|url',
             'quiz_id' => 'nullable|exists:quizzes,id',
+            'short_video_id' => 'nullable|exists:short_videos,id',
         ]);
 
         $lesson->update([
@@ -396,6 +406,7 @@ class TeachersCourseController extends Controller
             'content' => $request->content,
             'video_url' => $request->video_url,
             'quiz_id' => $request->quiz_id,
+            'short_video_id' => $request->short_video_id,
         ]);
 
         return redirect()->route('courses.manage_modules', $lesson->module->course_id)
@@ -421,5 +432,121 @@ class TeachersCourseController extends Controller
             ->decrement('order_number');
 
         return redirect()->back()->with('success', 'ลบบทเรียนเรียบร้อยแล้ว');
+    }
+
+    /**
+     * แสดงหน้ารายงานผู้เข้าเรียนและการทำกิจกรรมในหลักสูตร
+     */
+    public function courseReport(Course $course)
+    {
+        if (Auth::id() !== $course->teacher_id) {
+            return redirect()->route('courses.manage')->with('error', 'คุณไม่มีสิทธิ์เข้าถึงหน้านี้');
+        }
+
+        $enrollments = Enrollment::where('course_id', $course->id)
+            ->with('user')
+            ->get();
+
+        $totalLessons = $course->lessons()->count();
+
+        // Get all quiz IDs associated with this course
+        $courseQuizIds = \App\Models\Lesson::whereHas('module', function ($query) use ($course) {
+            $query->where('course_id', $course->id);
+        })
+        ->whereNotNull('quiz_id')
+        ->pluck('quiz_id')
+        ->unique()
+        ->toArray();
+
+        $totalQuizzes = count($courseQuizIds);
+
+        $reportData = [];
+
+        // Get related short videos for this course
+        $shortVideoIds = \App\Models\ShortVideo::where('course_id', $course->id)->pluck('id')->toArray();
+
+        foreach ($enrollments as $en) {
+            $user = $en->user;
+            if (!$user) continue;
+
+            // Calculate lesson completion progress
+            $completedCount = $user->lessonCompletions()
+                ->whereHas('lesson.module', function ($query) use ($course) {
+                    $query->where('course_id', $course->id);
+                })
+                ->count();
+
+            $progress = ($totalLessons > 0) ? round(($completedCount / $totalLessons) * 100) : 0;
+
+            // Get classroom study sessions
+            $classroomSessions = StudySession::where('user_id', $user->id)
+                ->where('course_id', $course->id)
+                ->where('type', 'classroom')
+                ->get();
+
+            // Get short video study sessions
+            $shortsSessions = StudySession::where('user_id', $user->id)
+                ->whereIn('short_video_id', $shortVideoIds)
+                ->where('type', 'short_video')
+                ->get();
+
+             // Get quiz study sessions
+             $quizSessions = StudySession::where('user_id', $user->id)
+                 ->where('course_id', $course->id)
+                 ->where('type', 'quiz')
+                 ->get();
+
+             // Merge sessions to get timelines
+             $allSessions = $classroomSessions->concat($shortsSessions)->concat($quizSessions)->sortByDesc('accessed_at');
+
+             $totalClassroomDuration = $classroomSessions->sum('duration');
+             $totalShortsDuration = $shortsSessions->sum('duration');
+             $totalQuizDuration = $quizSessions->sum('duration');
+             $totalDuration = $totalClassroomDuration + $totalShortsDuration;
+
+            // Get latest session times
+            $latestSession = $allSessions->first();
+            $accessedAt = $latestSession ? $latestSession->accessed_at : null;
+            $exitedAt = $latestSession ? $latestSession->exited_at : null;
+
+             // คำนวณจำนวนแบบทดสอบที่ ผ่าน/ไม่ผ่าน
+             $passedQuizzesCount = 0;
+             $failedQuizzesCount = 0;
+             if ($totalQuizzes > 0) {
+                 $quizAttempts = DB::table('quiz_attempts')
+                     ->where('user_id', $user->id)
+                     ->whereIn('quiz_id', $courseQuizIds)
+                     ->get()
+                     ->groupBy('quiz_id');
+
+                 foreach ($courseQuizIds as $quizId) {
+                     if (isset($quizAttempts[$quizId])) {
+                         $hasPassed = $quizAttempts[$quizId]->where('is_passed', 1)->isNotEmpty();
+                         if ($hasPassed) {
+                             $passedQuizzesCount++;
+                         } else {
+                             $failedQuizzesCount++;
+                         }
+                     }
+                 }
+             }
+
+             $reportData[] = [
+                 'user' => $user,
+                 'progress' => $progress,
+                 'completed_count' => $completedCount,
+                 'accessed_at' => $accessedAt,
+                 'exited_at' => $exitedAt,
+                 'classroom_duration' => $totalClassroomDuration,
+                 'shorts_duration' => $totalShortsDuration,
+                 'quiz_duration' => $totalQuizDuration,
+                 'total_duration' => $totalDuration,
+                 'passed_quizzes_count' => $passedQuizzesCount,
+                 'failed_quizzes_count' => $failedQuizzesCount,
+                 'total_quizzes' => $totalQuizzes,
+             ];
+        }
+
+        return view('teachers.courses.report', compact('course', 'reportData', 'totalLessons', 'totalQuizzes'));
     }
 }

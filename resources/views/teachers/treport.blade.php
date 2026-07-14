@@ -59,164 +59,193 @@
 
   <div id="print-section"></div>
 
-  <div class="p-2 no-print">
-    <div class="mt-14">
-        <div class="bg-white dark:bg-gray-800 shadow-xl rounded-2xl border border-gray-100 dark:border-gray-700 overflow-hidden">
-            <div class="bg-indigo-600 p-4">
-                <h3 class="text-white text-lg font-bold flex items-center gap-2">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2"></path></svg>
-                    รายงานสำหรับครู
-                </h3>
-            </div>
+  <div class="p-6 mt-16 max-w-7xl mx-auto space-y-6 no-print">
+      
+      <!-- Header Banner Block -->
+      <div class="bg-gradient-to-r from-purple-50/70 via-slate-50 to-indigo-50/70 dark:from-slate-900/90 dark:via-purple-950/80 dark:to-indigo-950/90 text-slate-800 dark:text-white rounded-[2.5rem] p-8 sm:p-10 shadow-sm border border-slate-100 dark:border-gray-800 relative overflow-hidden flex flex-col justify-between min-h-[140px]">
+          <div class="relative z-10 space-y-3">
+              <span class="inline-flex items-center px-4 py-1.5 rounded-full bg-purple-100 text-purple-800 dark:bg-purple-950/50 dark:text-purple-300 text-[11px] font-black tracking-widest uppercase border border-purple-200/60 dark:border-purple-800/40 shadow-sm">
+                  OLIS Student Analytics
+              </span>
+              <h1 class="text-3xl font-black text-slate-900 dark:text-white">รายงานผู้เรียนในกลุ่ม</h1>
+              <p class="text-sm text-slate-600 dark:text-slate-350 leading-relaxed font-bold max-w-3xl mt-1.5">
+                  สืบค้นข้อมูลความก้าวหน้า รายชื่อผู้คาดว่าจะจบการศึกษา ชั่วโมงหน่วยกิตกิจกรรมสะสม (กพช.) ผลสอบ N-NET และบริการจัดการบัตรประจำตัวนักศึกษา
+              </p>
+          </div>
+      </div>
 
-            <form method="POST" action="{{ route('treport') }}" class="p-6">
-                @csrf
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-                    <div class="space-y-2">
-                        <label class="text-sm font-semibold text-gray-700 dark:text-gray-300 ml-1">ภาคเรียน</label>
-                        <div class="relative">
-                            <select required name="semestry" class="appearance-none w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-gray-900 dark:text-white text-sm rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 block p-3 transition-all">
-                                <option value="">เลือกภาคเรียน</option>
-                                @foreach($all_semestry as $sem)
-                                    <option value="{{ $sem->SEMESTRY }}" @if($semestry === $sem->SEMESTRY) selected @endif>{{ $sem->SEMESTRY }}</option>
-                                @endforeach    
-                            </select>
-                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                            </div>
-                        </div>
-                    </div>
+      <!-- Single Unified Report Card -->
+      <div class="bg-white dark:bg-slate-900 border border-slate-150 dark:border-slate-800 rounded-[2rem] shadow-sm overflow-hidden">
+          
+          <!-- Top Control Header (Form selectors) -->
+          <div class="p-4 sm:p-5 border-b border-slate-150 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/20">
+              <form method="POST" action="{{ route('treport') }}" class="w-full flex flex-col md:flex-row md:items-end gap-4">
+                  @csrf
+                  
+                  <div class="grid grid-cols-2 md:grid-cols-4 gap-4 flex-1 w-full">
+                      <div class="w-full">
+                          <label class="text-[11.5px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest ml-1 block mb-1">ภาคเรียน</label>
+                          <select required name="semestry" class="w-full px-3 py-2 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-sm font-bold text-slate-700 dark:text-slate-350 focus:ring-2 focus:ring-purple-500 outline-none">
+                              <option value="">เลือกภาคเรียน</option>
+                              @foreach($all_semestry as $sem)
+                                  <option value="{{ $sem->SEMESTRY }}" @if($semestry === $sem->SEMESTRY) selected @endif>{{ $sem->SEMESTRY }}</option>
+                              @endforeach    
+                          </select>
+                      </div>
 
-                    <div class="space-y-2">
-                        <label class="text-sm font-semibold text-gray-700 dark:text-gray-300 ml-1">ศกร.ระดับตำบล</label>
-                        <div class="relative">
-                            <select required name="tumbon" class="appearance-none w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-gray-900 dark:text-white text-sm rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 block p-3 transition-all">
-                                <option value="">เลือกตำบล</option>
-                                @foreach($all_tumbon as $tm)
-                                    <option value="{{ $tm->GRP_CODE }}" @if($tumbon == $tm->GRP_CODE) selected @endif>{{ $tm->GRP_CODE }} {{ $tm->GRP_NAME }}</option>
-                                @endforeach    
-                            </select>
-                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                            </div>
-                        </div>
-                    </div>
+                      <div class="w-full">
+                          <label class="text-[11.5px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest ml-1 block mb-1">ศกร.ระดับตำบล</label>
+                          <select required name="tumbon" class="w-full px-3 py-2 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-sm font-bold text-slate-700 dark:text-slate-350 focus:ring-2 focus:ring-purple-500 outline-none">
+                              <option value="">เลือกตำบล</option>
+                              @foreach($all_tumbon as $tm)
+                                  <option value="{{ $tm->GRP_CODE }}" @if($tumbon == $tm->GRP_CODE) selected @endif>{{ $tm->GRP_CODE }} {{ $tm->GRP_NAME }}</option>
+                              @endforeach    
+                          </select>
+                      </div>
 
-                    <div class="space-y-2">
-                        <label class="text-sm font-semibold text-gray-700 dark:text-gray-300 ml-1">ระดับชั้น</label>
-                        <div class="relative">
-                            <select required name="lavel" class="appearance-none w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-gray-900 dark:text-white text-sm rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 block p-3 transition-all">
-                                <option value="">เลือกระดับชั้น</option>
-                                <option @if($lavel == 1) selected @endif value="1">ประถมศึกษา</option>
-                                <option @if($lavel == 2) selected @endif value="2">มัธยมต้น</option>
-                                <option @if($lavel == 3) selected @endif value="3">มัธยมปลาย</option>
-                            </select>
-                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                            </div>
-                        </div>
-                    </div>
+                      <div class="w-full">
+                          <label class="text-[11.5px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest ml-1 block mb-1">ระดับชั้น</label>
+                          <select required name="lavel" class="w-full px-3 py-2 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-sm font-bold text-slate-700 dark:text-slate-350 focus:ring-2 focus:ring-purple-500 outline-none">
+                              <option value="">เลือกระดับชั้น</option>
+                              <option @if($lavel == 1) selected @endif value="1">ประถมศึกษา</option>
+                              <option @if($lavel == 2) selected @endif value="2">มัธยมต้น</option>
+                              <option @if($lavel == 3) selected @endif value="3">มัธยมปลาย</option>
+                          </select>
+                      </div>
 
-                    <div class="space-y-2">
-                        <label class="text-sm font-semibold text-gray-700 dark:text-gray-300 ml-1">รายงาน</label>
-                        <div class="relative">
-                            <select required name="studreport" class="appearance-none w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-gray-900 dark:text-white text-sm rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 block p-3 transition-all">
-                                <option value="">เลือกประเภทรายงาน</option>
-                                <option @if($studreport == "นักศึกษาทั้งหมด") selected @endif value="นักศึกษาทั้งหมด">นักศึกษาทั้งหมด</option>
-                                <option @if($studreport == "เฉพาะผู้คาดว่าจะจบ") selected @endif value="เฉพาะผู้คาดว่าจะจบ">เฉพาะผู้คาดว่าจะจบ</option>
-                            </select>
-                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                      <div class="w-full">
+                          <label class="text-[11.5px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest ml-1 block mb-1">ประเภทรายงาน</label>
+                          <select required name="studreport" class="w-full px-3 py-2 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-sm font-bold text-slate-700 dark:text-slate-350 focus:ring-2 focus:ring-purple-500 outline-none">
+                              <option value="">เลือกประเภทรายงาน</option>
+                              <option @if($studreport == "นักศึกษาทั้งหมด") selected @endif value="นักศึกษาทั้งหมด">นักศึกษาทั้งหมด</option>
+                              <option @if($studreport == "เฉพาะผู้คาดว่าจะจบ") selected @endif value="เฉพาะผู้คาดว่าจะจบ">เฉพาะผู้คาดว่าจะจบ</option>
+                          </select>
+                      </div>
+                  </div>
 
-                <div class="mt-8">
-                    <button type="submit" class="group relative flex justify-center w-full md:w-64 mx-auto p-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-lg shadow-indigo-200 dark:shadow-none transition-all duration-200 hover:scale-[1.02] active:scale-95">
-                        <span class="flex items-center gap-2">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                            ดึงข้อมูลรายงาน
-                        </span>
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
+                  <button type="submit" class="w-full md:w-auto px-5 py-2.5 bg-gradient-to-r from-purple-700 to-indigo-700 hover:from-purple-800 hover:to-indigo-800 text-white rounded-xl text-sm font-black tracking-widest uppercase transition-all shadow-sm active:scale-95 flex items-center justify-center gap-1.5 h-[38px] flex-shrink-0">
+                      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                      </svg>
+                      ดึงรายงาน
+                  </button>
+              </form>
+          </div>
 
+          <!-- Inline Statistics Summary Bar -->
+          @if($data)
+              @php
+                  $totalStudents = count($data);
+                  $expFinCount = collect($data)->where('expfin', 1)->count();
+                  $passedActivity = collect($data)->where('activity', '>=', 200)->count();
+                  $passedNnet = collect($data)->filter(function($item) {
+                      return str_contains($item['nt_sem'] ?? '', 'ผ่านแล้ว') || str_contains($item['nt_sem'] ?? '', 'E-Exam');
+                  })->count();
+              @endphp
+              <div class="p-4 sm:p-5 bg-purple-50/40 dark:bg-purple-950/10 border-b border-slate-150 dark:border-slate-800 grid grid-cols-2 md:flex md:flex-wrap gap-3 md:gap-x-6 items-center text-sm font-black text-slate-500 dark:text-slate-400">
+                  <span class="text-[11.5px] uppercase text-purple-700 dark:text-purple-400 tracking-wider col-span-2 md:col-span-1">📊 สรุปรายงาน:</span>
+                  <div class="flex items-center gap-1.5 bg-white dark:bg-slate-900 md:bg-transparent dark:md:bg-transparent p-2 md:p-0 rounded-xl border border-slate-100 dark:border-slate-800 md:border-0 shadow-sm md:shadow-none">
+                      <span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span>
+                      <span>นักศึกษาทั้งหมด: <strong class="text-slate-800 dark:text-white font-black">{{ $totalStudents }}</strong> คน</span>
+                  </div>
+                  <div class="flex items-center gap-1.5 bg-white dark:bg-slate-900 md:bg-transparent dark:md:bg-transparent p-2 md:p-0 rounded-xl border border-slate-100 dark:border-slate-800 md:border-0 shadow-sm md:shadow-none">
+                      <span class="w-1.5 h-1.5 rounded-full bg-purple-500"></span>
+                      <span>คาดว่าจะจบ: <strong class="text-purple-700 dark:text-purple-300 font-black">{{ $expFinCount }}</strong> คน</span>
+                  </div>
+                  <div class="flex items-center gap-1.5 bg-white dark:bg-slate-900 md:bg-transparent dark:md:bg-transparent p-2 md:p-0 rounded-xl border border-slate-100 dark:border-slate-800 md:border-0 shadow-sm md:shadow-none">
+                      <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                      <span>กพช. ผ่านเกณฑ์: <strong class="text-emerald-700 dark:text-emerald-300 font-black">{{ $passedActivity }}</strong> คน</span>
+                  </div>
+                  <div class="flex items-center gap-1.5 bg-white dark:bg-slate-900 md:bg-transparent dark:md:bg-transparent p-2 md:p-0 rounded-xl border border-slate-100 dark:border-slate-800 md:border-0 shadow-sm md:shadow-none">
+                      <span class="w-1.5 h-1.5 rounded-full bg-indigo-500"></span>
+                      <span>N-NET ผ่านเกณฑ์: <strong class="text-indigo-700 dark:text-indigo-300 font-black">{{ $passedNnet }}</strong> คน</span>
+                  </div>
+              </div>
 
-@if($data) 
-    <div class="mt-4 p-4 bg-white rounded-t-xl border border-b-0 flex flex-col md:flex-row justify-between items-center gap-4 shadow-sm">
-        <div>
-            <div class="text-xl font-bold text-slate-800">รายชื่อกลุ่ม: {{ $tumbon }}</div>
-            <p class="text-sm text-gray-500">จัดการข้อมูลนักศึกษาและพิมพ์บัตร</p>
-        </div>
-        
-        <div class="flex flex-wrap gap-2 justify-center">
+              <!-- Table Action & Print Controls -->
+              <div class="p-4 sm:p-5 border-b border-slate-150 dark:border-slate-800 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 bg-slate-55/10">
+                  <div class="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-3">
+                      <h4 class="text-base font-black text-slate-800 dark:text-white uppercase tracking-wider">
+                          กลุ่มตำบล: {{ $tumbon }}
+                      </h4>
+                      <span class="hidden sm:inline w-px h-4 bg-slate-200 dark:bg-slate-700"></span>
+                      <span class="text-sm text-slate-450 dark:text-slate-500 font-bold">เลือกเช็กบ็อกซ์เพื่อเลือกพิมพ์เฉพาะเจาะจงได้</span>
+                  </div>
+                  
+                  <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full lg:w-auto">
+                      <input type="text" id="tableSearch" placeholder="🔍 ค้นหาชื่อ หรือ รหัสนักศึกษา..." 
+                             class="px-3.5 py-2 bg-slate-100/50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-sm font-bold text-slate-700 dark:text-slate-350 focus:ring-2 focus:ring-purple-500 outline-none w-full sm:w-56">
+                      
+                      <div class="grid grid-cols-2 gap-2 w-full sm:w-auto sm:flex sm:gap-3">
+                          <button onclick="printSelectedFront()" class="px-4 py-2.5 bg-gradient-to-r from-purple-700 to-indigo-700 hover:from-purple-800 hover:to-indigo-800 text-white rounded-xl text-sm font-black tracking-widest uppercase transition-all shadow-sm active:scale-95 flex items-center justify-center gap-1.5">
+                              📇 <span id="printFrontBtnText">พิมพ์หน้าบัตร</span>
+                          </button>
+                          <button onclick="printSelectedBack()" class="px-4 py-2.5 bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-700 hover:to-amber-700 text-white rounded-xl text-sm font-black tracking-widest uppercase transition-all shadow-sm active:scale-95 flex items-center justify-center gap-1.5">
+                              🔄 <span id="printBackBtnText">พิมพ์หลังบัตร</span>
+                          </button>
+                      </div>
+                  </div>
+              </div>
 
-            <button onclick="prepareAndPrint('front_all', {{ json_encode($data) }})" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 shadow-lg shadow-blue-200 transition">
-                พิมพ์หน้าบัตรทั้งหมด
-            </button>
-            <button onclick="prepareAndPrint('back_all', {{ json_encode($data) }})" class="bg-orange-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-orange-700 shadow-lg shadow-orange-200 transition">
-                พิมพ์หลังบัตรทั้งหมด
-            </button>
-        </div>
-    </div>
-
-    <div class="shadow-xl border border-gray-100 rounded-b-2xl bg-white overflow-hidden">
-        <div class="p-4 border-b bg-gray-50/50">
-            <input type="text" id="tableSearch" placeholder="🔍 ค้นหาชื่อ หรือ รหัสนักศึกษา..." 
-                   class="w-full md:w-80 px-4 py-2 border rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition">
-        </div>
-
-        <div class="overflow-x-auto">
-            <table id="studentTable" class="min-w-full text-sm">
-                <thead>
-                    <tr class="bg-slate-800 text-white uppercase tracking-wider">
-                        <th class="p-4 font-semibold no-sort">รูป</th>
-                        <th class="p-4 font-semibold cursor-pointer">รหัสนักศึกษา ↕</th>
-                        <th class="p-4 font-semibold text-left cursor-pointer">ชื่อ-นามสกุล ↕</th>
-                        <th class="p-4 font-semibold cursor-pointer text-center">จะจบ ↕</th>
-                        <th class="p-4 font-semibold cursor-pointer text-center">กพช. ↕</th>
-                        <th class="p-4 font-semibold cursor-pointer text-center">N-NET ↕</th>
-                        <th class="p-4 font-semibold cursor-pointer text-center">สถานะ ↕</th>
-                        <th class="p-4 font-semibold no-sort text-center">จัดการ</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-200">
-                    @foreach($data as $d)
-                    <tr class="hover:bg-gray-50 transition-colors @if($d['lavel']==1) bg-pink-50/30 @elseif($d['lavel']==2) bg-green-50/30 @else bg-yellow-50/30 @endif">
-                        <td class="p-3 text-center">
-                            <img class="w-10 h-12 object-cover rounded shadow-sm border border-gray-200 mx-auto" 
-                                 src="https://phothongdlec.ac.th/storage/images/avatar/{{$d['id']}}.png" 
-                                 onerror="this.src='https://phothongdlec.ac.th/storage/images/avatar/unkhonw.png'">
-                        </td>
-                        <td class="p-3 text-center font-mono font-medium text-gray-700">{{$d['id']}}</td>
-                        <td class="p-3 font-semibold text-gray-800">{{$d['prename']}}{{$d['name']}} {{$d['surname']}}</td>
-                        <td class="p-3 text-center" data-order="{{$d['expfin']}}">
-                            @if($d['expfin']==1) <span class="text-indigo-600 font-bold">✓</span> @else <span class="text-gray-300">-</span> @endif
-                        </td>
-                        <td class="p-3 text-center font-bold {{ $d['activity'] >= 200 ? 'text-green-600' : 'text-orange-500' }}">
-                            {{$d['activity']}}
-                        </td>
-                        <td class="p-3 text-center font-bold text-blue-600">{{$d['nt_sem']}}</td>
-                        <td class="p-3 text-center" data-order="{{$d['fin_cause']}}">
-                            <span class="px-2 py-1 rounded-full text-[10px] font-bold {{ $d['fin_cause']==1 ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500' }}">
-                                {{ $d['fin_cause']==1 ? 'จบ' : 'ศึกษาอยู่' }}
-                            </span>
-                        </td>
-                        <td class="p-3 text-center">
-                            <button onclick="prepareAndPrint('single', {{ json_encode($d) }})" class="px-3 py-1.5 bg-slate-700 text-white rounded-lg text-xs hover:bg-slate-900 transition-all shadow-md">
-                                พิมพ์
-                            </button>
-                        </td>
-                    </tr>
-                    @endforeach
-                </tbody>
-            </table>
-        </div>
-    </div>
-@endif
+              <!-- Table Data List -->
+              <div class="overflow-x-auto scrollbar-thin">
+                  <table id="studentTable" class="min-w-full text-base">
+                      <thead>
+                          <tr class="bg-slate-900 text-white">
+                              <th class="p-4 text-sm font-black uppercase tracking-wider text-center no-sort w-12">
+                                  <input type="checkbox" id="selectAllStudents" class="rounded border-slate-300 text-purple-600 focus:ring-purple-500 w-4 h-4 cursor-pointer">
+                              </th>
+                              <th class="p-4 text-sm font-black uppercase tracking-wider text-center no-sort w-16">รูป</th>
+                              <th class="p-4 text-sm font-black uppercase tracking-wider text-center">รหัสนักศึกษา ↕</th>
+                              <th class="p-4 text-sm font-black uppercase tracking-wider text-left">ชื่อ-นามสกุล ↕</th>
+                              <th class="p-4 text-sm font-black uppercase tracking-wider text-center">คาดว่าจะจบ ↕</th>
+                              <th class="p-4 text-sm font-black uppercase tracking-wider text-center">ชั่วโมง กพช. ↕</th>
+                              <th class="p-4 text-sm font-black uppercase tracking-wider text-center">ผล N-NET ↕</th>
+                              <th class="p-4 text-sm font-black uppercase tracking-wider text-center">สถานะภาพ ↕</th>
+                              <th class="p-4 text-sm font-black uppercase tracking-wider text-center no-sort">เครื่องมือ</th>
+                          </tr>
+                      </thead>
+                      <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+                          @foreach($data as $d)
+                          <tr class="hover:bg-purple-50/20 dark:hover:bg-slate-800/40 transition-colors @if($d['lavel']==1) bg-pink-50/10 @elseif($d['lavel']==2) bg-emerald-50/10 @else bg-amber-50/10 @endif">
+                              <td class="p-4 text-center">
+                                  <input type="checkbox" class="student-select-checkbox rounded border-slate-350 dark:border-slate-750 text-purple-650 focus:ring-purple-500 w-4 h-4 cursor-pointer" data-student="{{ json_encode($d) }}">
+                              </td>
+                              <td class="p-4 text-center">
+                                  <img class="w-10 h-12 object-cover rounded-xl shadow-sm border border-slate-200/60 dark:border-slate-800 mx-auto" 
+                                       src="https://phothongdlec.ac.th/storage/images/avatar/{{$d['id']}}.png" 
+                                       onerror="this.src='https://phothongdlec.ac.th/storage/images/avatar/unkhonw.png'">
+                              </td>
+                              <td class="p-4 text-center font-mono font-bold text-slate-700 dark:text-slate-300">{{$d['id']}}</td>
+                              <td class="p-4 font-black text-slate-800 dark:text-white text-left">{{$d['prename']}}{{$d['name']}} {{$d['surname']}}</td>
+                              <td class="p-4 text-center" data-order="{{$d['expfin']}}">
+                                  @if($d['expfin']==1) 
+                                      <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-purple-100 dark:bg-purple-950/80 text-purple-700 dark:text-purple-300 font-bold text-sm">✓</span> 
+                                  @else 
+                                      <span class="text-slate-300 dark:text-slate-650 font-bold">-</span> 
+                                  @endif
+                              </td>
+                              <td class="p-4 text-center font-black {{ $d['activity'] >= 200 ? 'text-emerald-600' : 'text-amber-500' }}">
+                                  {{$d['activity']}}
+                              </td>
+                              <td class="p-4 text-center font-bold text-purple-650 dark:text-purple-400">{{$d['nt_sem']}}</td>
+                              <td class="p-4 text-center" data-order="{{$d['fin_cause']}}">
+                                  <span class="px-3 py-1.5 rounded-full text-[12.5px] font-black tracking-wide {{ $d['fin_cause']==1 ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300' : 'bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400' }}">
+                                      {{ $d['fin_cause']==1 ? 'จบหลักสูตร' : 'กำลังศึกษา' }}
+                                  </span>
+                              </td>
+                              <td class="p-4 text-center">
+                                  <button onclick="prepareAndPrint('single', {{ json_encode($d) }})" class="px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white rounded-xl text-sm font-black uppercase tracking-widest transition-all shadow-sm active:scale-95">
+                                      พิมพ์บัตร
+                                  </button>
+                              </td>
+                          </tr>
+                          @endforeach
+                      </tbody>
+                  </table>
+              </div>
+          @endif
+      </div>
 
   </div>
 
@@ -357,6 +386,54 @@ $(document).ready(function() {
     $('#tableSearch').on('keyup', function() {
         table.search(this.value).draw();
     });
+
+    // Checkbox print selection logic
+    function updatePrintButtons() {
+        const checkedBoxes = $('.student-select-checkbox:checked');
+        const count = checkedBoxes.length;
+        if (count > 0) {
+            $('#printFrontBtnText').text(`พิมพ์หน้าบัตรที่เลือก (${count} คน)`);
+            $('#printBackBtnText').text(`พิมพ์หลังบัตรที่เลือก (${count} คน)`);
+        } else {
+            $('#printFrontBtnText').text('พิมพ์หน้าบัตรทั้งหมด');
+            $('#printBackBtnText').text('พิมพ์หลังบัตรทั้งหมด');
+        }
+    }
+
+    $(document).on('change', '.student-select-checkbox', function() {
+        updatePrintButtons();
+    });
+
+    $(document).on('change', '#selectAllStudents', function() {
+        $('.student-select-checkbox').prop('checked', this.checked);
+        updatePrintButtons();
+    });
+
+    window.printSelectedFront = function() {
+        const checkedBoxes = $('.student-select-checkbox:checked');
+        let list = [];
+        if (checkedBoxes.length > 0) {
+            checkedBoxes.each(function() {
+                list.push($(this).data('student'));
+            });
+        } else {
+            list = @json($data ?? []);
+        }
+        prepareAndPrint('front_all', list);
+    };
+
+    window.printSelectedBack = function() {
+        const checkedBoxes = $('.student-select-checkbox:checked');
+        let list = [];
+        if (checkedBoxes.length > 0) {
+            checkedBoxes.each(function() {
+                list.push($(this).data('student'));
+            });
+        } else {
+            list = @json($data ?? []);
+        }
+        prepareAndPrint('back_all', list);
+    };
 });
 
 // ฟังก์ชันสั่งพิมพ์เฉพาะส่วน
@@ -364,5 +441,127 @@ function printTable() {
     window.print();
 }
 </script>
+
+<style>
+    @media (max-width: 640px) {
+        /* Hide table header */
+        #studentTable thead {
+            display: none;
+        }
+        
+        /* Make table rows look like cards */
+        #studentTable tbody tr {
+            display: block;
+            margin-bottom: 1rem;
+            background-color: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 1.5rem;
+            padding: 1rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            position: relative;
+        }
+        
+        /* Make table cells act as block elements */
+        #studentTable tbody tr td {
+            display: block;
+            padding: 0.25rem 0 !important;
+            border: none !important;
+            text-align: left !important;
+            width: 100% !important;
+        }
+        
+        /* Checkbox absolute top-right */
+        #studentTable tbody tr td:nth-child(1) {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            width: auto !important;
+            z-index: 10;
+            padding: 0 !important;
+        }
+        
+        /* Avatar left floating */
+        #studentTable tbody tr td:nth-child(2) {
+            float: left;
+            width: 60px !important;
+            margin-right: 0.75rem;
+            margin-bottom: 0.5rem;
+            padding: 0 !important;
+        }
+        
+        /* Student ID */
+        #studentTable tbody tr td:nth-child(3) {
+            font-family: monospace;
+            font-size: 0.75rem;
+            color: #64748b;
+            margin-top: 0.125rem;
+        }
+        #studentTable tbody tr td:nth-child(3)::before {
+            content: "รหัสนักศึกษา: ";
+            font-weight: bold;
+        }
+        
+        /* Name-surname */
+        #studentTable tbody tr td:nth-child(4) {
+            font-weight: 950;
+            font-size: 0.95rem;
+            color: #1e293b;
+            white-space: normal !important;
+            margin-bottom: 0.5rem;
+            line-height: 1.25;
+            padding-right: 2.5rem !important; /* Avoid overlap with checkbox */
+        }
+        
+        /* Clear floating */
+        #studentTable tbody tr td:nth-child(4)::after {
+            content: "";
+            display: table;
+            clear: both;
+        }
+        
+        /* Expected graduation, Activity, N-NET, Status - inline inline-block */
+        #studentTable tbody tr td:nth-child(5),
+        #studentTable tbody tr td:nth-child(6),
+        #studentTable tbody tr td:nth-child(7),
+        #studentTable tbody tr td:nth-child(8) {
+            display: inline-block;
+            width: auto !important;
+            margin-right: 0.35rem;
+            font-size: 0.75rem;
+            background-color: #f8fafc;
+            border: 1px solid #f1f5f9 !important;
+            padding: 0.25rem 0.5rem !important;
+            border-radius: 0.5rem;
+        }
+        
+        /* Add labels */
+        #studentTable tbody tr td:nth-child(5)::before {
+            content: "คาดจบ: ";
+            font-weight: bold;
+            color: #64748b;
+        }
+        
+        #studentTable tbody tr td:nth-child(6)::before {
+            content: "กพช: ";
+            font-weight: bold;
+            color: #64748b;
+        }
+        
+        #studentTable tbody tr td:nth-child(7)::before {
+            content: "N-NET: ";
+            font-weight: bold;
+            color: #64748b;
+        }
+        
+        /* Action button */
+        #studentTable tbody tr td:nth-child(9) {
+            margin-top: 0.75rem;
+            border-top: 1px dashed #f1f5f9 !important;
+            padding-top: 0.75rem !important;
+            display: flex;
+            justify-content: flex-end;
+        }
+    }
+</style>
 
 </x-teachers-layout>
