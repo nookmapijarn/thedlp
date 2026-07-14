@@ -14,15 +14,53 @@ class ShortVideoController extends Controller
     public function index(Request $request)
     {
         $startId = $request->query('id');
-        $shorts = ShortVideo::with(['teacher', 'course', 'lessons'])->latest()->get();
+        
+        // Fetch all shorts with eager loaded relationships
+        $shorts = ShortVideo::with(['teacher', 'course', 'lessons'])->get();
 
+        // 1. Get student's enrolled course IDs in order of latest enrollment
+        $userId = Auth::id();
+        $enrolledCourseIds = [];
+        if ($userId) {
+            $enrolledCourseIds = \App\Models\Enrollment::where('user_id', $userId)
+                ->orderBy('enrollment_date', 'desc')
+                ->pluck('course_id')
+                ->toArray();
+        }
+
+        // 2. Sort shorts based on enrollment course priority
+        $shorts = $shorts->sortBy(function($short) use ($enrolledCourseIds) {
+            if ($short->course_id) {
+                $pos = array_search($short->course_id, $enrolledCourseIds);
+                if ($pos !== false) {
+                    // Enrolled course: sort by latest enrollment first (pos = 0, 1, 2...)
+                    return $pos;
+                }
+                // Other course: sort after enrolled courses
+                return 10000 - $short->id; // Higher ID (latest) comes first within this group
+            }
+            // General short (no course): sort last
+            return 20000 - $short->id; // Higher ID (latest) comes first within this group
+        })->values();
+
+        // 3. If a start ID is requested, prioritize it to the very front
         if ($startId) {
             $shorts = $shorts->sortBy(function($short) use ($startId) {
-                return $short->id == $startId ? 0 : 1;
+                return $short->id == $startId ? -1 : 1;
             })->values();
         }
 
-        return view('students.shorts', compact('shorts'));
+        // 4. Fetch unique teachers who have uploaded shorts, sorted by their total likes count
+        $teachers = \App\Models\User::whereIn('id', ShortVideo::distinct()->pluck('teacher_id'))
+            ->select('id', 'name')
+            ->addSelect([
+                'total_likes' => ShortVideo::whereColumn('teacher_id', 'users.id')
+                    ->selectRaw('COALESCE(sum(likes_count), 0)')
+            ])
+            ->orderBy('total_likes', 'desc')
+            ->get();
+
+        return view('students.shorts', compact('shorts', 'teachers'));
     }
 
     /**
@@ -227,5 +265,136 @@ class ShortVideoController extends Controller
                 Storage::disk('public')->delete($short->audio_path);
             }
         }
+    }
+
+    /**
+     * Display a teacher profile page to students showing shorts, courses, and quizzes.
+     */
+    public function teacherProfile($id)
+    {
+        $teacher = \App\Models\User::where('id', $id)->firstOrFail();
+        
+        // Fetch all shorts by this teacher
+        $shorts = ShortVideo::where('teacher_id', $id)->with(['course', 'lessons'])->latest()->get();
+        
+        // Fetch published courses by this teacher
+        $courses = Course::where('teacher_id', $id)->where('is_published', true)->latest()->get();
+        
+        // Fetch active quizzes created by this teacher
+        $quizzes = \Illuminate\Support\Facades\DB::table('quizzes')
+            ->where('created_by', $id)
+            ->where('is_active', 1)
+            ->get();
+
+        // Calculate total views and total likes
+        $totalViews = $shorts->sum('views_count');
+        $totalLikes = $shorts->sum('likes_count');
+
+        return view('students.teacher_profile', compact('teacher', 'shorts', 'courses', 'quizzes', 'totalViews', 'totalLikes'));
+    }
+
+    /**
+     * Retrieve comments and nested replies for a specific short video.
+     */
+    public function getComments($id)
+    {
+        $short = ShortVideo::findOrFail($id);
+        $comments = \App\Models\ShortVideoComment::where('short_video_id', $id)
+            ->whereNull('parent_id')
+            ->with(['user', 'replies.user'])
+            ->orderBy('created_at', 'desc')
+            ->get()
+            ->map(function($comment) {
+                return [
+                    'id' => $comment->id,
+                    'user_id' => $comment->user_id,
+                    'user_name' => $comment->user->name,
+                    'user_avatar' => $comment->user->avatar ? asset('storage/' . $comment->user->avatar) : 'https://as1.ftcdn.net/v2/jpg/03/46/83/96/1000_F_346839683_6nAPzbhpSkIpb8pmAwufkC7c5eD7wYws.jpg',
+                    'comment' => $comment->comment,
+                    'time' => $comment->created_at->diffForHumans(),
+                    'replies' => $comment->replies->map(function($reply) {
+                        return [
+                            'id' => $reply->id,
+                            'user_id' => $reply->user_id,
+                            'user_name' => $reply->user->name,
+                            'user_avatar' => $reply->user->avatar ? asset('storage/' . $reply->user->avatar) : 'https://as1.ftcdn.net/v2/jpg/03/46/83/96/1000_F_346839683_6nAPzbhpSkIpb8pmAwufkC7c5eD7wYws.jpg',
+                            'comment' => $reply->comment,
+                            'time' => $reply->created_at->diffForHumans()
+                        ];
+                    })
+                ];
+            });
+
+        return response()->json(['comments' => $comments]);
+    }
+
+    /**
+     * Save a new comment or nested reply for a short video, and dispatch notifications.
+     */
+    public function storeComment(Request $request, $id)
+    {
+        $request->validate([
+            'comment' => 'required|string|max:1000',
+            'parent_id' => 'nullable|integer|exists:short_video_comments,id'
+        ]);
+
+        $short = ShortVideo::findOrFail($id);
+        $userId = Auth::id();
+
+        $comment = \App\Models\ShortVideoComment::create([
+            'short_video_id' => $short->id,
+            'user_id' => $userId,
+            'parent_id' => $request->parent_id,
+            'comment' => $request->comment
+        ]);
+
+        $commentUser = Auth::user();
+
+        // Dispatch FCM Notifications
+        try {
+            if ($request->parent_id) {
+                // Reply: Notify parent comment owner
+                $parentComment = \App\Models\ShortVideoComment::findOrFail($request->parent_id);
+                if ($parentComment->user_id !== $userId) {
+                    \App\Services\FcmService::sendPushNotification(
+                        $parentComment->user_id,
+                        'มีคนตอบกลับความคิดเห็นของคุณ 💬',
+                        "{$commentUser->name}: \"{$request->comment}\"",
+                        [
+                            'short_id' => (string) $short->id,
+                            'url' => route('shorts.index', ['id' => $short->id])
+                        ]
+                    );
+                }
+            } else {
+                // New comment: Notify short video owner
+                if ($short->teacher_id !== $userId) {
+                    \App\Services\FcmService::sendPushNotification(
+                        $short->teacher_id,
+                        'มีคนแสดงความเห็นบนคลิปสั้นของคุณ 💬',
+                        "{$commentUser->name}: \"{$request->comment}\"",
+                        [
+                            'short_id' => (string) $short->id,
+                            'url' => route('shorts.index', ['id' => $short->id])
+                        ]
+                    );
+                }
+            }
+        } catch (\Exception $e) {
+            logger()->error("Shorts comment notification failed: " . $e->getMessage());
+        }
+
+        return response()->json([
+            'success' => true,
+            'comment' => [
+                'id' => $comment->id,
+                'user_id' => $comment->user_id,
+                'user_name' => $commentUser->name,
+                'user_avatar' => $commentUser->avatar ? asset('storage/' . $commentUser->avatar) : 'https://as1.ftcdn.net/v2/jpg/03/46/83/96/1000_F_346839683_6nAPzbhpSkIpb8pmAwufkC7c5eD7wYws.jpg',
+                'comment' => $comment->comment,
+                'time' => 'เมื่อสักครู่',
+                'replies' => []
+            ]
+        ]);
     }
 }

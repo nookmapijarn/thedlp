@@ -168,6 +168,13 @@
                         <span class="text-[10px] text-slate-400 font-bold">อัปโหลดคลิปสั้นความรู้ วิดีโอแนวตั้ง หรือภาพสไลด์โชว์</span>
                     </div>
                 </a>
+                <a href="{{ route('teachers.profile.edit') }}" class="flex items-center gap-4 p-4 rounded-2xl bg-slate-50 dark:bg-slate-950 hover:bg-purple-50 hover:text-purple-600 transition-colors border border-slate-100 dark:border-slate-850">
+                    <div class="w-10 h-10 rounded-xl bg-teal-500/10 text-teal-600 flex items-center justify-center font-bold">👤</div>
+                    <div class="text-left">
+                        <span class="text-xs font-black block">จัดการโปรไฟล์</span>
+                        <span class="text-[10px] text-slate-400 font-bold">แก้ไขข้อมูลส่วนตัว อัปโหลดภาพประจำตัว และเปลี่ยนรหัสผ่าน</span>
+                    </div>
+                </a>
             </div>
 
             <button @click="openCourses = false" class="w-full py-3 bg-slate-100 dark:bg-slate-800 text-slate-650 dark:text-slate-300 rounded-2xl text-xs font-black uppercase tracking-widest active:scale-95 transition-all">

@@ -90,7 +90,7 @@
                 <div class="flex items-center ms-3">
                     <button type="button" class="flex text-sm bg-white rounded-2xl ring-2 ring-purple-50 focus:ring-4 focus:ring-purple-100 transition-all duration-300 overflow-hidden shadow-sm" aria-expanded="false" data-dropdown-toggle="dropdown-user">
                         <span class="sr-only">Open user menu</span>
-                        <img class="w-9 h-9 object-cover" src="https://as1.ftcdn.net/v2/jpg/03/46/83/96/1000_F_346839683_6nAPzbhpSkIpb8pmAwufkC7c5eD7wYws.jpg" alt="teacher photo">
+                        <img class="w-9 h-9 object-cover" src="{{ Auth::user()->avatar ? asset('storage/' . Auth::user()->avatar) : 'https://as1.ftcdn.net/v2/jpg/03/46/83/96/1000_F_346839683_6nAPzbhpSkIpb8pmAwufkC7c5eD7wYws.jpg' }}" alt="teacher photo">
                     </button>
                     
                     {{-- Dropdown Menu --}}
@@ -104,6 +104,14 @@
                             </p>
                         </div>
                         <ul class="py-2" role="none">
+                            <li>
+                                <a href="{{ route('teachers.profile.edit') }}" class="w-full text-left flex items-center px-5 py-2.5 text-sm text-slate-650 font-bold hover:bg-purple-50 hover:text-purple-600 transition-colors group">
+                                    <svg class="w-4 h-4 mr-3 group-hover:scale-110 transition-transform" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10Zm-7 9a7 7 0 0 1 14 0H5Z"/>
+                                    </svg>
+                                    จัดการโปรไฟล์
+                                </a>
+                            </li>
                             <li>
                                 <form method="POST" action="{{ route('logout') }}">
                                     @csrf

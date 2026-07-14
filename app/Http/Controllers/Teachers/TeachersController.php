@@ -257,5 +257,66 @@ class TeachersController extends Controller
     
         return $groups;
     }
-    
+
+    /**
+     * Show the profile edit page for a teacher.
+     */
+    public function editProfile()
+    {
+        $teacher = auth()->user();
+        return view('teachers.profile', compact('teacher'));
+    }
+
+    /**
+     * Update the teacher's profile details including avatar upload.
+     */
+    public function updateProfile(Request $request)
+    {
+        $teacher = auth()->user();
+
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users,email,' . $teacher->id,
+            'phone' => 'nullable|string|max:20',
+            'bio' => 'nullable|string|max:1000',
+            'avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'password' => 'nullable|string|min:8|confirmed',
+        ], [
+            'name.required' => 'กรุณากรอกชื่อ-นามสกุล',
+            'email.required' => 'กรุณากรอกอีเมล',
+            'email.email' => 'รูปแบบอีเมลไม่ถูกต้อง',
+            'email.unique' => 'อีเมลนี้ถูกใช้งานแล้วในระบบ',
+            'password.min' => 'รหัสผ่านใหม่ต้องมีความยาวอย่างน้อย 8 ตัวอักษร',
+            'password.confirmed' => 'รหัสผ่านยืนยันไม่ตรงกัน',
+            'avatar.image' => 'ไฟล์ที่อัปโหลดต้องเป็นไฟล์รูปภาพเท่านั้น',
+            'avatar.max' => 'ขนาดไฟล์รูปภาพห้ามเกิน 2MB',
+        ]);
+
+        $data = [
+            'name' => $request->name,
+            'email' => $request->email,
+            'phone' => $request->phone,
+            'bio' => $request->bio,
+        ];
+
+        // Process Avatar image upload
+        if ($request->hasFile('avatar')) {
+            // Delete old avatar if exists
+            if ($teacher->avatar) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($teacher->avatar);
+            }
+            $avatarPath = $request->file('avatar')->store('avatars', 'public');
+            $data['avatar'] = $avatarPath;
+        }
+
+        // Process password update
+        if ($request->filled('password')) {
+            $data['password'] = \Illuminate\Support\Facades\Hash::make($request->password);
+        }
+
+        // Update teacher user fields
+        \App\Models\User::where('id', $teacher->id)->update($data);
+
+        return redirect()->back()->with('success', 'ปรับปรุงข้อมูลส่วนตัวของคุณเรียบร้อยแล้ว');
+    }
 }

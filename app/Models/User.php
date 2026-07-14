@@ -24,7 +24,9 @@ class User extends Authenticatable
         'password',
         'pdpa_check',
         'role',
-        'avatar'
+        'avatar',
+        'bio',
+        'phone'
     ];
 
     /**

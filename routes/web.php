@@ -127,6 +127,8 @@ Route::middleware('auth', 'verified')->group(function () {
     Route::middleware('checkrole:2')->prefix('/teachers')->group(function () {
         Route::get('/', [TeachersController::class, 'index']);
         Route::get('/tdashboard', [TeachersController::class, 'index'])->name('tdashboard');
+        Route::get('/profile', [TeachersController::class, 'editProfile'])->name('teachers.profile.edit');
+        Route::put('/profile', [TeachersController::class, 'updateProfile'])->name('teachers.profile.update');
         Route::get('/treport', [TeachersReportController::class, 'index'])->name('treport');
         Route::post('/treport', [TeachersReportController::class, 'index'])->name('treport');
         Route::get('/tgrade', [TeachersGradeController::class, 'index'])->name('tgrade');
@@ -189,13 +191,16 @@ Route::middleware('auth', 'verified')->group(function () {
 
 // Student Route
 Route::middleware('auth', 'verified')->group(function () {
+    // General authenticated routes (Access to shorts and teacher profiles)
+    Route::get('/shorts', [ShortVideoController::class, 'index'])->name('shorts.index');
+    Route::post('/shorts/{id}/like', [ShortVideoController::class, 'toggleLike'])->name('shorts.like');
+    Route::post('/shorts/{id}/view', [ShortVideoController::class, 'incrementView'])->name('shorts.view');
+    Route::get('/teacher/{id}/profile', [ShortVideoController::class, 'teacherProfile'])->name('students.teacher.profile');
+    Route::get('/shorts/{id}/comments', [ShortVideoController::class, 'getComments'])->name('shorts.comments.index');
+    Route::post('/shorts/{id}/comments', [ShortVideoController::class, 'storeComment'])->name('shorts.comments.store');
+
     Route::middleware('checkrole:1')->group(function () {
         Route::get('/home', [DashboardController::class, 'home'])->name('home');
-
-        // OLIS Shorts for Students
-        Route::get('/shorts', [ShortVideoController::class, 'index'])->name('shorts.index');
-        Route::post('/shorts/{id}/like', [ShortVideoController::class, 'toggleLike'])->name('shorts.like');
-        Route::post('/shorts/{id}/view', [ShortVideoController::class, 'incrementView'])->name('shorts.view');
         Route::post('/study-session/ping', [\App\Http\Controllers\Students\StudySessionController::class, 'ping'])->name('study-session.ping');
 
         Route::get('/ประวัติการเรียน', [DashboardController::class, 'index'])->name('ประวัติการเรียน');

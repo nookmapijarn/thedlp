@@ -120,6 +120,22 @@
                 </a>
             </li>
 
+            {{-- OLIS Shorts Feed --}}
+            <li>
+                <a href="{{ route('shorts.index') }}"
+                   class="group flex items-center p-3 text-[15px] font-bold tracking-wide transition-all duration-300 rounded-2xl
+                   {{ Route::currentRouteName() == 'shorts.index' ? 'bg-white text-purple-600 shadow-md translate-x-1 ring-1 ring-purple-100' : 'text-slate-500 hover:bg-white/60 hover:text-purple-500 hover:translate-x-1' }}">
+                    <div class="flex items-center justify-center w-9 h-9 rounded-xl transition-colors {{ Route::currentRouteName() == 'shorts.index' ? 'bg-purple-50 text-purple-600' : 'bg-slate-100/50 text-slate-400 group-hover:bg-purple-50 group-hover:text-purple-500' }}">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                    <span class="ms-3">คลิปเรียนรู้สั้น (OLIS Shorts)</span>
+                    @if(Route::currentRouteName() == 'shorts.index') <div class="ms-auto w-1.5 h-1.5 rounded-full bg-amber-400"></div> @endif
+                </a>
+            </li>
+
             {{-- OLIS Shorts --}}
             <li>
                 <a href="{{ route('teachers.shorts.index') }}"
@@ -155,6 +171,19 @@
                         </span>
                     @endif
                     @if(Route::currentRouteName() == 'teachers.help.index') <div class="ms-auto w-1.5 h-1.5 rounded-full bg-amber-400"></div> @endif
+                </a>
+            </li>
+
+            {{-- 10. จัดการโปรไฟล์ --}}
+            <li>
+                <a href="{{ route('teachers.profile.edit') }}"
+                   class="group flex items-center p-3 text-[15px] font-bold tracking-wide transition-all duration-300 rounded-2xl
+                   {{ Route::currentRouteName() == 'teachers.profile.edit' ? 'bg-white text-purple-600 shadow-md translate-x-1 ring-1 ring-purple-100' : 'text-slate-500 hover:bg-white/60 hover:text-purple-500 hover:translate-x-1' }}">
+                    <div class="flex items-center justify-center w-9 h-9 rounded-xl transition-colors {{ Route::currentRouteName() == 'teachers.profile.edit' ? 'bg-purple-50 text-purple-600' : 'bg-slate-100/50 text-slate-400 group-hover:bg-purple-50 group-hover:text-purple-500' }}">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10Zm-7 9a7 7 0 0 1 14 0H5Z"/></svg>
+                    </div>
+                    <span class="ms-3">จัดการโปรไฟล์</span>
+                    @if(Route::currentRouteName() == 'teachers.profile.edit') <div class="ms-auto w-1.5 h-1.5 rounded-full bg-amber-400"></div> @endif
                 </a>
             </li>
 

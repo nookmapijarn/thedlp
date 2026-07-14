@@ -1,4 +1,7 @@
-<x-app-layout>
+@php
+    $layoutName = auth()->user()->role == 2 ? 'teachers-layout' : 'app-layout';
+@endphp
+<x-dynamic-component :component="$layoutName">
     <!-- Style Override to completely hide navigation and layout padding only for this route -->
     <style>
         /* Hide top navigation bar */
@@ -31,6 +34,8 @@
     <div x-data="{ 
             search: '', 
             currentFilter: 'all', 
+            teacherFilter: '',
+            teachers: {{ json_encode($teachers->pluck('name', 'id')) }},
             showSearch: false,
             hasVisible: true,
             filterChanged() {
@@ -48,7 +53,7 @@
                 }, 100);
             }
          }" 
-         x-init="$watch('search', value => filterChanged()); $watch('currentFilter', value => filterChanged())"
+         x-init="$watch('search', value => filterChanged()); $watch('currentFilter', value => filterChanged()); $watch('teacherFilter', value => filterChanged())"
          class="fixed inset-x-0 top-0 bottom-16 sm:bottom-0 sm:left-72 bg-slate-950 flex items-center justify-center z-30">
         <div class="w-full h-full max-w-[480px] bg-black relative flex flex-col sm:border-x sm:border-slate-800">
             
@@ -85,18 +90,62 @@
 
                 <!-- Sliding Search Box -->
                 <div x-show="showSearch" x-transition.duration.300ms
-                    class="w-full flex items-center gap-2 bg-black/80 backdrop-blur-lg px-4 py-2.5 rounded-2xl border border-white/10 pointer-events-auto shadow-2xl">
-                    <span class="text-white/40 flex-shrink-0">
-                        <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                        </svg>
+                    class="w-full flex flex-col gap-2.5 bg-black/90 backdrop-blur-lg px-4 py-3 rounded-2xl border border-white/10 pointer-events-auto shadow-2xl">
+                    <div class="flex items-center gap-2">
+                        <span class="text-white/40 flex-shrink-0">
+                            <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                            </svg>
+                        </span>
+                        <input x-ref="searchInput" x-model="search" type="text" placeholder="ค้นหาคลิปวิดีโอการเรียนรู้..."
+                            class="flex-1 bg-transparent text-white border-none focus:outline-none focus:ring-0 text-xs placeholder-white/40 p-0 font-medium">
+                        <button type="button" @click="search = ''; teacherFilter = ''; showSearch = false" 
+                            class="text-rose-500 hover:text-rose-400 text-xs font-black px-1.5 focus:outline-none">
+                            ปิด
+                        </button>
+                    </div>
+
+                    <!-- Teacher Filter Selector inside Panel -->
+                    @php
+                        $popularTeachers = $teachers->take(3);
+                        $otherTeachers = $teachers->slice(3);
+                    @endphp
+                    
+                    @if($popularTeachers->isNotEmpty())
+                        <div class="flex items-center gap-1.5 flex-wrap border-t border-white/5 pt-2">
+                            <span class="text-white/45 text-[9px] font-black uppercase tracking-wider mr-1">ยอดนิยม:</span>
+                            @foreach($popularTeachers as $popTeacher)
+                                <button type="button" @click="teacherFilter = '{{ $popTeacher->id }}'"
+                                    :class="teacherFilter == '{{ $popTeacher->id }}' ? 'bg-rose-600 text-white border-rose-650' : 'bg-white/10 text-white/80 border-white/10 hover:bg-white/20'"
+                                    class="px-2.5 py-1 text-[9px] font-black rounded-lg border transition-all active:scale-95 focus:outline-none">
+                                    {{ $popTeacher->name }}
+                                </button>
+                            @endforeach
+                        </div>
+                    @endif
+
+                    @if($otherTeachers->isNotEmpty())
+                        <div class="flex items-center gap-2 border-t border-white/5 pt-2 text-[10px]">
+                            <span class="text-white/45 font-bold flex-shrink-0">อาจารย์ท่านอื่น:</span>
+                            <select x-model="teacherFilter" class="flex-1 bg-transparent text-white border-none focus:outline-none focus:ring-0 text-[10px] p-0 font-bold cursor-pointer text-ellipsis overflow-hidden">
+                                <option value="" class="text-slate-900 bg-white">เลือกผู้สอน...</option>
+                                @foreach($otherTeachers as $otherTeacher)
+                                    <option value="{{ $otherTeacher->id }}" class="text-slate-900 bg-white">{{ $otherTeacher->name }}</option>
+                                @endforeach
+                            </select>
+                            <span class="text-white/35 text-[9px] pointer-events-none">▼</span>
+                        </div>
+                    @endif
+                </div>
+
+                <!-- Active Filter Indicator Badge -->
+                <div x-show="teacherFilter !== ''" x-transition.opacity
+                    class="self-start pointer-events-auto">
+                    <span class="inline-flex items-center gap-1.5 bg-rose-500/80 backdrop-blur-md px-2.5 py-1 rounded-full text-[9px] font-black text-white shadow-md border border-rose-400/20">
+                        <span class="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span>
+                        ครู: <span x-text="teachers[teacherFilter]"></span>
+                        <button type="button" @click="teacherFilter = ''" class="hover:text-white/80 font-black ml-0.5 focus:outline-none text-xs">×</button>
                     </span>
-                    <input x-ref="searchInput" x-model="search" type="text" placeholder="ค้นหาคลิปวิดีโอการเรียนรู้..."
-                        class="flex-1 bg-transparent text-white border-none focus:outline-none focus:ring-0 text-xs placeholder-white/40 p-0 font-medium">
-                    <button type="button" @click="search = ''; showSearch = false" 
-                        class="text-rose-500 hover:text-rose-400 text-xs font-black px-1.5 focus:outline-none">
-                        ปิด
-                    </button>
                 </div>
             </div>
 
@@ -118,7 +167,7 @@
                          data-id="{{ $short->id }}" 
                          data-index="{{ $index }}" 
                          data-course-id="{{ $short->course_id }}"
-                         x-show="(currentFilter === 'all' || (currentFilter === 'course' && '{{ $short->course_id }}' !== '')) && ('{{ addslashes($short->title) }} {{ addslashes($short->description ?? '') }}'.toLowerCase().includes(search.toLowerCase()))"
+                         x-show="(currentFilter === 'all' || (currentFilter === 'course' && '{{ $short->course_id }}' !== '')) && (teacherFilter === '' || '{{ $short->teacher_id }}' === teacherFilter) && ('{{ addslashes($short->title) }} {{ addslashes($short->description ?? '') }}'.toLowerCase().includes(search.toLowerCase()))"
                          x-transition.opacity>
                         
                         @if($short->type === 'images')
@@ -190,12 +239,12 @@
                         <!-- Right Actions Sidebar -->
                         <div class="absolute right-3.5 bottom-24 flex flex-col items-center gap-4.5 z-30">
                             <!-- Teacher Profile -->
-                            <div class="flex flex-col items-center">
-                                <div class="relative w-11 h-11 rounded-full border-2 border-purple-500 overflow-hidden shadow-md bg-slate-900">
+                            <a href="{{ route('students.teacher.profile', $short->teacher_id) }}" class="flex flex-col items-center group pointer-events-auto">
+                                <div class="relative w-11 h-11 rounded-full border-2 border-purple-500 overflow-hidden shadow-md bg-slate-900 group-hover:scale-105 transition-transform">
                                     <img src="{{ ($short->teacher && $short->teacher->avatar) ? asset('storage/' . $short->teacher->avatar) : 'https://as1.ftcdn.net/v2/jpg/03/46/83/96/1000_F_346839683_6nAPzbhpSkIpb8pmAwufkC7c5eD7wYws.jpg' }}" class="w-full h-full object-cover">
                                 </div>
                                 <span class="text-[9px] text-white font-bold bg-purple-600 px-1.5 py-0.5 rounded-full -mt-2.5 z-10 shadow-sm border border-white/20">ครู</span>
-                            </div>
+                            </a>
 
                             <!-- Like button -->
                             <div class="flex flex-col items-center">
@@ -205,6 +254,16 @@
                                     </svg>
                                 </button>
                                 <span class="text-[10px] text-white font-black drop-shadow-md mt-1 like-count">{{ $short->likes_count }}</span>
+                            </div>
+
+                            <!-- Comment button -->
+                            <div class="flex flex-col items-center">
+                                <button onclick="openCommentsDrawer({{ $short->id }})" class="w-11 h-11 rounded-full bg-black/40 backdrop-blur-md flex items-center justify-center text-white hover:bg-black/60 transition-all border border-white/10 active:scale-90 btn-comment-toggle" data-id="{{ $short->id }}">
+                                    <svg class="w-5.5 h-5.5 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+                                    </svg>
+                                </button>
+                                <span class="text-[10px] text-white font-black drop-shadow-md mt-1 comment-count">{{ $short->allCommentsCount() }}</span>
                             </div>
 
                             <!-- Course redirect button -->
@@ -247,12 +306,12 @@
 
                         <!-- Bottom Info Overlay -->
                         <div class="absolute left-4 right-20 bottom-6 z-30 flex flex-col text-white">
-                            <h4 class="font-black text-sm drop-shadow-md flex items-center gap-1.5">
+                            <a href="{{ route('students.teacher.profile', $short->teacher_id) }}" class="font-black text-sm drop-shadow-md flex items-center gap-1.5 w-fit hover:text-rose-400 transition-colors pointer-events-auto">
                                 {{ $short->teacher?->name ?? 'คุณครู' }}
                                 <svg class="w-3.5 h-3.5 text-blue-400 fill-current" viewBox="0 0 24 24">
                                     <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
                                 </svg>
-                            </h4>
+                            </a>
                             <p class="text-xs font-bold mt-1.5 drop-shadow-md leading-relaxed">
                                 {{ $short->title }}
                             </p>
@@ -292,6 +351,36 @@
                         <p class="text-xs text-slate-500 mt-1">คอยติดตามความรู้ใหม่ๆ จากคณะอาจารย์เร็วๆ นี้</p>
                     </div>
                 @endforelse
+            </div>
+
+            <!-- Sliding Comments Drawer (TikTok Style) -->
+            <div id="comments-drawer" class="absolute inset-x-0 bottom-0 h-[65%] bg-slate-900 border-t border-white/10 rounded-t-[2rem] z-50 transform translate-y-full transition-transform duration-300 flex flex-col pointer-events-auto shadow-2xl">
+                <!-- Drawer Header -->
+                <div class="px-5 py-4 border-b border-white/5 flex items-center justify-between flex-shrink-0">
+                    <span class="text-xs font-black text-white" id="comments-title">ความคิดเห็น (0)</span>
+                    <button type="button" onclick="closeCommentsDrawer()" class="text-slate-400 hover:text-white text-lg font-black focus:outline-none px-2 py-0.5">×</button>
+                </div>
+                
+                <!-- Comments List (Scrollable) -->
+                <div id="comments-list" class="flex-1 overflow-y-scroll p-5 space-y-4 text-xs scrollbar-none">
+                    <!-- Dynamic comments go here -->
+                </div>
+                
+                <!-- Comment Input Area -->
+                <div class="p-4 border-t border-white/5 bg-slate-900 flex-shrink-0">
+                    <form id="comment-form" class="flex items-center gap-2" onsubmit="submitComment(event)">
+                        @csrf
+                        <input type="hidden" id="comment-parent-id" value="">
+                        <input type="hidden" id="comment-short-id" value="">
+                        <input type="text" id="comment-input" placeholder="เขียนความคิดเห็นของคุณที่นี่..." 
+                            class="flex-1 bg-white/5 border border-white/10 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-rose-500 py-2.5 px-3.5">
+                        <button type="submit" class="p-2.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl transition-all shadow-md active:scale-95 focus:outline-none">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                            </svg>
+                        </button>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
@@ -878,6 +967,143 @@
                     }
                 });
             };
+
+            // ================= COMMENTS SYSTEM JAVASCRIPT =================
+            const commentsDrawer = document.getElementById('comments-drawer');
+            const commentsList = document.getElementById('comments-list');
+            const commentsTitle = document.getElementById('comments-title');
+            const commentInput = document.getElementById('comment-input');
+            const commentParentId = document.getElementById('comment-parent-id');
+            const commentShortId = document.getElementById('comment-short-id');
+
+            // Open Comments Drawer
+            window.openCommentsDrawer = (shortId) => {
+                commentShortId.value = shortId;
+                commentParentId.value = '';
+                commentInput.placeholder = "เขียนความคิดเห็นของคุณที่นี่...";
+                commentsList.innerHTML = '<div class="text-center py-8 text-slate-500 font-bold animate-pulse text-[10px]">กำลังโหลดความคิดเห็น...</div>';
+                
+                // Slide up drawer
+                commentsDrawer.classList.remove('translate-y-full');
+                
+                // Fetch comments via AJAX
+                fetch(`/shorts/${shortId}/comments`)
+                    .then(res => res.json())
+                    .then(data => {
+                        renderComments(data.comments);
+                    })
+                    .catch(err => {
+                        console.error(err);
+                        commentsList.innerHTML = '<div class="text-center py-8 text-rose-500 font-bold text-[10px]">เกิดข้อผิดพลาดในการโหลดความคิดเห็น</div>';
+                    });
+            };
+
+            // Close Comments Drawer
+            window.closeCommentsDrawer = () => {
+                commentsDrawer.classList.add('translate-y-full');
+                commentShortId.value = '';
+                commentParentId.value = '';
+                commentInput.value = '';
+            };
+
+            // Set reply target
+            window.replyToComment = (parentId, userName) => {
+                commentParentId.value = parentId;
+                commentInput.placeholder = `ตอบกลับ @${userName}...`;
+                commentInput.focus();
+            };
+
+            // Render comments list
+            function renderComments(comments) {
+                let totalComments = 0;
+                if (!comments || comments.length === 0) {
+                    commentsList.innerHTML = '<div class="text-center py-12 text-slate-500 font-bold text-[10px]">ยังไม่มีความคิดเห็น มาร่วมแสดงความคิดเห็นแรกกัน! 💬</div>';
+                    commentsTitle.innerText = 'ความคิดเห็น (0)';
+                    return;
+                }
+
+                let html = '';
+                comments.forEach(comment => {
+                    totalComments++;
+                    totalComments += comment.replies ? comment.replies.length : 0;
+
+                    html += `
+                        <div class="flex gap-3 items-start border-b border-white/5 pb-3">
+                            <img src="${comment.user_avatar}" class="w-8 h-8 rounded-full object-cover border border-white/10 flex-shrink-0">
+                            <div class="flex-1 min-w-0 space-y-0.5">
+                                <div class="flex items-center justify-between">
+                                    <span class="font-black text-white text-[11px]">${comment.user_name}</span>
+                                    <span class="text-[9px] text-slate-500 font-bold">${comment.time}</span>
+                                </div>
+                                <p class="text-slate-200 text-[10px] leading-relaxed font-semibold break-words">${comment.comment}</p>
+                                <div class="flex items-center gap-4 pt-1">
+                                    <button onclick="replyToComment(${comment.id}, '${comment.user_name}')" class="text-slate-400 hover:text-white text-[9px] font-black focus:outline-none">ตอบกลับ</button>
+                                </div>
+
+                                <!-- Replies Container -->
+                                ${comment.replies && comment.replies.length > 0 ? `
+                                    <div class="mt-2.5 space-y-2.5 pl-3 border-l-2 border-white/5">
+                                        ${comment.replies.map(reply => `
+                                            <div class="flex gap-2.5 items-start">
+                                                <img src="${reply.user_avatar}" class="w-6 h-6 rounded-full object-cover border border-white/10 flex-shrink-0">
+                                                <div class="flex-1 min-w-0 space-y-0.5">
+                                                    <div class="flex items-center justify-between">
+                                                        <span class="font-black text-slate-200 text-[10px]">${reply.user_name}</span>
+                                                        <span class="text-[8px] text-slate-500 font-bold">${reply.time}</span>
+                                                    </div>
+                                                    <p class="text-slate-300 text-[9px] leading-relaxed font-semibold break-words">${reply.comment}</p>
+                                                </div>
+                                            </div>
+                                        `).join('')}
+                                    </div>
+                                ` : ''}
+                            </div>
+                        </div>
+                    `;
+                });
+
+                commentsList.innerHTML = html;
+                commentsTitle.innerText = `ความคิดเห็น (${totalComments})`;
+                
+                // Update parent slides comment count badge in UI
+                const activeSlide = document.querySelector(`.short-video-slide[data-id="${commentShortId.value}"]`);
+                if (activeSlide) {
+                    const commentCountSpan = activeSlide.querySelector('.comment-count');
+                    if (commentCountSpan) commentCountSpan.innerText = totalComments;
+                }
+            }
+
+            // Submit comment
+            window.submitComment = (event) => {
+                event.preventDefault();
+                const text = commentInput.value.trim();
+                const shortId = commentShortId.value;
+                const parentId = commentParentId.value;
+
+                if (!text || !shortId) return;
+
+                fetch(`/shorts/${shortId}/comments`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        comment: text,
+                        parent_id: parentId
+                    })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        commentInput.value = '';
+                        // Re-fetch comments to display fresh sorted list
+                        openCommentsDrawer(shortId);
+                    }
+                })
+                .catch(err => console.error(err));
+            };
         });
 
         // Global carousel scrolling function for click arrows
@@ -916,4 +1142,4 @@
             }
         }
     </style>
-</x-app-layout>
+</x-dynamic-component>

@@ -51,4 +51,14 @@ class ShortVideo extends Model
     {
         return $this->hasMany(Lesson::class, 'short_video_id');
     }
+
+    public function comments()
+    {
+        return $this->hasMany(ShortVideoComment::class, 'short_video_id')->whereNull('parent_id')->orderBy('created_at', 'desc');
+    }
+
+    public function allCommentsCount()
+    {
+        return $this->hasMany(ShortVideoComment::class, 'short_video_id')->count();
+    }
 }

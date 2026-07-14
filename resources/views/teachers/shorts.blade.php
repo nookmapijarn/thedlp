@@ -1,5 +1,5 @@
 <x-teachers-layout>
-    <div class="p-6 mt-16 max-w-7xl mx-auto space-y-6" x-data="{ editOpen: false, editShort: { id: null, title: '', description: '', course_id: '' } }">
+    <div class="p-6 mt-16 max-w-7xl mx-auto space-y-6" x-data="{ editOpen: false, editShort: { id: null, title: '', description: '', course_id: '' }, previewOpen: false, previewShort: { type: '', title: '', video_path: '', images: [], audio_path: '' } }">
         
         <!-- Alerts -->
         @if(session('success'))
@@ -277,13 +277,13 @@
 
                                 <!-- Actions row -->
                                 <div class="bg-slate-100/50 dark:bg-slate-900/40 px-4 py-2 flex justify-between items-center border-t border-slate-100 dark:border-slate-800 gap-2">
-                                    <a href="{{ route('shorts.index') }}?id={{ $short->id }}" target="_blank" class="text-[10px] text-purple-650 hover:underline font-bold flex items-center gap-1">
+                                    <button type="button" @click="previewShort = { type: '{{ $short->type }}', title: '{{ addslashes($short->title) }}', video_path: '{{ $short->video_path ? asset('storage/' . $short->video_path) : '' }}', images: {{ json_encode($short->images) }}, audio_path: '{{ $short->audio_path ? asset('storage/' . $short->audio_path) : '' }}' }; previewOpen = true;" class="text-[10px] text-purple-650 hover:underline font-bold flex items-center gap-1 focus:outline-none">
                                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
                                         </svg>
                                         ดูตัวอย่าง
-                                    </a>
+                                    </button>
                                     
                                     <button type="button" @click="editShort = { id: {{ $short->id }}, title: '{{ addslashes($short->title) }}', description: '{{ addslashes($short->description) }}', course_id: '{{ $short->course_id }}' }; editOpen = true;" class="text-[10px] text-blue-650 hover:underline font-bold flex items-center gap-1">
                                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -510,4 +510,85 @@
             };
         }
     </script>
+
+    <!-- Live Preview Modal (TikTok Smartphone Mockup Style) -->
+    <div x-show="previewOpen" 
+         x-transition:enter="transition ease-out duration-300"
+         x-transition:enter-start="opacity-0"
+         x-transition:enter-end="opacity-100"
+         x-transition:leave="transition ease-in duration-200"
+         x-transition:leave-start="opacity-100"
+         x-transition:leave-end="opacity-0"
+         class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-md p-4" 
+         x-cloak>
+        
+        <div @click.outside="previewOpen = false; if($refs.previewVideo) $refs.previewVideo.pause(); if($refs.previewAudio) $refs.previewAudio.pause();" 
+             class="bg-slate-900 border border-slate-800 rounded-[2.5rem] w-full max-w-[340px] aspect-[9/16] relative overflow-hidden flex flex-col shadow-2xl">
+            
+            <!-- Top bar with close button -->
+            <div class="absolute top-4 left-4 right-4 z-30 flex items-center justify-between pointer-events-none">
+                <span class="text-[9px] text-white/50 bg-black/40 backdrop-blur-md px-2.5 py-1 rounded-full font-black border border-white/5 uppercase tracking-wider" x-text="previewShort.type === 'images' ? '📸 Slide' : '🎥 Video'">
+                    ดูตัวอย่าง
+                </span>
+                <button type="button" @click="previewOpen = false; if($refs.previewVideo) $refs.previewVideo.pause(); if($refs.previewAudio) $refs.previewAudio.pause();" 
+                        class="pointer-events-auto p-1.5 bg-black/40 hover:bg-black/60 text-white rounded-full transition-all focus:outline-none border border-white/10 active:scale-95">
+                    <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Content Preview Area -->
+            <div class="flex-1 bg-black relative flex items-center justify-center">
+                
+                <!-- Video Preview -->
+                <template x-if="previewShort.type === 'video'">
+                    <video x-ref="previewVideo" :src="previewShort.video_path" class="w-full h-full object-contain bg-black" loop controls autoplay></video>
+                </template>
+
+                <!-- Images Carousel Preview -->
+                <template x-if="previewShort.type === 'images'">
+                    <div class="w-full h-full relative flex items-center justify-center bg-slate-950" x-data="{ currentImg: 0 }">
+                        <!-- Carousel Images -->
+                        <div class="w-full h-full flex overflow-x-hidden relative items-center justify-center">
+                            <template x-for="(img, idx) in previewShort.images" :key="idx">
+                                <img x-show="currentImg === idx" :src="'/storage/' + img" class="w-full h-full object-cover">
+                            </template>
+                        </div>
+
+                        <!-- Arrows -->
+                        <button type="button" @click="currentImg = (currentImg - 1 + previewShort.images.length) % previewShort.images.length" 
+                                class="absolute left-2.5 w-7 h-7 rounded-full bg-black/40 hover:bg-black/60 text-white flex items-center justify-center border border-white/10 active:scale-90 focus:outline-none z-20 text-[10px]">
+                            ◀
+                        </button>
+                        <button type="button" @click="currentImg = (currentImg + 1) % previewShort.images.length" 
+                                class="absolute right-2.5 w-7 h-7 rounded-full bg-black/40 hover:bg-black/60 text-white flex items-center justify-center border border-white/10 active:scale-90 focus:outline-none z-20 text-[10px]">
+                            ▶
+                        </button>
+
+                        <!-- Carousel Dot Indicators -->
+                        <div class="absolute bottom-16 inset-x-0 flex items-center justify-center gap-1.5 z-20">
+                           <template x-for="(img, idx) in previewShort.images" :key="idx">
+                               <span :class="currentImg === idx ? 'bg-rose-500 w-3' : 'bg-white/40 w-1.5'" class="h-1.5 rounded-full transition-all duration-300"></span>
+                           </template>
+                        </div>
+
+                        <!-- Audio Player for Images -->
+                        <template x-if="previewShort.audio_path">
+                            <audio x-ref="previewAudio" :src="previewShort.audio_path" loop autoplay class="absolute bottom-4 inset-x-4 h-8 bg-black/40 rounded-xl"></audio>
+                        </template>
+                    </div>
+                </template>
+            </div>
+
+            <!-- Bottom Info -->
+            <div class="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/90 via-black/35 to-transparent p-4 pt-10 flex flex-col justify-end pointer-events-none">
+                <p class="text-xs text-white font-black truncate drop-shadow-md" x-text="previewShort.title"></p>
+                <div class="flex items-center gap-1.5 mt-1">
+                    <span class="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse"></span>
+                    <span class="text-[9px] text-white/50 font-bold uppercase tracking-wider">กำลังเล่นไฟล์ตัวอย่าง</span>
+                </div>
+            </div>
+        </div>
+    </div>
 </x-teachers-layout>
