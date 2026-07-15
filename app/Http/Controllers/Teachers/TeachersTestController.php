@@ -117,6 +117,27 @@ class TeachersTestController extends Controller
                 $signaturePublicUrl = asset('storage/images/exams/signature/' . $sigName);
             }
 
+            // --- 3.2 จัดการรูปโลโก้ (หากมีอัปโหลด) ---
+            $logoPublicUrl = null;
+            if ($request->hasFile('quiz_logo')) {
+                $logoFile = $request->file('quiz_logo');
+                $logoName = 'logo_' . time() . '.' . $logoFile->getClientOriginalExtension();
+                $logoDirectory = public_path('storage/images/exams/logo');
+                if (!file_exists($logoDirectory)) {
+                    mkdir($logoDirectory, 0777, true);
+                }
+                $logoFile->move($logoDirectory, $logoName);
+                $logoPublicUrl = asset('storage/images/exams/logo/' . $logoName);
+            }
+
+            // --- 3.3 Inject logo_url into certificate_config ---
+            $certConfigJson = $request->certificate_config;
+            if ($logoPublicUrl && $certConfigJson) {
+                $configArr = json_decode($certConfigJson, true) ?? [];
+                $configArr['logo_url'] = $logoPublicUrl;
+                $certConfigJson = json_encode($configArr);
+            }
+
             $totalQuizScore = 0;
             $requireLocation = $request->has('require_location') ? 1 : 0;
             $requireSnapshot = $request->has('require_snapshot') ? 1 : 0;
@@ -134,8 +155,8 @@ class TeachersTestController extends Controller
                 'total_score' => 0,
                 'time_limit' => $request->time_limit ?? 0,
                 'cover_image' => $coverPublicUrl,
-                'certificate_image' => $certPublicUrl, // ตอนนี้จะไม่ Error แล้วเพราะมีค่า null รองรับ
-                'certificate_config' => $request->certificate_config,
+                'certificate_image' => $certPublicUrl,
+                'certificate_config' => $certConfigJson,
                 'certificate_signature' => $signaturePublicUrl,
                 'created_by' => Auth::id(),
                 'created_at' => now(),
@@ -288,11 +309,9 @@ class TeachersTestController extends Controller
 
             // --- 2.1 จัดการรูปลายเซ็น (หากมีอัปโหลด) ---
             if ($request->hasFile('quiz_signature')) {
-                // ลบรูปภาพลายเซ็นเดิมถ้ามี
                 if (!empty($quiz->certificate_signature)) {
                     $this->deleteOldFile($quiz->certificate_signature);
                 }
-                
                 $sigFile = $request->file('quiz_signature');
                 $sigName = 'sig_' . time() . '.' . $sigFile->getClientOriginalExtension();
                 $sigDirectory = public_path('storage/images/exams/signature');
@@ -311,9 +330,41 @@ class TeachersTestController extends Controller
                 $updateData['certificate_signature'] = null;
             }
 
-            // --- 2.3 บันทึกการตั้งค่าตารางพิกัดเกี่รยติบัตร ---
+            // --- 2.3 จัดการรูปโลโก้ (หากมีอัปโหลด) ---
+            $logoPublicUrl = null;
+            if ($request->hasFile('quiz_logo')) {
+                // ลบรูปโลโก้เดิมถ้ามี (อยู่ใน certificate_config.logo_url)
+                $oldConfig = json_decode($quiz->certificate_config, true) ?? [];
+                if (!empty($oldConfig['logo_url'])) {
+                    $this->deleteOldFile($oldConfig['logo_url']);
+                }
+                $logoFile = $request->file('quiz_logo');
+                $logoName = 'logo_' . time() . '.' . $logoFile->getClientOriginalExtension();
+                $logoDirectory = public_path('storage/images/exams/logo');
+                if (!File::exists($logoDirectory)) {
+                    File::makeDirectory($logoDirectory, 0777, true);
+                }
+                $logoFile->move($logoDirectory, $logoName);
+                $logoPublicUrl = asset('storage/images/exams/logo/' . $logoName);
+            }
+
+            // --- 2.4 จัดการการลบโลโก้ ---
+            if ($request->input('quiz_logo_remove') === 'true') {
+                $oldConfig = json_decode($quiz->certificate_config, true) ?? [];
+                if (!empty($oldConfig['logo_url'])) {
+                    $this->deleteOldFile($oldConfig['logo_url']);
+                }
+            }
+
+            // --- 2.5 บันทึก certificate_config (inject logo_url) ---
             if ($request->has('certificate_config')) {
-                $updateData['certificate_config'] = $request->input('certificate_config');
+                $configArr = json_decode($request->input('certificate_config'), true) ?? [];
+                if ($logoPublicUrl) {
+                    $configArr['logo_url'] = $logoPublicUrl;
+                } elseif ($request->input('quiz_logo_remove') === 'true') {
+                    unset($configArr['logo_url']);
+                }
+                $updateData['certificate_config'] = json_encode($configArr);
             }
 
             // --- 3. อัปเดตข้อมูล Quiz หลัก ---
@@ -619,16 +670,10 @@ class TeachersTestController extends Controller
         try {
             $decodedUrl = urldecode($url);
 
-            // ป้องกัน SSRF: บังคับให้โหลดเฉพาะโดเมนของตัวแอปเองเท่านั้น
-            $appHost = parse_url(url('/'), PHP_URL_HOST);
-            $urlHost = parse_url($decodedUrl, PHP_URL_HOST);
-
-            if (!$urlHost || strcasecmp($appHost, $urlHost) !== 0) {
-                return response()->json(['error' => 'Access Denied: External domains are not allowed'], 403);
-            }
-
-            // แปลงเป็น Path ท้องถิ่นและทำการตรวจสอบความปลอดภัยเพื่อป้องกัน Path Traversal
-            $pathInsidePublic = str_replace(url('/'), '', $decodedUrl);
+            // Parse URL path to support both production domains and localhost
+            $parsedUrl = parse_url($decodedUrl);
+            $pathInsidePublic = $parsedUrl['path'] ?? '';
+            $pathInsidePublic = ltrim($pathInsidePublic, '/');
             $absolutePath = public_path($pathInsidePublic);
 
             $realCertPath = realpath(public_path('storage/images/exams/certificate'));

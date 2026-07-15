@@ -189,7 +189,7 @@
                         <div class="flex items-center gap-2.5 pb-3 border-b border-slate-100 dark:border-slate-850">
                             <div class="w-8 h-8 rounded-xl bg-blue-50 dark:bg-blue-950/30 text-blue-500 flex items-center justify-center font-bold text-lg">📚</div>
                             <div>
-                                <h4 class="text-sm font-black text-slate-800 dark:text-white leading-none">หลักสูตรนักเรียนสูงสุด</h4>
+                                <h4 class="text-sm font-black text-slate-800 dark:text-white leading-none">หลักสูตรที่มีผู้เรียนสูงสุด</h4>
                                 <span class="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Top Enrolled Courses</span>
                             </div>
                         </div>

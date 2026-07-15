@@ -32,7 +32,7 @@
     <div class="p-4 mt-20 animate-fade-in">
         <form action="{{ route('ttest.update', $quiz->id) }}" 
             onsubmit="return validateForm(event)"
-            method="POST" class="max-w-7xl mx-auto pb-20 px-4 space-y-8">
+            method="POST" enctype="multipart/form-data" class="max-w-7xl mx-auto pb-20 px-4 space-y-8">
             @csrf
             @method('PUT')
             
@@ -91,8 +91,7 @@
                                 <div class="group">
                                     <label class="flex items-center gap-2 text-sm font-black text-slate-700 mb-3 ml-1">ระดับชั้น <span class="text-rose-500">*</span></label>
                                     <select id="grade_level" name="grade_level" required class="w-full rounded-2xl border-slate-200 bg-slate-50/50 focus:bg-white focus:ring-4 focus:ring-amber-500/10 focus:border-amber-500 transition-all py-4 px-5 text-slate-600 font-bold">
-                                        <option value="">เลือกระดับชั้น</option>
-                                        <option value="0" @selected($quiz->grade_level == 0)>ทุกระดับ</option>
+                                        <option value="0" @selected($quiz->grade_level == 0 || is_null($quiz->grade_level))>ทุกระดับ</option>
                                         <option value="1" @selected($quiz->grade_level == 1)>ประถมศึกษา</option>
                                         <option value="2" @selected($quiz->grade_level == 2)>มัธยมศึกษาตอนต้น</option>
                                         <option value="3" @selected($quiz->grade_level == 3)>มัธยมศึกษาตอนปลาย</option>
@@ -174,10 +173,11 @@
                                                 <input type="hidden" name="certificate_config" id="certificate_config" value="{{ $quiz->certificate_config }}">
                                                 <!-- Standard file input for signature inside form submission -->
                                                 <input type="file" name="quiz_signature" id="quiz_signature_hidden_file" class="hidden" accept="image/png">
-                                                <!-- Hidden input to tell controller if signature should be removed -->
                                                 <input type="hidden" name="quiz_signature_remove" id="quiz_signature_remove" value="false">
+                                                <input type="file" name="quiz_logo" id="quiz_logo_hidden_file" class="hidden" accept="image/*">
+                                                <input type="hidden" name="quiz_logo_remove" id="quiz_logo_remove" value="false">
                                                 
-                                                <div id="cert_placeholder" 
+                                                <div id="cert_placeholder_btn" 
                                                     onclick="document.getElementById('cert_input').click()" 
                                                     class="{{ !blank($quiz->certificate_image) ? 'hidden' : '' }} cursor-pointer w-full h-[200px] bg-slate-50 border-4 border-dashed border-slate-200 rounded-[1.5rem] flex flex-col items-center justify-center text-slate-400 hover:text-emerald-500 hover:border-emerald-300 transition-all">
                                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -186,16 +186,16 @@
                                                     <span class="text-xs font-bold">เพิ่มเกียรติบัตร</span>
                                                 </div>
 
-                                                <div id="cert_preview_container" class="{{ blank($quiz->certificate_image) ? 'hidden' : '' }} relative w-full rounded-2xl border border-slate-200 dark:border-slate-800 p-4 bg-slate-50 dark:bg-slate-950 flex flex-col gap-3">
-                                                    <div class="relative w-full rounded-xl overflow-hidden bg-slate-900 border border-white/5 flex items-center justify-center">
-                                                        <img id="cert_preview" src="{{ !blank($quiz->certificate_image) ? $quiz->certificate_image : '#' }}" alt="Certificate Preview" class="w-full h-auto object-contain max-h-[150px]">
+                                                <div id="cert_main_preview_container" class="{{ blank($quiz->certificate_image) ? 'hidden' : '' }} relative w-full rounded-2xl border border-slate-200 dark:border-slate-800 p-4 bg-slate-50 dark:bg-slate-955 flex flex-col gap-3">
+                                                    <div class="relative w-full rounded-xl overflow-hidden bg-slate-100 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 flex items-center justify-center aspect-[1123/794]">
+                                                        <canvas id="cert_main_preview_canvas" class="w-full h-auto max-h-[150px] object-contain"></canvas>
                                                     </div>
                                                     <div class="flex gap-2">
-                                                        <button type="button" onclick="openCertDesigner()" class="flex-1 py-2 px-3.5 bg-purple-600 hover:bg-purple-700 text-white rounded-xl text-[11.5px] font-black shadow-md transition-all active:scale-95 flex items-center justify-center gap-1.5 focus:outline-none">
-                                                            🎨 จัดการตำแหน่ง / ลายเซ็น
+                                                        <button type="button" onclick="openCertConfigModal()" class="flex-1 py-2 px-3.5 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-[11.5px] font-black shadow-md transition-all active:scale-95 flex items-center justify-center gap-1.5 focus:outline-none">
+                                                            🎨 ออกแบบและตั้งค่าเกียรติบัตร
                                                         </button>
                                                         <button type="button" onclick="removeCertImage()" class="p-2 bg-rose-500 text-white rounded-xl hover:bg-rose-600 transition-colors shadow-lg focus:outline-none">
-                                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4.5 w-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                                             </svg>
                                                         </button>
@@ -264,32 +264,7 @@
             }
         }
 
-        // --- Preview Certificate ---
-        function previewCertImage(input) {
-            if (input.files && input.files[0]) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const base64String = e.target.result;
-                    document.getElementById('cert_preview').src = base64String;
-                    document.getElementById('cert_preview_container').classList.remove('hidden');
-                    document.getElementById('cert_placeholder').classList.add('hidden');
-                    document.getElementById('quiz_certificate_base64').value = base64String;
-                    
-                    // Open designer immediately
-                    setTimeout(openCertDesigner, 300);
-                }
-                reader.readAsDataURL(input.files[0]);
-            }
-        }
 
-        // --- Remove Certificate ---
-        function removeCertImage() {
-            document.getElementById('cert_input').value = ""; // ล้างไฟล์ใน input
-            document.getElementById('quiz_certificate_base64').value = "REMOVE"; // ส่งค่าไปบอก Controller ว่าให้ลบรูปเดิม
-            document.getElementById('certificate_config').value = "";
-            document.getElementById('cert_preview_container').classList.add('hidden');
-            document.getElementById('cert_placeholder').classList.remove('hidden');
-        }
 
         // --- TomSelect & Other Logics ---
         function toggleSubjectLock(isLocked) {
@@ -375,483 +350,554 @@
         };
     </script>
 
-<!-- Certificate Designer Modal (Pro-level drag & drop positioning editor) -->
-<div id="cert-designer-modal" class="fixed inset-0 z-50 hidden bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4">
-    <div class="bg-white dark:bg-slate-900 rounded-[2rem] w-full max-w-5xl h-[85vh] flex flex-col shadow-2xl overflow-hidden border border-slate-200 dark:border-slate-800">
-        <!-- Header -->
-        <div class="px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50 dark:bg-slate-900/50">
-            <div>
-                <h3 class="text-sm font-black text-slate-855 dark:text-white">เครื่องมือจัดตำแหน่งใบประกาศเกียรติบัตร</h3>
-                <p class="text-[10px] text-slate-400 font-bold mt-0.5">ลากเพื่อจัดวางตำแหน่ง และปรับขนาด/สี ของแต่ละข้อความได้อิสระ</p>
-            </div>
-            <button type="button" onclick="closeCertDesigner()" class="text-slate-400 hover:text-slate-600 dark:hover:text-white text-lg font-black focus:outline-none">×</button>
-        </div>
-
-        <!-- Body -->
-        <div class="flex-1 flex flex-col lg:flex-row overflow-hidden">
-            <!-- Left Workspace Area (Canvas mockup) -->
-            <div class="flex-1 bg-slate-100 dark:bg-slate-950 p-6 overflow-auto flex items-center justify-center relative">
-                <div id="cert-workspace" class="relative shadow-2xl bg-white select-none border border-slate-200 dark:border-slate-800 aspect-[1123/794] w-full max-w-[700px] overflow-hidden">
-                    <!-- Background image inside Workspace -->
-                    <img id="cert-designer-bg" src="" class="w-full h-full object-cover pointer-events-none">
-                    
-                    <!-- Draggable Elements -->
-                    <div id="drag-student-name" class="absolute cursor-move font-black whitespace-nowrap px-2 py-1 rounded border border-dashed border-purple-500 bg-purple-500/10 text-slate-800 select-none">
-                        [ชื่อ-นามสกุล ผู้เรียน]
+<!-- Certificate Config Modal -->
+<div id="cert-config-modal" class="fixed inset-0 z-50 hidden overflow-y-auto" x-cloak>
+    <!-- Backdrop -->
+    <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-md transition-opacity" onclick="closeCertConfigModal()"></div>
+    
+    <!-- Modal Body -->
+    <div class="flex min-h-screen items-center justify-center p-4">
+        <div class="relative w-full max-w-5xl rounded-[2.5rem] bg-white dark:bg-slate-900 shadow-2xl transition-all border border-slate-100 dark:border-slate-800 flex flex-col overflow-hidden animate-in zoom-in duration-200">
+            
+            <!-- Header -->
+            <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 px-8 py-5">
+                <div class="flex items-center gap-3">
+                    <div class="p-2.5 bg-amber-50 dark:bg-amber-950/30 text-amber-500 rounded-xl">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                     </div>
-                    <div id="drag-quiz-title" class="absolute cursor-move font-black whitespace-nowrap px-2 py-1 rounded border border-dashed border-blue-500 bg-blue-500/10 text-slate-800 select-none">
-                        [ชื่อแบบทดสอบ]
-                    </div>
-                    <div id="drag-quiz-score" class="absolute cursor-move font-black whitespace-nowrap px-2 py-1 rounded border border-dashed border-amber-500 bg-amber-500/10 text-slate-800 select-none">
-                        คะแนน: [คะแนนที่ได้] / [คะแนนเต็ม]
-                    </div>
-                    <div id="drag-date" class="absolute cursor-move font-black whitespace-nowrap px-2 py-1 rounded border border-dashed border-emerald-500 bg-emerald-500/10 text-slate-800 select-none">
-                        วันที่สอบผ่าน: [วันที่ออกใบประกาศ]
-                    </div>
-                    <div id="drag-signature" class="absolute cursor-move px-2 py-1 rounded border border-dashed border-rose-500 bg-rose-500/10 flex flex-col items-center justify-center w-28 h-12 select-none">
-                        <img id="designer-signature-img" src="" class="max-h-full max-w-full object-contain hidden pointer-events-none">
-                        <span id="designer-signature-placeholder" class="text-[9px] text-rose-500 font-black">ลายเซ็นจำลอง</span>
-                    </div>
-                    <div id="drag-signer-name" class="absolute cursor-move font-black whitespace-nowrap px-2 py-1 rounded border border-dashed border-indigo-500 bg-indigo-500/10 text-slate-800 select-none">
-                        [ชื่อผู้ลงนาม]
-                    </div>
-                    <div id="drag-signer-title" class="absolute cursor-move font-black whitespace-nowrap px-2 py-1 rounded border border-dashed border-pink-500 bg-pink-500/10 text-slate-800 select-none">
-                        [ตำแหน่งผู้ลงนาม]
+                    <div>
+                        <h3 class="text-lg font-black text-slate-800 dark:text-white">จัดการรูปแบบเกียรติบัตร</h3>
+                        <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Branding & Certificate Settings</p>
                     </div>
                 </div>
+                <button type="button" onclick="closeCertConfigModal()" class="rounded-xl p-2 text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-600 transition-colors focus:outline-none">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12" /></svg>
+                </button>
             </div>
 
-            <!-- Right Sidebar Controls -->
-            <div class="w-full lg:w-80 border-t lg:border-t-0 lg:border-l border-slate-150 dark:border-slate-800 p-5 overflow-y-auto space-y-5 bg-white dark:bg-slate-900 text-xs text-slate-700 dark:text-slate-300">
-                <div class="space-y-4">
-                    <h4 class="font-black text-slate-800 dark:text-white uppercase tracking-wider text-xs border-b pb-2 border-slate-100 dark:border-slate-800">เครื่องมือปรับแต่ง</h4>
+            <!-- Content (Side by Side on Large Screens) -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 p-8 max-h-[70vh] overflow-y-auto bg-slate-50 dark:bg-slate-955">
+                <!-- Left Side: Live Preview -->
+                <div class="lg:col-span-5 space-y-4">
+                    <h4 class="text-xs font-black uppercase tracking-[0.15em] text-slate-400">ตัวอย่างเกียรติบัตร (Live Preview)</h4>
                     
-                    <!-- Element Selector / Visibility & Styling -->
-                    <div class="space-y-3.5">
-                        <!-- Active Element selector dropdown -->
-                        <div class="space-y-1">
-                            <label class="font-bold text-[10px] text-slate-450 uppercase tracking-wider">เลือกส่วนที่ต้องการปรับแต่ง</label>
-                            <select id="designer-element-select" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl py-2.5 px-3 focus:outline-none focus:ring-1 focus:ring-purple-500 font-black text-xs text-slate-800 dark:text-white">
-                                <option value="student_name">ชื่อผู้สอบผ่าน</option>
-                                <option value="quiz_title">ชื่อแบบทดสอบ</option>
-                                <option value="quiz_score">คะแนนแบบทดสอบ</option>
-                                <option value="date">วันที่ออกประกาศ</option>
-                                <option value="signature">รูปลักษณ์ลายเซ็น</option>
-                                <option value="signer_name">ชื่อผู้ลงนาม</option>
-                                <option value="signer_title">ตำแหน่งผู้ลงนาม</option>
-                            </select>
-                        </div>
+                    <div id="cert_placeholder" onclick="document.getElementById('cert_input').click()" 
+                        class="{{ !blank($quiz->certificate_image) ? 'hidden' : '' }} cursor-pointer w-full h-[220px] bg-white dark:bg-slate-900 border-4 border-dashed border-slate-200 dark:border-slate-800 rounded-2xl flex flex-col items-center justify-center text-slate-400 hover:text-amber-500 hover:border-amber-300 transition-all shadow-sm">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                        <span class="text-xs font-black">อัปโหลดพื้นหลังเกียรติบัตร</span>
+                        <span class="text-[10px] text-slate-400 mt-1 font-bold">แนะนำไฟล์รูปภาพแนวนอน ขนาด A4</span>
+                    </div>
 
-                        <!-- Visibility Toggle -->
-                        <div class="flex items-center justify-between p-2.5 bg-slate-50 dark:bg-slate-950 rounded-xl border border-slate-150 dark:border-slate-800">
-                            <span class="font-bold text-xs">แสดงผลส่วนนี้</span>
-                            <input type="checkbox" id="designer-visible-toggle" class="rounded border-slate-300 text-purple-600 focus:ring-purple-500 w-4 h-4 cursor-pointer">
+                    <div id="cert_modal_preview_container" class="{{ blank($quiz->certificate_image) ? 'hidden' : '' }} relative w-full rounded-2xl border border-slate-200 dark:border-slate-800 p-4 bg-white dark:bg-slate-900 shadow-sm">
+                        <div class="relative w-full rounded-xl overflow-hidden bg-slate-100 dark:bg-slate-955 border border-slate-200 dark:border-slate-800 flex items-center justify-center aspect-[1123/794]">
+                            <canvas id="cert_preview_canvas" class="w-full h-auto max-h-[260px] object-contain"></canvas>
                         </div>
-
-                        <!-- Text Customization (only shown for signer name/title) -->
-                        <div id="designer-text-custom-group" class="space-y-1">
-                            <label class="font-bold text-[10px] text-slate-450 uppercase tracking-wider">แก้ไขข้อความตัวอย่าง</label>
-                            <input type="text" id="designer-text-input" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl py-2 px-3 focus:outline-none focus:ring-1 focus:ring-purple-500 font-bold text-xs text-slate-800 dark:text-white">
+                        <div class="flex gap-2 mt-4">
+                            <button type="button" onclick="document.getElementById('cert_input').click()" class="flex-1 py-2 px-3 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-[11px] font-black shadow-md transition-all active:scale-95 focus:outline-none flex items-center justify-center gap-1.5">📷 เปลี่ยนพื้นหลัง</button>
+                            <button type="button" onclick="removeCertImage()" class="p-2 bg-rose-500 text-white rounded-xl hover:bg-rose-600 transition-colors shadow-md focus:outline-none flex items-center justify-center"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg></button>
                         </div>
+                    </div>
+                </div>
 
-                        <!-- Font Size Adjustment -->
-                        <div id="designer-font-size-group" class="space-y-1">
-                            <label class="font-bold text-[10px] text-slate-450 uppercase tracking-wider flex justify-between">
-                                <span>ขนาดตัวอักษร</span>
-                                <span id="designer-font-size-val" class="text-purple-600 dark:text-purple-400 font-black">14px</span>
-                            </label>
-                            <input type="range" id="designer-font-size-slider" min="8" max="72" class="w-full accent-purple-600">
-                        </div>
-
-                        <!-- Color Picker -->
-                        <div id="designer-color-group" class="space-y-1">
-                            <label class="font-bold text-[10px] text-slate-450 uppercase tracking-wider">สีของตัวอักษร</label>
-                            <div class="flex gap-2">
-                                <input type="color" id="designer-color-picker" class="w-9 h-9 rounded-xl border border-slate-200 dark:border-slate-850 cursor-pointer p-0 bg-transparent overflow-hidden">
-                                <input type="text" id="designer-color-hex" class="flex-1 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-1.5 focus:outline-none text-xs font-bold uppercase tracking-wider text-slate-800 dark:text-white">
+                <!-- Right Side: Config Form Inputs -->
+                <div class="lg:col-span-7 space-y-6">
+                    <!-- Certificate Content Settings -->
+                    <div class="space-y-4">
+                        <h4 class="text-xs font-black uppercase tracking-[0.15em] text-slate-400">ข้อความบนเกียรติบัตร</h4>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="text-[10px] font-bold text-slate-500 mb-1.5 block">ชื่อหน่วยงาน</label>
+                                <input type="text" id="cert_org_name" class="w-full rounded-xl border-slate-200 bg-white dark:bg-slate-900 dark:border-slate-800 text-xs font-bold py-2.5 px-3 focus:ring-1 focus:ring-amber-500 focus:border-amber-500" placeholder="กรมส่งเสริมการเรียนรู้">
+                            </div>
+                            <div>
+                                <label class="text-[10px] font-bold text-slate-500 mb-1.5 block">สังกัด / กระทรวง</label>
+                                <input type="text" id="cert_sub_org" class="w-full rounded-xl border-slate-200 bg-white dark:bg-slate-900 dark:border-slate-800 text-xs font-bold py-2.5 px-3 focus:ring-1 focus:ring-amber-500 focus:border-amber-500" placeholder="กระทรวงศึกษาธิการ">
                             </div>
                         </div>
-
-                        <!-- Alignment Selector -->
-                        <div id="designer-align-group" class="space-y-1">
-                            <label class="font-bold text-[10px] text-slate-450 uppercase tracking-wider">จัดแนวอักษร</label>
-                            <select id="designer-align-select" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl py-2 px-3 focus:outline-none focus:ring-1 focus:ring-purple-500 font-black text-xs text-slate-800 dark:text-white">
-                                <option value="center">กึ่งกลาง (Center)</option>
-                                <option value="left">ชิดซ้าย (Left)</option>
-                                <option value="right">ชิดขวา (Right)</option>
-                            </select>
+                        <div>
+                            <label class="text-[10px] font-bold text-slate-500 mb-1.5 block">ข้อความนำ <span class="text-slate-350 font-medium">(ก่อนชื่อผู้เรียน)</span></label>
+                            <input type="text" id="cert_prefix_text" class="w-full rounded-xl border-slate-200 bg-white dark:bg-slate-900 dark:border-slate-800 text-xs font-bold py-2.5 px-3 focus:ring-1 focus:ring-amber-500 focus:border-amber-500" placeholder="ขอมอบวุฒิบัตรฉบับนี้ให้ไว้เพื่อแสดงว่า">
+                        </div>
+                        <div class="p-3 bg-amber-50/50 dark:bg-amber-955/20 rounded-xl border border-amber-200/50 dark:border-amber-900/30 text-[10px] text-amber-700 dark:text-amber-400 font-bold">
+                            🔒 ชื่อผู้เรียน — ดึงจากระบบอัตโนมัติ
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-bold text-slate-500 mb-1.5 block">คำอธิบาย <span class="text-slate-350 font-medium">(หลังชื่อผู้เรียน)</span></label>
+                            <textarea id="cert_description" rows="2" class="w-full rounded-xl border-slate-200 bg-white dark:bg-slate-900 dark:border-slate-800 text-xs font-bold py-2.5 px-3 focus:ring-1 focus:ring-amber-500 focus:border-amber-500" placeholder="ได้ผ่านการทำแบบทดสอบ"></textarea>
+                        </div>
+                        <div class="p-3 bg-amber-50/50 dark:bg-amber-955/20 rounded-xl border border-amber-200/50 dark:border-amber-900/30 text-[10px] text-amber-700 dark:text-amber-400 font-bold">
+                            🔒 ชื่อแบบทดสอบ / วันที่ — ดึงจากระบบอัตโนมัติ
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-bold text-slate-500 mb-1.5 block">ข้อความอวยพร <span class="text-slate-350 font-medium">(ปิดท้าย)</span></label>
+                            <input type="text" id="cert_blessing" class="w-full rounded-xl border-slate-200 bg-white dark:bg-slate-900 dark:border-slate-800 text-xs font-bold py-2.5 px-3 focus:ring-1 focus:ring-amber-500 focus:border-amber-500" placeholder="ขอให้ประสบแต่ความสุข...">
                         </div>
                     </div>
 
-                    <!-- Upload signature directly from Designer -->
-                    <div class="space-y-2 border-t border-slate-100 dark:border-slate-800 pt-4">
-                        <label class="block text-[10px] font-black text-slate-400 uppercase tracking-wider">รูปลายเซ็นโปร่งแสง (.PNG)</label>
-                        <div class="flex gap-2 items-center">
-                            <input type="file" id="designer-signature-input" accept="image/png" class="flex-1 text-xs text-slate-500 file:mr-2 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-[10px] file:font-black file:bg-rose-50 file:text-rose-700 dark:file:bg-rose-950/20 dark:file:text-rose-400 file:cursor-pointer">
-                            <button type="button" onclick="removeSignatureImage()" class="p-2 bg-rose-100 text-rose-700 hover:bg-rose-200 rounded-xl text-[10px] font-black focus:outline-none transition-all">
-                                ลบออก
-                            </button>
+                    <!-- Logo & Signature Uploads -->
+                    <div class="space-y-4 border-t border-slate-200 dark:border-slate-800 pt-5">
+                        <h4 class="text-xs font-black uppercase tracking-[0.15em] text-slate-400">โลโก้ และ ลายเซ็น</h4>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <!-- Logo File Input -->
+                            <div class="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 flex flex-col gap-3">
+                                <span class="text-[10px] font-bold text-slate-500">โลโก้ประทับ (สี่เหลี่ยมจัตุรัส)</span>
+                                <div class="flex items-center gap-3">
+                                    <div class="w-14 h-14 rounded-xl bg-slate-50 dark:bg-slate-955 border border-slate-200 dark:border-slate-800 flex items-center justify-center overflow-hidden">
+                                        <img id="cert_logo_img" src="#" class="w-full h-full object-contain hidden">
+                                        <span id="cert_logo_placeholder" class="text-[8px] text-slate-400 font-bold text-center">ไม่มีรูป</span>
+                                    </div>
+                                    <div class="flex-1 flex flex-col gap-1.5">
+                                        <button type="button" onclick="document.getElementById('quiz_logo_hidden_file').click()" class="py-1 px-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-white rounded-lg text-[10px] font-black transition-all">อัปโหลดภาพ</button>
+                                        <button type="button" onclick="removeLogo()" class="text-left text-rose-500 hover:text-rose-600 text-[9px] font-bold">ลบภาพนี้</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Signature File Input -->
+                            <div class="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 flex flex-col gap-3">
+                                <span class="text-[10px] font-bold text-slate-500">รูปลายเซ็น (โปร่งแสง PNG)</span>
+                                <div class="flex items-center gap-3">
+                                    <div class="w-20 h-14 rounded-xl bg-slate-50 dark:bg-slate-955 border border-slate-200 dark:border-slate-800 flex items-center justify-center overflow-hidden">
+                                        <img id="cert_sig_img" src="#" class="w-full h-full object-contain hidden">
+                                        <span id="cert_sig_placeholder" class="text-[8px] text-slate-400 font-bold text-center">ไม่มีรูป</span>
+                                    </div>
+                                    <div class="flex-1 flex flex-col gap-1.5">
+                                        <button type="button" onclick="document.getElementById('quiz_signature_hidden_file').click()" class="py-1 px-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-white rounded-lg text-[10px] font-black transition-all">อัปโหลดภาพ</button>
+                                        <button type="button" onclick="removeSignature()" class="text-left text-rose-500 hover:text-rose-600 text-[9px] font-bold">ลบภาพนี้</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Signer Information -->
+                    <div class="space-y-4 border-t border-slate-200 dark:border-slate-800 pt-5">
+                        <h4 class="text-xs font-black uppercase tracking-[0.15em] text-slate-400">ผู้ลงนาม</h4>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="text-[10px] font-bold text-slate-500 mb-1.5 block">ชื่อผู้ลงนาม</label>
+                                <input type="text" id="cert_signer_name" class="w-full rounded-xl border-slate-200 bg-white dark:bg-slate-900 dark:border-slate-800 text-xs font-bold py-2.5 px-3 focus:ring-1 focus:ring-amber-500 focus:border-amber-500" placeholder="(นางเกศทิพย์ ศุภวานิช)">
+                            </div>
+                            <div>
+                                <label class="text-[10px] font-bold text-slate-500 mb-1.5 block">ตำแหน่ง</label>
+                                <input type="text" id="cert_signer_title" class="w-full rounded-xl border-slate-200 bg-white dark:bg-slate-900 dark:border-slate-800 text-xs font-bold py-2.5 px-3 focus:ring-1 focus:ring-amber-500 focus:border-amber-500" placeholder="ผู้อำนวยการ กศน.อำเภอ...">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Text Color Settings -->
+                    <div class="space-y-4 border-t border-slate-200 dark:border-slate-800 pt-5">
+                        <h4 class="text-xs font-black uppercase tracking-[0.15em] text-slate-400">โทนสีข้อความ</h4>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                            <div>
+                                <label class="text-[10px] font-bold text-slate-500 mb-1.5 block">สีข้อความหลัก</label>
+                                <div class="flex gap-2">
+                                    <input type="color" id="cert_text_color" value="#475569" class="w-8 h-8 rounded-lg border border-slate-200 cursor-pointer overflow-hidden p-0 bg-transparent">
+                                    <input type="text" id="cert_text_color_hex" value="#475569" class="flex-1 rounded-xl border-slate-200 bg-white dark:bg-slate-900 dark:border-slate-800 text-[10px] font-bold uppercase py-1 px-2 focus:ring-1 focus:ring-amber-500 focus:border-amber-500">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="text-[10px] font-bold text-slate-500 mb-1.5 block">สีชื่อหน่วยงาน</label>
+                                <div class="flex gap-2">
+                                    <input type="color" id="cert_org_color" value="#1e293b" class="w-8 h-8 rounded-lg border border-slate-200 cursor-pointer overflow-hidden p-0 bg-transparent">
+                                    <input type="text" id="cert_org_color_hex" value="#1e293b" class="flex-1 rounded-xl border-slate-200 bg-white dark:bg-slate-900 dark:border-slate-800 text-[10px] font-bold uppercase py-1 px-2 focus:ring-1 focus:ring-amber-500 focus:border-amber-500">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="text-[10px] font-bold text-slate-500 mb-1.5 block">สีชื่อผู้เรียน / จุดเน้น</label>
+                                <div class="flex gap-2">
+                                    <input type="color" id="cert_student_color" value="#0f172a" class="w-8 h-8 rounded-lg border border-slate-200 cursor-pointer overflow-hidden p-0 bg-transparent">
+                                    <input type="text" id="cert_student_color_hex" value="#0f172a" class="flex-1 rounded-xl border-slate-200 bg-white dark:bg-slate-900 dark:border-slate-800 text-[10px] font-bold uppercase py-1 px-2 focus:ring-1 focus:ring-amber-500 focus:border-amber-500">
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Footer -->
-        <div class="px-6 py-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-end gap-3 bg-slate-50 dark:bg-slate-900/50">
-            <button type="button" onclick="closeCertDesigner()" class="px-5 py-2.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-650 dark:text-slate-350 rounded-xl text-xs font-black transition-all">
-                ยกเลิก
-            </button>
-            <button type="button" onclick="saveCertDesignerConfig()" class="px-6 py-2.5 bg-purple-600 hover:bg-purple-700 text-white rounded-xl text-xs font-black shadow-md transition-all active:scale-95">
-                เสร็จสิ้นการตั้งค่าตำแหน่ง
-            </button>
+            <!-- Footer / Actions -->
+            <div class="flex justify-end gap-3 border-t border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 px-8 py-5">
+                <button type="button" onclick="closeCertConfigModal()" class="w-full sm:w-auto px-6 py-3 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-xs font-black tracking-wider uppercase transition-all shadow-md active:scale-95 flex items-center justify-center gap-2">
+                    ✓ ยืนยันการตั้งค่า
+                </button>
+            </div>
         </div>
     </div>
 </div>
 
 <script>
     // Load config from DB or fallback
-    let certificateConfig = {!! !blank($quiz->certificate_config) ? $quiz->certificate_config : json_encode([
-        'student_name' => ['x' => 25, 'y' => 46.6, 'size' => 44, 'color' => '#1e293b', 'align' => 'center', 'visible' => true],
-        'quiz_title' => ['x' => 25, 'y' => 65.5, 'size' => 34, 'color' => '#1e3a8a', 'align' => 'center', 'visible' => true],
-        'quiz_score' => ['x' => 12.4, 'y' => 94.4, 'size' => 48, 'color' => '#64748b', 'align' => 'left', 'visible' => true],
-        'date' => ['x' => 25, 'y' => 73.0, 'size' => 24, 'color' => '#64748b', 'align' => 'center', 'visible' => true],
-        'signature' => ['x' => 75.0, 'y' => 84.3, 'width' => 200, 'height' => 80, 'visible' => true],
-        'signer_name' => ['x' => 75.0, 'y' => 96.3, 'size' => 22, 'color' => '#334155', 'align' => 'center', 'visible' => true, 'text' => 'ผู้บริหารสถานศึกษา'],
-        'signer_title' => ['x' => 75.0, 'y' => 98.0, 'size' => 18, 'color' => '#64748b', 'align' => 'center', 'visible' => true, 'text' => 'ผู้ช่วยผู้ตรวจการศึกษา']
-    ]) !!};
+    let savedConfig = {};
+    try {
+        savedConfig = JSON.parse(document.getElementById('certificate_config').value || '{}');
+    } catch(e) {
+        console.error("Failed to parse existing certificate config", e);
+    }
 
-    const designerModal = document.getElementById('cert-designer-modal');
-    const designerBg = document.getElementById('cert-designer-bg');
-    const workspace = document.getElementById('cert-workspace');
-    
+    const certInput = document.getElementById('cert_input');
+    const certModalPreviewContainer = document.getElementById('cert_modal_preview_container');
+    const certMainPreviewContainer = document.getElementById('cert_main_preview_container');
+    const certPlaceholderBtn = document.getElementById('cert_placeholder_btn');
+    const certPlaceholder = document.getElementById('cert_placeholder');
     const certBase64Input = document.getElementById('quiz_certificate_base64');
     const certConfigInput = document.getElementById('certificate_config');
 
-    // Populate initial base64 from current preview image
-    const initialPreviewImg = document.getElementById('cert_preview');
-    if (initialPreviewImg && initialPreviewImg.src && initialPreviewImg.src !== '#' && !initialPreviewImg.src.endsWith('/#')) {
-        certBase64Input.value = initialPreviewImg.src;
-    }
+    // Populate initial inputs from savedConfig
+    document.getElementById('cert_org_name').value = savedConfig.org_name || '';
+    document.getElementById('cert_sub_org').value = savedConfig.sub_org_name || '';
+    document.getElementById('cert_prefix_text').value = savedConfig.prefix_text || 'ขอมอบวุฒิบัตรฉบับนี้ให้ไว้เพื่อแสดงว่า';
+    document.getElementById('cert_description').value = savedConfig.description_text || '';
+    document.getElementById('cert_blessing').value = savedConfig.blessing_text || 'ขอให้ประสบแต่ความสุข ความเจริญ และมีความก้าวหน้าต่อไป';
+    document.getElementById('cert_signer_name').value = savedConfig.signer_name || '';
+    document.getElementById('cert_signer_title').value = savedConfig.signer_title || '';
 
-    window.openCertDesigner = () => {
-        if (!certBase64Input.value) {
-            alert('กรุณาอัปโหลดภาพพื้นหลังเกียรติบัตรก่อน!');
-            return;
-        }
-        designerBg.src = certBase64Input.value;
-        designerModal.classList.remove('hidden');
-        document.body.style.overflow = 'hidden';
-        
-        setTimeout(applyConfigToWorkspace, 100);
-    };
+    // Colors
+    const initialTextColor = savedConfig.text_color || '#475569';
+    const initialOrgColor = savedConfig.org_color || '#1e293b';
+    const initialStudentColor = savedConfig.student_color || '#0f172a';
 
-    window.closeCertDesigner = () => {
-        designerModal.classList.add('hidden');
-        document.body.style.overflow = 'auto';
-    };
+    document.getElementById('cert_text_color').value = initialTextColor;
+    document.getElementById('cert_text_color_hex').value = initialTextColor;
+    document.getElementById('cert_org_color').value = initialOrgColor;
+    document.getElementById('cert_org_color_hex').value = initialOrgColor;
+    document.getElementById('cert_student_color').value = initialStudentColor;
+    document.getElementById('cert_student_color_hex').value = initialStudentColor;
 
-    function applyConfigToWorkspace() {
-        const parentRect = workspace.getBoundingClientRect();
-        
-        Object.keys(certificateConfig).forEach(key => {
-            const cfg = certificateConfig[key];
-            const dragId = `drag-${key.replace('_', '-')}`;
-            const el = document.getElementById(dragId);
-            if (!el) return;
+    // Cached images for live preview rendering
+    let cachedBgImage = null;
+    let cachedLogoImage = null;
+    let cachedSigImage = null;
 
-            el.style.left = `${(cfg.x / 100) * parentRect.width}px`;
-            el.style.top = `${(cfg.y / 100) * parentRect.height}px`;
-
-            if (key !== 'signature') {
-                el.style.fontSize = `${(cfg.size / 794) * parentRect.height}px`;
-                el.style.color = cfg.color;
-                el.style.textAlign = cfg.align;
-                if (cfg.text !== undefined) {
-                    el.innerText = cfg.text;
-                }
-            } else {
-                el.style.width = `${(cfg.width / 1123) * parentRect.width}px`;
-                el.style.height = `${(cfg.height / 794) * parentRect.height}px`;
-            }
-
-            if (cfg.visible) {
-                el.classList.remove('hidden');
-            } else {
-                el.classList.add('hidden');
-            }
-        });
-
-        selectDesignerElement();
-    }
-
-    // Controls sync
-    const elemSelect = document.getElementById('designer-element-select');
-    const visibleToggle = document.getElementById('designer-visible-toggle');
-    const textCustomGroup = document.getElementById('designer-text-custom-group');
-    const textInput = document.getElementById('designer-text-input');
-    const fontSizeGroup = document.getElementById('designer-font-size-group');
-    const fontSizeSlider = document.getElementById('designer-font-size-slider');
-    const fontSizeVal = document.getElementById('designer-font-size-val');
-    const colorGroup = document.getElementById('designer-color-group');
-    const colorPicker = document.getElementById('designer-color-picker');
-    const colorHex = document.getElementById('designer-color-hex');
-    const alignGroup = document.getElementById('designer-align-group');
-    const alignSelect = document.getElementById('designer-align-select');
-
-    window.selectDesignerElement = () => {
-        const key = elemSelect.value;
-        const cfg = certificateConfig[key];
-        if (!cfg) return;
-
-        visibleToggle.checked = cfg.visible;
-
-        if (cfg.text !== undefined) {
-            textCustomGroup.classList.remove('hidden');
-            textInput.value = cfg.text;
-        } else {
-            textCustomGroup.classList.add('hidden');
-        }
-
-        if (key !== 'signature') {
-            fontSizeGroup.classList.remove('hidden');
-            fontSizeSlider.value = cfg.size;
-            fontSizeVal.innerText = `${cfg.size}px`;
-            
-            colorGroup.classList.remove('hidden');
-            colorPicker.value = cfg.color;
-            colorHex.value = cfg.color;
-
-            alignGroup.classList.remove('hidden');
-            alignSelect.value = cfg.align || 'center';
-        } else {
-            fontSizeGroup.classList.add('hidden');
-            colorGroup.classList.add('hidden');
-            alignGroup.classList.add('hidden');
-        }
-    };
-
-    window.toggleDesignerElementVisibility = () => {
-        const key = elemSelect.value;
-        const cfg = certificateConfig[key];
-        if (!cfg) return;
-
-        cfg.visible = visibleToggle.checked;
-        const dragId = `drag-${key.replace('_', '-')}`;
-        const el = document.getElementById(dragId);
-        
-        if (cfg.visible) {
-            el.classList.remove('hidden');
-        } else {
-            el.classList.add('hidden');
-        }
-    };
-
-    window.updateDesignerElementText = () => {
-        const key = elemSelect.value;
-        const cfg = certificateConfig[key];
-        if (!cfg || cfg.text === undefined) return;
-
-        cfg.text = textInput.value;
-        const dragId = `drag-${key.replace('_', '-')}`;
-        const el = document.getElementById(dragId);
-        el.innerText = cfg.text;
-    };
-
-    window.updateDesignerElementFontSize = () => {
-        const key = elemSelect.value;
-        const cfg = certificateConfig[key];
-        if (!cfg || key === 'signature') return;
-
-        cfg.size = parseInt(fontSizeSlider.value);
-        fontSizeVal.innerText = `${cfg.size}px`;
-        
-        const dragId = `drag-${key.replace('_', '-')}`;
-        const el = document.getElementById(dragId);
-        const parentRect = workspace.getBoundingClientRect();
-        el.style.fontSize = `${(cfg.size / 794) * parentRect.height}px`;
-    };
-
-    window.updateDesignerElementColor = () => {
-        const key = elemSelect.value;
-        const cfg = certificateConfig[key];
-        if (!cfg || key === 'signature') return;
-
-        cfg.color = colorPicker.value;
-        colorHex.value = cfg.color;
-        
-        const dragId = `drag-${key.replace('_', '-')}`;
-        const el = document.getElementById(dragId);
-        el.style.color = cfg.color;
-    };
-
-    window.updateDesignerElementColorHex = () => {
-        const key = elemSelect.value;
-        const cfg = certificateConfig[key];
-        if (!cfg || key === 'signature') return;
-
-        let val = colorHex.value;
-        if (val.startsWith('#') && val.length === 7) {
-            cfg.color = val;
-            colorPicker.value = val;
-            const dragId = `drag-${key.replace('_', '-')}`;
-            const el = document.getElementById(dragId);
-            el.style.color = cfg.color;
-        }
-    };
-
-    window.updateDesignerElementAlign = () => {
-        const key = elemSelect.value;
-        const cfg = certificateConfig[key];
-        if (!cfg || key === 'signature') return;
-
-        cfg.align = alignSelect.value;
-        const dragId = `drag-${key.replace('_', '-')}`;
-        const el = document.getElementById(dragId);
-        el.style.textAlign = cfg.align;
-    };
-
-    // Signature upload file selector sync
-    const sigDesignerInput = document.getElementById('designer-signature-input');
-    const sigHiddenFileInput = document.getElementById('quiz_signature_hidden_file');
-    const sigRemoveInput = document.getElementById('quiz_signature_remove');
-    const sigPreviewImg = document.getElementById('designer-signature-img');
-    const sigPlaceholder = document.getElementById('designer-signature-placeholder');
-
-    // Populate initial signature image if exists in DB
-    @if(!blank($quiz->certificate_signature))
-        sigPreviewImg.src = '{{ $quiz->certificate_signature }}';
-        sigPreviewImg.classList.remove('hidden');
-        sigPlaceholder.classList.add('hidden');
+    // Load initial images if exist
+    @if(!blank($quiz->certificate_image))
+        updateCachedBg('{{ $quiz->certificate_image }}');
     @endif
 
-    sigDesignerInput.addEventListener('change', function(e) {
-        const file = e.target.files[0];
-        if (file) {
-            if (file.type !== 'image/png') {
-                alert('รูปลอยเซ็นต้องเป็นภาพแบบโปร่งแสง (.PNG) เท่านั้น!');
-                this.value = '';
-                return;
+    if (savedConfig.logo_url) {
+        document.getElementById('cert_logo_img').src = savedConfig.logo_url;
+        document.getElementById('cert_logo_img').classList.remove('hidden');
+        document.getElementById('cert_logo_placeholder').classList.add('hidden');
+        updateCachedLogo(savedConfig.logo_url);
+    }
+
+    @if(!blank($quiz->certificate_signature))
+        document.getElementById('cert_sig_img').src = '{{ $quiz->certificate_signature }}';
+        document.getElementById('cert_sig_img').classList.remove('hidden');
+        document.getElementById('cert_sig_placeholder').classList.add('hidden');
+        updateCachedSig('{{ $quiz->certificate_signature }}');
+    @endif
+
+    function drawCertPreview() {
+        // Redraw both modal canvas and main preview canvas if they exist
+        const canvases = [
+            document.getElementById('cert_preview_canvas'),
+            document.getElementById('cert_main_preview_canvas')
+        ];
+
+        canvases.forEach(canvas => {
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            
+            canvas.width = 1123;
+            canvas.height = 794;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Get inputs
+            const orgName = document.getElementById('cert_org_name').value;
+            const subOrgName = document.getElementById('cert_sub_org').value;
+            const prefixText = document.getElementById('cert_prefix_text').value;
+            const descriptionText = document.getElementById('cert_description').value;
+            const blessingText = document.getElementById('cert_blessing').value;
+            const signerName = document.getElementById('cert_signer_name').value;
+            const signerTitle = document.getElementById('cert_signer_title').value;
+
+            // Get colors
+            const textColor = document.getElementById('cert_text_color').value || '#475569';
+            const orgColor = document.getElementById('cert_org_color').value || '#1e293b';
+            const studentColor = document.getElementById('cert_student_color').value || '#0f172a';
+
+            const fontFamily = "'Prompt', sans-serif";
+            const centerX = canvas.width / 2;
+            ctx.textBaseline = "middle";
+
+            // Draw Background
+            if (cachedBgImage && cachedBgImage.complete && cachedBgImage.naturalWidth > 0) {
+                ctx.drawImage(cachedBgImage, 0, 0, canvas.width, canvas.height);
+            } else {
+                ctx.fillStyle = '#f8fafc';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.strokeStyle = '#e2e8f0';
+                ctx.lineWidth = 10;
+                ctx.strokeRect(0, 0, canvas.width, canvas.height);
             }
 
-            sigHiddenFileInput.files = this.files;
-            sigRemoveInput.value = 'false';
+            // Draw Logo
+            if (cachedLogoImage && cachedLogoImage.complete && cachedLogoImage.naturalWidth > 0) {
+                const logoSize = 90;
+                ctx.drawImage(cachedLogoImage, centerX - (logoSize / 2), 60, logoSize, logoSize);
+            } else {
+                ctx.beginPath();
+                ctx.arc(centerX, 105, 45, 0, 2 * Math.PI);
+                ctx.fillStyle = '#f1f5f9';
+                ctx.fill();
+                ctx.lineWidth = 2;
+                ctx.strokeStyle = '#cbd5e1';
+                ctx.stroke();
+                ctx.font = `bold 12px ${fontFamily}`;
+                ctx.fillStyle = '#94a3b8';
+                ctx.textAlign = 'center';
+                ctx.fillText('ตราหน่วยงาน', centerX, 105);
+            }
 
-            const reader = new FileReader();
-            reader.onload = function(event) {
-                sigPreviewImg.src = event.target.result;
-                sigPreviewImg.classList.remove('hidden');
-                sigPlaceholder.classList.add('hidden');
-            };
-            reader.readAsDataURL(file);
-        }
-    });
+            // 2. Organization Name
+            ctx.textAlign = "center";
+            ctx.font = `bold 28px ${fontFamily}`;
+            ctx.fillStyle = orgColor;
+            ctx.fillText(orgName || 'ชื่อหน่วยงานหลัก', centerX, 185);
 
-    window.removeSignatureImage = () => {
-        sigDesignerInput.value = '';
-        sigHiddenFileInput.value = '';
-        sigRemoveInput.value = 'true';
-        sigPreviewImg.src = '';
-        sigPreviewImg.classList.add('hidden');
-        sigPlaceholder.classList.remove('hidden');
-        alert('ลบลายเซ็นเก่าออกจากเกียรติบัตรแล้ว (กดตกลงเพื่อบันทึก)');
-    };
+            // 3. Sub-organization Name
+            ctx.font = `bold 20px ${fontFamily}`;
+            ctx.fillStyle = textColor;
+            ctx.fillText(subOrgName || 'ชื่อสังกัด/กระทรวง', centerX, 225);
 
-    // Drag helper
-    const dragElements = [
-        'drag-student-name', 'drag-quiz-title', 'drag-quiz-score',
-        'drag-date', 'drag-signature', 'drag-signer-name', 'drag-signer-title'
-    ];
+            // 4. Prefix Text
+            ctx.font = `bold 20px ${fontFamily}`;
+            ctx.fillStyle = textColor;
+            ctx.fillText(prefixText || 'ขอมอบวุฒิบัตรฉบับนี้ให้ไว้เพื่อแสดงว่า', centerX, 275);
 
-    let activeDragElement = null;
-    let startX = 0, startY = 0;
-    let startLeft = 0, startTop = 0;
+            // 5. Student Name (Placeholder)
+            ctx.font = `900 44px ${fontFamily}`;
+            ctx.fillStyle = studentColor;
+            ctx.fillText('นายสมชาย รักการเรียน (ชื่อผู้เรียน)', centerX, 355);
 
-    function handleDragStart(el, clientX, clientY) {
-        activeDragElement = el;
-        startX = clientX;
-        startY = clientY;
-        
-        const rect = el.getBoundingClientRect();
-        const parentRect = workspace.getBoundingClientRect();
-        
-        startLeft = rect.left - parentRect.left;
-        startTop = rect.top - parentRect.top;
-        
-        const key = el.id.replace('drag-', '').replace('-', '_');
-        elemSelect.value = key;
-        selectDesignerElement();
+            // 6. Description Text
+            ctx.font = `bold 20px ${fontFamily}`;
+            ctx.fillStyle = textColor;
+            ctx.fillText(descriptionText || 'ได้ผ่านเกณฑ์การประเมินการทดสอบออนไลน์...', centerX, 440);
+
+            // 7. Date
+            ctx.font = `bold 18px ${fontFamily}`;
+            ctx.fillStyle = textColor;
+            const dateStr = new Date().toLocaleDateString('th-TH', { day: 'numeric', month: 'long', year: 'numeric' });
+            ctx.fillText(`ให้ไว้ ณ วันที่ ${dateStr}`, centerX, 520);
+
+            // 8. Blessing Text
+            ctx.font = `italic 18px ${fontFamily}`;
+            ctx.fillStyle = textColor;
+            ctx.fillText(blessingText || 'ขอให้ประสบแต่ความสุข ความเจริญ และมีความก้าวหน้าต่อไป', centerX, 565);
+
+            // 9. Signature
+            if (cachedSigImage && cachedSigImage.complete && cachedSigImage.naturalWidth > 0) {
+                const sigWidth = 160;
+                const sigHeight = 64;
+                ctx.drawImage(cachedSigImage, centerX - (sigWidth / 2), 600, sigWidth, sigHeight);
+            } else {
+                ctx.font = `12px ${fontFamily}`;
+                ctx.fillStyle = '#94a3b8';
+                ctx.fillText('[พื้นที่ลายเซ็น]', centerX, 632);
+            }
+
+            // 10. Signer Name
+            ctx.font = `bold 18px ${fontFamily}`;
+            ctx.fillStyle = orgColor;
+            ctx.fillText(signerName || '(ชื่อผู้ลงนาม)', centerX, 685);
+
+            // 11. Signer Title
+            ctx.font = `bold 16px ${fontFamily}`;
+            ctx.fillStyle = textColor;
+            ctx.fillText(signerTitle || 'ตำแหน่งผู้ลงนาม', centerX, 715);
+
+            // 12. Certificate Number
+            ctx.font = `bold 14px ${fontFamily}`;
+            ctx.fillStyle = textColor;
+            ctx.fillText(`เลขที่ใบรับรอง COXXXX`, centerX, 755);
+        });
     }
 
-    function handleDragMove(clientX, clientY) {
-        if (!activeDragElement) return;
-        
-        const dx = clientX - startX;
-        const dy = clientY - startY;
-        
-        let newLeft = startLeft + dx;
-        let newTop = startTop + dy;
-        
-        const parentRect = workspace.getBoundingClientRect();
-        const rect = activeDragElement.getBoundingClientRect();
-        
-        if (newLeft < 0) newLeft = 0;
-        if (newTop < 0) newTop = 0;
-        if (newLeft + rect.width > parentRect.width) newLeft = parentRect.width - rect.width;
-        if (newTop + rect.height > parentRect.height) newTop = parentRect.height - rect.height;
-        
-        activeDragElement.style.left = `${newLeft}px`;
-        activeDragElement.style.top = `${newTop}px`;
+    function updateCachedBg(src) {
+        if (!src || src === '#') {
+            cachedBgImage = null;
+            drawCertPreview();
+            return;
+        }
+        cachedBgImage = new Image();
+        cachedBgImage.onload = drawCertPreview;
+        cachedBgImage.src = src;
     }
 
-    dragElements.forEach(id => {
-        const el = document.getElementById(id);
-        if (!el) return;
-
-        el.addEventListener('mousedown', (e) => {
-            handleDragStart(el, e.clientX, e.clientY);
-            e.preventDefault();
-        });
-
-        el.addEventListener('touchstart', (e) => {
-            handleDragStart(el, e.touches[0].clientX, e.touches[0].clientY);
-        }, { passive: true });
-    });
-
-    window.addEventListener('mousemove', (e) => {
-        handleDragMove(e.clientX, e.clientY);
-    });
-
-    window.addEventListener('touchmove', (e) => {
-        if (activeDragElement) {
-            handleDragMove(e.touches[0].clientX, e.touches[0].clientY);
-            e.preventDefault();
+    function updateCachedLogo(src) {
+        if (!src || src === '#') {
+            cachedLogoImage = null;
+            drawCertPreview();
+            return;
         }
-    }, { passive: false });
+        cachedLogoImage = new Image();
+        cachedLogoImage.onload = drawCertPreview;
+        cachedLogoImage.src = src;
+    }
 
-    window.addEventListener('mouseup', () => { activeDragElement = null; });
-    window.addEventListener('touchend', () => { activeDragElement = null; });
+    function updateCachedSig(src) {
+        if (!src || src === '#') {
+            cachedSigImage = null;
+            drawCertPreview();
+            return;
+        }
+        cachedSigImage = new Image();
+        cachedSigImage.onload = drawCertPreview;
+        cachedSigImage.src = src;
+    }
 
-    // Save positions
-    window.saveCertDesignerConfig = () => {
-        const parentRect = workspace.getBoundingClientRect();
+    function syncConfigToHidden() {
+        const config = {
+            org_name: document.getElementById('cert_org_name').value,
+            sub_org_name: document.getElementById('cert_sub_org').value,
+            prefix_text: document.getElementById('cert_prefix_text').value,
+            description_text: document.getElementById('cert_description').value,
+            blessing_text: document.getElementById('cert_blessing').value,
+            signer_name: document.getElementById('cert_signer_name').value,
+            signer_title: document.getElementById('cert_signer_title').value,
+            text_color: document.getElementById('cert_text_color').value,
+            org_color: document.getElementById('cert_org_color').value,
+            student_color: document.getElementById('cert_student_color').value,
+            logo_url: (cachedLogoImage ? cachedLogoImage.src : '')
+        };
+        certConfigInput.value = JSON.stringify(config);
+        drawCertPreview();
+    }
+
+    // Bind inputs to sync and redraw
+    ['cert_org_name','cert_sub_org','cert_prefix_text','cert_description','cert_blessing','cert_signer_name','cert_signer_title'].forEach(id => {
+        document.getElementById(id).addEventListener('input', syncConfigToHidden);
+    });
+
+    // Color Pickers sync
+    ['cert_text_color', 'cert_org_color', 'cert_student_color'].forEach(id => {
+        const picker = document.getElementById(id);
+        const hex = document.getElementById(id + '_hex');
         
-        Object.keys(certificateConfig).forEach(key => {
-            const cfg = certificateConfig[key];
-            const dragId = `drag-${key.replace('_', '-')}`;
-            const el = document.getElementById(dragId);
-            if (!el) return;
-
-            const rect = el.getBoundingClientRect();
-            const left = rect.left - parentRect.left;
-            const top = rect.top - parentRect.top;
-
-            cfg.x = Math.round((left / parentRect.width) * 1000) / 10;
-            cfg.y = Math.round((top / parentRect.height) * 1000) / 10;
+        picker.addEventListener('input', () => {
+            hex.value = picker.value;
+            syncConfigToHidden();
         });
+        
+        hex.addEventListener('input', () => {
+            let val = hex.value;
+            if (val.length === 6 && !val.startsWith('#')) {
+                val = '#' + val;
+            }
+            if (val.startsWith('#') && val.length === 7) {
+                picker.value = val;
+                syncConfigToHidden();
+            }
+        });
+    });
 
-        certConfigInput.value = JSON.stringify(certificateConfig);
-        closeCertDesigner();
-    };
+    // Populate initial base64 from current preview image
+    @if(!blank($quiz->certificate_image))
+        certBase64Input.value = '{{ $quiz->certificate_image }}';
+    @endif
+
+    syncConfigToHidden();
+
+    function previewCertImage(input) {
+        const file = input.files[0];
+        if (!file) return;
+        if (file.size > 2 * 1024 * 1024) {
+            alert('ไฟล์เกียรติบัตรใหญ่เกินไป (ไม่ควรเกิน 2MB)');
+            input.value = '';
+            return;
+        }
+        const reader = new FileReader();
+        reader.onload = function(event) {
+            if (certModalPreviewContainer) certModalPreviewContainer.classList.remove('hidden');
+            if (certMainPreviewContainer) certMainPreviewContainer.classList.remove('hidden');
+            if (certPlaceholderBtn) certPlaceholderBtn.classList.add('hidden');
+            if (certPlaceholder) certPlaceholder.classList.add('hidden');
+            certBase64Input.value = event.target.result;
+            updateCachedBg(event.target.result);
+        };
+        reader.readAsDataURL(file);
+    }
+
+    function removeCertImage() {
+        certInput.value = '';
+        certBase64Input.value = 'REMOVE';
+        certConfigInput.value = '';
+        if (certModalPreviewContainer) certModalPreviewContainer.classList.add('hidden');
+        if (certMainPreviewContainer) certMainPreviewContainer.classList.add('hidden');
+        if (certPlaceholderBtn) certPlaceholderBtn.classList.remove('hidden');
+        if (certPlaceholder) certPlaceholder.classList.remove('hidden');
+        updateCachedBg(null);
+    }
+
+    document.getElementById('quiz_logo_hidden_file').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(event) {
+            const logoImg = document.getElementById('cert_logo_img');
+            logoImg.src = event.target.result;
+            logoImg.classList.remove('hidden');
+            document.getElementById('cert_logo_placeholder').classList.add('hidden');
+            document.getElementById('quiz_logo_remove').value = 'false';
+            updateCachedLogo(event.target.result);
+        };
+        reader.readAsDataURL(file);
+    });
+
+    function removeLogo() {
+        document.getElementById('quiz_logo_hidden_file').value = '';
+        document.getElementById('cert_logo_img').src = '#';
+        document.getElementById('cert_logo_img').classList.add('hidden');
+        document.getElementById('cert_logo_placeholder').classList.remove('hidden');
+        document.getElementById('quiz_logo_remove').value = 'true';
+        updateCachedLogo(null);
+    }
+
+    document.getElementById('quiz_signature_hidden_file').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(event) {
+            const sigImg = document.getElementById('cert_sig_img');
+            sigImg.src = event.target.result;
+            sigImg.classList.remove('hidden');
+            document.getElementById('cert_sig_placeholder').classList.add('hidden');
+            document.getElementById('quiz_signature_remove').value = 'false';
+            updateCachedSig(event.target.result);
+        };
+        reader.readAsDataURL(file);
+    });
+
+    function removeSignature() {
+        document.getElementById('quiz_signature_hidden_file').value = '';
+        document.getElementById('cert_sig_img').src = '#';
+        document.getElementById('cert_sig_img').classList.add('hidden');
+        document.getElementById('cert_sig_placeholder').classList.remove('hidden');
+        document.getElementById('quiz_signature_remove').value = 'true';
+        updateCachedSig(null);
+    }
+
+    function openCertConfigModal() {
+        const modal = document.getElementById('cert-config-modal');
+        modal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+        setTimeout(drawCertPreview, 100);
+    }
+
+    function closeCertConfigModal() {
+        const modal = document.getElementById('cert-config-modal');
+        modal.classList.add('hidden');
+        document.body.style.overflow = 'auto';
+    }
+
+    // Expose functions globally to window object
+    window.openCertConfigModal = openCertConfigModal;
+    window.closeCertConfigModal = closeCertConfigModal;
+    window.previewCertImage = previewCertImage;
+    window.removeCertImage = removeCertImage;
+    window.removeLogo = removeLogo;
+    window.removeSignature = removeSignature;
+    window.drawCertPreview = drawCertPreview;
 </script>
 </x-teachers-layout>

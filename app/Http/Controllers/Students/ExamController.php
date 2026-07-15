@@ -128,6 +128,7 @@ class ExamController extends Controller
             ->join('quizzes', 'quiz_attempts.quiz_id', '=', 'quizzes.id')
             ->select(
                 'quiz_attempts.id as attempt_id',
+                'quiz_attempts.quiz_id as quiz_id',
                 'quiz_attempts.total_score as user_score',
                 'quiz_attempts.finished_at',
                 'quizzes.title as quiz_title',
@@ -387,13 +388,10 @@ class ExamController extends Controller
             // 1. ถอดรหัสชื่อไฟล์ภาษาไทย
             $decodedUrl = urldecode($url);
 
-            // ป้องกัน SSRF / Domain Validation
-            if (!str_starts_with($decodedUrl, url('/'))) {
-                return response()->json(['error' => 'Access Denied: Invalid Domain'], 403);
-            }
-
-            // 2. แปลง URL ให้เป็น Path ในเครื่องคอมพิวเตอร์จริงๆ
-            $pathInsidePublic = str_replace(url('/'), '', $decodedUrl); 
+            // Parse URL path to support both production domains and localhost
+            $parsedUrl = parse_url($decodedUrl);
+            $pathInsidePublic = $parsedUrl['path'] ?? '';
+            $pathInsidePublic = ltrim($pathInsidePublic, '/');
             $absolutePath = public_path($pathInsidePublic); 
 
             // ป้องกัน Path Traversal

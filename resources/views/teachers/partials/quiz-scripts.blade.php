@@ -179,14 +179,87 @@ function updateBadge(select, idx) {
 
 // --- ฟังก์ชันตรวจสอบก่อนส่ง (Validation) ---
 function validateForm(event) {
+    // 1. ตรวจสอบชื่อแบบทดสอบ
+    const quizTitle = document.querySelector('input[name="quiz_title"]');
+    if (!quizTitle || !quizTitle.value.trim()) {
+        event.preventDefault();
+        Swal.fire({
+            icon: 'warning',
+            title: 'กรุณากรอกข้อมูลให้ครบถ้วน',
+            text: 'กรุณากรอก "ชื่อแบบทดสอบ"',
+            confirmButtonColor: '#4f46e5',
+            confirmButtonText: 'ตกลง'
+        });
+        quizTitle.focus();
+        return false;
+    }
+
+    // 2. ตรวจสอบระดับชั้น
+    const gradeLevel = document.getElementById('grade_level');
+    if (!gradeLevel || gradeLevel.value === "") {
+        event.preventDefault();
+        Swal.fire({
+            icon: 'warning',
+            title: 'กรุณากรอกข้อมูลให้ครบถ้วน',
+            text: 'กรุณาเลือก "ระดับชั้น"',
+            confirmButtonColor: '#4f46e5',
+            confirmButtonText: 'ตกลง'
+        });
+        if(gradeLevel) gradeLevel.focus();
+        return false;
+    }
+
+    // 3. ตรวจสอบวิชา
+    const subjectSelect = document.getElementById('subject_select');
+    if (!subjectSelect || !subjectSelect.value || subjectSelect.value === "") {
+        event.preventDefault();
+        Swal.fire({
+            icon: 'warning',
+            title: 'กรุณากรอกข้อมูลให้ครบถ้วน',
+            text: 'กรุณาเลือก "รายวิชา"',
+            confirmButtonColor: '#4f46e5',
+            confirmButtonText: 'ตกลง'
+        });
+        return false;
+    }
+
+    // 4. ตรวจสอบข้อสอบ (ต้องมีอย่างน้อย 1 ข้อ)
     const questions = document.querySelectorAll('.question-block');
+    if (questions.length === 0) {
+        event.preventDefault();
+        Swal.fire({
+            icon: 'warning',
+            title: 'กรุณากรอกข้อมูลให้ครบถ้วน',
+            text: 'กรุณาเพิ่มข้อสอบอย่างน้อย 1 ข้อ',
+            confirmButtonColor: '#4f46e5',
+            confirmButtonText: 'ตกลง'
+        });
+        return false;
+    }
+
+    // 5. ตรวจสอบคำถาม ตัวเลือก และคำตอบที่ถูกต้อง
     let isValid = true;
+    let errorMessage = '';
     let firstMissing = null;
 
-    questions.forEach((block) => {
+    questions.forEach((block, idx) => {
+        const questionNum = idx + 1;
+        
+        // ตรวจสอบหัวข้อคำถาม
+        const questionInput = block.querySelector('textarea[name^="questions["][name$="[question_text]"]');
+        if (!questionInput || !questionInput.value.trim()) {
+            isValid = false;
+            if (!errorMessage) errorMessage = `กรุณากรอกหัวข้อคำถามในข้อที่ ${questionNum}`;
+            block.classList.add('ring-2', 'ring-red-500', 'bg-red-50');
+            if (!firstMissing) firstMissing = questionInput;
+            return;
+        }
+
+        // ตรวจสอบคำตอบเฉลย
         const radioChecked = block.querySelector('input[type="radio"]:checked');
         if (!radioChecked) {
             isValid = false;
+            if (!errorMessage) errorMessage = `กรุณาเลือกคำตอบที่ถูกต้องในข้อที่ ${questionNum}`;
             block.classList.add('ring-2', 'ring-red-500', 'bg-red-50');
             if (!firstMissing) firstMissing = block;
         } else {
@@ -195,10 +268,50 @@ function validateForm(event) {
     });
 
     if (!isValid) {
-        alert('กรุณาเลือกคำตอบที่ถูกต้องให้ครบทุกข้อก่อนบันทึก');
-        firstMissing.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        event.preventDefault();
+        Swal.fire({
+            icon: 'warning',
+            title: 'กรุณากรอกข้อมูลให้ครบถ้วน',
+            text: errorMessage,
+            confirmButtonColor: '#4f46e5',
+            confirmButtonText: 'ตกลง'
+        });
+        if (firstMissing) {
+            firstMissing.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            setTimeout(() => { firstMissing.focus(); }, 500);
+        }
         return false;
     }
+
     return true;
 }
 </script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+@if(session('success'))
+<script>
+    window.addEventListener('DOMContentLoaded', () => {
+        Swal.fire({
+            icon: 'success',
+            title: 'สำเร็จ',
+            text: "{{ session('success') }}",
+            confirmButtonColor: '#4f46e5',
+            confirmButtonText: 'ตกลง'
+        });
+    });
+</script>
+@endif
+
+@if(session('error'))
+<script>
+    window.addEventListener('DOMContentLoaded', () => {
+        Swal.fire({
+            icon: 'error',
+            title: 'เกิดข้อผิดพลาด',
+            text: "{{ session('error') }}",
+            confirmButtonColor: '#ef4444',
+            confirmButtonText: 'ตกลง'
+        });
+    });
+</script>
+@endif

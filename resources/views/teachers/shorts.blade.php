@@ -1,5 +1,27 @@
 <x-teachers-layout>
-    <div class="p-6 mt-16 max-w-7xl mx-auto space-y-6" x-data="{ editOpen: false, editShort: { id: null, title: '', description: '', course_id: '' }, previewOpen: false, previewShort: { type: '', title: '', video_path: '', images: [], audio_path: '' } }">
+    <div class="p-6 mt-16 max-w-7xl mx-auto space-y-6" x-data="{ 
+        editOpen: false, 
+        editShort: { id: null, title: '', description: '', course_id: '' }, 
+        previewOpen: false, 
+        previewShort: { type: '', title: '', video_path: '', images: [], audio_path: '' },
+        openPreview(btn) {
+            this.previewShort = {
+                type: btn.getAttribute('data-type'),
+                title: btn.getAttribute('data-title'),
+                video_path: btn.getAttribute('data-video'),
+                images: JSON.parse(btn.getAttribute('data-images') || '[]') || [],
+                audio_path: btn.getAttribute('data-audio')
+            };
+            this.previewOpen = true;
+        },
+        closePreview() {
+            this.previewOpen = false;
+            const v = document.getElementById('preview-video-player');
+            if (v) v.pause();
+            const a = document.getElementById('preview-audio-player');
+            if (a) a.pause();
+        }
+    }">
         
         <!-- Alerts -->
         @if(session('success'))
@@ -277,7 +299,14 @@
 
                                 <!-- Actions row -->
                                 <div class="bg-slate-100/50 dark:bg-slate-900/40 px-4 py-2 flex justify-between items-center border-t border-slate-100 dark:border-slate-800 gap-2">
-                                    <button type="button" @click="previewShort = { type: '{{ $short->type }}', title: '{{ addslashes($short->title) }}', video_path: '{{ $short->video_path ? asset('storage/' . $short->video_path) : '' }}', images: {{ json_encode($short->images) }}, audio_path: '{{ $short->audio_path ? asset('storage/' . $short->audio_path) : '' }}' }; previewOpen = true;" class="text-[10px] text-purple-650 hover:underline font-bold flex items-center gap-1 focus:outline-none">
+                                    <button type="button" 
+                                            data-type="{{ $short->type }}"
+                                            data-title="{{ addslashes($short->title) }}"
+                                            data-video="{{ $short->video_path ? asset('storage/' . $short->video_path) : '' }}"
+                                            data-images="{{ json_encode($short->images) }}"
+                                            data-audio="{{ $short->audio_path ? asset('storage/' . $short->audio_path) : '' }}"
+                                            @click="openPreview($el)" 
+                                            class="text-[10px] text-purple-650 hover:underline font-bold flex items-center gap-1 focus:outline-none">
                                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
@@ -522,15 +551,15 @@
          class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-md p-4" 
          x-cloak>
         
-        <div @click.outside="previewOpen = false; if($refs.previewVideo) $refs.previewVideo.pause(); if($refs.previewAudio) $refs.previewAudio.pause();" 
-             class="bg-slate-900 border border-slate-800 rounded-[2.5rem] w-full max-w-[340px] aspect-[9/16] relative overflow-hidden flex flex-col shadow-2xl">
+        <div @click.outside="closePreview()" 
+             class="bg-slate-900 border border-slate-800 rounded-[2.5rem] w-full max-w-[340px] aspect-[9/16] relative overflow-hidden flex flex-col shadow-2xl animate-in zoom-in duration-200">
             
             <!-- Top bar with close button -->
             <div class="absolute top-4 left-4 right-4 z-30 flex items-center justify-between pointer-events-none">
                 <span class="text-[9px] text-white/50 bg-black/40 backdrop-blur-md px-2.5 py-1 rounded-full font-black border border-white/5 uppercase tracking-wider" x-text="previewShort.type === 'images' ? '📸 Slide' : '🎥 Video'">
                     ดูตัวอย่าง
                 </span>
-                <button type="button" @click="previewOpen = false; if($refs.previewVideo) $refs.previewVideo.pause(); if($refs.previewAudio) $refs.previewAudio.pause();" 
+                <button type="button" @click="closePreview()" 
                         class="pointer-events-auto p-1.5 bg-black/40 hover:bg-black/60 text-white rounded-full transition-all focus:outline-none border border-white/10 active:scale-95">
                     <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path>
@@ -543,7 +572,7 @@
                 
                 <!-- Video Preview -->
                 <template x-if="previewShort.type === 'video'">
-                    <video x-ref="previewVideo" :src="previewShort.video_path" class="w-full h-full object-contain bg-black" loop controls autoplay></video>
+                    <video id="preview-video-player" x-ref="previewVideo" :src="previewShort.video_path" class="w-full h-full object-contain bg-black" loop controls autoplay></video>
                 </template>
 
                 <!-- Images Carousel Preview -->
@@ -575,7 +604,7 @@
 
                         <!-- Audio Player for Images -->
                         <template x-if="previewShort.audio_path">
-                            <audio x-ref="previewAudio" :src="previewShort.audio_path" loop autoplay class="absolute bottom-4 inset-x-4 h-8 bg-black/40 rounded-xl"></audio>
+                            <audio id="preview-audio-player" x-ref="previewAudio" :src="previewShort.audio_path" loop autoplay class="absolute bottom-4 inset-x-4 h-8 bg-black/40 rounded-xl"></audio>
                         </template>
                     </div>
                 </template>
