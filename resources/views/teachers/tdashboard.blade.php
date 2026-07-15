@@ -43,6 +43,16 @@
                     </div>
                     <span class="text-xs font-black text-slate-700 dark:text-slate-300 leading-tight">แบบทดสอบ</span>
                 </a>
+                <!-- คลิปเรียนรู้สั้น (OLIS Shorts) -->
+                <a href="{{ route('shorts.index') }}" class="flex flex-col items-center justify-center p-4 bg-white dark:bg-slate-900 border border-slate-150 dark:border-slate-800 rounded-[1.75rem] text-center hover:shadow-md hover:border-purple-300 dark:hover:border-purple-900/60 transition-all duration-300 transform hover:-translate-y-0.5 active:scale-95 shadow-sm">
+                    <div class="w-12 h-12 rounded-2xl bg-purple-50 dark:bg-purple-950/40 text-purple-650 flex items-center justify-center mb-2.5">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                    <span class="text-xs font-black text-slate-700 dark:text-slate-300 leading-tight">คลิปเรียนรู้สั้น<br>OLIS Shorts</span>
+                </a>
                 <!-- จัดการคลิปสั้น -->
                 <a href="{{ route('teachers.shorts.index') }}" class="flex flex-col items-center justify-center p-4 bg-white dark:bg-slate-900 border border-slate-150 dark:border-slate-800 rounded-[1.75rem] text-center hover:shadow-md hover:border-purple-300 dark:hover:border-purple-900/60 transition-all duration-300 transform hover:-translate-y-0.5 active:scale-95 shadow-sm">
                     <div class="w-12 h-12 rounded-2xl bg-purple-50 dark:bg-purple-950/40 text-purple-650 flex items-center justify-center mb-2.5">
@@ -52,14 +62,14 @@
                     </div>
                     <span class="text-xs font-black text-slate-700 dark:text-slate-300 leading-tight">จัดการคลิปสั้น</span>
                 </a>
-                <!-- รายงาน กศน.4 -->
+                <!-- รายงานผู้เรียนในกลุ่ม -->
                 <a href="{{ url('teachers/treport') }}" class="flex flex-col items-center justify-center p-4 bg-white dark:bg-slate-900 border border-slate-150 dark:border-slate-800 rounded-[1.75rem] text-center hover:shadow-md hover:border-purple-300 dark:hover:border-purple-900/60 transition-all duration-300 transform hover:-translate-y-0.5 active:scale-95 shadow-sm">
                     <div class="w-12 h-12 rounded-2xl bg-purple-50 dark:bg-purple-950/40 text-purple-650 flex items-center justify-center mb-2.5">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M19 7h1v12a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v14a1 1 0 0 0 1 1h11.5M7 14h6m-6 3h6m0-10h.5m-.5 3h.5M7 7h3v3H7V7Z"/>
                         </svg>
                     </div>
-                    <span class="text-xs font-black text-slate-700 dark:text-slate-300 leading-tight">รายงาน กศน.4</span>
+                    <span class="text-xs font-black text-slate-700 dark:text-slate-300 leading-tight">รายงานผู้เรียนในกลุ่ม</span>
                 </a>
                 <!-- ผลการเรียน -->
                 <a href="{{ url('teachers/tgrade') }}" class="flex flex-col items-center justify-center p-4 bg-white dark:bg-slate-900 border border-slate-150 dark:border-slate-800 rounded-[1.75rem] text-center hover:shadow-md hover:border-purple-300 dark:hover:border-purple-900/60 transition-all duration-300 transform hover:-translate-y-0.5 active:scale-95 shadow-sm">
@@ -69,20 +79,6 @@
                         </svg>
                     </div>
                     <span class="text-xs font-black text-slate-700 dark:text-slate-300 leading-tight">ผลการเรียน</span>
-                </a>
-                <!-- ศูนย์รับแจ้งปัญหา -->
-                <a href="{{ route('teachers.help.index') }}" class="flex flex-col items-center justify-center p-4 bg-white dark:bg-slate-900 border border-slate-150 dark:border-slate-800 rounded-[1.75rem] text-center hover:shadow-md hover:border-purple-300 dark:hover:border-purple-900/60 transition-all duration-300 transform hover:-translate-y-0.5 active:scale-95 shadow-sm relative">
-                    <div class="w-12 h-12 rounded-2xl bg-purple-50 dark:bg-purple-950/40 text-purple-650 flex items-center justify-center mb-2.5">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M18.364 5.636l-3.536 3.536m0 0A7 7 0 1110.5 3.5c1.1 0 2.12.253 3.03.7M14.828 9.172A4 4 0 1112 8.244m2.828.928a4 4 0 01-2.828-.928"></path>
-                        </svg>
-                    </div>
-                    <span class="text-xs font-black text-slate-700 dark:text-slate-300 leading-tight">ศูนย์รับแจ้งปัญหา</span>
-                    @if($teacherPendingCount > 0)
-                        <span class="absolute top-3 right-3 flex h-5.5 w-5.5 items-center justify-center rounded-full bg-red-650 text-[10px] font-black text-white ring-2 ring-white">
-                            {{ $teacherPendingCount }}
-                        </span>
-                    @endif
                 </a>
             </div>
         </div>
@@ -229,13 +225,13 @@
             @else
                 <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
                     @foreach($shorts->take(6) as $s)
-                        <div class="bg-white dark:bg-slate-900 border border-slate-150 dark:border-slate-800 rounded-[1.75rem] overflow-hidden shadow-sm hover:shadow-md hover:border-purple-300 dark:hover:border-purple-900/60 transition-all duration-300">
+                        <a href="{{ route('shorts.index', ['id' => $s->id]) }}" class="block bg-white dark:bg-slate-900 border border-slate-150 dark:border-slate-800 rounded-[1.75rem] overflow-hidden shadow-sm hover:shadow-md hover:border-purple-300 dark:hover:border-purple-900/60 transition-all duration-300">
                             <div class="relative h-44 sm:h-56 bg-slate-950 flex items-center justify-center">
                                 @if($s->type === 'images' && is_array($s->images) && count($s->images) > 0)
-                                    <img class="w-full h-full object-cover" src="{{ asset('storage/shorts/images/' . $s->images[0]) }}" onerror="this.src='https://as1.ftcdn.net/v2/jpg/03/46/83/96/1000_F_346839683_6nAPzbhpSkIpb8pmAwufkC7c5eD7wYws.jpg'">
+                                    <img class="w-full h-full object-cover" src="{{ asset('storage/' . $s->images[0]) }}" onerror="this.src='https://as1.ftcdn.net/v2/jpg/03/46/83/96/1000_F_346839683_6nAPzbhpSkIpb8pmAwufkC7c5eD7wYws.jpg'">
                                     <span class="absolute top-2 right-2 px-2.5 py-0.5 rounded-full bg-slate-950/70 text-white text-[9px] font-black">📷 {{ count($s->images) }} ภาพ</span>
                                 @elseif($s->video_path)
-                                    <video class="w-full h-full object-cover" src="{{ asset('storage/shorts/videos/' . $s->video_path) }}"></video>
+                                    <video class="w-full h-full object-cover" src="{{ asset('storage/' . $s->video_path) }}"></video>
                                     <span class="absolute top-2 right-2 px-2.5 py-0.5 rounded-full bg-slate-950/70 text-white text-[9px] font-black">🎬 วิดีโอ</span>
                                 @else
                                     <span class="text-xs text-slate-500">ไม่มีรูปภาพ</span>
@@ -248,7 +244,7 @@
                                     <span>❤️ {{ $s->likes_count ?? 0 }} ไลค์</span>
                                 </div>
                             </div>
-                        </div>
+                        </a>
                     @endforeach
                 </div>
             @endif
@@ -304,16 +300,23 @@
                         ยังไม่มีแบบทดสอบหรือชุดคำถามที่สร้าง
                     </div>
                 @else
-                    <div class="space-y-3">
+                    <div class="space-y-3.5">
                         @foreach($quizzes->take(4) as $q)
-                            <div class="p-4.5 bg-white dark:bg-slate-900 border border-slate-150 dark:border-slate-800 rounded-[1.75rem] shadow-sm flex items-center justify-between gap-4">
-                                <div class="space-y-1.5 min-w-0">
+                            <div class="flex gap-4 p-4 bg-white dark:bg-slate-900 border border-slate-150 dark:border-slate-800 rounded-[1.75rem] shadow-sm relative">
+                                <img class="w-16 h-16 object-cover rounded-2xl flex-shrink-0 shadow-sm border border-slate-100 dark:border-slate-800" src="{{ $q->cover_image ? $q->cover_image : 'https://as1.ftcdn.net/v2/jpg/03/46/83/96/1000_F_346839683_6nAPzbhpSkIpb8pmAwufkC7c5eD7wYws.jpg' }}" onerror="this.src='https://as1.ftcdn.net/v2/jpg/03/46/83/96/1000_F_346839683_6nAPzbhpSkIpb8pmAwufkC7c5eD7wYws.jpg'">
+                                <div class="flex-grow space-y-1.5 min-w-0">
+                                    <div class="flex items-center gap-2">
+                                        <span class="px-2.5 py-0.5 rounded-full {{ $q->is_active ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300' : 'bg-slate-100 text-slate-500 dark:bg-slate-850 dark:text-slate-400' }} text-[9px] font-black uppercase tracking-wider leading-none">
+                                            {{ $q->is_active ? 'เปิดใช้งาน' : 'ปิดใช้งาน' }}
+                                        </span>
+                                    </div>
                                     <h4 class="text-sm font-black text-slate-800 dark:text-white truncate leading-tight">{{ $q->title }}</h4>
-                                    <span class="text-xs text-slate-450 dark:text-slate-500 font-bold block leading-none">วิชา: {{ $q->subject_code }} | {{ $q->total_score }} คะแนน</span>
+                                    <span class="text-xs text-slate-450 dark:text-slate-500 font-bold block leading-none">วิชา: {{ $q->subject_code }} | คะแนน {{ $q->total_score }}</span>
+                                    <div class="flex gap-2 pt-1.5">
+                                        <a href="{{ route('ttest.edit', $q->id) }}" class="px-3 py-1 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-750 text-slate-700 dark:text-slate-350 text-[10px] font-black rounded-lg transition-all">แก้ไขแบบทดสอบ</a>
+                                        <a href="{{ route('ttest.report.summary', $q->id) }}" class="px-3 py-1 bg-purple-50 hover:bg-purple-100 dark:bg-purple-950/40 dark:hover:bg-purple-900/30 text-purple-700 dark:text-purple-300 text-[10px] font-black rounded-lg transition-all">รายงานผล</a>
+                                    </div>
                                 </div>
-                                <a href="{{ route('ttest.edit', $q->id) }}" class="px-4 py-2 bg-slate-850 hover:bg-slate-950 text-white rounded-2xl text-[11px] font-black tracking-widest uppercase transition-all shadow-sm active:scale-95 flex-shrink-0">
-                                    แก้ไข
-                                </a>
                             </div>
                         @endforeach
                     </div>

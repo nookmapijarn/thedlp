@@ -39,12 +39,13 @@ class TeachersController extends Controller
         $quizzes = Quiz::where('created_by', auth()->id())->latest()->get();
 
         // 1. ผู้เรียนที่เข้าเรียนในระบบสูงสุด (Active Students by Audit Log Activity)
-        $top_students = DB::table('audit_logs')
-            ->join('users', 'audit_logs.user_id', '=', 'users.id')
+        $top_students = DB::table('users')
+            ->leftJoin('audit_logs', 'audit_logs.user_id', '=', 'users.id')
             ->where('users.role', 1)
-            ->select('users.name', 'users.email', DB::raw('count(audit_logs.id) as logs_count'))
+            ->select('users.id', 'users.name', 'users.email', DB::raw('COUNT(audit_logs.id) as logs_count'))
             ->groupBy('users.id', 'users.name', 'users.email')
-            ->orderBy('logs_count', 'desc')
+            ->orderByDesc('logs_count')
+            ->orderBy('users.name')
             ->take(5)
             ->get();
 
@@ -56,15 +57,13 @@ class TeachersController extends Controller
             $shorts_count = \App\Models\ShortVideo::where('teacher_id', $t->id)->count();
             $quizzes_count = \App\Models\Quiz::where('created_by', $t->id)->count();
             $total_creations = $courses_count + $shorts_count + $quizzes_count;
-            if ($total_creations > 0) {
-                $teacher_rankings[] = [
-                    'name' => $t->name,
-                    'courses' => $courses_count,
-                    'shorts' => $shorts_count,
-                    'quizzes' => $quizzes_count,
-                    'total' => $total_creations
-                ];
-            }
+            $teacher_rankings[] = [
+                'name' => $t->name,
+                'courses' => $courses_count,
+                'shorts' => $shorts_count,
+                'quizzes' => $quizzes_count,
+                'total' => $total_creations
+            ];
         }
         usort($teacher_rankings, function($a, $b) {
             return $b['total'] <=> $a['total'];

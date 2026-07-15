@@ -98,14 +98,14 @@
                 <a href="{{ url('teachers/treport') }}" class="flex items-center gap-4 p-4 rounded-2xl bg-slate-50 dark:bg-slate-950 hover:bg-purple-50 hover:text-purple-600 transition-colors border border-slate-100 dark:border-slate-850">
                     <div class="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-600 flex items-center justify-center font-bold">📄</div>
                     <div class="text-left">
-                        <span class="text-xs font-black block">รายงานผู้เรียน กศน.4</span>
+                        <span class="text-xs font-black block">รายงานผู้เรียน</span>
                         <span class="text-[10px] text-slate-400 font-bold">ดึงรายงานรายตำบล สรุปผลสอบ และพิมพ์บัตรนักศึกษา</span>
                     </div>
                 </a>
                 <a href="{{ url('teachers/tscore') }}" class="flex items-center gap-4 p-4 rounded-2xl bg-slate-50 dark:bg-slate-950 hover:bg-purple-50 hover:text-purple-600 transition-colors border border-slate-100 dark:border-slate-850">
                     <div class="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-600 flex items-center justify-center font-bold">📝</div>
                     <div class="text-left">
-                        <span class="text-xs font-black block">บันทึกคะแนน กศน.4</span>
+                        <span class="text-xs font-black block">คะแนน กศน.4</span>
                         <span class="text-[10px] text-slate-400 font-bold">บันทึกผลคะแนนเฉลี่ยการศึกษา กศน.4</span>
                     </div>
                 </a>

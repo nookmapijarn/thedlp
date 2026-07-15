@@ -8,7 +8,7 @@
        class="fixed top-0 left-0 z-40 w-72 h-screen pt-24 transition-transform -translate-x-full bg-slate-50/40 backdrop-blur-xl border-r border-white/50 sm:translate-x-0 shadow-sm" 
        aria-label="Sidebar">
     
-    <div class="h-full px-4 pb-4 overflow-y-auto bg-transparent scrollbar-hide">
+    <div class="h-full px-4 pb-4 overflow-y-auto bg-transparent [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
         <div class="mb-6 px-4 flex items-center justify-between">
             <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">เมนูสำหรับคุณครู</p>
             <div class="h-1.5 w-1.5 rounded-full bg-amber-400 animate-pulse shadow-[0_0_8px_rgba(251,191,36,0.6)]"></div>

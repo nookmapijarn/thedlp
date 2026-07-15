@@ -4,22 +4,41 @@
         editShort: { id: null, title: '', description: '', course_id: '' }, 
         previewOpen: false, 
         previewShort: { type: '', title: '', video_path: '', images: [], audio_path: '' },
+        normalizeMediaPath(path) {
+            if (!path) return '';
+            if (/^https?:\/\//i.test(path) || path.startsWith('/')) return path;
+            if (path.startsWith('storage/')) return '/' + path;
+            return '/storage/' + path;
+        },
         openPreview(btn) {
+            const rawImages = JSON.parse(btn.getAttribute('data-images') || '[]') || [];
             this.previewShort = {
                 type: btn.getAttribute('data-type'),
                 title: btn.getAttribute('data-title'),
-                video_path: btn.getAttribute('data-video'),
-                images: JSON.parse(btn.getAttribute('data-images') || '[]') || [],
-                audio_path: btn.getAttribute('data-audio')
+                video_path: this.normalizeMediaPath(btn.getAttribute('data-video')),
+                images: rawImages.map((img) => this.normalizeMediaPath(img)),
+                audio_path: this.normalizeMediaPath(btn.getAttribute('data-audio'))
             };
             this.previewOpen = true;
+            this.$nextTick(() => {
+                if (window.openShortPreview) {
+                    window.openShortPreview(btn);
+                }
+                const video = document.getElementById('preview-video-player');
+                if (video) {
+                    video.load();
+                    video.muted = true;
+                    video.play().catch(() => {});
+                }
+            });
         },
         closePreview() {
             this.previewOpen = false;
-            const v = document.getElementById('preview-video-player');
-            if (v) v.pause();
-            const a = document.getElementById('preview-audio-player');
-            if (a) a.pause();
+            this.$nextTick(() => {
+                if (window.closeShortPreview) {
+                    window.closeShortPreview();
+                }
+            });
         }
     }">
         
@@ -229,12 +248,20 @@
                                 <div class="p-4 flex gap-4">
                                     <!-- Simple Thumbnail Preview -->
                                     <div class="w-16 h-28 rounded-lg bg-black overflow-hidden relative flex-shrink-0 flex items-center justify-center border border-slate-200 dark:border-slate-800">
+                                    <button type="button"
+                                            data-type="{{ $short->type }}"
+                                            data-title="{{ addslashes($short->title) }}"
+                                            data-video="{{ $short->video_path ?: '' }}"
+                                            data-images="{{ json_encode($short->images ?? []) }}"
+                                            data-audio="{{ $short->audio_path ?: '' }}"
+                                            @click="openPreview($el)"
+                                            class="w-full h-full relative overflow-hidden flex items-center justify-center bg-black focus:outline-none">
                                         @if($short->type === 'images')
                                             @php
                                                 $firstImg = is_array($short->images) && count($short->images) > 0 ? $short->images[0] : null;
                                             @endphp
                                             @if($firstImg)
-                                                <img src="{{ asset('storage/' . $firstImg) }}" class="w-full h-full object-cover opacity-80">
+                                                <img src="{{ asset('storage/' . $firstImg) }}" class="w-full h-full object-contain opacity-80 bg-black">
                                             @else
                                                 <span class="text-white text-[9px] font-black">ไม่มีรูปภาพ</span>
                                             @endif
@@ -247,7 +274,7 @@
                                                 </span>
                                             @endif
                                         @else
-                                            <video class="w-full h-full object-cover opacity-75" preload="metadata" muted>
+                                            <video class="w-full h-full object-contain opacity-75 bg-black" preload="metadata" muted>
                                                 <source src="{{ asset('storage/' . $short->video_path) }}#t=0.5" type="video/mp4">
                                             </video>
                                             <span class="absolute inset-0 flex items-center justify-center z-10 bg-black/30 pointer-events-none">
@@ -256,8 +283,8 @@
                                                 </svg>
                                             </span>
                                         @endif
-                                    </div>
-
+                                    </button>
+                                </div>
                                     <!-- Content Info -->
                                     <div class="flex-grow min-w-0">
                                         <div class="flex items-center gap-1.5">
@@ -302,9 +329,9 @@
                                     <button type="button" 
                                             data-type="{{ $short->type }}"
                                             data-title="{{ addslashes($short->title) }}"
-                                            data-video="{{ $short->video_path ? asset('storage/' . $short->video_path) : '' }}"
-                                            data-images="{{ json_encode($short->images) }}"
-                                            data-audio="{{ $short->audio_path ? asset('storage/' . $short->audio_path) : '' }}"
+                                            data-video="{{ $short->video_path ?: '' }}"
+                                            data-images="{{ json_encode($short->images ?? []) }}"
+                                            data-audio="{{ $short->audio_path ?: '' }}"
                                             @click="openPreview($el)" 
                                             class="text-[10px] text-purple-650 hover:underline font-bold flex items-center gap-1 focus:outline-none">
                                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -408,11 +435,133 @@
                 </div>
             </div>
         </div>
+
+        <!-- Live Preview Modal (TikTok Smartphone Mockup Style) -->
+        <div id="preview-modal-overlay"
+             class="fixed inset-0 z-[60] items-center justify-center bg-slate-950/80 backdrop-blur-md p-4"
+             :class="previewOpen ? 'flex' : 'hidden'"
+             @click.self="closePreview()"
+             x-cloak>
+            
+            <div @click.stop
+                 class="bg-slate-900 border border-slate-800 rounded-[2.5rem] w-full max-w-[340px] aspect-[9/16] relative overflow-hidden flex flex-col shadow-2xl animate-in zoom-in duration-200">
+                
+                <!-- Top bar with close button -->
+<div class="absolute top-4 left-4 right-4 z-30 flex items-center justify-between gap-2 pointer-events-none">
+                <div class="flex flex-col gap-1 min-w-0 max-w-[78%]">
+                    <span class="text-[9px] text-white/60 bg-black/40 backdrop-blur-md px-2.5 py-1 rounded-full font-black border border-white/5 uppercase tracking-wider self-start">
+                        <span x-text="previewShort.type === 'images' ? '📸 Slide' : '🎥 Video'"></span>
+                    </span>
+                    <div class="inline-flex items-center gap-1.5 bg-black/45 backdrop-blur-md px-2.5 py-1 rounded-full border border-white/10 max-w-full">
+                        <span class="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse shrink-0"></span>
+                        <span class="text-[8px] text-white/80 font-bold uppercase tracking-wider truncate" x-text="previewShort.title || 'ดูตัวอย่าง'"></span>
+                    </div>
+                </div>
+                    <button type="button" @click="closePreview()" 
+                            class="pointer-events-auto p-1.5 bg-black/40 hover:bg-black/60 text-white rounded-full transition-all focus:outline-none border border-white/10 active:scale-95">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Content Preview Area -->
+                <div class="flex-1 bg-black relative flex items-center justify-center">
+                    
+                    <!-- Video Preview -->
+                    <template x-if="previewShort.type === 'video'">
+                        <video id="preview-video-player" x-ref="previewVideo" :src="previewShort.video_path" class="w-full h-full object-contain bg-black" loop controls autoplay playsinline muted></video>
+                    </template>
+
+                    <!-- Images Carousel Preview -->
+                    <template x-if="previewShort.type === 'images'">
+                        <div class="w-full h-full relative flex items-center justify-center bg-slate-950" x-data="{ currentImg: 0 }">
+                            <!-- Carousel Images -->
+                            <div class="w-full h-full flex overflow-x-hidden relative items-center justify-center">
+                                <template x-for="(img, idx) in previewShort.images" :key="idx">
+                                    <img x-show="currentImg === idx" :src="img" class="w-full h-full object-contain bg-slate-950">
+                                </template>
+                            </div>
+
+                            <!-- Arrows -->
+                            <button type="button" @click="currentImg = (currentImg - 1 + previewShort.images.length) % previewShort.images.length" 
+                                    class="absolute left-2.5 w-7 h-7 rounded-full bg-black/40 hover:bg-black/60 text-white flex items-center justify-center border border-white/10 active:scale-90 focus:outline-none z-20 text-[10px]">
+                                ◀
+                            </button>
+                            <button type="button" @click="currentImg = (currentImg + 1) % previewShort.images.length" 
+                                    class="absolute right-2.5 w-7 h-7 rounded-full bg-black/40 hover:bg-black/60 text-white flex items-center justify-center border border-white/10 active:scale-90 focus:outline-none z-20 text-[10px]">
+                                ▶
+                            </button>
+
+                            <!-- Carousel Dot Indicators -->
+                            <div class="absolute bottom-16 inset-x-0 flex items-center justify-center gap-1.5 z-20">
+                            <template x-for="(img, idx) in previewShort.images" :key="idx">
+                                <span :class="currentImg === idx ? 'bg-rose-500 w-3' : 'bg-white/40 w-1.5'" class="h-1.5 rounded-full transition-all duration-300"></span>
+                            </template>
+                            </div>
+
+                            <!-- Audio Player for Images -->
+                            <template x-if="previewShort.audio_path">
+                                <audio id="preview-audio-player" x-ref="previewAudio" :src="previewShort.audio_path" loop autoplay class="absolute bottom-4 inset-x-4 h-8 bg-black/40 rounded-xl"></audio>
+                            </template>
+                        </div>
+                    </template>
+                </div>
+
+            </div>
+        </div>
     </div>
 
     <!-- Video & Images file display JavaScript helper -->
     <script>
+        function openShortPreview(btn) {
+            const overlay = document.getElementById('preview-modal-overlay');
+            if (!overlay) return;
+
+            overlay.classList.remove('hidden');
+            overlay.classList.add('flex');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeShortPreview() {
+            const overlay = document.getElementById('preview-modal-overlay');
+            if (!overlay) return;
+
+            overlay.classList.add('hidden');
+            overlay.classList.remove('flex');
+            document.body.style.overflow = '';
+
+            const v = document.getElementById('preview-video-player');
+            if (v) {
+                v.pause();
+                v.currentTime = 0;
+            }
+            const a = document.getElementById('preview-audio-player');
+            if (a) {
+                a.pause();
+                a.currentTime = 0;
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
+            window.openShortPreview = openShortPreview;
+            window.closeShortPreview = closeShortPreview;
+
+            const overlay = document.getElementById('preview-modal-overlay');
+            if (overlay) {
+                overlay.addEventListener('click', (event) => {
+                    if (event.target === overlay) {
+                        closeShortPreview();
+                    }
+                });
+            }
+
+            document.addEventListener('keydown', (event) => {
+                if (event.key === 'Escape') {
+                    closeShortPreview();
+                }
+            });
+
             // Video input handlers
             const videoInput = document.getElementById('video-input');
             const videoPrompt = document.getElementById('upload-prompt');
@@ -540,84 +689,4 @@
         }
     </script>
 
-    <!-- Live Preview Modal (TikTok Smartphone Mockup Style) -->
-    <div x-show="previewOpen" 
-         x-transition:enter="transition ease-out duration-300"
-         x-transition:enter-start="opacity-0"
-         x-transition:enter-end="opacity-100"
-         x-transition:leave="transition ease-in duration-200"
-         x-transition:leave-start="opacity-100"
-         x-transition:leave-end="opacity-0"
-         class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-md p-4" 
-         x-cloak>
-        
-        <div @click.outside="closePreview()" 
-             class="bg-slate-900 border border-slate-800 rounded-[2.5rem] w-full max-w-[340px] aspect-[9/16] relative overflow-hidden flex flex-col shadow-2xl animate-in zoom-in duration-200">
-            
-            <!-- Top bar with close button -->
-            <div class="absolute top-4 left-4 right-4 z-30 flex items-center justify-between pointer-events-none">
-                <span class="text-[9px] text-white/50 bg-black/40 backdrop-blur-md px-2.5 py-1 rounded-full font-black border border-white/5 uppercase tracking-wider" x-text="previewShort.type === 'images' ? '📸 Slide' : '🎥 Video'">
-                    ดูตัวอย่าง
-                </span>
-                <button type="button" @click="closePreview()" 
-                        class="pointer-events-auto p-1.5 bg-black/40 hover:bg-black/60 text-white rounded-full transition-all focus:outline-none border border-white/10 active:scale-95">
-                    <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path>
-                    </svg>
-                </button>
-            </div>
-
-            <!-- Content Preview Area -->
-            <div class="flex-1 bg-black relative flex items-center justify-center">
-                
-                <!-- Video Preview -->
-                <template x-if="previewShort.type === 'video'">
-                    <video id="preview-video-player" x-ref="previewVideo" :src="previewShort.video_path" class="w-full h-full object-contain bg-black" loop controls autoplay></video>
-                </template>
-
-                <!-- Images Carousel Preview -->
-                <template x-if="previewShort.type === 'images'">
-                    <div class="w-full h-full relative flex items-center justify-center bg-slate-950" x-data="{ currentImg: 0 }">
-                        <!-- Carousel Images -->
-                        <div class="w-full h-full flex overflow-x-hidden relative items-center justify-center">
-                            <template x-for="(img, idx) in previewShort.images" :key="idx">
-                                <img x-show="currentImg === idx" :src="'/storage/' + img" class="w-full h-full object-cover">
-                            </template>
-                        </div>
-
-                        <!-- Arrows -->
-                        <button type="button" @click="currentImg = (currentImg - 1 + previewShort.images.length) % previewShort.images.length" 
-                                class="absolute left-2.5 w-7 h-7 rounded-full bg-black/40 hover:bg-black/60 text-white flex items-center justify-center border border-white/10 active:scale-90 focus:outline-none z-20 text-[10px]">
-                            ◀
-                        </button>
-                        <button type="button" @click="currentImg = (currentImg + 1) % previewShort.images.length" 
-                                class="absolute right-2.5 w-7 h-7 rounded-full bg-black/40 hover:bg-black/60 text-white flex items-center justify-center border border-white/10 active:scale-90 focus:outline-none z-20 text-[10px]">
-                            ▶
-                        </button>
-
-                        <!-- Carousel Dot Indicators -->
-                        <div class="absolute bottom-16 inset-x-0 flex items-center justify-center gap-1.5 z-20">
-                           <template x-for="(img, idx) in previewShort.images" :key="idx">
-                               <span :class="currentImg === idx ? 'bg-rose-500 w-3' : 'bg-white/40 w-1.5'" class="h-1.5 rounded-full transition-all duration-300"></span>
-                           </template>
-                        </div>
-
-                        <!-- Audio Player for Images -->
-                        <template x-if="previewShort.audio_path">
-                            <audio id="preview-audio-player" x-ref="previewAudio" :src="previewShort.audio_path" loop autoplay class="absolute bottom-4 inset-x-4 h-8 bg-black/40 rounded-xl"></audio>
-                        </template>
-                    </div>
-                </template>
-            </div>
-
-            <!-- Bottom Info -->
-            <div class="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/90 via-black/35 to-transparent p-4 pt-10 flex flex-col justify-end pointer-events-none">
-                <p class="text-xs text-white font-black truncate drop-shadow-md" x-text="previewShort.title"></p>
-                <div class="flex items-center gap-1.5 mt-1">
-                    <span class="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse"></span>
-                    <span class="text-[9px] text-white/50 font-bold uppercase tracking-wider">กำลังเล่นไฟล์ตัวอย่าง</span>
-                </div>
-            </div>
-        </div>
-    </div>
 </x-teachers-layout>
