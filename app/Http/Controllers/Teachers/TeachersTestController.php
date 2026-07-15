@@ -663,28 +663,34 @@ class TeachersTestController extends Controller
     public function getCertificateBase64(Request $request) {
         $url = $request->query('url');
 
-        if (!$url) {
-            return response()->json(['error' => 'URL is required'], 400);
+        if (empty($url)) {
+            return response()->json(['base64' => null, 'message' => 'No certificate URL provided'], 200);
         }
 
         try {
             $decodedUrl = urldecode($url);
-
-            // Parse URL path to support both production domains and localhost
             $parsedUrl = parse_url($decodedUrl);
-            $pathInsidePublic = $parsedUrl['path'] ?? '';
-            $pathInsidePublic = ltrim($pathInsidePublic, '/');
-            $absolutePath = public_path($pathInsidePublic);
+            $pathInsidePublic = $parsedUrl['path'] ?? $decodedUrl;
 
-            $realCertPath = realpath(public_path('storage/images/exams/certificate'));
+            if (empty($pathInsidePublic)) {
+                return response()->json(['base64' => null, 'message' => 'No certificate path available'], 200);
+            }
+
+            $pathInsidePublic = ltrim($pathInsidePublic, '/');
+            if (str_starts_with($pathInsidePublic, 'public/')) {
+                $pathInsidePublic = substr($pathInsidePublic, strlen('public/'));
+            }
+
+            $absolutePath = public_path($pathInsidePublic);
+            $publicRoot = realpath(public_path());
             $resolvedPath = realpath($absolutePath);
 
-            if ($resolvedPath === false || $realCertPath === false || !str_starts_with($resolvedPath, $realCertPath)) {
-                return response()->json(['error' => 'Access Denied: Invalid Path'], 403);
+            if ($publicRoot === false || $resolvedPath === false || !str_starts_with($resolvedPath, $publicRoot)) {
+                return response()->json(['base64' => null, 'message' => 'Certificate image is not available'], 200);
             }
 
             if (!file_exists($resolvedPath)) {
-                return response()->json(['error' => 'File not found'], 404);
+                return response()->json(['base64' => null, 'message' => 'Certificate image file not found'], 200);
             }
 
             $data = file_get_contents($resolvedPath);
@@ -692,14 +698,14 @@ class TeachersTestController extends Controller
             $mimeType = $finfo->buffer($data);
 
             if (!str_starts_with($mimeType, 'image/')) {
-                return response()->json(['error' => 'Invalid file type'], 400);
+                return response()->json(['base64' => null, 'message' => 'Invalid certificate image type'], 200);
             }
 
             $base64 = 'data:' . $mimeType . ';base64,' . base64_encode($data);
             return response()->json(['base64' => $base64]);
 
         } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 500);
+            return response()->json(['base64' => null, 'message' => $e->getMessage()], 200);
         }
     }
 

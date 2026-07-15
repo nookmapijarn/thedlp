@@ -617,7 +617,9 @@ async function renderCertificate(canvasId, data) {
     imgSignature.crossOrigin = "anonymous";
 
     // แหล่งที่มารูปภาพ
-    imgBg.src = data.base64;
+    if (data.base64) {
+        imgBg.src = data.base64;
+    }
     imgLogo.src = (config && config.logo_url) ? config.logo_url : '{{ asset("storage/logo.png") ?? asset("storage/olislogo.png") }}';
     imgSignature.src = data.signature_path ? data.signature_path : '{{ asset("storage/signature.png") ?? asset("storage/nonesignature.png") }}';
 
@@ -630,17 +632,24 @@ async function renderCertificate(canvasId, data) {
             if (loadedCount === totalImages) draw();
         };
 
-        imgBg.onload = checkLoaded;
+        if (data.base64) {
+            imgBg.onload = checkLoaded;
+            imgBg.onerror = () => { console.warn("BG failed"); checkLoaded(); };
+        } else {
+            checkLoaded();
+        }
+
         imgLogo.onload = checkLoaded;
         imgSignature.onload = checkLoaded;
         
         imgLogo.onerror = () => { console.warn("Logo failed"); checkLoaded(); };
         imgSignature.onerror = () => { console.warn("Signature failed"); checkLoaded(); };
-        imgBg.onerror = () => { console.error("BG failed"); resolve(); };
 
         function draw() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.drawImage(imgBg, 0, 0, canvas.width, canvas.height);
+            if (imgBg.complete && imgBg.naturalWidth > 0) {
+                ctx.drawImage(imgBg, 0, 0, canvas.width, canvas.height);
+            }
 
             const centerX = canvas.width / 2;
             const fontFamily = "'Prompt', sans-serif";
@@ -850,7 +859,8 @@ async function showCertificateModal(title, score, total, bgUrl, configStr, signa
     document.body.style.overflow = 'hidden';
 
     try {
-        const response = await fetch(`student/get-cert-base64?url=${encodeURIComponent(bgUrl)}`);
+        const certEndpoint = '{{ route('cert.base64') }}';
+        const response = await fetch(`${certEndpoint}?url=${encodeURIComponent(bgUrl || '')}`);
         const result = await response.json();
         
         let parsedConfig = null;
@@ -863,7 +873,7 @@ async function showCertificateModal(title, score, total, bgUrl, configStr, signa
         }
 
         currentCertData = {
-            base64: result.base64,
+            base64: result && typeof result.base64 === 'string' ? result.base64 : null,
             name: "{{ auth()->user()->name }}",
             title: title,
             score: score,
