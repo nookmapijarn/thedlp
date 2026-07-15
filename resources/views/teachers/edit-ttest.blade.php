@@ -169,7 +169,6 @@
                                             <label class="flex items-center gap-2 text-sm font-black text-slate-700 dark:text-white mb-2 ml-1">ภาพเกียรติบัตร</label>
                                             <div class="relative group/cert space-y-3">
                                                 <input type="file" id="cert_input" accept="image/*" class="hidden" onchange="previewCertImage(this)">
-                                                <input type="hidden" name="quiz_certificate_base64" id="quiz_certificate_base64">
                                                 <input type="hidden" name="certificate_config" id="certificate_config" value="{{ $quiz->certificate_config }}">
                                                 <!-- Standard file input for signature inside form submission -->
                                                 <input type="file" name="quiz_signature" id="quiz_signature_hidden_file" class="hidden" accept="image/png">
@@ -538,8 +537,8 @@
     const certMainPreviewContainer = document.getElementById('cert_main_preview_container');
     const certPlaceholderBtn = document.getElementById('cert_placeholder_btn');
     const certPlaceholder = document.getElementById('cert_placeholder');
-    const certBase64Input = document.getElementById('quiz_certificate_base64');
-    const certConfigInput = document.getElementById('certificate_config');
+    const certBase64Input = document.querySelector('input[name="quiz_certificate_base64"]');
+    const certConfigInput = document.querySelector('input[name="certificate_config"]');
 
     // Populate initial inputs from savedConfig
     document.getElementById('cert_org_name').value = savedConfig.org_name || '';
