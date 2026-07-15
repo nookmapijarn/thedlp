@@ -1,5 +1,5 @@
 <x-admin-layout>
-    <div class="p-6 max-w-7xl mx-auto space-y-6">
+    <div class="p-4 sm:ml-64 max-w-7xl mx-auto space-y-6">
         
         <!-- Alerts -->
         @if(session('success'))

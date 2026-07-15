@@ -63,7 +63,7 @@
                 <div class="hidden md:block overflow-x-auto">
                     <table class="w-full text-left border-collapse">
                         @if($schedule)
-                        <thead class="bg-violet-50 dark:bg-slate-800/50 text-violet-950 dark:text-violet-200 text-xs uppercase font-black border-b border-slate-100 dark:border-slate-800/80">
+                        <thead class="bg-gradient-to-r from-violet-600 to-indigo-600 dark:from-violet-800 dark:to-indigo-800 text-white text-xs uppercase font-black border-b border-slate-100 dark:border-slate-800/80">
                             <tr>
                                 <th class="px-6 py-4 text-center w-20">ลำดับ</th>
                                 <th class="px-6 py-4 w-40">รหัสวิชา</th>

@@ -390,20 +390,20 @@
                         <table id="historyTable" class="w-full text-left border-collapse">
                             {{-- Header: Hidden on Mobile --}}
                             <thead class="hidden md:table-header-group">
-                                <tr class="bg-slate-50/50 border-b border-slate-100">
-                                    <th onclick="sortHistoryTable(0)" class="cursor-pointer px-8 py-5 text-left text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] hover:text-indigo-600 transition-colors group">
+                                <tr class="bg-gradient-to-r from-indigo-600 to-violet-600 dark:from-indigo-800 dark:to-violet-800 text-white">
+                                    <th onclick="sortHistoryTable(0)" class="cursor-pointer px-8 py-5 text-left text-[10px] font-bold text-indigo-100 uppercase tracking-[0.2em] hover:text-white transition-colors group">
                                         ชื่อข้อสอบ <span class="sort-icon opacity-0 group-hover:opacity-100 ml-1">↕</span>
                                     </th>
-                                    <th onclick="sortHistoryTable(1)" class="cursor-pointer px-8 py-5 text-left text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] hover:text-indigo-600 transition-colors group">
+                                    <th onclick="sortHistoryTable(1)" class="cursor-pointer px-8 py-5 text-left text-[10px] font-bold text-indigo-100 uppercase tracking-[0.2em] hover:text-white transition-colors group">
                                         วันที่สอบ <span class="sort-icon opacity-0 group-hover:opacity-100 ml-1">↕</span>
                                     </th>
-                                    <th onclick="sortHistoryTable(2)" class="cursor-pointer px-8 py-5 text-center text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] hover:text-indigo-600 transition-colors group">
+                                    <th onclick="sortHistoryTable(2)" class="cursor-pointer px-8 py-5 text-center text-[10px] font-bold text-indigo-100 uppercase tracking-[0.2em] hover:text-white transition-colors group">
                                         คะแนน <span class="sort-icon opacity-0 group-hover:opacity-100 ml-1">↕</span>
                                     </th>
-                                    <th onclick="sortHistoryTable(3)" class="cursor-pointer px-8 py-5 text-center text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] hover:text-indigo-600 transition-colors group">
+                                    <th onclick="sortHistoryTable(3)" class="cursor-pointer px-8 py-5 text-center text-[10px] font-bold text-indigo-100 uppercase tracking-[0.2em] hover:text-white transition-colors group">
                                         สถานะ <span class="sort-icon opacity-0 group-hover:opacity-100 ml-1">↕</span>
                                     </th>
-                                    <th class="px-8 py-5 text-right text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">จัดการ</th>
+                                    <th class="px-8 py-5 text-right text-[10px] font-bold text-indigo-100 uppercase tracking-[0.2em]">จัดการ</th>
                                 </tr>
                             </thead>
                             
