@@ -617,8 +617,9 @@ async function renderCertificate(canvasId, data) {
     imgSignature.crossOrigin = "anonymous";
 
     // แหล่งที่มารูปภาพ
-    if (data.base64) {
-        imgBg.src = data.base64;
+    const bgSource = data.base64 || data.bg_url || '';
+    if (bgSource) {
+        imgBg.src = bgSource;
     }
     imgLogo.src = (config && config.logo_url) ? config.logo_url : '{{ asset("storage/logo.png") ?? asset("storage/olislogo.png") }}';
     imgSignature.src = data.signature_path ? data.signature_path : '{{ asset("storage/signature.png") ?? asset("storage/nonesignature.png") }}';
@@ -632,7 +633,7 @@ async function renderCertificate(canvasId, data) {
             if (loadedCount === totalImages) draw();
         };
 
-        if (data.base64) {
+        if (bgSource) {
             imgBg.onload = checkLoaded;
             imgBg.onerror = () => { console.warn("BG failed"); checkLoaded(); };
         } else {
@@ -859,10 +860,6 @@ async function showCertificateModal(title, score, total, bgUrl, configStr, signa
     document.body.style.overflow = 'hidden';
 
     try {
-        const certEndpoint = '{{ route('cert.base64') }}';
-        const response = await fetch(`${certEndpoint}?url=${encodeURIComponent(bgUrl || '')}`);
-        const result = await response.json();
-        
         let parsedConfig = null;
         if (configStr) {
             try {
@@ -872,8 +869,11 @@ async function showCertificateModal(title, score, total, bgUrl, configStr, signa
             }
         }
 
+        const resolvedBgUrl = bgUrl ? new URL(bgUrl, window.location.origin).toString() : null;
+
         currentCertData = {
-            base64: result && typeof result.base64 === 'string' ? result.base64 : null,
+            base64: null,
+            bg_url: resolvedBgUrl,
             name: "{{ auth()->user()->name }}",
             title: title,
             score: score,
