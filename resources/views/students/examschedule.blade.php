@@ -15,7 +15,7 @@
             <div class="bg-white dark:bg-slate-900 overflow-hidden shadow-2xl shadow-slate-100 dark:shadow-none rounded-3xl border border-slate-100 dark:border-slate-800/80">
                 
                 {{-- Header Card --}}
-                <div class="p-6 bg-gradient-to-br from-violet-850 via-indigo-900 to-purple-950 text-white rounded-t-3xl relative overflow-hidden">
+                <div class="p-6 bg-gradient-to-r from-indigo-600 to-violet-700 dark:from-indigo-900 dark:to-violet-950 text-white rounded-t-3xl relative overflow-hidden">
                     <div class="absolute -top-24 -right-24 w-56 h-56 rounded-full bg-violet-600/20 blur-3xl"></div>
                     <div class="absolute -bottom-24 -left-24 w-56 h-56 rounded-full bg-pink-500/10 blur-3xl"></div>
                     
@@ -185,7 +185,7 @@
             {{-- N-NET Section --}}
             @if($nnet === 'N-NET')
             <div class="bg-white dark:bg-slate-900 overflow-hidden shadow-xl rounded-3xl border border-indigo-100 dark:border-slate-800 transition-all hover:shadow-2xl">
-                <div class="p-6 bg-gradient-to-r from-indigo-750 to-violet-850 text-white flex justify-between items-center relative overflow-hidden">
+                <div class="p-6 bg-gradient-to-r from-indigo-600 to-violet-700 dark:from-indigo-900 dark:to-violet-950 text-white flex justify-between items-center relative overflow-hidden">
                     <div class="absolute -top-12 -right-12 w-32 h-32 bg-white/5 rounded-full blur-xl"></div>
                     <div class="relative z-10">
                         <div class="flex items-center gap-2">
