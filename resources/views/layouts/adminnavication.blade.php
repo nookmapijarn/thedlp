@@ -2,15 +2,25 @@
   <div class="px-4 py-2.5 lg:px-6">
     <div class="flex items-center justify-between">
       
-      <div class="flex items-center justify-start">
+      <div class="flex items-center justify-start gap-2 sm:gap-3">
         <button data-drawer-target="logo-sidebar" data-drawer-toggle="logo-sidebar" aria-controls="logo-sidebar" type="button" class="inline-flex items-center p-2 text-gray-500 rounded-xl sm:hidden hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-100 dark:text-gray-400 dark:hover:bg-gray-800 dark:focus:ring-gray-700 transition-colors">
           <span class="sr-only">Open sidebar</span>
           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 6h16M4 12h16M4 18h7"></path>
           </svg>
         </button>
+
+        <button type="button" 
+                onclick="if (document.referrer && window.history.length > 1) { window.history.back(); } else { window.location.href='{{ url('adminuser') }}'; }" 
+                class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 hover:bg-purple-50 dark:hover:bg-purple-900/30 hover:text-purple-600 dark:hover:text-purple-400 rounded-xl border border-gray-200 dark:border-gray-700 shadow-xs hover:shadow transition-all duration-200 active:scale-95 group focus:outline-none focus:ring-2 focus:ring-purple-200 dark:focus:ring-purple-800"
+                title="ย้อนกลับ">
+          <svg class="w-4 h-4 text-gray-500 dark:text-gray-400 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-transform group-hover:-translate-x-0.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+          </svg>
+          <span class="font-bold">ย้อนกลับ</span>
+        </button>
         
-        <a href="{{ url('/adminuser') }}" class="flex ms-2 md:me-24 items-center group">
+        <a href="{{ url('/adminuser') }}" class="flex ms-1 sm:ms-2 md:me-24 items-center group">
           <div class="p-1.5 rounded-lg bg-purple-50 dark:bg-purple-900/30 group-hover:scale-105 transition-transform">
              <x-application-logo class="w-7 h-7 fill-current text-purple-600 dark:text-purple-400" />
           </div>
