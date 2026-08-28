@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\File; // อย่าลืม use ด้านบนไฟล์
+use Illuminate\Support\Facades\Storage;
 
 class TeachersTestController extends Controller
 {
@@ -465,7 +466,7 @@ class TeachersTestController extends Controller
     }
 
     /**
-     * Helper สำหรับบันทึกภาพคำถามจาก Base64
+     * Helper สำหรับบันทึกภาพคำถามจาก Base64 ตามมาตรฐาน Laravel Storage
      */
     private function saveQuestionImageBase64($base64Data, $quizId, $index)
     {
@@ -480,13 +481,12 @@ class TeachersTestController extends Controller
         }
 
         $imageName = 'q_' . $quizId . '_' . $index . '_' . time() . '_' . uniqid() . '.png';
-        $directory = public_path('storage/images/exams/questions');
-        if (!File::exists($directory)) {
-            File::makeDirectory($directory, 0777, true);
-        }
+        $relativePath = 'images/exams/questions/' . $imageName;
 
-        File::put($directory . '/' . $imageName, $imageData);
-        return asset('storage/images/exams/questions/' . $imageName);
+        // บันทึกผ่าน Storage disk ('public') ลงใน storage/app/public/...
+        Storage::disk('public')->put($relativePath, $imageData);
+
+        return asset('storage/' . $relativePath);
     }
 
     /**
@@ -496,12 +496,20 @@ class TeachersTestController extends Controller
     {
         if (!$fullUrl) return;
 
-        // แปลง URL กลับเป็น Path ในเครื่อง
-        $path = str_replace(asset('storage'), public_path('storage'), $fullUrl);
-        $path = str_replace(asset(''), public_path(''), $path);
-        
-        if (File::exists($path)) {
-            File::delete($path);
+        // ดึง relative path สำหรับ Storage disk ('public')
+        $relativePath = str_replace(asset('storage/'), '', $fullUrl);
+        $relativePath = str_replace(asset('storage'), '', $relativePath);
+        $relativePath = str_replace('/storage/', '', $relativePath);
+        $relativePath = ltrim($relativePath, '/');
+
+        if (Storage::disk('public')->exists($relativePath)) {
+            Storage::disk('public')->delete($relativePath);
+        }
+
+        // ตรวจสอบและลบที่ path ตรงหากจำเป็น
+        $fullPath = public_path('storage/' . $relativePath);
+        if (File::exists($fullPath)) {
+            @File::delete($fullPath);
         }
     }
 
