@@ -154,6 +154,23 @@
                                 <h3 class="p-4 text-sm md:text-2xl font-black text-slate-950 leading-[1.2]">
                                     {{ $question->question_text }}
                                 </h3>
+
+                                @if (!empty($question->question_image))
+                                    <div class="px-4 mb-5 flex justify-center">
+                                        <div class="relative group max-w-2xl w-full bg-white p-2.5 rounded-2xl border-[3px] border-slate-900 shadow-[6px_6px_0px_#0f172a] overflow-hidden">
+                                            <img src="{{ $question->question_image }}" 
+                                                alt="รูปภาพประกอบข้อที่ {{ $index + 1 }}" 
+                                                class="w-full max-h-[300px] md:max-h-[400px] object-contain rounded-xl cursor-zoom-in transition-transform duration-200 hover:scale-[1.01]"
+                                                onclick="zoomQuestionImage('{{ $question->question_image }}')">
+                                            <button type="button" 
+                                                onclick="zoomQuestionImage('{{ $question->question_image }}')"
+                                                class="absolute bottom-4 right-4 bg-slate-950/80 hover:bg-slate-950 text-white px-3 py-1.5 rounded-xl text-xs font-black backdrop-blur-sm shadow-md flex items-center gap-1.5 transition-all">
+                                                <i class="fa-solid fa-magnifying-glass-plus"></i> ขยายดูรูป
+                                            </button>
+                                        </div>
+                                    </div>
+                                @endif
+
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-2 px-2">
                                     @if ($question->question_type === 'multiple_choice')
                                         @foreach ($question->choices as $choice)
@@ -432,5 +449,20 @@
             cancelButtonColor: '#e11d48',
         }).then(r => r.isConfirmed && submitFinal());
     };
+
+    function zoomQuestionImage(src) {
+        if (!src) return;
+        Swal.fire({
+            imageUrl: src,
+            imageAlt: 'รูปภาพประกอบข้อสอบ',
+            showConfirmButton: false,
+            showCloseButton: true,
+            background: '#ffffff',
+            customClass: {
+                popup: 'border-[5px] border-slate-900 rounded-[2.5rem]',
+                image: 'max-h-[80vh] w-auto object-contain rounded-2xl'
+            }
+        });
+    }
 </script>
 </x-app-layout>

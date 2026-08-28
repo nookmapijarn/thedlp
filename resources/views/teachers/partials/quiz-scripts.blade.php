@@ -32,6 +32,7 @@ document.getElementById('excel_import').addEventListener('change', function(e) {
 
                     const newQuestion = {
                         question_text: row.question_text || '',
+                        question_image: row.question_image || row.image || row.image_url || '',
                         score: row.score || 1,
                         question_type: 'multiple_choice',
                         standard: row.standard || '',
@@ -56,7 +57,66 @@ document.getElementById('excel_import').addEventListener('change', function(e) {
     reader.readAsArrayBuffer(file);
 });
 
-// --- ฟังก์ชันเพิ่มคำถาม ---
+// --- จัดการรูปภาพในโจทย์ ---
+function handleQuestionImageChange(input, idx) {
+    const file = input.files[0];
+    if (!file) return;
+
+    if (file.size > 5 * 1024 * 1024) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'ไฟล์มีขนาดใหญ่เกินไป',
+            text: 'กรุณาเลือกไฟล์รูปภาพขนาดไม่เกิน 5MB',
+            confirmButtonColor: '#4f46e5'
+        });
+        input.value = '';
+        return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const base64 = e.target.result;
+        document.getElementById(`q_img_base64_${idx}`).value = base64;
+        document.getElementById(`q_img_remove_${idx}`).value = "0";
+
+        const previewImg = document.getElementById(`q_img_preview_${idx}`);
+        previewImg.src = base64;
+        
+        document.getElementById(`q_img_preview_container_${idx}`).classList.remove('hidden');
+        document.getElementById(`q_img_btn_upload_${idx}`).classList.add('hidden');
+    };
+    reader.readAsDataURL(file);
+}
+
+function removeQuestionImage(idx) {
+    const fileInput = document.getElementById(`q_img_input_${idx}`);
+    if (fileInput) fileInput.value = '';
+
+    document.getElementById(`q_img_base64_${idx}`).value = '';
+    document.getElementById(`q_img_url_${idx}`).value = '';
+    document.getElementById(`q_img_remove_${idx}`).value = '1';
+
+    const previewImg = document.getElementById(`q_img_preview_${idx}`);
+    previewImg.src = '';
+
+    document.getElementById(`q_img_preview_container_${idx}`).classList.add('hidden');
+    document.getElementById(`q_img_btn_upload_${idx}`).classList.remove('hidden');
+}
+
+function openImagePreviewModal(src) {
+    if (!src) return;
+    Swal.fire({
+        imageUrl: src,
+        imageAlt: 'Question Image',
+        showConfirmButton: false,
+        showCloseButton: true,
+        background: '#ffffff',
+        customClass: {
+            image: 'max-h-[80vh] object-contain rounded-xl'
+        }
+    });
+}
+
 // --- ฟังก์ชันเพิ่มคำถาม (ปรับปรุงใหม่) ---
 function addQuestion(q = null) {
     const container = document.getElementById('questions-container');
@@ -65,6 +125,8 @@ function addQuestion(q = null) {
     qDiv.className = "p-6 border rounded-xl bg-gray-50 relative question-block mb-4 animate-fade-in";
     qDiv.id = `q-block-${idx}`;
 
+    const hasImage = q && q.question_image && q.question_image.trim() !== '';
+
     qDiv.innerHTML = `
         <button type="button" onclick="removeQuestion('${idx}')" class="absolute top-4 right-4 text-red-400 hover:text-red-600 font-bold text-sm">ลบข้อนี้</button>
         <div class="grid grid-cols-1 md:grid-cols-12 gap-3">
@@ -72,7 +134,48 @@ function addQuestion(q = null) {
             
             <div class="md:col-span-7">
                 <label class="block text-xs font-bold text-gray-500 uppercase">โจทย์คำถาม</label>
-                <textarea name="questions[${idx}][question_text]" required class="w-full rounded-lg border-gray-300 mt-1">${q ? q.question_text : ''}</textarea>
+                <textarea name="questions[${idx}][question_text]" required class="w-full rounded-lg border-gray-300 mt-1" rows="3" placeholder="ระบุเนื้อหาคำถาม...">${q ? (q.question_text || '') : ''}</textarea>
+                
+                <!-- ส่วนแนบรูปภาพโจทย์ -->
+                <div class="mt-2.5">
+                    <input type="file" id="q_img_input_${idx}" accept="image/*" class="hidden" onchange="handleQuestionImageChange(this, '${idx}')">
+                    <input type="hidden" name="questions[${idx}][image_base64]" id="q_img_base64_${idx}">
+                    <input type="hidden" name="questions[${idx}][question_image]" id="q_img_url_${idx}" value="${hasImage ? q.question_image : ''}">
+                    <input type="hidden" name="questions[${idx}][remove_image]" id="q_img_remove_${idx}" value="0">
+
+                    <!-- ปุ่มเปิดเลือกรูปภาพ -->
+                    <div id="q_img_btn_upload_${idx}" class="${hasImage ? 'hidden' : ''}">
+                        <button type="button" onclick="document.getElementById('q_img_input_${idx}').click()" 
+                            class="inline-flex items-center gap-2 px-3 py-1.5 bg-white hover:bg-indigo-50 hover:text-indigo-600 border border-dashed border-slate-300 hover:border-indigo-400 rounded-lg text-xs font-bold text-slate-600 transition-all shadow-sm">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                            <span>📷 แนบรูปภาพโจทย์</span>
+                        </button>
+                    </div>
+
+                    <!-- กล่องพรีวิวรูปภาพ -->
+                    <div id="q_img_preview_container_${idx}" class="${hasImage ? '' : 'hidden'} flex items-start gap-3 bg-white p-2.5 rounded-xl border border-slate-200 shadow-sm w-fit max-w-full">
+                        <div class="relative group">
+                            <img id="q_img_preview_${idx}" src="${hasImage ? q.question_image : ''}" 
+                                class="h-24 max-w-[220px] object-contain rounded-lg border border-slate-100 bg-slate-50 cursor-pointer hover:opacity-90 transition-opacity"
+                                onclick="openImagePreviewModal(this.src)"
+                                title="คลิกเพื่อดูรูปขนาดเต็ม">
+                        </div>
+                        <div class="flex flex-col gap-1.5 self-center">
+                            <button type="button" onclick="document.getElementById('q_img_input_${idx}').click()" 
+                                class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-md text-[11px] font-bold transition-all flex items-center gap-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+                                เปลี่ยนรูป
+                            </button>
+                            <button type="button" onclick="removeQuestionImage('${idx}')" 
+                                class="px-2.5 py-1 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-md text-[11px] font-bold transition-all flex items-center gap-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                                ลบรูป
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
             <div class="md:col-span-2">
                 <label class="block text-xs font-bold text-gray-500 uppercase">คะแนน</label>

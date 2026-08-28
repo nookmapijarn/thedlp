@@ -164,10 +164,18 @@ class TeachersTestController extends Controller
             ]);
 
             // --- 5. บันทึกข้อสอบและ Choice ---
-            foreach ($request->questions as $qData) {
+            foreach ($request->questions as $qIdx => $qData) {
+                $questionImageUrl = null;
+                if (!empty($qData['image_base64']) && str_starts_with($qData['image_base64'], 'data:image')) {
+                    $questionImageUrl = $this->saveQuestionImageBase64($qData['image_base64'], $quizId, $qIdx);
+                } elseif (!empty($qData['question_image'])) {
+                    $questionImageUrl = $qData['question_image'];
+                }
+
                 $questionId = DB::table('questions')->insertGetId([
                     'quiz_id' => $quizId,
                     'question_text' => $qData['question_text'],
+                    'question_image' => $questionImageUrl,
                     'question_type' => $qData['question_type'],
                     'score' => $qData['score'],
                     'standard' => $qData['standard'] ?? null,
@@ -371,15 +379,51 @@ class TeachersTestController extends Controller
             DB::table('quizzes')->where('id', $id)->update($updateData);
 
             // --- 4. จัดการคำถามและตัวเลือก (Delete and Re-insert) ---
-            $oldQuestionIds = DB::table('questions')->where('quiz_id', $id)->pluck('id');
+            $oldQuestions = DB::table('questions')->where('quiz_id', $id)->get();
+            $oldImages = $oldQuestions->pluck('question_image')->filter()->toArray();
+
+            $retainedImages = [];
+            $newQuestionsData = [];
+
+            foreach ($request->questions as $qIdx => $qData) {
+                $questionImageUrl = null;
+                $removeImage = !empty($qData['remove_image']) && ($qData['remove_image'] === '1' || $qData['remove_image'] === 'true' || $qData['remove_image'] === true);
+
+                if (!empty($qData['image_base64']) && str_starts_with($qData['image_base64'], 'data:image')) {
+                    // อัปโหลดรูปภาพใหม่
+                    $questionImageUrl = $this->saveQuestionImageBase64($qData['image_base64'], $id, $qIdx);
+                } elseif (!$removeImage && !empty($qData['question_image'])) {
+                    // คงรูปเดิมไว้
+                    $questionImageUrl = $qData['question_image'];
+                    $retainedImages[] = $questionImageUrl;
+                }
+
+                $newQuestionsData[] = [
+                    'qData' => $qData,
+                    'image_url' => $questionImageUrl,
+                ];
+            }
+
+            // ลบรูปภาพเดิมที่ไม่ได้ใช้แล้ว
+            foreach ($oldImages as $oldImg) {
+                if (!in_array($oldImg, $retainedImages)) {
+                    $this->deleteOldFile($oldImg);
+                }
+            }
+
+            $oldQuestionIds = $oldQuestions->pluck('id');
             DB::table('choices')->whereIn('question_id', $oldQuestionIds)->delete();
             DB::table('questions')->where('quiz_id', $id)->delete();
 
             $totalQuizScore = 0;
-            foreach ($request->questions as $qData) {
+            foreach ($newQuestionsData as $item) {
+                $qData = $item['qData'];
+                $questionImageUrl = $item['image_url'];
+
                 $questionId = DB::table('questions')->insertGetId([
                     'quiz_id' => $id,
                     'question_text' => $qData['question_text'],
+                    'question_image' => $questionImageUrl,
                     'question_type' => $qData['question_type'],
                     'score' => $qData['score'],
                     'standard' => $qData['standard'] ?? null,
@@ -421,14 +465,40 @@ class TeachersTestController extends Controller
     }
 
     /**
+     * Helper สำหรับบันทึกภาพคำถามจาก Base64
+     */
+    private function saveQuestionImageBase64($base64Data, $quizId, $index)
+    {
+        if (empty($base64Data) || !str_starts_with($base64Data, 'data:image')) {
+            return null;
+        }
+
+        $imageData = preg_replace('#^data:image/\w+;base64,#i', '', $base64Data);
+        $imageData = base64_decode($imageData);
+        if (!$imageData) {
+            return null;
+        }
+
+        $imageName = 'q_' . $quizId . '_' . $index . '_' . time() . '_' . uniqid() . '.png';
+        $directory = public_path('storage/images/exams/questions');
+        if (!File::exists($directory)) {
+            File::makeDirectory($directory, 0777, true);
+        }
+
+        File::put($directory . '/' . $imageName, $imageData);
+        return asset('storage/images/exams/questions/' . $imageName);
+    }
+
+    /**
      * Helper function สำหรับลบไฟล์ภาพเก่า
      */
     private function deleteOldFile($fullUrl)
     {
         if (!$fullUrl) return;
 
-        // แปลง URL กลับเป็น Path ในเครื่อง (สมมติว่าใช้ asset('storage/...'))
+        // แปลง URL กลับเป็น Path ในเครื่อง
         $path = str_replace(asset('storage'), public_path('storage'), $fullUrl);
+        $path = str_replace(asset(''), public_path(''), $path);
         
         if (File::exists($path)) {
             File::delete($path);
@@ -472,7 +542,7 @@ class TeachersTestController extends Controller
 
     /**
      * แก้ไขฟังก์ชัน destroy เดิม: ลบ "ทั้งแบบทดสอบ"
-     * เพิ่มการลบไฟล์รูปภาพปกเพื่อไม่ให้หนักเครื่อง
+     * เพิ่มการลบไฟล์รูปภาพปกและรูปภาพคำถามเพื่อไม่ให้หนักเครื่อง
      */
     public function destroy($id)
     {
@@ -482,14 +552,21 @@ class TeachersTestController extends Controller
                 
                 // ลบไฟล์ภาพปกจาก Folder (ถ้ามี)
                 if ($quiz && $quiz->cover_image) {
-                    $imagePath = str_replace(asset(''), public_path(''), $quiz->cover_image);
-                    if (file_exists($imagePath)) { @unlink($imagePath); }
+                    $this->deleteOldFile($quiz->cover_image);
+                }
+
+                // ลบรูปภาพคำถาม (ถ้ามี)
+                $oldQuestions = DB::table('questions')->where('quiz_id', $id)->get();
+                foreach ($oldQuestions as $q) {
+                    if (!empty($q->question_image)) {
+                        $this->deleteOldFile($q->question_image);
+                    }
                 }
 
                 // ลบข้อมูลที่เกี่ยวข้องตามลำดับ (Foreign Key)
                 DB::table('quiz_attempts')->where('quiz_id', $id)->delete();
                 
-                $questionIds = DB::table('questions')->where('quiz_id', $id)->pluck('id');
+                $questionIds = $oldQuestions->pluck('id');
                 DB::table('choices')->whereIn('question_id', $questionIds)->delete();
                 
                 DB::table('questions')->where('quiz_id', $id)->delete();
