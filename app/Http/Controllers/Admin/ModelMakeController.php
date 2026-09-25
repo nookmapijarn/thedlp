@@ -11,7 +11,7 @@ use PHPUnit\TextUI\XmlConfiguration\Group;
 use XBase\TableReader;
 use ZipArchive;
 
-class ZipUploadController extends Controller
+class ModelMakeController extends Controller
 {
     public function upload(Request $request)
     {
