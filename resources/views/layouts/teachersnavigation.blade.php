@@ -92,7 +92,7 @@
                 <div class="flex items-center ms-3">
                     <button type="button" class="flex text-sm bg-white rounded-2xl ring-2 ring-purple-50 focus:ring-4 focus:ring-purple-100 transition-all duration-300 overflow-hidden shadow-sm" aria-expanded="false" data-dropdown-toggle="dropdown-user">
                         <span class="sr-only">Open user menu</span>
-                        <img class="w-9 h-9 object-cover" src="{{ Auth::user()->avatar ? asset('storage/' . Auth::user()->avatar) : 'https://as1.ftcdn.net/v2/jpg/03/46/83/96/1000_F_346839683_6nAPzbhpSkIpb8pmAwufkC7c5eD7wYws.jpg' }}" alt="teacher photo">
+                        <img class="w-9 h-9 object-cover" src="{{ Auth::user()->avatar ? (str_starts_with(Auth::user()->avatar, 'http') ? Auth::user()->avatar : asset('storage/' . Auth::user()->avatar)) : 'https://as1.ftcdn.net/v2/jpg/03/46/83/96/1000_F_346839683_6nAPzbhpSkIpb8pmAwufkC7c5eD7wYws.jpg' }}" alt="teacher photo">
                     </button>
                     
                     {{-- Dropdown Menu --}}

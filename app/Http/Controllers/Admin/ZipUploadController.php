@@ -955,19 +955,49 @@ class ZipUploadController extends Controller
                 Log::error("Failed to write fixStorageLink audit log: " . $e->getMessage());
             }
 
+            $target = storage_path('app/public');
+            if (!File::exists($target)) {
+                File::makeDirectory($target, 0755, true);
+            }
+
             if (file_exists($link) || is_link($link)) {
-                if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+                if (is_link($link)) {
+                    @unlink($link);
+                } elseif (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
                     if (is_dir($link)) {
-                        rmdir($link);
+                        @rmdir($link);
                     } else {
-                        unlink($link);
+                        @unlink($link);
                     }
                 } else {
-                    unlink($link);
+                    if (is_dir($link)) {
+                        File::copyDirectory($link, $target);
+                        File::deleteDirectory($link);
+                    } else {
+                        @unlink($link);
+                    }
                 }
             }
             
             \Illuminate\Support\Facades\Artisan::call('storage:link');
+
+            // ปรับ Permission ของโฟลเดอร์เป็น 0755 และไฟล์เป็น 0644 เพื่อป้องกัน 403 Forbidden บน Linux Host
+            @chmod(storage_path(), 0755);
+            @chmod(storage_path('app'), 0755);
+            @chmod($target, 0755);
+            if (is_dir($target)) {
+                $iterator = new \RecursiveIteratorIterator(
+                    new \RecursiveDirectoryIterator($target, \RecursiveDirectoryIterator::SKIP_DOTS),
+                    \RecursiveIteratorIterator::SELF_FIRST
+                );
+                foreach ($iterator as $item) {
+                    if ($item->isDir()) {
+                        @chmod($item->getPathname(), 0755);
+                    } elseif ($item->isFile()) {
+                        @chmod($item->getPathname(), 0644);
+                    }
+                }
+            }
             
             return response()->json(['success' => true, 'message' => 'เชื่อมโยงระบบจัดเก็บไฟล์ใหม่ (Fix Storage Symlink) เรียบร้อยแล้ว!'])
                 ->header('Content-Type', 'application/json')

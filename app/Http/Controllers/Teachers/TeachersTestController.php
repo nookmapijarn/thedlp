@@ -78,13 +78,17 @@ class TeachersTestController extends Controller
                 $imageData = base64_decode($imageData);
 
                 $imageName = 'cover_' . $request->subject_code . '_' . time() . '.png';
-                $directory = public_path('storage/images/exams/cover');
+                $directory = storage_path('app/public/images/exams/cover');
                 
                 if (!file_exists($directory)) { 
-                    mkdir($directory, 0777, true); 
+                    mkdir($directory, 0755, true); 
                 }
+                @chmod(storage_path('app/public/images'), 0755);
+                @chmod(storage_path('app/public/images/exams'), 0755);
+                @chmod($directory, 0755);
 
                 file_put_contents($directory . '/' . $imageName, $imageData);
+                @chmod($directory . '/' . $imageName, 0644);
                 $coverPublicUrl = asset('storage/images/exams/cover/' . $imageName);
             }
 
@@ -95,13 +99,17 @@ class TeachersTestController extends Controller
                 $certData = base64_decode($certData);
 
                 $certName = 'cert_' . $request->subject_code . '_' . time() . '.png';
-                $certDirectory = public_path('storage/images/exams/certificate');
+                $certDirectory = storage_path('app/public/images/exams/certificate');
                 
                 if (!file_exists($certDirectory)) { 
-                    mkdir($certDirectory, 0777, true); 
+                    mkdir($certDirectory, 0755, true); 
                 }
+                @chmod(storage_path('app/public/images'), 0755);
+                @chmod(storage_path('app/public/images/exams'), 0755);
+                @chmod($certDirectory, 0755);
 
                 file_put_contents($certDirectory . '/' . $certName, $certData);
+                @chmod($certDirectory . '/' . $certName, 0644);
                 $certPublicUrl = asset('storage/images/exams/certificate/' . $certName);
             }
 
@@ -110,11 +118,15 @@ class TeachersTestController extends Controller
             if ($request->hasFile('quiz_signature')) {
                 $sigFile = $request->file('quiz_signature');
                 $sigName = 'sig_' . time() . '.' . $sigFile->getClientOriginalExtension();
-                $sigDirectory = public_path('storage/images/exams/signature');
+                $sigDirectory = storage_path('app/public/images/exams/signature');
                 if (!file_exists($sigDirectory)) {
-                    mkdir($sigDirectory, 0777, true);
+                    mkdir($sigDirectory, 0755, true);
                 }
+                @chmod(storage_path('app/public/images'), 0755);
+                @chmod(storage_path('app/public/images/exams'), 0755);
+                @chmod($sigDirectory, 0755);
                 $sigFile->move($sigDirectory, $sigName);
+                @chmod($sigDirectory . '/' . $sigName, 0644);
                 $signaturePublicUrl = asset('storage/images/exams/signature/' . $sigName);
             }
 
@@ -123,11 +135,15 @@ class TeachersTestController extends Controller
             if ($request->hasFile('quiz_logo')) {
                 $logoFile = $request->file('quiz_logo');
                 $logoName = 'logo_' . time() . '.' . $logoFile->getClientOriginalExtension();
-                $logoDirectory = public_path('storage/images/exams/logo');
+                $logoDirectory = storage_path('app/public/images/exams/logo');
                 if (!file_exists($logoDirectory)) {
-                    mkdir($logoDirectory, 0777, true);
+                    mkdir($logoDirectory, 0755, true);
                 }
+                @chmod(storage_path('app/public/images'), 0755);
+                @chmod(storage_path('app/public/images/exams'), 0755);
+                @chmod($logoDirectory, 0755);
                 $logoFile->move($logoDirectory, $logoName);
+                @chmod($logoDirectory . '/' . $logoName, 0644);
                 $logoPublicUrl = asset('storage/images/exams/logo/' . $logoName);
             }
 
@@ -290,10 +306,14 @@ class TeachersTestController extends Controller
                 
                 $imageData = preg_replace('#^data:image/\w+;base64,#i', '', $coverBase64);
                 $imageName = 'cover_' . $request->subject_code . '_' . time() . '.png';
-                $directory = public_path('storage/images/exams/cover');
+                $directory = storage_path('app/public/images/exams/cover');
                 
-                if (!File::exists($directory)) { File::makeDirectory($directory, 0777, true); }
+                if (!File::exists($directory)) { File::makeDirectory($directory, 0755, true); }
+                @chmod(storage_path('app/public/images'), 0755);
+                @chmod(storage_path('app/public/images/exams'), 0755);
+                @chmod($directory, 0755);
                 File::put($directory . '/' . $imageName, base64_decode($imageData));
+                @chmod($directory . '/' . $imageName, 0644);
                 
                 $updateData['cover_image'] = asset('storage/images/exams/cover/' . $imageName);
             }
@@ -308,10 +328,14 @@ class TeachersTestController extends Controller
                 
                 $certData = preg_replace('#^data:image/\w+;base64,#i', '', $certBase64);
                 $certName = 'cert_' . $request->subject_code . '_' . time() . '.png';
-                $certDirectory = public_path('storage/images/exams/certificate');
+                $certDirectory = storage_path('app/public/images/exams/certificate');
                 
-                if (!File::exists($certDirectory)) { File::makeDirectory($certDirectory, 0777, true); }
+                if (!File::exists($certDirectory)) { File::makeDirectory($certDirectory, 0755, true); }
+                @chmod(storage_path('app/public/images'), 0755);
+                @chmod(storage_path('app/public/images/exams'), 0755);
+                @chmod($certDirectory, 0755);
                 File::put($certDirectory . '/' . $certName, base64_decode($certData));
+                @chmod($certDirectory . '/' . $certName, 0644);
                 
                 $updateData['certificate_image'] = asset('storage/images/exams/certificate/' . $certName);
             }
@@ -323,11 +347,15 @@ class TeachersTestController extends Controller
                 }
                 $sigFile = $request->file('quiz_signature');
                 $sigName = 'sig_' . time() . '.' . $sigFile->getClientOriginalExtension();
-                $sigDirectory = public_path('storage/images/exams/signature');
+                $sigDirectory = storage_path('app/public/images/exams/signature');
                 if (!File::exists($sigDirectory)) {
-                    File::makeDirectory($sigDirectory, 0777, true);
+                    File::makeDirectory($sigDirectory, 0755, true);
                 }
+                @chmod(storage_path('app/public/images'), 0755);
+                @chmod(storage_path('app/public/images/exams'), 0755);
+                @chmod($sigDirectory, 0755);
                 $sigFile->move($sigDirectory, $sigName);
+                @chmod($sigDirectory . '/' . $sigName, 0644);
                 $updateData['certificate_signature'] = asset('storage/images/exams/signature/' . $sigName);
             }
 
@@ -349,11 +377,15 @@ class TeachersTestController extends Controller
                 }
                 $logoFile = $request->file('quiz_logo');
                 $logoName = 'logo_' . time() . '.' . $logoFile->getClientOriginalExtension();
-                $logoDirectory = public_path('storage/images/exams/logo');
+                $logoDirectory = storage_path('app/public/images/exams/logo');
                 if (!File::exists($logoDirectory)) {
-                    File::makeDirectory($logoDirectory, 0777, true);
+                    File::makeDirectory($logoDirectory, 0755, true);
                 }
+                @chmod(storage_path('app/public/images'), 0755);
+                @chmod(storage_path('app/public/images/exams'), 0755);
+                @chmod($logoDirectory, 0755);
                 $logoFile->move($logoDirectory, $logoName);
+                @chmod($logoDirectory . '/' . $logoName, 0644);
                 $logoPublicUrl = asset('storage/images/exams/logo/' . $logoName);
             }
 
@@ -767,10 +799,17 @@ class TeachersTestController extends Controller
             }
 
             $absolutePath = public_path($pathInsidePublic);
+            if (!file_exists($absolutePath) && str_starts_with($pathInsidePublic, 'storage/')) {
+                $absolutePath = storage_path('app/public/' . substr($pathInsidePublic, strlen('storage/')));
+            }
             $publicRoot = realpath(public_path());
+            $storageRoot = realpath(storage_path('app/public'));
             $resolvedPath = realpath($absolutePath);
 
-            if ($publicRoot === false || $resolvedPath === false || !str_starts_with($resolvedPath, $publicRoot)) {
+            $isAllowed = ($publicRoot !== false && $resolvedPath !== false && str_starts_with($resolvedPath, $publicRoot))
+                || ($storageRoot !== false && $resolvedPath !== false && str_starts_with($resolvedPath, $storageRoot));
+
+            if (!$isAllowed) {
                 return response()->json(['base64' => null, 'message' => 'Certificate image is not available'], 200);
             }
 

@@ -309,7 +309,7 @@ class ShortVideoController extends Controller
                     'id' => $comment->id,
                     'user_id' => $comment->user_id,
                     'user_name' => $comment->user->name,
-                    'user_avatar' => $comment->user->avatar ? asset('storage/' . $comment->user->avatar) : 'https://as1.ftcdn.net/v2/jpg/03/46/83/96/1000_F_346839683_6nAPzbhpSkIpb8pmAwufkC7c5eD7wYws.jpg',
+                    'user_avatar' => $comment->user->avatar ? (str_starts_with($comment->user->avatar, 'http') ? $comment->user->avatar : asset('storage/' . $comment->user->avatar)) : 'https://as1.ftcdn.net/v2/jpg/03/46/83/96/1000_F_346839683_6nAPzbhpSkIpb8pmAwufkC7c5eD7wYws.jpg',
                     'comment' => $comment->comment,
                     'time' => $comment->created_at->diffForHumans(),
                     'replies' => $comment->replies->map(function($reply) {
@@ -317,7 +317,7 @@ class ShortVideoController extends Controller
                             'id' => $reply->id,
                             'user_id' => $reply->user_id,
                             'user_name' => $reply->user->name,
-                            'user_avatar' => $reply->user->avatar ? asset('storage/' . $reply->user->avatar) : 'https://as1.ftcdn.net/v2/jpg/03/46/83/96/1000_F_346839683_6nAPzbhpSkIpb8pmAwufkC7c5eD7wYws.jpg',
+                            'user_avatar' => $reply->user->avatar ? (str_starts_with($reply->user->avatar, 'http') ? $reply->user->avatar : asset('storage/' . $reply->user->avatar)) : 'https://as1.ftcdn.net/v2/jpg/03/46/83/96/1000_F_346839683_6nAPzbhpSkIpb8pmAwufkC7c5eD7wYws.jpg',
                             'comment' => $reply->comment,
                             'time' => $reply->created_at->diffForHumans()
                         ];
@@ -390,7 +390,7 @@ class ShortVideoController extends Controller
                 'id' => $comment->id,
                 'user_id' => $comment->user_id,
                 'user_name' => $commentUser->name,
-                'user_avatar' => $commentUser->avatar ? asset('storage/' . $commentUser->avatar) : 'https://as1.ftcdn.net/v2/jpg/03/46/83/96/1000_F_346839683_6nAPzbhpSkIpb8pmAwufkC7c5eD7wYws.jpg',
+                'user_avatar' => $commentUser->avatar ? (str_starts_with($commentUser->avatar, 'http') ? $commentUser->avatar : asset('storage/' . $commentUser->avatar)) : 'https://as1.ftcdn.net/v2/jpg/03/46/83/96/1000_F_346839683_6nAPzbhpSkIpb8pmAwufkC7c5eD7wYws.jpg',
                 'comment' => $comment->comment,
                 'time' => 'เมื่อสักครู่',
                 'replies' => []

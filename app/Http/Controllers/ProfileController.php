@@ -80,9 +80,33 @@ class ProfileController extends Controller
         // สร้างชื่อไฟล์
         $imageName = auth()->user()->student_id . '.png';
     
-        // บันทึกไฟล์ลง storage (public disk)
-        $path = public_path('storage/images/avatar/' . $imageName); // ใช้ public_path เพื่อกำหนดเส้นทางแบบเต็ม
-        file_put_contents($path, $imageData); // เขียนไฟล์ไปยังเส้นทางที่ระบุ
+        // บันทึกไฟล์ลง storage/app/public/images/avatar พร้อมตั้งสิทธิ์ 0755 / 0644 ป้องกัน 403 บน Host
+        $storageDir = storage_path('app/public/images/avatar');
+        if (!file_exists($storageDir)) {
+            mkdir($storageDir, 0755, true);
+        }
+        @chmod(storage_path('app/public'), 0755);
+        @chmod(storage_path('app/public/images'), 0755);
+        @chmod($storageDir, 0755);
+
+        $storagePath = $storageDir . '/' . $imageName;
+        file_put_contents($storagePath, $imageData);
+        @chmod($storagePath, 0644);
+
+        $publicStorageRoot = public_path('storage');
+        if (file_exists($publicStorageRoot) && !is_link($publicStorageRoot)) {
+            $publicDir = public_path('storage/images/avatar');
+            if (!file_exists($publicDir)) {
+                mkdir($publicDir, 0755, true);
+            }
+            @chmod($publicStorageRoot, 0755);
+            @chmod(public_path('storage/images'), 0755);
+            @chmod($publicDir, 0755);
+            $publicPath = $publicDir . '/' . $imageName;
+            file_put_contents($publicPath, $imageData);
+            @chmod($publicPath, 0644);
+        }
+
         $publicUrl = asset('storage/images/avatar/' . $imageName); // URL สำหรับการเข้าถึงไฟล์
 
         // อัปเดต URL ของ avatar ในฐานข้อมูล

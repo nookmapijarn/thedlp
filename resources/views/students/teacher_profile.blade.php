@@ -20,7 +20,7 @@
                 <div class="relative">
                     <div class="w-24 h-24 rounded-full p-1 bg-gradient-to-tr from-rose-500 via-purple-600 to-indigo-500 shadow-xl">
                         <div class="w-full h-full rounded-full overflow-hidden border-2 border-slate-950 bg-slate-900">
-                            <img src="{{ $teacher->avatar ? asset('storage/' . $teacher->avatar) : 'https://as1.ftcdn.net/v2/jpg/03/46/83/96/1000_F_346839683_6nAPzbhpSkIpb8pmAwufkC7c5eD7wYws.jpg' }}" 
+                            <img src="{{ $teacher->avatar ? (str_starts_with($teacher->avatar, 'http') ? $teacher->avatar : asset('storage/' . $teacher->avatar)) : 'https://as1.ftcdn.net/v2/jpg/03/46/83/96/1000_F_346839683_6nAPzbhpSkIpb8pmAwufkC7c5eD7wYws.jpg' }}" 
                                  class="w-full h-full object-cover">
                         </div>
                     </div>

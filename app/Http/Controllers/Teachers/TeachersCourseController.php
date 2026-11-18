@@ -75,16 +75,33 @@ class TeachersCourseController extends Controller
                 // ตั้งชื่อไฟล์: ใช้ชื่อคอร์ส (แบบ slug) หรือ ID ผสมกับเวลาเพื่อป้องกันชื่อซ้ำ
                 $imageName = 'course_' . time() . '_' . uniqid() . '.png';
                 
-                // กำหนด Directory ภายใต้ public_path
-                $directory = public_path('storage/images/course');
-
-                // ตรวจสอบและสร้าง Folder หากยังไม่มี
-                if (!file_exists($directory)) {
-                    mkdir($directory, 0755, true);
+                // บันทึกลง storage/app/public/images/course และกำหนดสิทธิ์ 0755 / 0644 ป้องกัน 403 บน Linux Host
+                $storageDir = storage_path('app/public/images/course');
+                if (!file_exists($storageDir)) {
+                    mkdir($storageDir, 0755, true);
                 }
+                @chmod(storage_path('app/public'), 0755);
+                @chmod(storage_path('app/public/images'), 0755);
+                @chmod($storageDir, 0755);
 
-                // บันทึกไฟล์ลง Disk
-                file_put_contents($directory . '/' . $imageName, $imageData);
+                $storageFilePath = $storageDir . '/' . $imageName;
+                file_put_contents($storageFilePath, $imageData);
+                @chmod($storageFilePath, 0644);
+
+                // กรณีที่ public/storage บน Host เป็นโฟลเดอร์จริง (ไม่ใช่ Symlink) ให้บันทึกและตั้งสิทธิ์ไว้ด้วย
+                $publicStorageRoot = public_path('storage');
+                if (file_exists($publicStorageRoot) && !is_link($publicStorageRoot)) {
+                    $publicDir = public_path('storage/images/course');
+                    if (!file_exists($publicDir)) {
+                        mkdir($publicDir, 0755, true);
+                    }
+                    @chmod($publicStorageRoot, 0755);
+                    @chmod(public_path('storage/images'), 0755);
+                    @chmod($publicDir, 0755);
+                    $publicFilePath = $publicDir . '/' . $imageName;
+                    file_put_contents($publicFilePath, $imageData);
+                    @chmod($publicFilePath, 0644);
+                }
                 
                 // สร้าง URL เต็ม (Full Path) เพื่อเก็บลงฐานข้อมูลตามที่คุณออกแบบไว้
                 $coverFullUrl = asset('storage/images/course/' . $imageName);
@@ -157,12 +174,16 @@ class TeachersCourseController extends Controller
                 // A. ลบไฟล์เก่าออกจาก Server (ถ้ามี)
                 if ($course->cover_image) {
                     // แปลง URL เต็มกลับเป็น path ในเครื่อง
-                    // เช่น จาก http://site.com/storage/images/course/abc.png -> storage/images/course/abc.png
-                    $relativeContentPath = str_replace(asset('storage/'), '', $course->cover_image);
-                    $oldFilePath = public_path('storage/' . $relativeContentPath);
+                    // เช่น จาก http://site.com/storage/images/course/abc.png -> images/course/abc.png
+                    $relativeContentPath = ltrim(str_replace(asset('storage/'), '', $course->cover_image), '/');
+                    $oldPublicPath = public_path('storage/' . $relativeContentPath);
+                    $oldStoragePath = storage_path('app/public/' . $relativeContentPath);
                     
-                    if (file_exists($oldFilePath)) {
-                        unlink($oldFilePath);
+                    if (file_exists($oldPublicPath)) {
+                        @unlink($oldPublicPath);
+                    }
+                    if (file_exists($oldStoragePath)) {
+                        @unlink($oldStoragePath);
                     }
                 }
 
@@ -172,14 +193,34 @@ class TeachersCourseController extends Controller
                 $imageData = base64_decode($imageData);
 
                 $imageName = 'course_' . time() . '_' . uniqid() . '.png';
-                $directory = public_path('storage/images/course');
+                $storageDir = storage_path('app/public/images/course');
 
-                if (!file_exists($directory)) {
-                    mkdir($directory, 0755, true);
+                if (!file_exists($storageDir)) {
+                    mkdir($storageDir, 0755, true);
                 }
+                @chmod(storage_path('app/public'), 0755);
+                @chmod(storage_path('app/public/images'), 0755);
+                @chmod($storageDir, 0755);
 
-                // บันทึกไฟล์ใหม่
-                file_put_contents($directory . '/' . $imageName, $imageData);
+                // บันทึกไฟล์ใหม่และกำหนดสิทธิ์ 0644
+                $storageFilePath = $storageDir . '/' . $imageName;
+                file_put_contents($storageFilePath, $imageData);
+                @chmod($storageFilePath, 0644);
+
+                // กรณีที่ public/storage บน Host เป็นโฟลเดอร์จริง (ไม่ใช่ Symlink)
+                $publicStorageRoot = public_path('storage');
+                if (file_exists($publicStorageRoot) && !is_link($publicStorageRoot)) {
+                    $publicDir = public_path('storage/images/course');
+                    if (!file_exists($publicDir)) {
+                        mkdir($publicDir, 0755, true);
+                    }
+                    @chmod($publicStorageRoot, 0755);
+                    @chmod(public_path('storage/images'), 0755);
+                    @chmod($publicDir, 0755);
+                    $publicFilePath = $publicDir . '/' . $imageName;
+                    file_put_contents($publicFilePath, $imageData);
+                    @chmod($publicFilePath, 0644);
+                }
                 
                 // C. สร้าง Full URL สำหรับเก็บใน DB
                 $coverFullUrl = asset('storage/images/course/' . $imageName);

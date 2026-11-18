@@ -170,10 +170,14 @@ class ExamController extends Controller
 
                 $studentId = Auth::user()->student_id; 
                 $imageName = $studentId . '_quiz_' . $id . '_' . time() . '.png';
-                $directory = public_path('storage/images/exams/start_photo');
-                if (!file_exists($directory)) { mkdir($directory, 0777, true); }
+                $directory = storage_path('app/public/images/exams/start_photo');
+                if (!file_exists($directory)) { mkdir($directory, 0755, true); }
+                @chmod(storage_path('app/public/images'), 0755);
+                @chmod(storage_path('app/public/images/exams'), 0755);
+                @chmod($directory, 0755);
 
                 file_put_contents($directory . '/' . $imageName, $imageData);
+                @chmod($directory . '/' . $imageName, 0644);
                 $publicUrl = asset('storage/images/exams/start_photo/' . $imageName);
             }
 
@@ -399,10 +403,17 @@ class ExamController extends Controller
             }
 
             $absolutePath = public_path($pathInsidePublic);
+            if (!file_exists($absolutePath) && str_starts_with($pathInsidePublic, 'storage/')) {
+                $absolutePath = storage_path('app/public/' . substr($pathInsidePublic, strlen('storage/')));
+            }
             $publicRoot = realpath(public_path());
+            $storageRoot = realpath(storage_path('app/public'));
             $resolvedPath = realpath($absolutePath);
 
-            if ($publicRoot === false || $resolvedPath === false || !str_starts_with($resolvedPath, $publicRoot)) {
+            $isAllowed = ($publicRoot !== false && $resolvedPath !== false && str_starts_with($resolvedPath, $publicRoot))
+                || ($storageRoot !== false && $resolvedPath !== false && str_starts_with($resolvedPath, $storageRoot));
+
+            if (!$isAllowed) {
                 return response()->json(['base64' => null, 'message' => 'Certificate image is not available'], 200);
             }
 

@@ -40,7 +40,7 @@
                     <div class="relative">
                         <div class="w-28 h-28 rounded-full overflow-hidden border-4 border-purple-500 bg-slate-100 dark:bg-slate-950 flex items-center justify-center">
                             <img id="avatar-preview" 
-                                 src="{{ $teacher->avatar ? asset('storage/' . $teacher->avatar) : 'https://as1.ftcdn.net/v2/jpg/03/46/83/96/1000_F_346839683_6nAPzbhpSkIpb8pmAwufkC7c5eD7wYws.jpg' }}" 
+                                 src="{{ $teacher->avatar ? (str_starts_with($teacher->avatar, 'http') ? $teacher->avatar : asset('storage/' . $teacher->avatar)) : 'https://as1.ftcdn.net/v2/jpg/03/46/83/96/1000_F_346839683_6nAPzbhpSkIpb8pmAwufkC7c5eD7wYws.jpg' }}" 
                                  class="w-full h-full object-cover">
                         </div>
                     </div>

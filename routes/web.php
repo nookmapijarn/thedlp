@@ -275,19 +275,91 @@ Route::get('/offline', function () {
     return view('errors.offline');
 })->name('offline');
 
-Route::get('/link-storage', function () {
+Route::get('/storage/{path}', function (string $path) {
+    $path = str_replace(['..', '\\'], ['', '/'], $path);
+    $path = ltrim($path, '/');
+
+    // รองรับกรณี URL ซ้อนกัน เช่น /storage/https://domain.com/storage/images/avatar/xxx.png
+    if (preg_match('#^https?://[^/]+/storage/(.+)$#i', $path, $matches)) {
+        $path = ltrim($matches[1], '/');
+    }
+
+    $storagePath = storage_path('app/public/' . $path);
+    if (!file_exists($storagePath) || is_dir($storagePath)) {
+        $publicStoragePath = public_path('storage/' . $path);
+        if (file_exists($publicStoragePath) && !is_dir($publicStoragePath)) {
+            $storagePath = $publicStoragePath;
+        } else {
+            abort(404);
+        }
+    }
+
+    return response()->file($storagePath, [
+        'Cache-Control' => 'public, max-age=86400',
+    ]);
+})->where('path', '.*');
+
+Route::get('/link-storage', function (\Illuminate\Http\Request $request) {
     try {
         $shortcut = public_path('storage');
-        if (file_exists($shortcut)) {
+        $target = storage_path('app/public');
+
+        if (!\Illuminate\Support\Facades\File::exists($target)) {
+            \Illuminate\Support\Facades\File::makeDirectory($target, 0755, true);
+        }
+
+        // หาก public/storage เป็นโฟลเดอร์จริง (ไม่ใช่ Symlink) ให้คัดลอกไฟล์ไปรวมใน storage/app/public ก่อน
+        if (file_exists($shortcut) && !is_link($shortcut) && is_dir($shortcut)) {
+            \Illuminate\Support\Facades\File::copyDirectory($shortcut, $target);
+        }
+
+        // ปรับ Permission ของโฟลเดอร์เป็น 0755 และไฟล์เป็น 0644 ทั้งใน storage/app/public และ public/storage
+        $fixPermissions = function (string $baseDir) {
+            if (!is_dir($baseDir)) {
+                return;
+            }
+            @chmod($baseDir, 0755);
+            $iterator = new \RecursiveIteratorIterator(
+                new \RecursiveDirectoryIterator($baseDir, \RecursiveDirectoryIterator::SKIP_DOTS),
+                \RecursiveIteratorIterator::SELF_FIRST
+            );
+            foreach ($iterator as $item) {
+                if ($item->isDir()) {
+                    @chmod($item->getPathname(), 0755);
+                } elseif ($item->isFile()) {
+                    @chmod($item->getPathname(), 0644);
+                }
+            }
+        };
+
+        @chmod(storage_path(), 0755);
+        @chmod(storage_path('app'), 0755);
+        $fixPermissions($target);
+
+        // กรณีระบุ ?mode=direct จะลบ public/storage ออกเพื่อให้ Laravel Route เสิร์ฟไฟล์โดยตรง (แก้ 403 จาก SymLinksIfOwnerMatch บนบาง Host)
+        if ($request->query('mode') === 'direct') {
             if (is_link($shortcut)) {
-                unlink($shortcut);
+                @unlink($shortcut);
+            } elseif (file_exists($shortcut) && is_dir($shortcut)) {
+                \Illuminate\Support\Facades\File::deleteDirectory($shortcut);
+            }
+            return 'Direct storage route mode enabled and permissions (0755/0644) fixed successfully!';
+        }
+
+        if (is_link($shortcut)) {
+            @unlink($shortcut);
+        } elseif (file_exists($shortcut) && is_dir($shortcut)) {
+            if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+                @rmdir($shortcut);
             } else {
-                return 'Storage directory exists but is not a link. Please rename or delete public/storage folder manually.';
+                \Illuminate\Support\Facades\File::deleteDirectory($shortcut);
             }
         }
-        
+
         \Illuminate\Support\Facades\Artisan::call('storage:link');
-        return 'Storage link created successfully!';
+        $fixPermissions($target);
+
+        return 'Storage link created and permissions (0755/0644) fixed successfully!';
     } catch (\Exception $e) {
         return 'Error: ' . $e->getMessage();
     }

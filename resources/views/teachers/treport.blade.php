@@ -97,6 +97,7 @@
                           <label class="text-[11.5px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest ml-1 block mb-1">ศกร.ระดับตำบล</label>
                           <select required name="tumbon" class="w-full px-3 py-2 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-sm font-bold text-slate-700 dark:text-slate-350 focus:ring-2 focus:ring-purple-500 outline-none">
                               <option value="">เลือกตำบล</option>
+                              <option value="all" @if($tumbon == 'all') selected @endif>ทุกตำบล</option>
                               @foreach($all_tumbon as $tm)
                                   <option value="{{ $tm->GRP_CODE }}" @if($tumbon == $tm->GRP_CODE) selected @endif>{{ $tm->GRP_CODE }} {{ $tm->GRP_NAME }}</option>
                               @endforeach    
@@ -119,6 +120,7 @@
                               <option value="">เลือกประเภทรายงาน</option>
                               <option @if($studreport == "นักศึกษาทั้งหมด") selected @endif value="นักศึกษาทั้งหมด">นักศึกษาทั้งหมด</option>
                               <option @if($studreport == "เฉพาะผู้คาดว่าจะจบ") selected @endif value="เฉพาะผู้คาดว่าจะจบ">เฉพาะผู้คาดว่าจะจบ</option>
+                              <option @if($studreport == "หน่วยกิตครบแต่ยังไม่จบหลักสูตร") selected @endif value="หน่วยกิตครบแต่ยังไม่จบหลักสูตร">หน่วยกิตครบแต่ยังไม่จบหลักสูตร (ติดเงื่อนไขอื่น)</option>
                           </select>
                       </div>
                   </div>
@@ -141,32 +143,54 @@
                   $passedNnet = collect($data)->filter(function($item) {
                       return str_contains($item['nt_sem'] ?? '', 'ผ่านแล้ว') || str_contains($item['nt_sem'] ?? '', 'E-Exam');
                   })->count();
+                  $blockedActCount = collect($data)->where('activity', '<', 200)->count();
+                  $blockedNnetCount = collect($data)->filter(function($item) {
+                      return !str_contains($item['nt_sem'] ?? '', 'ผ่านแล้ว') && !str_contains($item['nt_sem'] ?? '', 'E-Exam');
+                  })->count();
+                  $blockedMoralCount = collect($data)->filter(function($item) {
+                      return ($item['ablevel1'] === null || $item['ablevel1'] === '' || (int)$item['ablevel1'] < 2);
+                  })->count();
               @endphp
               <div class="p-4 sm:p-5 bg-purple-50/40 dark:bg-purple-950/10 border-b border-slate-150 dark:border-slate-800 grid grid-cols-2 md:flex md:flex-wrap gap-3 md:gap-x-6 items-center text-sm font-black text-slate-500 dark:text-slate-400">
                   <span class="text-[11.5px] uppercase text-purple-700 dark:text-purple-400 tracking-wider col-span-2 md:col-span-1">📊 สรุปรายงาน:</span>
                   <div class="flex items-center gap-1.5 bg-white dark:bg-slate-900 md:bg-transparent dark:md:bg-transparent p-2 md:p-0 rounded-xl border border-slate-100 dark:border-slate-800 md:border-0 shadow-sm md:shadow-none">
                       <span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span>
-                      <span>นักศึกษาทั้งหมด: <strong class="text-slate-800 dark:text-white font-black">{{ $totalStudents }}</strong> คน</span>
+                      <span>{{ $studreport == "หน่วยกิตครบแต่ยังไม่จบหลักสูตร" ? 'นศ.ที่ติดเงื่อนไข:' : 'นักศึกษาทั้งหมด:' }} <strong class="text-slate-800 dark:text-white font-black">{{ $totalStudents }}</strong> คน</span>
                   </div>
-                  <div class="flex items-center gap-1.5 bg-white dark:bg-slate-900 md:bg-transparent dark:md:bg-transparent p-2 md:p-0 rounded-xl border border-slate-100 dark:border-slate-800 md:border-0 shadow-sm md:shadow-none">
-                      <span class="w-1.5 h-1.5 rounded-full bg-purple-500"></span>
-                      <span>คาดว่าจะจบ: <strong class="text-purple-700 dark:text-purple-300 font-black">{{ $expFinCount }}</strong> คน</span>
-                  </div>
-                  <div class="flex items-center gap-1.5 bg-white dark:bg-slate-900 md:bg-transparent dark:md:bg-transparent p-2 md:p-0 rounded-xl border border-slate-100 dark:border-slate-800 md:border-0 shadow-sm md:shadow-none">
-                      <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                      <span>กพช. ผ่านเกณฑ์: <strong class="text-emerald-700 dark:text-emerald-300 font-black">{{ $passedActivity }}</strong> คน</span>
-                  </div>
-                  <div class="flex items-center gap-1.5 bg-white dark:bg-slate-900 md:bg-transparent dark:md:bg-transparent p-2 md:p-0 rounded-xl border border-slate-100 dark:border-slate-800 md:border-0 shadow-sm md:shadow-none">
-                      <span class="w-1.5 h-1.5 rounded-full bg-indigo-500"></span>
-                      <span>N-NET ผ่านเกณฑ์: <strong class="text-indigo-700 dark:text-indigo-300 font-black">{{ $passedNnet }}</strong> คน</span>
-                  </div>
+                  @if($studreport == "หน่วยกิตครบแต่ยังไม่จบหลักสูตร")
+                      <div class="flex items-center gap-1.5 bg-white dark:bg-slate-900 md:bg-transparent dark:md:bg-transparent p-2 md:p-0 rounded-xl border border-slate-100 dark:border-slate-800 md:border-0 shadow-sm md:shadow-none">
+                          <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
+                          <span>ติด กพช. (< 200): <strong class="text-rose-600 dark:text-rose-400 font-black">{{ $blockedActCount }}</strong> คน</span>
+                      </div>
+                      <div class="flex items-center gap-1.5 bg-white dark:bg-slate-900 md:bg-transparent dark:md:bg-transparent p-2 md:p-0 rounded-xl border border-slate-100 dark:border-slate-800 md:border-0 shadow-sm md:shadow-none">
+                          <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+                          <span>ติด N-NET: <strong class="text-amber-600 dark:text-amber-400 font-black">{{ $blockedNnetCount }}</strong> คน</span>
+                      </div>
+                      <div class="flex items-center gap-1.5 bg-white dark:bg-slate-900 md:bg-transparent dark:md:bg-transparent p-2 md:p-0 rounded-xl border border-slate-100 dark:border-slate-800 md:border-0 shadow-sm md:shadow-none">
+                          <span class="w-1.5 h-1.5 rounded-full bg-indigo-500"></span>
+                          <span>ติด คุณธรรม (< ดี): <strong class="text-indigo-600 dark:text-indigo-400 font-black">{{ $blockedMoralCount }}</strong> คน</span>
+                      </div>
+                  @else
+                      <div class="flex items-center gap-1.5 bg-white dark:bg-slate-900 md:bg-transparent dark:md:bg-transparent p-2 md:p-0 rounded-xl border border-slate-100 dark:border-slate-800 md:border-0 shadow-sm md:shadow-none">
+                          <span class="w-1.5 h-1.5 rounded-full bg-purple-500"></span>
+                          <span>คาดว่าจะจบ: <strong class="text-purple-700 dark:text-purple-300 font-black">{{ $expFinCount }}</strong> คน</span>
+                      </div>
+                      <div class="flex items-center gap-1.5 bg-white dark:bg-slate-900 md:bg-transparent dark:md:bg-transparent p-2 md:p-0 rounded-xl border border-slate-100 dark:border-slate-800 md:border-0 shadow-sm md:shadow-none">
+                          <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                          <span>กพช. ผ่านเกณฑ์: <strong class="text-emerald-700 dark:text-emerald-300 font-black">{{ $passedActivity }}</strong> คน</span>
+                      </div>
+                      <div class="flex items-center gap-1.5 bg-white dark:bg-slate-900 md:bg-transparent dark:md:bg-transparent p-2 md:p-0 rounded-xl border border-slate-100 dark:border-slate-800 md:border-0 shadow-sm md:shadow-none">
+                          <span class="w-1.5 h-1.5 rounded-full bg-indigo-500"></span>
+                          <span>N-NET ผ่านเกณฑ์: <strong class="text-indigo-700 dark:text-indigo-300 font-black">{{ $passedNnet }}</strong> คน</span>
+                      </div>
+                  @endif
               </div>
 
               <!-- Table Action & Print Controls -->
               <div class="p-4 sm:p-5 border-b border-slate-150 dark:border-slate-800 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 bg-slate-55/10">
                   <div class="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-3">
                       <h4 class="text-base font-black text-slate-800 dark:text-white uppercase tracking-wider">
-                          กลุ่มตำบล: {{ $tumbon }}
+                          กลุ่มตำบล: {{ $tumbon == 'all' ? 'ทุกตำบล' : ($all_tumbon->firstWhere('GRP_CODE', $tumbon) ? $tumbon . ' ' . $all_tumbon->firstWhere('GRP_CODE', $tumbon)->GRP_NAME : $tumbon) }}
                       </h4>
                       <span class="hidden sm:inline w-px h-4 bg-slate-200 dark:bg-slate-700"></span>
                       <span class="text-sm text-slate-450 dark:text-slate-500 font-bold">เลือกเช็กบ็อกซ์เพื่อเลือกพิมพ์เฉพาะเจาะจงได้</span>
@@ -189,53 +213,87 @@
 
               <!-- Table Data List -->
               <div class="overflow-x-auto scrollbar-thin">
-                  <table id="studentTable" class="min-w-full text-base">
+                  <table id="studentTable" class="min-w-full text-xs text-slate-700 dark:text-slate-200">
                       <thead>
                           <tr class="bg-slate-900 text-white">
-                              <th class="p-4 text-sm font-black uppercase tracking-wider text-center no-sort w-12">
+                              <th class="py-2.5 px-3 text-xs font-bold uppercase tracking-wider text-center no-sort w-10 whitespace-nowrap">
                                   <input type="checkbox" id="selectAllStudents" class="rounded border-slate-300 text-purple-600 focus:ring-purple-500 w-4 h-4 cursor-pointer">
                               </th>
-                              <th class="p-4 text-sm font-black uppercase tracking-wider text-center no-sort w-16">รูป</th>
-                              <th class="p-4 text-sm font-black uppercase tracking-wider text-center">รหัสนักศึกษา ↕</th>
-                              <th class="p-4 text-sm font-black uppercase tracking-wider text-left">ชื่อ-นามสกุล ↕</th>
-                              <th class="p-4 text-sm font-black uppercase tracking-wider text-center">คาดว่าจะจบ ↕</th>
-                              <th class="p-4 text-sm font-black uppercase tracking-wider text-center">ชั่วโมง กพช. ↕</th>
-                              <th class="p-4 text-sm font-black uppercase tracking-wider text-center">ผล N-NET ↕</th>
-                              <th class="p-4 text-sm font-black uppercase tracking-wider text-center">สถานะภาพ ↕</th>
-                              <th class="p-4 text-sm font-black uppercase tracking-wider text-center no-sort">เครื่องมือ</th>
+                              <th class="py-2.5 px-3 text-xs font-bold uppercase tracking-wider text-center no-sort w-12 whitespace-nowrap">รูป</th>
+                              <th class="py-2.5 px-3 text-xs font-bold uppercase tracking-wider text-center whitespace-nowrap">รหัสนักศึกษา ↕</th>
+                              <th class="py-2.5 px-3 text-xs font-bold uppercase tracking-wider text-left whitespace-nowrap">ชื่อ-นามสกุล ↕</th>
+                              <th class="py-2.5 px-3 text-xs font-bold uppercase tracking-wider text-center whitespace-nowrap">คาดว่าจะจบ ↕</th>
+                              <th class="py-2.5 px-3 text-xs font-bold uppercase tracking-wider text-center whitespace-nowrap">ชั่วโมง กพช. ↕</th>
+                              <th class="py-2.5 px-3 text-xs font-bold uppercase tracking-wider text-center whitespace-nowrap">ผล N-NET ↕</th>
+                              <th class="py-2.5 px-3 text-xs font-bold uppercase tracking-wider text-center whitespace-nowrap">สถานะภาพ ↕</th>
+                              <th class="py-2.5 px-3 text-xs font-bold uppercase tracking-wider text-center no-sort whitespace-nowrap">เครื่องมือ</th>
                           </tr>
                       </thead>
                       <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
                           @foreach($data as $d)
                           <tr class="hover:bg-purple-50/20 dark:hover:bg-slate-800/40 transition-colors @if($d['lavel']==1) bg-pink-50/10 @elseif($d['lavel']==2) bg-emerald-50/10 @else bg-amber-50/10 @endif">
-                              <td class="p-4 text-center">
+                              <td class="py-2 px-3 text-center whitespace-nowrap align-middle">
                                   <input type="checkbox" class="student-select-checkbox rounded border-slate-350 dark:border-slate-750 text-purple-650 focus:ring-purple-500 w-4 h-4 cursor-pointer" data-student="{{ json_encode($d) }}">
                               </td>
-                              <td class="p-4 text-center">
-                                  <img class="w-10 h-12 object-cover rounded-xl shadow-sm border border-slate-200/60 dark:border-slate-800 mx-auto" 
+                              <td class="py-2 px-3 text-center whitespace-nowrap align-middle">
+                                  <img class="w-8 h-9 object-cover rounded-lg shadow-sm border border-slate-200/60 dark:border-slate-800 mx-auto" 
                                        src="https://phothongdlec.ac.th/storage/images/avatar/{{$d['id']}}.png" 
                                        onerror="this.src='https://phothongdlec.ac.th/storage/images/avatar/unkhonw.png'">
                               </td>
-                              <td class="p-4 text-center font-mono font-bold text-slate-700 dark:text-slate-300">{{$d['id']}}</td>
-                              <td class="p-4 font-black text-slate-800 dark:text-white text-left">{{$d['prename']}}{{$d['name']}} {{$d['surname']}}</td>
-                              <td class="p-4 text-center" data-order="{{$d['expfin']}}">
-                                  @if($d['expfin']==1) 
-                                      <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-purple-100 dark:bg-purple-950/80 text-purple-700 dark:text-purple-300 font-bold text-sm">✓</span> 
-                                  @else 
-                                      <span class="text-slate-300 dark:text-slate-650 font-bold">-</span> 
-                                  @endif
+                              <td class="py-2 px-3 text-center font-mono font-bold text-slate-700 dark:text-slate-300 text-xs whitespace-nowrap align-middle">{{$d['id']}}</td>
+                              <td class="py-2 px-3 text-left whitespace-nowrap align-middle">
+                                  <div class="inline-flex items-center gap-1.5 flex-nowrap">
+                                      <span class="font-bold text-slate-800 dark:text-white text-xs">{{$d['prename']}}{{$d['name']}} {{$d['surname']}}</span>
+                                      @if($tumbon == 'all' && !empty($d['grp_code']))
+                                          @php
+                                              $groupObj = $all_tumbon->firstWhere('GRP_CODE', $d['grp_code']);
+                                              $groupName = $groupObj ? $groupObj->GRP_NAME : '';
+                                          @endphp
+                                          <span class="inline-flex items-center text-[10px] font-bold px-1.5 py-0.5 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded border border-slate-200 dark:border-slate-700" title="{{ $groupName }}">
+                                              ศกร.{{ $d['grp_code'] }}
+                                          </span>
+                                      @endif
+                                      @if(!empty($d['blocked_reasons']))
+                                          @foreach($d['blocked_reasons'] as $reason)
+                                              <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-rose-50 text-rose-700 dark:bg-rose-950/40 dark:text-rose-300 border border-rose-200 dark:border-rose-900" title="{{ $reason }}">
+                                                  ⚠️ {{ $reason }}
+                                              </span>
+                                          @endforeach
+                                      @endif
+                                  </div>
                               </td>
-                              <td class="p-4 text-center font-black {{ $d['activity'] >= 200 ? 'text-emerald-600' : 'text-amber-500' }}">
+                              <td class="py-2 px-3 text-center whitespace-nowrap align-middle" data-order="{{$d['expfin']}}">
+                                  <div class="inline-flex items-center justify-center gap-1">
+                                      @if($d['expfin']==1) 
+                                          <span class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-purple-100 dark:bg-purple-950/80 text-purple-700 dark:text-purple-300 font-bold text-xs">✓</span> 
+                                      @else 
+                                          <span class="text-slate-300 dark:text-slate-600 font-bold text-xs">-</span> 
+                                      @endif
+                                      @if(isset($d['credit']))
+                                          <span class="text-[11px] font-bold text-purple-700 dark:text-purple-300">
+                                              ({{ $d['credit'] }} นก.)
+                                          </span>
+                                      @endif
+                                  </div>
+                              </td>
+                              <td class="py-2 px-3 text-center whitespace-nowrap align-middle font-bold text-xs {{ $d['activity'] >= 200 ? 'text-emerald-600' : 'text-amber-500' }}">
                                   {{$d['activity']}}
                               </td>
-                              <td class="p-4 text-center font-bold text-purple-650 dark:text-purple-400">{{$d['nt_sem']}}</td>
-                              <td class="p-4 text-center" data-order="{{$d['fin_cause']}}">
-                                  <span class="px-3 py-1.5 rounded-full text-[12.5px] font-black tracking-wide {{ $d['fin_cause']==1 ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300' : 'bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400' }}">
-                                      {{ $d['fin_cause']==1 ? 'จบหลักสูตร' : 'กำลังศึกษา' }}
-                                  </span>
+                              <td class="py-2 px-3 text-center whitespace-nowrap align-middle font-bold text-xs text-purple-650 dark:text-purple-400">{{$d['nt_sem']}}</td>
+                              <td class="py-2 px-3 text-center whitespace-nowrap align-middle" data-order="{{$d['fin_cause']}}">
+                                  <div class="inline-flex items-center justify-center gap-1.5">
+                                      <span class="px-2 py-0.5 rounded-full text-[11px] font-bold {{ $d['fin_cause']==1 ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300' : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400' }}">
+                                          {{ $d['fin_cause']==1 ? 'จบหลักสูตร' : 'กำลังศึกษา' }}
+                                      </span>
+                                      @if(isset($d['moral_text']))
+                                          <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700">
+                                              คุณธรรม: <span class="{{ in_array($d['ablevel1'] ?? null, [2, 3]) ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-500 dark:text-rose-400' }} font-bold">{{ $d['moral_text'] }}</span>
+                                          </span>
+                                      @endif
+                                  </div>
                               </td>
-                              <td class="p-4 text-center">
-                                  <button onclick="prepareAndPrint('single', {{ json_encode($d) }})" class="px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white rounded-xl text-sm font-black uppercase tracking-widest transition-all shadow-sm active:scale-95">
+                              <td class="py-2 px-3 text-center whitespace-nowrap align-middle">
+                                  <button onclick="prepareAndPrint('single', {{ json_encode($d) }})" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-900 text-white rounded-lg text-xs font-bold transition-all shadow-sm active:scale-95">
                                       พิมพ์บัตร
                                   </button>
                               </td>
@@ -256,7 +314,7 @@
         return `
         <div class="official-card">
             <div class="card-content-print">
-                <div class="card-header-print"><p>บัตรประจำตัวนักศึกษาระดับ ${lv}</p><p>{{ config('app.name_th') }} (กลุ่ม {{ $tumbon }})</p></div>
+                <div class="card-header-print"><p>บัตรประจำตัวนักศึกษาระดับ ${lv}</p><p>{{ config('app.name_th') }} (กลุ่ม ${s.grp_code || '{{ $tumbon == 'all' ? 'ทุกตำบล' : $tumbon }}'})</p></div>
                 <div class="card-body-print">
                     <div class="photo-box-print"><img src="https://phothongdlec.ac.th/storage/images/avatar/${s.id}.png" onerror="this.src='https://phothongdlec.ac.th/storage/images/avatar/unkhonw.png'"></div>
                     <div class="info-box-print">
@@ -344,7 +402,9 @@
 
         th, td {
             border: 1px solid #ddd !important; /* เพิ่มเส้นขอบเวลาพิมพ์ */
-            padding: 8px !important;
+            padding: 4px 6px !important;
+            font-size: 11px !important;
+            white-space: nowrap !important;
         }
 
         th {

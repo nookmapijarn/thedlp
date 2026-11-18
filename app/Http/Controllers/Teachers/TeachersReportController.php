@@ -40,6 +40,7 @@ class TeachersReportController extends Controller
             $lavel = $request->lavel;
             $semestry = $request->semestry;
             $studreport = $request->studreport;
+            $all_tumbon = $this->get_group($semestry);
         }else{
             return view('teachers.treport' ,compact('data', 'semestry', 'tumbon', 'all_tumbon', 'all_semestry', 'lavel', 'studreport'));
         }
@@ -55,6 +56,14 @@ class TeachersReportController extends Controller
             case 'เฉพาะผู้คาดว่าจะจบ':
                 $data = $this->expstudent($tumbon, $semestry, $lavel);
                 $data = collect($data)->sortBy('lavel')->toArray();
+                $data = count($data) !== 0 ? $data :  null;
+                return view('teachers.treport' ,compact('data', 'semestry', 'tumbon', 'all_tumbon', 'all_semestry', 'lavel', 'studreport'));
+              break;
+            case 'หน่วยกิตครบแต่ยังไม่จบหลักสูตร':
+            case 'หน่วยกิตครบแต่ติดเงื่อนไขจบ':
+            case 'หน่วยกิตครบแต่ติดเงื่อนไข':
+                $data = $this->creditCompleteBlockedStudent($tumbon, $semestry, $lavel);
+                $data = collect($data)->sortBy('lavel')->values()->toArray();
                 $data = count($data) !== 0 ? $data :  null;
                 return view('teachers.treport' ,compact('data', 'semestry', 'tumbon', 'all_tumbon', 'all_semestry', 'lavel', 'studreport'));
               break;
@@ -218,6 +227,113 @@ class TeachersReportController extends Controller
         return count($expstudents) !== 0 ? $expstudents : null;
     }
 
+    public function creditCompleteBlockedStudent($grp_code, $semestry, $lavel)
+    {
+        $searchLevels = ($lavel !== null) ? [$lavel] : [1, 2, 3];
+        $studentsResult = [];
+
+        foreach ($searchLevels as $i) {
+            $current_students = $this->current_student($grp_code, $semestry, $i);
+            if ($current_students->isEmpty()) {
+                continue;
+            }
+
+            $stdCodes = $current_students->pluck('STD_CODE')->toArray();
+
+            // 1. Batch load activity hours (กพช.)
+            $activities = DB::table("activity{$i}")
+                ->whereIn('STD_CODE', $stdCodes)
+                ->select('STD_CODE', DB::raw('SUM(HOUR) as total_hour'))
+                ->groupBy('STD_CODE')
+                ->pluck('total_hour', 'STD_CODE')
+                ->toArray();
+
+            // 2. Batch load sum credits (เกรด 1-4 หรือวิชาที่ลงทะเบียนในเทอมปัจจุบัน)
+            $credits = DB::table("grade{$i}")
+                ->join("subject{$i}", "grade{$i}.SUB_CODE", '=', "subject{$i}.SUB_CODE")
+                ->whereIn("grade{$i}.STD_CODE", $stdCodes)
+                ->where(function($query) use ($i, $semestry) {
+                    $query->where("grade{$i}.GRADE", 'REGEXP', '[1-4]')
+                          ->orWhere(function($subQuery) use ($i, $semestry) {
+                              $subQuery->whereNull("grade{$i}.GRADE")
+                                       ->where("grade{$i}.SEMESTRY", $semestry);
+                          });
+                })
+                ->select("grade{$i}.STD_CODE", DB::raw("SUM(subject{$i}.SUB_CREDIT) as sum_credit"))
+                ->groupBy("grade{$i}.STD_CODE")
+                ->pluck('sum_credit', 'STD_CODE')
+                ->toArray();
+
+            // โครงสร้างหน่วยกิต: ประถม >= 48, ม.ต้น >= 56, ม.ปลาย >= 76
+            $minCredits = ($i == 1) ? 48 : (($i == 2) ? 56 : 76);
+
+            foreach ($current_students as $s) {
+                // ต้องยังไม่จบหลักสูตร (FIN_CAUSE != 1)
+                if ($s->FIN_CAUSE == 1) {
+                    continue;
+                }
+
+                $sum_credit = $credits[$s->STD_CODE] ?? 0;
+                if ($sum_credit < $minCredits) {
+                    continue;
+                }
+
+                $activityHour = $activities[$s->STD_CODE] ?? 0;
+                $hasNnet = (!empty($s->NT_SEM) || !empty($s->NT_NOSEM) || $s->ABLEVEL2 == 1 || $s->ABLEVEL2 == 2);
+                $moralLevel = $s->ABLEVEL1;
+                $moralPass = ($moralLevel !== null && $moralLevel !== '' && (int)$moralLevel >= 2);
+
+                $blockedReasons = [];
+                if ($activityHour < 200) {
+                    $blockedReasons[] = "กพช. ไม่ครบ ({$activityHour}/200 ชม.)";
+                }
+                if (!$hasNnet) {
+                    $blockedReasons[] = "ยังไม่ผ่าน N-NET";
+                }
+                if ($moralLevel === null || $moralLevel === '') {
+                    $blockedReasons[] = "ไม่ได้ประเมินคุณธรรม";
+                } elseif ((int)$moralLevel < 2) {
+                    $moralName = ((int)$moralLevel == 1) ? 'พอใช้' : 'ปรับปรุง';
+                    $blockedReasons[] = "คุณธรรมต่ำกว่าดี ({$moralName})";
+                }
+
+                // หากติดเงื่อนไขอย่างน้อย 1 อย่าง ให้รวมไว้ในรายงาน
+                if (count($blockedReasons) > 0) {
+                    $moralMap = [
+                        0 => 'ปรับปรุง',
+                        1 => 'พอใช้',
+                        2 => 'ดี',
+                        3 => 'ดีมาก',
+                    ];
+                    $moralText = ($moralLevel !== null && $moralLevel !== '') 
+                        ? ($moralMap[(int)$moralLevel] ?? "ระดับ {$moralLevel}") 
+                        : 'ยังไม่ประเมิน';
+
+                    $studentsResult[] = [
+                        'id'              => $s->ID,
+                        'cardid'          => $s->CARDID,
+                        'lavel'           => $i,
+                        'prename'         => $s->PRENAME, 
+                        'name'            => $s->NAME,
+                        'surname'         => $s->SURNAME,
+                        'fin_cause'       => $s->FIN_CAUSE,
+                        'expfin'          => 1,
+                        'activity'        => $activityHour,
+                        'nt_sem'          => (!empty($s->NT_SEM) ? 'ผ่านแล้ว' : (!empty($s->NT_NOSEM) ? 'E-Exam': 'ยังไม่ผ่าน')),
+                        'grp_code'        => $s->GRP_CODE,
+                        'ablevel1'        => $moralLevel,
+                        'credit'          => $sum_credit,
+                        'min_credit'      => $minCredits,
+                        'moral_text'      => $moralText,
+                        'blocked_reasons' => $blockedReasons,
+                    ];
+                }
+            }
+        }
+
+        return count($studentsResult) !== 0 ? $studentsResult : null;
+    }
+
     public function unfinishstudent($grp_code, $semestry, $lavel)
     {
         $unfinishstudent = [];
@@ -358,37 +474,38 @@ class TeachersReportController extends Controller
     
     public function current_student($grp_code, $semestry, $lavel)
     {
-        // กำหนดค่าเริ่มต้นให้กับ $grp_code
-        $grp_code = ($grp_code == '0000' || $grp_code == ' ' || $grp_code == null) ? "[0-9]" : $grp_code;
+        $isAll = ($grp_code === 'all' || $grp_code === '0000' || $grp_code === ' ' || empty($grp_code) || $grp_code === 'ทุกตำบล' || $grp_code === '[0-9]');
     
         if($lavel != null){
-
             // เลือกระดับชั้น 
-            // ถ้ารหัสกลุ่มเป็น "[0-9]" จะใช้ REGEXP สำหรับการจับคู่รูปแบบ (Regular Expression)
-            // ถ้าไม่ใช่จะใช้การจับคู่แบบตรงๆ ด้วย =
             $tgrade = "grade{$lavel}";
             $tstudent = "student{$lavel}";
 
-            $current_students = DB::table($tgrade)
-            ->where("$tgrade.SEMESTRY", $semestry)
-            ->where("$tgrade.GRP_CODE", $grp_code)
-            ->join($tstudent, "$tgrade.STD_CODE", '=', "$tstudent.STD_CODE")
-            ->select(
-                "$tstudent.STD_CODE",
-                "$tstudent.ID",
-                "$tstudent.CARDID",
-                "$tstudent.PRENAME",
-                "$tstudent.NAME",
-                "$tstudent.SURNAME",
-                "$tstudent.FIN_CAUSE",
-                "$tstudent.NT_SEM",
-                "$tstudent.NT_NOSEM",
-                "$tstudent.GRP_CODE",
-                "$tstudent.ABLEVEL1",
-                "$tstudent.ABLEVEL2",
-            )
-            ->distinct()
-            ->get();
+            $query = DB::table($tgrade)
+                ->where("$tgrade.SEMESTRY", $semestry);
+
+            if (!$isAll) {
+                $query->where("$tgrade.GRP_CODE", $grp_code);
+            }
+
+            $current_students = $query
+                ->join($tstudent, "$tgrade.STD_CODE", '=', "$tstudent.STD_CODE")
+                ->select(
+                    "$tstudent.STD_CODE",
+                    "$tstudent.ID",
+                    "$tstudent.CARDID",
+                    "$tstudent.PRENAME",
+                    "$tstudent.NAME",
+                    "$tstudent.SURNAME",
+                    "$tstudent.FIN_CAUSE",
+                    "$tstudent.NT_SEM",
+                    "$tstudent.NT_NOSEM",
+                    "$tstudent.GRP_CODE",
+                    "$tstudent.ABLEVEL1",
+                    "$tstudent.ABLEVEL2"
+                )
+                ->distinct()
+                ->get();
 
             return $current_students;
 
@@ -402,11 +519,29 @@ class TeachersReportController extends Controller
             foreach ($gradeTables as $index => $tgrade) {
                 $tstudent = $studentTables[$index];
         
-                $current_students = DB::table($tgrade)
-                    ->where("$tgrade.SEMESTRY", $semestry)
-                    ->where("$tgrade.GRP_CODE", '=', $grp_code)
+                $query = DB::table($tgrade)
+                    ->where("$tgrade.SEMESTRY", $semestry);
+
+                if (!$isAll) {
+                    $query->where("$tgrade.GRP_CODE", '=', $grp_code);
+                }
+
+                $current_students = $query
                     ->join($tstudent, "$tgrade.STD_CODE", '=', "$tstudent.STD_CODE")
-                    ->select("$tstudent.STD_CODE", "$tstudent.ID", "$tstudent.NAME", "$tstudent.SURNAME", "$tstudent.FIN_CAUSE", "$tstudent.NT_SEM", "$tstudent.NT_NOSEM", "$tstudent.GRP_CODE",  "$tstudent.ABLEVEL1", "$tstudent.ABLEVEL2")
+                    ->select(
+                        "$tstudent.STD_CODE",
+                        "$tstudent.ID",
+                        "$tstudent.CARDID",
+                        "$tstudent.PRENAME",
+                        "$tstudent.NAME",
+                        "$tstudent.SURNAME",
+                        "$tstudent.FIN_CAUSE",
+                        "$tstudent.NT_SEM",
+                        "$tstudent.NT_NOSEM",
+                        "$tstudent.GRP_CODE",
+                        "$tstudent.ABLEVEL1",
+                        "$tstudent.ABLEVEL2"
+                    )
                     ->distinct()
                     ->get();
         
@@ -420,7 +555,7 @@ class TeachersReportController extends Controller
 
     public function not_current_student($grp_code, $semestry, $lavel)
     {
-        $grp_code = ($grp_code == '0000' || $grp_code == ' ' || $grp_code == null) ? "[0-9]" : $grp_code;
+        $isAll = ($grp_code === 'all' || $grp_code === '0000' || $grp_code === ' ' || empty($grp_code) || $grp_code === 'ทุกตำบล' || $grp_code === '[0-9]');
 
         // แยกส่วนปีและภาคเรียน
         list($current_year, $current_term) = explode('/', $semestry);
@@ -442,45 +577,101 @@ class TeachersReportController extends Controller
             }
         }
                 
-        $grp_code = ($grp_code == '0000' || $grp_code == ' ' || $grp_code == null) ? "[0-9]" : $grp_code;
         $students = collect(); // ใช้ collection เพื่อสะสมข้อมูลจากทุกระดับชั้น
     
         if($lavel != null){
-
             // เลือกระดับชั้น
             $tgrade = "grade{$lavel}";
             $tstudent = "student{$lavel}";
 
-            $not_current_student = DB::table($tgrade)
+            $query = DB::table($tgrade)
                 ->join($tstudent, "$tgrade.STD_CODE", '=', "$tstudent.STD_CODE")
                 ->whereNotIn("$tgrade.SEMESTRY", [$semestry]) // นักศึกษาที่ยังไม่ได้ลงทะเบียนในภาคเรียนปัจจุบัน
-                ->whereIn("$tgrade.SEMESTRY", $valid_semesters) // เลือกเฉพาะภาคเรียนที่ต้องการ (ไม่เกิน 10 ภาคเรียนย้อนหลัง)
-                ->where("$tgrade.GRP_CODE", '=', $grp_code)
-                //->whereNull("$tgrade.GRADE") // ตรวจสอบว่ารายการนี้ยังไม่ได้รับเกรด
-                ->where("$tstudent.FIN_SEM", '=', null) // fin_sem != 1-9
-                ->select("$tstudent.STD_CODE", "$tstudent.ID", "$tstudent.NAME", "$tstudent.SURNAME", "$tstudent.FIN_CAUSE", "$tstudent.NT_SEM", "$tstudent.NT_NOSEM", "$tstudent.GRP_CODE",  "$tstudent.ABLEVEL1", "$tstudent.ABLEVEL2")
-                ->groupBy("$tstudent.STD_CODE", "$tstudent.ID", "$tstudent.NAME", "$tstudent.SURNAME", "$tstudent.FIN_CAUSE", "$tstudent.NT_SEM", "$tstudent.NT_NOSEM", "$tstudent.GRP_CODE",  "$tstudent.ABLEVEL1", "$tstudent.ABLEVEL2")
+                ->whereIn("$tgrade.SEMESTRY", $valid_semesters); // เลือกเฉพาะภาคเรียนที่ต้องการ (ไม่เกิน 10 ภาคเรียนย้อนหลัง)
+
+            if (!$isAll) {
+                $query->where("$tgrade.GRP_CODE", '=', $grp_code);
+            }
+
+            $not_current_student = $query
+                ->whereNull("$tstudent.FIN_SEM") // fin_sem != 1-9
+                ->select(
+                    "$tstudent.STD_CODE",
+                    "$tstudent.ID",
+                    "$tstudent.CARDID",
+                    "$tstudent.PRENAME",
+                    "$tstudent.NAME",
+                    "$tstudent.SURNAME",
+                    "$tstudent.FIN_CAUSE",
+                    "$tstudent.NT_SEM",
+                    "$tstudent.NT_NOSEM",
+                    "$tstudent.GRP_CODE",
+                    "$tstudent.ABLEVEL1",
+                    "$tstudent.ABLEVEL2"
+                )
+                ->groupBy(
+                    "$tstudent.STD_CODE",
+                    "$tstudent.ID",
+                    "$tstudent.CARDID",
+                    "$tstudent.PRENAME",
+                    "$tstudent.NAME",
+                    "$tstudent.SURNAME",
+                    "$tstudent.FIN_CAUSE",
+                    "$tstudent.NT_SEM",
+                    "$tstudent.NT_NOSEM",
+                    "$tstudent.GRP_CODE",
+                    "$tstudent.ABLEVEL1",
+                    "$tstudent.ABLEVEL2"
+                )
                 ->get();
 
             return $not_current_student;
 
         } else {
-            
             // ไม่เลือกระดับ
-
             for ($i = 1; $i <= 3; $i++) {
                 $tgrade = "grade{$i}";
                 $tstudent = "student{$i}";
         
-                $not_current_student = DB::table($tgrade)
+                $query = DB::table($tgrade)
                     ->join($tstudent, "$tgrade.STD_CODE", '=', "$tstudent.STD_CODE")
                     ->whereNotIn("$tgrade.SEMESTRY", [$semestry]) // นักศึกษาที่ยังไม่ได้ลงทะเบียนในภาคเรียนปัจจุบัน
-                    ->whereIn("$tgrade.SEMESTRY", $valid_semesters) // เลือกเฉพาะภาคเรียนที่ต้องการ (ไม่เกิน 10 ภาคเรียนย้อนหลัง)
-                    ->where("$tgrade.GRP_CODE", '=', $grp_code)
-                    //->whereNull("$tgrade.GRADE") // ตรวจสอบว่ารายการนี้ยังไม่ได้รับเกรด
-                    ->where("$tstudent.FIN_SEM", '=', null) // fin_sem != 1-9
-                    ->select("$tstudent.STD_CODE", "$tstudent.ID", "$tstudent.NAME", "$tstudent.SURNAME", "$tstudent.FIN_CAUSE", "$tstudent.NT_SEM", "$tstudent.NT_NOSEM", "$tstudent.GRP_CODE",  "$tstudent.ABLEVEL1", "$tstudent.ABLEVEL2")
-                    ->groupBy("$tstudent.STD_CODE", "$tstudent.ID", "$tstudent.NAME", "$tstudent.SURNAME", "$tstudent.FIN_CAUSE", "$tstudent.NT_SEM", "$tstudent.NT_NOSEM", "$tstudent.GRP_CODE",  "$tstudent.ABLEVEL1", "$tstudent.ABLEVEL2")
+                    ->whereIn("$tgrade.SEMESTRY", $valid_semesters); // เลือกเฉพาะภาคเรียนที่ต้องการ (ไม่เกิน 10 ภาคเรียนย้อนหลัง)
+
+                if (!$isAll) {
+                    $query->where("$tgrade.GRP_CODE", '=', $grp_code);
+                }
+
+                $not_current_student = $query
+                    ->whereNull("$tstudent.FIN_SEM") // fin_sem != 1-9
+                    ->select(
+                        "$tstudent.STD_CODE",
+                        "$tstudent.ID",
+                        "$tstudent.CARDID",
+                        "$tstudent.PRENAME",
+                        "$tstudent.NAME",
+                        "$tstudent.SURNAME",
+                        "$tstudent.FIN_CAUSE",
+                        "$tstudent.NT_SEM",
+                        "$tstudent.NT_NOSEM",
+                        "$tstudent.GRP_CODE",
+                        "$tstudent.ABLEVEL1",
+                        "$tstudent.ABLEVEL2"
+                    )
+                    ->groupBy(
+                        "$tstudent.STD_CODE",
+                        "$tstudent.ID",
+                        "$tstudent.CARDID",
+                        "$tstudent.PRENAME",
+                        "$tstudent.NAME",
+                        "$tstudent.SURNAME",
+                        "$tstudent.FIN_CAUSE",
+                        "$tstudent.NT_SEM",
+                        "$tstudent.NT_NOSEM",
+                        "$tstudent.GRP_CODE",
+                        "$tstudent.ABLEVEL1",
+                        "$tstudent.ABLEVEL2"
+                    )
                     ->get();
                 
                 $students = $students->merge($not_current_student); // รวมข้อมูลจากทุกระดับชั้น
